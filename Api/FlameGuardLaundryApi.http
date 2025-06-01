@@ -1,0 +1,6 @@
+@FlameGuardLaundryApi_HostAddress = http://localhost:5004
+
+GET {{FlameGuardLaundryApi_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
