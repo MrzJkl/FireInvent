@@ -1,11 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace FlameGuardLaundry.Database.Models
 {
@@ -17,19 +12,19 @@ namespace FlameGuardLaundry.Database.Models
 
         [Required]
         [ForeignKey(nameof(Item))]
-        public Guid ItemId { get; init; }
+        public Guid ItemId { get; set; }
 
         [Required]
         [ForeignKey(nameof(Person))]
-        public Guid PersonId { get; init; }
+        public Guid PersonId { get; set; }
 
         [Required]
-        public DateTime AssignedFrom { get; init; }
+        public DateTime AssignedFrom { get; set; }
 
-        public DateTime? AssignedUntil { get; init; }
+        public DateTime? AssignedUntil { get; set; }
 
-        public virtual ClothingItem Item { get; init; } = null!;
+        public virtual ClothingItem Item { get; set; } = null!;
 
-        public virtual Person Person { get; init; } = null!;
+        public virtual Person Person { get; set; } = null!;
     }
 }

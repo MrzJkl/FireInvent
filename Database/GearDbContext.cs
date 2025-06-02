@@ -9,7 +9,7 @@ public class GearDbContext(DbContextOptions<GearDbContext> options) : DbContext(
 
     public DbSet<ClothingVariant> ClothingVariants => Set<ClothingVariant>();
 
-    public DbSet<ClothingModel> ClothingModels => Set<ClothingModel>();
+    public DbSet<ClothingProduct> ClothingProducts => Set<ClothingProduct>();
 
     public DbSet<Person> Persons => Set<Person>();
 

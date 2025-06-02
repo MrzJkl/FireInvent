@@ -1,4 +1,4 @@
-﻿using FlameGuardLaundry.Shared.Models;
+﻿using FlameGuardLaundry.Contract;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 

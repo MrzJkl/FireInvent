@@ -1,6 +1,6 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using FlameGuardLaundry.Contract;
+using Microsoft.EntityFrameworkCore;
 using System.ComponentModel.DataAnnotations;
-using System.Xml.Linq;
 
 namespace FlameGuardLaundry.Database.Models;
 
@@ -15,12 +15,10 @@ public record Person
 
     [Required]
     [MaxLength(ModelConstants.MaxStringLength)]
-    [MinLength(1)]
     public string FirstName { get; set; } = string.Empty;
 
     [Required]
     [MaxLength(ModelConstants.MaxStringLength)]
-    [MinLength(1)]
     public string LastName { get; set; } = string.Empty;
 
     [MaxLength(ModelConstants.MaxStringLengthLong)]
@@ -32,7 +30,7 @@ public record Person
     [MaxLength(ModelConstants.MaxStringLength)]
     public string? ExternalId { get; set; }
 
-    public virtual ICollection<ClothingItem> AssignedItems { get; set; } = [];
+    public virtual ICollection<ClothingItemAssignmentHistory> AssignedItems { get; set; } = [];
 
     public virtual ICollection<Department> Departments { get; set; } = [];
 }

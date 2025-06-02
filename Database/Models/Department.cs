@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using FlameGuardLaundry.Contract;
+using Microsoft.EntityFrameworkCore;
 using System.ComponentModel.DataAnnotations;
 
 namespace FlameGuardLaundry.Database.Models;
@@ -12,7 +13,6 @@ public record Department
 
     [Required]
     [MaxLength(ModelConstants.MaxStringLength)]
-    [MinLength(1)]
     public string Name { get; set; } = string.Empty;
 
     [MaxLength(ModelConstants.MaxStringLengthLong)]

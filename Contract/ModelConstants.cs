@@ -1,4 +1,4 @@
-﻿namespace FlameGuardLaundry.Database;
+﻿namespace FlameGuardLaundry.Contract;
 
 public static class ModelConstants
 {

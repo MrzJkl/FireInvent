@@ -1,4 +1,4 @@
-﻿namespace FlameGuardLaundry.Shared.Models;
+﻿namespace FlameGuardLaundry.Contract;
 
 public enum MaintenanceType
 {

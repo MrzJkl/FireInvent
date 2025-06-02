@@ -12,7 +12,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace FlameGuardLaundry.Database.Migrations
 {
     [DbContext(typeof(GearDbContext))]
-    [Migration("20250601125320_InitialCreate")]
+    [Migration("20250602083714_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -53,9 +53,6 @@ namespace FlameGuardLaundry.Database.Migrations
                         .HasMaxLength(255)
                         .HasColumnType("character varying(255)");
 
-                    b.Property<Guid?>("PersonId")
-                        .HasColumnType("uuid");
-
                     b.Property<DateTime>("PurchaseDate")
                         .HasColumnType("timestamp with time zone");
 
@@ -72,8 +69,6 @@ namespace FlameGuardLaundry.Database.Migrations
 
                     b.HasIndex("Identifier")
                         .IsUnique();
-
-                    b.HasIndex("PersonId");
 
                     b.HasIndex("StorageLocationId");
 
@@ -110,7 +105,7 @@ namespace FlameGuardLaundry.Database.Migrations
                     b.ToTable("ClothingItemAssignmentHistory");
                 });
 
-            modelBuilder.Entity("FlameGuardLaundry.Database.Models.ClothingModel", b =>
+            modelBuilder.Entity("FlameGuardLaundry.Database.Models.ClothingProduct", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -142,7 +137,7 @@ namespace FlameGuardLaundry.Database.Migrations
                     b.HasIndex("Name", "Manufacturer")
                         .IsUnique();
 
-                    b.ToTable("ClothingModels");
+                    b.ToTable("ClothingProducts");
                 });
 
             modelBuilder.Entity("FlameGuardLaundry.Database.Models.ClothingVariant", b =>
@@ -155,19 +150,19 @@ namespace FlameGuardLaundry.Database.Migrations
                         .HasMaxLength(2000)
                         .HasColumnType("character varying(2000)");
 
-                    b.Property<Guid>("ModelId")
-                        .HasColumnType("uuid");
-
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(255)
                         .HasColumnType("character varying(255)");
 
+                    b.Property<Guid>("ProductId")
+                        .HasColumnType("uuid");
+
                     b.HasKey("Id");
 
                     b.HasIndex("Name");
 
-                    b.HasIndex("ModelId", "Name")
+                    b.HasIndex("ProductId", "Name")
                         .IsUnique();
 
                     b.ToTable("ClothingVariants");
@@ -304,10 +299,6 @@ namespace FlameGuardLaundry.Database.Migrations
 
             modelBuilder.Entity("FlameGuardLaundry.Database.Models.ClothingItem", b =>
                 {
-                    b.HasOne("FlameGuardLaundry.Database.Models.Person", null)
-                        .WithMany("AssignedItems")
-                        .HasForeignKey("PersonId");
-
                     b.HasOne("FlameGuardLaundry.Database.Models.StorageLocation", "StorageLocation")
                         .WithMany("StoredItems")
                         .HasForeignKey("StorageLocationId");
@@ -332,7 +323,7 @@ namespace FlameGuardLaundry.Database.Migrations
                         .IsRequired();
 
                     b.HasOne("FlameGuardLaundry.Database.Models.Person", "Person")
-                        .WithMany()
+                        .WithMany("AssignedItems")
                         .HasForeignKey("PersonId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -344,13 +335,13 @@ namespace FlameGuardLaundry.Database.Migrations
 
             modelBuilder.Entity("FlameGuardLaundry.Database.Models.ClothingVariant", b =>
                 {
-                    b.HasOne("FlameGuardLaundry.Database.Models.ClothingModel", "Model")
+                    b.HasOne("FlameGuardLaundry.Database.Models.ClothingProduct", "Product")
                         .WithMany("Variants")
-                        .HasForeignKey("ModelId")
+                        .HasForeignKey("ProductId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("Model");
+                    b.Navigation("Product");
                 });
 
             modelBuilder.Entity("FlameGuardLaundry.Database.Models.Maintenance", b =>
@@ -371,7 +362,7 @@ namespace FlameGuardLaundry.Database.Migrations
                     b.Navigation("Maintenances");
                 });
 
-            modelBuilder.Entity("FlameGuardLaundry.Database.Models.ClothingModel", b =>
+            modelBuilder.Entity("FlameGuardLaundry.Database.Models.ClothingProduct", b =>
                 {
                     b.Navigation("Variants");
                 });

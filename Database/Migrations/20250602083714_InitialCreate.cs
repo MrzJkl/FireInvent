@@ -12,7 +12,7 @@ namespace FlameGuardLaundry.Database.Migrations
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.CreateTable(
-                name: "ClothingModels",
+                name: "ClothingProducts",
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
@@ -23,7 +23,7 @@ namespace FlameGuardLaundry.Database.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_ClothingModels", x => x.Id);
+                    table.PrimaryKey("PK_ClothingProducts", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -73,7 +73,7 @@ namespace FlameGuardLaundry.Database.Migrations
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
-                    ModelId = table.Column<Guid>(type: "uuid", nullable: false),
+                    ProductId = table.Column<Guid>(type: "uuid", nullable: false),
                     Name = table.Column<string>(type: "character varying(255)", maxLength: 255, nullable: false),
                     AdditionalSpecs = table.Column<string>(type: "character varying(2000)", maxLength: 2000, nullable: true)
                 },
@@ -81,9 +81,9 @@ namespace FlameGuardLaundry.Database.Migrations
                 {
                     table.PrimaryKey("PK_ClothingVariants", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_ClothingVariants_ClothingModels_ModelId",
-                        column: x => x.ModelId,
-                        principalTable: "ClothingModels",
+                        name: "FK_ClothingVariants_ClothingProducts_ProductId",
+                        column: x => x.ProductId,
+                        principalTable: "ClothingProducts",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
@@ -122,8 +122,7 @@ namespace FlameGuardLaundry.Database.Migrations
                     StorageLocationId = table.Column<Guid>(type: "uuid", nullable: true),
                     Condition = table.Column<int>(type: "integer", nullable: false),
                     PurchaseDate = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    RetirementDate = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
-                    PersonId = table.Column<Guid>(type: "uuid", nullable: true)
+                    RetirementDate = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -134,11 +133,6 @@ namespace FlameGuardLaundry.Database.Migrations
                         principalTable: "ClothingVariants",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_ClothingItems_Persons_PersonId",
-                        column: x => x.PersonId,
-                        principalTable: "Persons",
-                        principalColumn: "Id");
                     table.ForeignKey(
                         name: "FK_ClothingItems_StorageLocations_StorageLocationId",
                         column: x => x.StorageLocationId,
@@ -212,11 +206,6 @@ namespace FlameGuardLaundry.Database.Migrations
                 unique: true);
 
             migrationBuilder.CreateIndex(
-                name: "IX_ClothingItems_PersonId",
-                table: "ClothingItems",
-                column: "PersonId");
-
-            migrationBuilder.CreateIndex(
                 name: "IX_ClothingItems_StorageLocationId",
                 table: "ClothingItems",
                 column: "StorageLocationId");
@@ -227,31 +216,31 @@ namespace FlameGuardLaundry.Database.Migrations
                 column: "VariantId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_ClothingModels_Manufacturer",
-                table: "ClothingModels",
+                name: "IX_ClothingProducts_Manufacturer",
+                table: "ClothingProducts",
                 column: "Manufacturer");
 
             migrationBuilder.CreateIndex(
-                name: "IX_ClothingModels_Name",
-                table: "ClothingModels",
+                name: "IX_ClothingProducts_Name",
+                table: "ClothingProducts",
                 column: "Name");
 
             migrationBuilder.CreateIndex(
-                name: "IX_ClothingModels_Name_Manufacturer",
-                table: "ClothingModels",
+                name: "IX_ClothingProducts_Name_Manufacturer",
+                table: "ClothingProducts",
                 columns: new[] { "Name", "Manufacturer" },
-                unique: true);
-
-            migrationBuilder.CreateIndex(
-                name: "IX_ClothingVariants_ModelId_Name",
-                table: "ClothingVariants",
-                columns: new[] { "ModelId", "Name" },
                 unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "IX_ClothingVariants_Name",
                 table: "ClothingVariants",
                 column: "Name");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_ClothingVariants_ProductId_Name",
+                table: "ClothingVariants",
+                columns: new[] { "ProductId", "Name" },
+                unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "IX_DepartmentPerson_PersonsId",
@@ -314,19 +303,19 @@ namespace FlameGuardLaundry.Database.Migrations
                 name: "Departments");
 
             migrationBuilder.DropTable(
+                name: "Persons");
+
+            migrationBuilder.DropTable(
                 name: "ClothingItems");
 
             migrationBuilder.DropTable(
                 name: "ClothingVariants");
 
             migrationBuilder.DropTable(
-                name: "Persons");
-
-            migrationBuilder.DropTable(
                 name: "StorageLocations");
 
             migrationBuilder.DropTable(
-                name: "ClothingModels");
+                name: "ClothingProducts");
         }
     }
 }

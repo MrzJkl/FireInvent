@@ -1,4 +1,4 @@
-﻿using FlameGuardLaundry.Shared.Models;
+﻿using FlameGuardLaundry.Contract;
 using Microsoft.EntityFrameworkCore;
 using System.ComponentModel.DataAnnotations;
 
@@ -7,18 +7,16 @@ namespace FlameGuardLaundry.Database.Models;
 [Index(nameof(Name), nameof(Manufacturer), IsUnique = true)]
 [Index(nameof(Name))]
 [Index(nameof(Manufacturer))]
-public record ClothingModel 
+public record ClothingProduct
 {
     [Key]
     public Guid Id { get; init; }
 
     [Required]
-    [MinLength(1)]
     [MaxLength(ModelConstants.MaxStringLength)]
     public string Name { get; set; } = string.Empty;
 
     [Required]
-    [MinLength(1)]
     [MaxLength(ModelConstants.MaxStringLength)]
     public string Manufacturer { get; set; } = string.Empty;
 
