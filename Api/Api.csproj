@@ -11,6 +11,7 @@
     <Title>FlameGuard Laundry</Title>
     <Authors>Moritz Jökel</Authors>
     <Product>FlameGuard Laundry</Product>
+    <UserSecretsId>8b6efe64-bdb1-4dca-9b76-5f64be0e910a</UserSecretsId>
   </PropertyGroup>
 
   <ItemGroup>
