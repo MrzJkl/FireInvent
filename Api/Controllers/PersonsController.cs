@@ -5,32 +5,32 @@ using Microsoft.AspNetCore.Mvc;
 namespace FlameGuardLaundry.Api.Controllers
 {
     [ApiController]
-    [Route("storageLocations")]
-    public class StorageLocationsController(StorageLocationService locationService) : ControllerBase
+    [Route("persons")]
+    public class PersonsController(PersonService personService) : ControllerBase
     {
         [HttpGet]
-        public async Task<ActionResult<List<StorageLocationModel>>> GetAll()
+        public async Task<ActionResult<List<PersonModel>>> GetAll()
         {
-            var locations = await locationService.GetAllStorageLocationsAsync();
-            return Ok(locations);
+            var persons = await personService.GetAllPersonsAsync();
+            return Ok(persons);
         }
 
         [HttpGet("{id:guid}")]
-        public async Task<ActionResult<StorageLocationModel>> GetById(Guid id)
+        public async Task<ActionResult<PersonModel>> GetById(Guid id)
         {
-            var location = await locationService.GetStorageLocationByIdAsync(id);
-            if (location is null)
+            var person = await personService.GetPersonByIdAsync(id);
+            if (person is null)
                 return NotFound();
 
-            return Ok(location);
+            return Ok(person);
         }
 
         [HttpPost]
-        public async Task<ActionResult<StorageLocationModel>> Create(StorageLocationModel model)
+        public async Task<ActionResult<PersonModel>> Create(PersonModel model)
         {
             try
             {
-                var created = await locationService.CreateStorageLocationAsync(model);
+                var created = await personService.CreatePersonAsync(model);
                 return CreatedAtAction(nameof(GetById), new { id = created.Id }, created);
             }
             catch (InvalidOperationException ex)
@@ -40,14 +40,14 @@ namespace FlameGuardLaundry.Api.Controllers
         }
 
         [HttpPut("{id:guid}")]
-        public async Task<IActionResult> Update(Guid id, StorageLocationModel model)
+        public async Task<IActionResult> Update(Guid id, PersonModel model)
         {
             if (id != model.Id)
                 return BadRequest("ID mismatch.");
 
             try
             {
-                var success = await locationService.UpdateStorageLocationAsync(model);
+                var success = await personService.UpdatePersonAsync(model);
                 return success ? NoContent() : NotFound();
             }
             catch (InvalidOperationException ex)
@@ -59,7 +59,7 @@ namespace FlameGuardLaundry.Api.Controllers
         [HttpDelete("{id:guid}")]
         public async Task<IActionResult> Delete(Guid id)
         {
-            var success = await locationService.DeleteStorageLocationAsync(id);
+            var success = await personService.DeletePersonAsync(id);
             return success ? NoContent() : NotFound();
         }
     }

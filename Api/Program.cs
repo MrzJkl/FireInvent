@@ -12,6 +12,8 @@ builder.Services.AddSwaggerGen();
 
 builder.Services.AddScoped<DepartmentService>();
 builder.Services.AddScoped<StorageLocationService>();
+builder.Services.AddScoped<PersonService>();
+builder.Services.AddScoped<ClothingProductService>();
 
 builder.Services.AddControllers();
 
