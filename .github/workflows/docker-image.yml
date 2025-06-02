@@ -29,4 +29,4 @@ jobs:
       with:
         file: ./Api/Dockerfile
         push: true
-        tags: ghcr.io/MrzJkl/flameguardlaundry:latest
+        tags: ghcr.io/mrzjkl/flameguardlaundry:latest
