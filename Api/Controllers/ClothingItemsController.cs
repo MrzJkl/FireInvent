@@ -7,7 +7,7 @@ namespace FlameGuardLaundry.Api.Controllers
 {
     [ApiController]
     [Route("clothingItems")]
-    public class ClothingItemsController(ClothingItemService itemService) : ControllerBase
+    public class ClothingItemsController(ClothingItemService itemService, ClothingItemAssignmentHistoryService assignmentHistoryService, MaintenanceService maintenanceService) : ControllerBase
     {
         [HttpGet]
         public async Task<ActionResult<List<ClothingItemModel>>> GetAll()
@@ -45,6 +45,20 @@ namespace FlameGuardLaundry.Api.Controllers
         {
             var success = await itemService.DeleteClothingItemAsync(id);
             return success ? NoContent() : NotFound();
+        }
+
+        [HttpGet("{id:guid}/assignments")]
+        public async Task<ActionResult<List<ClothingItemAssignmentHistoryModel>>> GetAssignmentsForItem(Guid id)
+        {
+            var assignments = await assignmentHistoryService.GetAssignmentsForItemAsync(id);
+            return Ok(assignments);
+        }
+
+        [HttpGet("{id:guid}/maintenance")]
+        public async Task<ActionResult<List<MaintenanceModel>>> GetMaintenanceForItem(Guid id)
+        {
+            var maintenances = await maintenanceService.GetMaintenancesForItemAsync(id);
+            return Ok(maintenances);
         }
     }
 }

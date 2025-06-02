@@ -17,6 +17,8 @@ builder.Services.AddScoped<PersonService>();
 builder.Services.AddScoped<ClothingProductService>();
 builder.Services.AddScoped<ClothingVariantService>();
 builder.Services.AddScoped<ClothingItemService>();
+builder.Services.AddScoped<MaintenanceService>();
+builder.Services.AddScoped<ClothingItemAssignmentHistoryService>();
 
 builder.Services.AddControllers();
 

@@ -18,4 +18,6 @@ public class GearDbContext(DbContextOptions<GearDbContext> options) : DbContext(
     public DbSet<StorageLocation> StorageLocations => Set<StorageLocation>();
 
     public DbSet<Maintenance> Maintenances => Set<Maintenance>();
+
+    public DbSet<ClothingItemAssignmentHistory> ClothingItemAssignmentHistories => Set<ClothingItemAssignmentHistory>();
 }

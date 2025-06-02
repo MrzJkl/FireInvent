@@ -50,5 +50,12 @@ namespace FlameGuardLaundry.Api.Controllers
             var success = await variantService.DeleteVariantAsync(id);
             return success ? NoContent() : NotFound();
         }
+
+        [HttpGet("{id:guid}/items")]
+        public async Task<ActionResult<List<ClothingItemModel>>> GetItemsForVariant(Guid id)
+        {
+            var items = await variantService.GetItemsForVariantAsync(id);
+            return Ok(items);
+        }
     }
 }

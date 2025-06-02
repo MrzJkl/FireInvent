@@ -98,5 +98,27 @@ namespace FlameGuardLaundry.Shared.Services
             await context.SaveChangesAsync();
             return true;
         }
+
+        public async Task<List<ClothingItemModel>> GetItemsForVariantAsync(Guid variantId)
+        {
+            var variantExists = await context.ClothingVariants.AnyAsync(v => v.Id == variantId);
+            if (!variantExists)
+                throw new NotFoundException($"ClothingVariant with ID {variantId} not found.");
+
+            return await context.ClothingItems
+                .Where(i => i.VariantId == variantId)
+                .AsNoTracking()
+                .Select(i => new ClothingItemModel
+                {
+                    Id = i.Id,
+                    VariantId = i.VariantId,
+                    Identifier = i.Identifier,
+                    StorageLocationId = i.StorageLocationId,
+                    Condition = i.Condition,
+                    PurchaseDate = i.PurchaseDate,
+                    RetirementDate = i.RetirementDate
+                })
+                .ToListAsync();
+        }
     }
 }
