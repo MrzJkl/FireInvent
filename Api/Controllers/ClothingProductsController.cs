@@ -1,4 +1,5 @@
-﻿using FlameGuardLaundry.Shared.Models;
+﻿using FlameGuardLaundry.Shared.Exceptions;
+using FlameGuardLaundry.Shared.Models;
 using FlameGuardLaundry.Shared.Services;
 using Microsoft.AspNetCore.Mvc;
 
@@ -28,22 +29,15 @@ namespace FlameGuardLaundry.Api.Controllers
         [HttpPost]
         public async Task<ActionResult<ClothingProductModel>> Create(ClothingProductModel model)
         {
-            try
-            {
-                var created = await productService.CreateProductAsync(model);
-                return CreatedAtAction(nameof(GetById), new { id = created.Id }, created);
-            }
-            catch (InvalidOperationException ex)
-            {
-                return Conflict(new { error = ex.Message });
-            }
+            var created = await productService.CreateProductAsync(model);
+            return CreatedAtAction(nameof(GetById), new { id = created.Id }, created);
         }
 
         [HttpPut("{id:guid}")]
         public async Task<IActionResult> Update(Guid id, ClothingProductModel model)
         {
             if (id != model.Id)
-                return BadRequest("ID mismatch.");
+                throw new IdMismatchException();
 
             try
             {

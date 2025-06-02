@@ -1,4 +1,5 @@
-﻿using FlameGuardLaundry.Shared.Models;
+﻿using FlameGuardLaundry.Shared.Exceptions;
+using FlameGuardLaundry.Shared.Models;
 using FlameGuardLaundry.Shared.Services;
 using Microsoft.AspNetCore.Mvc;
 
@@ -19,10 +20,7 @@ namespace FlameGuardLaundry.Api.Controllers
         public async Task<ActionResult<DepartmentModel>> GetById(Guid id)
         {
             var department = await departmentService.GetDepartmentByIdAsync(id);
-            if (department is null)
-                return NotFound();
-
-            return Ok(department);
+            return department is null ? throw new NotFoundException() : (ActionResult<DepartmentModel>)Ok(department);
         }
 
         [HttpPost]
@@ -36,7 +34,7 @@ namespace FlameGuardLaundry.Api.Controllers
         public async Task<IActionResult> Update(Guid id, DepartmentModel model)
         {
             if (id != model.Id)
-                return BadRequest("ID mismatch.");
+                throw new IdMismatchException();
 
             var success = await departmentService.UpdateDepartmentAsync(model);
             return success ? NoContent() : NotFound();

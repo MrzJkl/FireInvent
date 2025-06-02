@@ -1,5 +1,6 @@
 ﻿using FlameGuardLaundry.Database;
 using FlameGuardLaundry.Database.Models;
+using FlameGuardLaundry.Shared.Exceptions;
 using FlameGuardLaundry.Shared.Models;
 using Microsoft.EntityFrameworkCore;
 
@@ -13,7 +14,7 @@ public class StorageLocationService(GearDbContext context)
             .AnyAsync(s => s.Name == model.Name);
 
         if (exists)
-            throw new InvalidOperationException($"A StorageLocation with name '{model.Name}' already exists.");
+            throw new ConflictException($"A StorageLocation with name '{model.Name}' already exists.");
 
         var location = new StorageLocation
         {
@@ -73,7 +74,7 @@ public class StorageLocationService(GearDbContext context)
             .AnyAsync(s => s.Name == model.Name && s.Id != model.Id);
 
         if (nameExists)
-            throw new InvalidOperationException($"A StorageLocation with name '{model.Name}' already exists.");
+            throw new ConflictException($"A StorageLocation with name '{model.Name}' already exists.");
 
         location.Name = model.Name;
         location.Remarks = model.Remarks;

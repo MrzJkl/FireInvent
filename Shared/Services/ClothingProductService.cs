@@ -1,5 +1,6 @@
 ﻿using FlameGuardLaundry.Database;
 using FlameGuardLaundry.Database.Models;
+using FlameGuardLaundry.Shared.Exceptions;
 using FlameGuardLaundry.Shared.Models;
 using Microsoft.EntityFrameworkCore;
 using System;
@@ -81,7 +82,7 @@ namespace FlameGuardLaundry.Shared.Services
                 p.Manufacturer == model.Manufacturer);
 
             if (duplicate)
-                throw new InvalidOperationException("Another product with the same name and manufacturer already exists.");
+                throw new ConflictException();
 
             product.Name = model.Name;
             product.Manufacturer = model.Manufacturer;

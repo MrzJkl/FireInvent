@@ -1,5 +1,6 @@
 ﻿using FlameGuardLaundry.Database;
 using FlameGuardLaundry.Database.Models;
+using FlameGuardLaundry.Shared.Exceptions;
 using FlameGuardLaundry.Shared.Models;
 using Microsoft.EntityFrameworkCore;
 
@@ -14,7 +15,7 @@ namespace FlameGuardLaundry.Shared.Services
                 (model.ExternalId != null && p.ExternalId == model.ExternalId));
 
             if (exists)
-                throw new InvalidOperationException("A person with the same name or external ID already exists.");
+                throw new ConflictException("A person with the same name or external ID already exists.");
 
             var person = new Person
             {
@@ -88,7 +89,7 @@ namespace FlameGuardLaundry.Shared.Services
                 p.LastName == model.LastName);
 
             if (nameExists)
-                throw new InvalidOperationException("Another person with the same name already exists.");
+                throw new ConflictException("Another person with the same name already exists.");
 
             if (!string.IsNullOrWhiteSpace(model.ExternalId))
             {
@@ -97,7 +98,7 @@ namespace FlameGuardLaundry.Shared.Services
                     p.ExternalId == model.ExternalId);
 
                 if (extIdExists)
-                    throw new InvalidOperationException("Another person with the same external ID already exists.");
+                    throw new ConflictException("Another person with the same external ID already exists.");
             }
 
             person.FirstName = model.FirstName;

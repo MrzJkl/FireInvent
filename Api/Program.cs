@@ -1,3 +1,4 @@
+using FlameGuardLaundry.Api.Middlewares;
 using FlameGuardLaundry.Database;
 using FlameGuardLaundry.Shared.Services;
 using Microsoft.EntityFrameworkCore;
@@ -14,10 +15,14 @@ builder.Services.AddScoped<DepartmentService>();
 builder.Services.AddScoped<StorageLocationService>();
 builder.Services.AddScoped<PersonService>();
 builder.Services.AddScoped<ClothingProductService>();
+builder.Services.AddScoped<ClothingVariantService>();
+builder.Services.AddScoped<ClothingItemService>();
 
 builder.Services.AddControllers();
 
 WebApplication app = builder.Build();
+
+app.UseMiddleware<ApiExceptionMiddleware>();
 
 app.MapControllers();
 app.UseSwagger();

@@ -1,4 +1,5 @@
-﻿using FlameGuardLaundry.Shared.Models;
+﻿using FlameGuardLaundry.Shared.Exceptions;
+using FlameGuardLaundry.Shared.Models;
 using FlameGuardLaundry.Shared.Services;
 using Microsoft.AspNetCore.Mvc;
 
@@ -19,41 +20,24 @@ namespace FlameGuardLaundry.Api.Controllers
         public async Task<ActionResult<StorageLocationModel>> GetById(Guid id)
         {
             var location = await locationService.GetStorageLocationByIdAsync(id);
-            if (location is null)
-                return NotFound();
-
-            return Ok(location);
+            return location is null ? throw new NotFoundException() : (ActionResult<StorageLocationModel>)Ok(location);
         }
 
         [HttpPost]
         public async Task<ActionResult<StorageLocationModel>> Create(StorageLocationModel model)
         {
-            try
-            {
-                var created = await locationService.CreateStorageLocationAsync(model);
-                return CreatedAtAction(nameof(GetById), new { id = created.Id }, created);
-            }
-            catch (InvalidOperationException ex)
-            {
-                return Conflict(new { error = ex.Message });
-            }
+            var created = await locationService.CreateStorageLocationAsync(model);
+            return CreatedAtAction(nameof(GetById), new { id = created.Id }, created);
         }
 
         [HttpPut("{id:guid}")]
         public async Task<IActionResult> Update(Guid id, StorageLocationModel model)
         {
             if (id != model.Id)
-                return BadRequest("ID mismatch.");
+                throw new IdMismatchException();
 
-            try
-            {
-                var success = await locationService.UpdateStorageLocationAsync(model);
-                return success ? NoContent() : NotFound();
-            }
-            catch (InvalidOperationException ex)
-            {
-                return Conflict(new { error = ex.Message });
-            }
+            var success = await locationService.UpdateStorageLocationAsync(model);
+            return success ? NoContent() : NotFound();
         }
 
         [HttpDelete("{id:guid}")]

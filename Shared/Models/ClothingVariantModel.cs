@@ -8,7 +8,7 @@ public record ClothingVariantModel
     public Guid Id { get; init; }
 
     [Required]
-    public Guid SeriesId { get; init; }
+    public Guid ProductId { get; init; }
 
     [Required]
     [MaxLength(ModelConstants.MaxStringLength)]
