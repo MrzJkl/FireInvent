@@ -2,29 +2,28 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace FlameGuardLaundry.Database.Models
+namespace FlameGuardLaundry.Database.Models;
+
+[Index(nameof(ItemId), nameof(AssignedFrom), IsUnique = true)]
+public record ClothingItemAssignmentHistory
 {
-    [Index(nameof(ItemId), nameof(AssignedFrom), IsUnique = true)]
-    public record ClothingItemAssignmentHistory
-    {
-        [Key]
-        public Guid Id { get; init; }
+    [Key]
+    public Guid Id { get; init; }
 
-        [Required]
-        [ForeignKey(nameof(Item))]
-        public Guid ItemId { get; set; }
+    [Required]
+    [ForeignKey(nameof(Item))]
+    public Guid ItemId { get; set; }
 
-        [Required]
-        [ForeignKey(nameof(Person))]
-        public Guid PersonId { get; set; }
+    [Required]
+    [ForeignKey(nameof(Person))]
+    public Guid PersonId { get; set; }
 
-        [Required]
-        public DateTime AssignedFrom { get; set; }
+    [Required]
+    public DateTime AssignedFrom { get; set; }
 
-        public DateTime? AssignedUntil { get; set; }
+    public DateTime? AssignedUntil { get; set; }
 
-        public virtual ClothingItem Item { get; set; } = null!;
+    public virtual ClothingItem Item { get; set; } = null!;
 
-        public virtual Person Person { get; set; } = null!;
-    }
+    public virtual Person Person { get; set; } = null!;
 }

@@ -27,11 +27,11 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Shared\Shared.csproj" />
+    <Folder Include="Migrations\" />
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Migrations\" />
+    <ProjectReference Include="..\Contract\Contract.csproj" />
   </ItemGroup>
 
 </Project>

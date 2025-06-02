@@ -1,28 +1,27 @@
 ﻿using FlameGuardLaundry.Contract;
 using System.ComponentModel.DataAnnotations;
 
-namespace FlameGuardLaundry.Shared.Models
+namespace FlameGuardLaundry.Shared.Models;
+
+public record PersonModel
 {
-    public record PersonModel
-    {
-        public Guid Id { get; init; }
+    public Guid Id { get; init; }
 
-        [Required]
+    [Required]
 
-        [MaxLength(ModelConstants.MaxStringLength)]
-        public string FirstName { get; init; } = string.Empty;
+    [MaxLength(ModelConstants.MaxStringLength)]
+    public string FirstName { get; init; } = string.Empty;
 
-        [Required]
-        [MaxLength(ModelConstants.MaxStringLength)]
-        public string LastName { get; init; } = string.Empty;
+    [Required]
+    [MaxLength(ModelConstants.MaxStringLength)]
+    public string LastName { get; init; } = string.Empty;
 
-        [MaxLength(ModelConstants.MaxStringLengthLong)]
-        public string? Remarks { get; init; }
+    [MaxLength(ModelConstants.MaxStringLengthLong)]
+    public string? Remarks { get; init; }
 
-        [MaxLength(ModelConstants.MaxStringLengthLong)]
-        public string? ContactInfo { get; init; }
+    [MaxLength(ModelConstants.MaxStringLengthLong)]
+    public string? ContactInfo { get; init; }
 
-        [MaxLength(ModelConstants.MaxStringLength)]
-        public string? ExternalId { get; init; }
-    }
+    [MaxLength(ModelConstants.MaxStringLength)]
+    public string? ExternalId { get; init; }
 }
