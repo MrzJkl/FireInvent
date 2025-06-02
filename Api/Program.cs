@@ -10,7 +10,9 @@ builder.Services.AddDbContext<GearDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection"), x => x.MigrationsAssembly("FlameGuardLaundry.Database")));
 
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+builder.Services.AddSwaggerGen(c => {
+    c.EnableAnnotations();
+});
 
 builder.Services.AddAutoMapper(typeof(MappingProfile));
 
