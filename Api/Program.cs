@@ -1,5 +1,6 @@
 using FlameGuardLaundry.Api.Middlewares;
 using FlameGuardLaundry.Database;
+using FlameGuardLaundry.Shared;
 using FlameGuardLaundry.Shared.Services;
 using Microsoft.EntityFrameworkCore;
 
@@ -10,6 +11,8 @@ builder.Services.AddDbContext<GearDbContext>(options =>
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+
+builder.Services.AddAutoMapper(typeof(MappingProfile));
 
 builder.Services.AddScoped<DepartmentService>();
 builder.Services.AddScoped<StorageLocationService>();

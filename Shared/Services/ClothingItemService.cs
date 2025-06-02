@@ -1,4 +1,5 @@
-﻿using FlameGuardLaundry.Database;
+﻿using AutoMapper;
+using FlameGuardLaundry.Database;
 using FlameGuardLaundry.Database.Models;
 using FlameGuardLaundry.Shared.Exceptions;
 using FlameGuardLaundry.Shared.Models;
@@ -6,7 +7,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace FlameGuardLaundry.Shared.Services
 {
-    public class ClothingItemService(GearDbContext context)
+    public class ClothingItemService(GearDbContext context, IMapper mapper)
     {
         public async Task<ClothingItemModel> CreateClothingItemAsync(ClothingItemModel model)
         {
@@ -26,47 +27,22 @@ namespace FlameGuardLaundry.Shared.Services
                     throw new ConflictException($"ClothingItem with identifier '{model.Identifier}' already exists.");
             }
 
-            var item = new ClothingItem
-            {
-                Id = Guid.NewGuid(),
-                VariantId = model.VariantId,
-                Identifier = model.Identifier,
-                StorageLocationId = model.StorageLocationId,
-                Condition = model.Condition,
-                PurchaseDate = model.PurchaseDate,
-                RetirementDate = model.RetirementDate
-            };
+            var item = mapper.Map<ClothingItem>(model);
+            item.Id = Guid.NewGuid();
 
             context.ClothingItems.Add(item);
             await context.SaveChangesAsync();
 
-            return new ClothingItemModel
-            {
-                Id = item.Id,
-                VariantId = item.VariantId,
-                Identifier = item.Identifier,
-                StorageLocationId = item.StorageLocationId,
-                Condition = item.Condition,
-                PurchaseDate = item.PurchaseDate,
-                RetirementDate = item.RetirementDate
-            };
+            return mapper.Map<ClothingItemModel>(item);
         }
 
         public async Task<List<ClothingItemModel>> GetAllClothingItemsAsync()
         {
-            return await context.ClothingItems
+            var items = await context.ClothingItems
                 .AsNoTracking()
-                .Select(i => new ClothingItemModel
-                {
-                    Id = i.Id,
-                    VariantId = i.VariantId,
-                    Identifier = i.Identifier,
-                    StorageLocationId = i.StorageLocationId,
-                    Condition = i.Condition,
-                    PurchaseDate = i.PurchaseDate,
-                    RetirementDate = i.RetirementDate
-                })
                 .ToListAsync();
+
+            return mapper.Map<List<ClothingItemModel>>(items);
         }
 
         public async Task<ClothingItemModel?> GetClothingItemByIdAsync(Guid id)
@@ -75,16 +51,7 @@ namespace FlameGuardLaundry.Shared.Services
                 .AsNoTracking()
                 .FirstOrDefaultAsync(i => i.Id == id);
 
-            return item is null ? null : new ClothingItemModel
-            {
-                Id = item.Id,
-                VariantId = item.VariantId,
-                Identifier = item.Identifier,
-                StorageLocationId = item.StorageLocationId,
-                Condition = item.Condition,
-                PurchaseDate = item.PurchaseDate,
-                RetirementDate = item.RetirementDate
-            };
+            return item is null ? null : mapper.Map<ClothingItemModel>(item);
         }
 
         public async Task<bool> UpdateClothingItemAsync(ClothingItemModel model)
@@ -109,12 +76,7 @@ namespace FlameGuardLaundry.Shared.Services
                     throw new ConflictException($"ClothingItem with identifier '{model.Identifier}' already exists.");
             }
 
-            item.VariantId = model.VariantId;
-            item.Identifier = model.Identifier;
-            item.StorageLocationId = model.StorageLocationId;
-            item.Condition = model.Condition;
-            item.PurchaseDate = model.PurchaseDate;
-            item.RetirementDate = model.RetirementDate;
+            mapper.Map(model, item);
 
             await context.SaveChangesAsync();
             return true;
@@ -131,5 +93,4 @@ namespace FlameGuardLaundry.Shared.Services
             return true;
         }
     }
-
 }

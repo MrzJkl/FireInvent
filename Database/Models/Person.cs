@@ -11,7 +11,7 @@ namespace FlameGuardLaundry.Database.Models;
 public record Person
 {
     [Key]
-    public Guid Id { get; init; }
+    public Guid Id { get; set; }
 
     [Required]
     [MaxLength(ModelConstants.MaxStringLength)]

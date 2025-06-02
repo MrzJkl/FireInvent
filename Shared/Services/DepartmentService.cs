@@ -1,43 +1,31 @@
-﻿using FlameGuardLaundry.Database;
+﻿using AutoMapper;
+using FlameGuardLaundry.Database;
 using FlameGuardLaundry.Database.Models;
 using FlameGuardLaundry.Shared.Models;
 using Microsoft.EntityFrameworkCore;
 
 namespace FlameGuardLaundry.Shared.Services;
 
-public class DepartmentService(GearDbContext context)
+public class DepartmentService(GearDbContext context, IMapper mapper)
 {
     public async Task<DepartmentModel> CreateDepartmentAsync(DepartmentModel model)
     {
-        var department = new Department
-        {
-            Id = Guid.NewGuid(),
-            Name = model.Name,
-            Description = model.Description
-        };
+        var department = mapper.Map<Department>(model);
+        department.Id = Guid.NewGuid();
 
         await context.Departments.AddAsync(department);
         await context.SaveChangesAsync();
 
-        return new DepartmentModel
-        {
-            Id = department.Id,
-            Name = department.Name,
-            Description = department.Description
-        };
+        return mapper.Map<DepartmentModel>(department);
     }
 
     public async Task<List<DepartmentModel>> GetAllDepartmentsAsync()
     {
-        return await context.Departments
+        var departments = await context.Departments
             .AsNoTracking()
-            .Select(d => new DepartmentModel
-            {
-                Id = d.Id,
-                Name = d.Name,
-                Description = d.Description
-            })
             .ToListAsync();
+
+        return mapper.Map<List<DepartmentModel>>(departments);
     }
 
     public async Task<DepartmentModel?> GetDepartmentByIdAsync(Guid id)
@@ -46,15 +34,7 @@ public class DepartmentService(GearDbContext context)
             .AsNoTracking()
             .FirstOrDefaultAsync(d => d.Id == id);
 
-        if (department is null)
-            return null;
-
-        return new DepartmentModel
-        {
-            Id = department.Id,
-            Name = department.Name,
-            Description = department.Description
-        };
+        return department is null ? null : mapper.Map<DepartmentModel>(department);
     }
 
     public async Task<bool> UpdateDepartmentAsync(DepartmentModel model)
@@ -63,8 +43,7 @@ public class DepartmentService(GearDbContext context)
         if (department is null)
             return false;
 
-        department.Name = model.Name;
-        department.Description = model.Description;
+        mapper.Map(model, department);
 
         await context.SaveChangesAsync();
         return true;

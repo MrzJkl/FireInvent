@@ -1,4 +1,5 @@
-﻿using FlameGuardLaundry.Database;
+﻿using AutoMapper;
+using FlameGuardLaundry.Database;
 using FlameGuardLaundry.Database.Models;
 using FlameGuardLaundry.Shared.Exceptions;
 using FlameGuardLaundry.Shared.Models;
@@ -6,7 +7,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace FlameGuardLaundry.Shared.Services;
 
-public class StorageLocationService(GearDbContext context)
+public class StorageLocationService(GearDbContext context, IMapper mapper)
 {
     public async Task<StorageLocationModel> CreateStorageLocationAsync(StorageLocationModel model)
     {
@@ -16,35 +17,22 @@ public class StorageLocationService(GearDbContext context)
         if (exists)
             throw new ConflictException($"A StorageLocation with name '{model.Name}' already exists.");
 
-        var location = new StorageLocation
-        {
-            Id = Guid.NewGuid(),
-            Name = model.Name,
-            Remarks = model.Remarks
-        };
+        var location = mapper.Map<StorageLocation>(model);
+        location.Id = Guid.NewGuid();
 
         context.StorageLocations.Add(location);
         await context.SaveChangesAsync();
 
-        return new StorageLocationModel
-        {
-            Id = location.Id,
-            Name = location.Name,
-            Remarks = location.Remarks
-        };
+        return mapper.Map<StorageLocationModel>(location);
     }
 
     public async Task<List<StorageLocationModel>> GetAllStorageLocationsAsync()
     {
-        return await context.StorageLocations
+        var locations = await context.StorageLocations
             .AsNoTracking()
-            .Select(s => new StorageLocationModel
-            {
-                Id = s.Id,
-                Name = s.Name,
-                Remarks = s.Remarks
-            })
             .ToListAsync();
+
+        return mapper.Map<List<StorageLocationModel>>(locations);
     }
 
     public async Task<StorageLocationModel?> GetStorageLocationByIdAsync(Guid id)
@@ -53,15 +41,7 @@ public class StorageLocationService(GearDbContext context)
             .AsNoTracking()
             .FirstOrDefaultAsync(s => s.Id == id);
 
-        if (location is null)
-            return null;
-
-        return new StorageLocationModel
-        {
-            Id = location.Id,
-            Name = location.Name,
-            Remarks = location.Remarks
-        };
+        return location is null ? null : mapper.Map<StorageLocationModel>(location);
     }
 
     public async Task<bool> UpdateStorageLocationAsync(StorageLocationModel model)
@@ -76,8 +56,7 @@ public class StorageLocationService(GearDbContext context)
         if (nameExists)
             throw new ConflictException($"A StorageLocation with name '{model.Name}' already exists.");
 
-        location.Name = model.Name;
-        location.Remarks = model.Remarks;
+        mapper.Map(model, location);
 
         await context.SaveChangesAsync();
         return true;

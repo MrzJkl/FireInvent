@@ -1,4 +1,5 @@
-﻿using FlameGuardLaundry.Database;
+﻿using AutoMapper;
+using FlameGuardLaundry.Database;
 using FlameGuardLaundry.Database.Models;
 using FlameGuardLaundry.Shared.Exceptions;
 using FlameGuardLaundry.Shared.Models;
@@ -6,7 +7,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace FlameGuardLaundry.Shared.Services
 {
-    public class ClothingItemAssignmentHistoryService(GearDbContext context)
+    public class ClothingItemAssignmentHistoryService(GearDbContext context, IMapper mapper)
     {
         public async Task<ClothingItemAssignmentHistoryModel> CreateAssignmentAsync(ClothingItemAssignmentHistoryModel model)
         {
@@ -27,19 +28,13 @@ namespace FlameGuardLaundry.Shared.Services
             if (overlapExists)
                 throw new ConflictException("An overlapping assignment already exists for this item.");
 
-            var entity = new ClothingItemAssignmentHistory
-            {
-                Id = Guid.NewGuid(),
-                ItemId = model.ItemId,
-                PersonId = model.PersonId,
-                AssignedFrom = model.AssignedFrom,
-                AssignedUntil = model.AssignedUntil
-            };
+            var entity = mapper.Map<ClothingItemAssignmentHistory>(model);
+            entity.Id = Guid.NewGuid();
 
             context.ClothingItemAssignmentHistories.Add(entity);
             await context.SaveChangesAsync();
 
-            return MapToModel(entity);
+            return mapper.Map<ClothingItemAssignmentHistoryModel>(entity);
         }
 
         public async Task<List<ClothingItemAssignmentHistoryModel>> GetAssignmentsForItemAsync(Guid itemId)
@@ -48,34 +43,22 @@ namespace FlameGuardLaundry.Shared.Services
             if (!itemExists)
                 throw new NotFoundException($"ClothingItem with ID {itemId} not found.");
 
-            return await context.ClothingItemAssignmentHistories
+            var entities = await context.ClothingItemAssignmentHistories
                 .Where(a => a.ItemId == itemId)
                 .OrderByDescending(a => a.AssignedFrom)
                 .AsNoTracking()
-                .Select(a => new ClothingItemAssignmentHistoryModel
-                {
-                    Id = a.Id,
-                    ItemId = a.ItemId,
-                    PersonId = a.PersonId,
-                    AssignedFrom = a.AssignedFrom,
-                    AssignedUntil = a.AssignedUntil
-                })
                 .ToListAsync();
+
+            return mapper.Map<List<ClothingItemAssignmentHistoryModel>>(entities);
         }
 
         public async Task<List<ClothingItemAssignmentHistoryModel>> GetAllAssignmentsAsync()
         {
-            return await context.ClothingItemAssignmentHistories
+            var entities = await context.ClothingItemAssignmentHistories
                 .AsNoTracking()
-                .Select(a => new ClothingItemAssignmentHistoryModel
-                {
-                    Id = a.Id,
-                    ItemId = a.ItemId,
-                    PersonId = a.PersonId,
-                    AssignedFrom = a.AssignedFrom,
-                    AssignedUntil = a.AssignedUntil
-                })
                 .ToListAsync();
+
+            return mapper.Map<List<ClothingItemAssignmentHistoryModel>>(entities);
         }
 
         public async Task<ClothingItemAssignmentHistoryModel?> GetAssignmentByIdAsync(Guid id)
@@ -84,7 +67,7 @@ namespace FlameGuardLaundry.Shared.Services
                 .AsNoTracking()
                 .FirstOrDefaultAsync(a => a.Id == id);
 
-            return entity is null ? null : MapToModel(entity);
+            return entity is null ? null : mapper.Map<ClothingItemAssignmentHistoryModel>(entity);
         }
 
         public async Task<bool> UpdateAssignmentAsync(ClothingItemAssignmentHistoryModel model)
@@ -111,10 +94,7 @@ namespace FlameGuardLaundry.Shared.Services
             if (overlapExists)
                 throw new ConflictException("An overlapping assignment already exists for this item.");
 
-            entity.ItemId = model.ItemId;
-            entity.PersonId = model.PersonId;
-            entity.AssignedFrom = model.AssignedFrom;
-            entity.AssignedUntil = model.AssignedUntil;
+            mapper.Map(model, entity);
 
             await context.SaveChangesAsync();
             return true;
@@ -130,14 +110,5 @@ namespace FlameGuardLaundry.Shared.Services
             await context.SaveChangesAsync();
             return true;
         }
-
-        private static ClothingItemAssignmentHistoryModel MapToModel(ClothingItemAssignmentHistory entity) => new()
-        {
-            Id = entity.Id,
-            ItemId = entity.ItemId,
-            PersonId = entity.PersonId,
-            AssignedFrom = entity.AssignedFrom,
-            AssignedUntil = entity.AssignedUntil
-        };
     }
 }

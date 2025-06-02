@@ -8,7 +8,7 @@ namespace FlameGuardLaundry.Database.Models;
 public record ClothingItemAssignmentHistory
 {
     [Key]
-    public Guid Id { get; init; }
+    public Guid Id { get; set; }
 
     [Required]
     [ForeignKey(nameof(Item))]

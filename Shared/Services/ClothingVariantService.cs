@@ -1,4 +1,5 @@
-﻿using FlameGuardLaundry.Database;
+﻿using AutoMapper;
+using FlameGuardLaundry.Database;
 using FlameGuardLaundry.Database.Models;
 using FlameGuardLaundry.Shared.Exceptions;
 using FlameGuardLaundry.Shared.Models;
@@ -6,7 +7,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace FlameGuardLaundry.Shared.Services
 {
-    public class ClothingVariantService(GearDbContext context)
+    public class ClothingVariantService(GearDbContext context, IMapper mapper)
     {
         public async Task<ClothingVariantModel> CreateVariantAsync(ClothingVariantModel model)
         {
@@ -21,32 +22,22 @@ namespace FlameGuardLaundry.Shared.Services
             if (!productExists)
                 throw new BadRequestException("Referenced product does not exist.");
 
-            var variant = new ClothingVariant
-            {
-                Id = Guid.NewGuid(),
-                ProductId = model.ProductId,
-                Name = model.Name,
-                AdditionalSpecs = model.AdditionalSpecs
-            };
+            var variant = mapper.Map<ClothingVariant>(model);
+            variant.Id = Guid.NewGuid();
 
             context.ClothingVariants.Add(variant);
             await context.SaveChangesAsync();
 
-            return model with { Id = variant.Id };
+            return mapper.Map<ClothingVariantModel>(variant);
         }
 
         public async Task<List<ClothingVariantModel>> GetAllVariantsAsync()
         {
-            return await context.ClothingVariants
+            var variants = await context.ClothingVariants
                 .AsNoTracking()
-                .Select(v => new ClothingVariantModel
-                {
-                    Id = v.Id,
-                    ProductId = v.ProductId,
-                    Name = v.Name,
-                    AdditionalSpecs = v.AdditionalSpecs
-                })
                 .ToListAsync();
+
+            return mapper.Map<List<ClothingVariantModel>>(variants);
         }
 
         public async Task<ClothingVariantModel?> GetVariantByIdAsync(Guid id)
@@ -55,15 +46,7 @@ namespace FlameGuardLaundry.Shared.Services
                 .AsNoTracking()
                 .FirstOrDefaultAsync(v => v.Id == id);
 
-            if (variant is null) return null;
-
-            return new ClothingVariantModel
-            {
-                Id = variant.Id,
-                ProductId = variant.ProductId,
-                Name = variant.Name,
-                AdditionalSpecs = variant.AdditionalSpecs
-            };
+            return variant is null ? null : mapper.Map<ClothingVariantModel>(variant);
         }
 
         public async Task<bool> UpdateVariantAsync(ClothingVariantModel model)
@@ -80,9 +63,7 @@ namespace FlameGuardLaundry.Shared.Services
             if (duplicate)
                 throw new ConflictException("Another variant with the same name already exists for this product.");
 
-            variant.Name = model.Name;
-            variant.AdditionalSpecs = model.AdditionalSpecs;
-            variant.ProductId = model.ProductId;
+            mapper.Map(model, variant);
 
             await context.SaveChangesAsync();
             return true;
@@ -105,20 +86,12 @@ namespace FlameGuardLaundry.Shared.Services
             if (!variantExists)
                 throw new NotFoundException($"ClothingVariant with ID {variantId} not found.");
 
-            return await context.ClothingItems
+            var items = await context.ClothingItems
                 .Where(i => i.VariantId == variantId)
                 .AsNoTracking()
-                .Select(i => new ClothingItemModel
-                {
-                    Id = i.Id,
-                    VariantId = i.VariantId,
-                    Identifier = i.Identifier,
-                    StorageLocationId = i.StorageLocationId,
-                    Condition = i.Condition,
-                    PurchaseDate = i.PurchaseDate,
-                    RetirementDate = i.RetirementDate
-                })
                 .ToListAsync();
+
+            return mapper.Map<List<ClothingItemModel>>(items);
         }
     }
 }

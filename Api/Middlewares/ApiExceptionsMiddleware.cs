@@ -4,20 +4,13 @@ using System.Text.Json;
 
 namespace FlameGuardLaundry.Api.Middlewares
 {
-    public class ApiExceptionMiddleware
+    public class ApiExceptionMiddleware(RequestDelegate next)
     {
-        private readonly RequestDelegate _next;
-
-        public ApiExceptionMiddleware(RequestDelegate next)
-        {
-            _next = next;
-        }
-
         public async Task Invoke(HttpContext context)
         {
             try
             {
-                await _next(context);
+                await next(context);
             }
             catch (Exception ex)
             {

@@ -1,17 +1,13 @@
-﻿using FlameGuardLaundry.Database;
+﻿using AutoMapper;
+using FlameGuardLaundry.Database;
 using FlameGuardLaundry.Database.Models;
 using FlameGuardLaundry.Shared.Exceptions;
 using FlameGuardLaundry.Shared.Models;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace FlameGuardLaundry.Shared.Services
 {
-    public class ClothingProductService(GearDbContext context)
+    public class ClothingProductService(GearDbContext context, IMapper mapper)
     {
         public async Task<ClothingProductModel> CreateProductAsync(ClothingProductModel model)
         {
@@ -21,34 +17,22 @@ namespace FlameGuardLaundry.Shared.Services
             if (exists)
                 throw new InvalidOperationException("A product with the same name and manufacturer already exists.");
 
-            var product = new ClothingProduct
-            {
-                Id = Guid.NewGuid(),
-                Name = model.Name,
-                Manufacturer = model.Manufacturer,
-                Description = model.Description,
-                Type = model.Type
-            };
+            var product = mapper.Map<ClothingProduct>(model);
+            product.Id = Guid.NewGuid();
 
             context.ClothingProducts.Add(product);
             await context.SaveChangesAsync();
 
-            return model with { Id = product.Id };
+            return mapper.Map<ClothingProductModel>(product);
         }
 
         public async Task<List<ClothingProductModel>> GetAllProductsAsync()
         {
-            return await context.ClothingProducts
+            var products = await context.ClothingProducts
                 .AsNoTracking()
-                .Select(p => new ClothingProductModel
-                {
-                    Id = p.Id,
-                    Name = p.Name,
-                    Manufacturer = p.Manufacturer,
-                    Description = p.Description,
-                    Type = p.Type
-                })
                 .ToListAsync();
+
+            return mapper.Map<List<ClothingProductModel>>(products);
         }
 
         public async Task<ClothingProductModel?> GetProductByIdAsync(Guid id)
@@ -57,17 +41,7 @@ namespace FlameGuardLaundry.Shared.Services
                 .AsNoTracking()
                 .FirstOrDefaultAsync(p => p.Id == id);
 
-            if (product is null)
-                return null;
-
-            return new ClothingProductModel
-            {
-                Id = product.Id,
-                Name = product.Name,
-                Manufacturer = product.Manufacturer,
-                Description = product.Description,
-                Type = product.Type
-            };
+            return product is null ? null : mapper.Map<ClothingProductModel>(product);
         }
 
         public async Task<bool> UpdateProductAsync(ClothingProductModel model)
@@ -84,10 +58,7 @@ namespace FlameGuardLaundry.Shared.Services
             if (duplicate)
                 throw new ConflictException();
 
-            product.Name = model.Name;
-            product.Manufacturer = model.Manufacturer;
-            product.Description = model.Description;
-            product.Type = model.Type;
+            mapper.Map(model, product);
 
             await context.SaveChangesAsync();
             return true;

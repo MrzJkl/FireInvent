@@ -1,4 +1,5 @@
-﻿using FlameGuardLaundry.Database;
+﻿using AutoMapper;
+using FlameGuardLaundry.Database;
 using FlameGuardLaundry.Database.Models;
 using FlameGuardLaundry.Shared.Exceptions;
 using FlameGuardLaundry.Shared.Models;
@@ -6,7 +7,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace FlameGuardLaundry.Shared.Services
 {
-    public class PersonService(GearDbContext context)
+    public class PersonService(GearDbContext context, IMapper mapper)
     {
         public async Task<PersonModel> CreatePersonAsync(PersonModel model)
         {
@@ -17,44 +18,22 @@ namespace FlameGuardLaundry.Shared.Services
             if (exists)
                 throw new ConflictException("A person with the same name or external ID already exists.");
 
-            var person = new Person
-            {
-                Id = Guid.NewGuid(),
-                FirstName = model.FirstName,
-                LastName = model.LastName,
-                Remarks = model.Remarks,
-                ContactInfo = model.ContactInfo,
-                ExternalId = model.ExternalId
-            };
+            var person = mapper.Map<Person>(model);
+            person.Id = Guid.NewGuid();
 
             context.Persons.Add(person);
             await context.SaveChangesAsync();
 
-            return new PersonModel
-            {
-                Id = person.Id,
-                FirstName = person.FirstName,
-                LastName = person.LastName,
-                Remarks = person.Remarks,
-                ContactInfo = person.ContactInfo,
-                ExternalId = person.ExternalId
-            };
+            return mapper.Map<PersonModel>(person);
         }
 
         public async Task<List<PersonModel>> GetAllPersonsAsync()
         {
-            return await context.Persons
+            var persons = await context.Persons
                 .AsNoTracking()
-                .Select(p => new PersonModel
-                {
-                    Id = p.Id,
-                    FirstName = p.FirstName,
-                    LastName = p.LastName,
-                    Remarks = p.Remarks,
-                    ContactInfo = p.ContactInfo,
-                    ExternalId = p.ExternalId
-                })
                 .ToListAsync();
+
+            return mapper.Map<List<PersonModel>>(persons);
         }
 
         public async Task<PersonModel?> GetPersonByIdAsync(Guid id)
@@ -63,18 +42,7 @@ namespace FlameGuardLaundry.Shared.Services
                 .AsNoTracking()
                 .FirstOrDefaultAsync(p => p.Id == id);
 
-            if (person is null)
-                return null;
-
-            return new PersonModel
-            {
-                Id = person.Id,
-                FirstName = person.FirstName,
-                LastName = person.LastName,
-                Remarks = person.Remarks,
-                ContactInfo = person.ContactInfo,
-                ExternalId = person.ExternalId
-            };
+            return person is null ? null : mapper.Map<PersonModel>(person);
         }
 
         public async Task<bool> UpdatePersonAsync(PersonModel model)
@@ -101,11 +69,7 @@ namespace FlameGuardLaundry.Shared.Services
                     throw new ConflictException("Another person with the same external ID already exists.");
             }
 
-            person.FirstName = model.FirstName;
-            person.LastName = model.LastName;
-            person.Remarks = model.Remarks;
-            person.ContactInfo = model.ContactInfo;
-            person.ExternalId = model.ExternalId;
+            mapper.Map(model, person);
 
             await context.SaveChangesAsync();
             return true;

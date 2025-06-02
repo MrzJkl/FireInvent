@@ -7,7 +7,7 @@ namespace FlameGuardLaundry.Database.Models;
 public record Maintenance
 {
     [Key]
-    public Guid Id { get; init; }
+    public Guid Id { get; set; }
 
     [Required]
     [ForeignKey(nameof(Item))]

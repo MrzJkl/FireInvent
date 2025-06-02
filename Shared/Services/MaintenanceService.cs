@@ -1,4 +1,5 @@
-﻿using FlameGuardLaundry.Database;
+﻿using AutoMapper;
+using FlameGuardLaundry.Database;
 using FlameGuardLaundry.Database.Models;
 using FlameGuardLaundry.Shared.Exceptions;
 using FlameGuardLaundry.Shared.Models;
@@ -6,33 +7,28 @@ using Microsoft.EntityFrameworkCore;
 
 namespace FlameGuardLaundry.Shared.Services
 {
-    public class MaintenanceService(GearDbContext context)
+    public class MaintenanceService(GearDbContext context, IMapper mapper)
     {
         public async Task<MaintenanceModel> CreateMaintenanceAsync(MaintenanceModel model)
         {
             _ = await context.ClothingItems.FindAsync(model.ItemId) ?? throw new BadRequestException($"ClothingItem with ID '{model.ItemId}' does not exist.");
 
-            var entity = new Maintenance
-            {
-                Id = Guid.NewGuid(),
-                ItemId = model.ItemId,
-                Performed = model.Performed,
-                MaintenanceType = model.MaintenanceType,
-                Remarks = model.Remarks
-            };
+            var entity = mapper.Map<Maintenance>(model);
+            entity.Id = Guid.NewGuid();
 
             context.Maintenances.Add(entity);
             await context.SaveChangesAsync();
 
-            return MapToModel(entity);
+            return mapper.Map<MaintenanceModel>(entity);
         }
 
         public async Task<List<MaintenanceModel>> GetAllMaintenancesAsync()
         {
-            return await context.Maintenances
+            var entities = await context.Maintenances
                 .AsNoTracking()
-                .Select(m => MapToModel(m))
                 .ToListAsync();
+
+            return mapper.Map<List<MaintenanceModel>>(entities);
         }
 
         public async Task<MaintenanceModel?> GetMaintenanceByIdAsync(Guid id)
@@ -41,7 +37,7 @@ namespace FlameGuardLaundry.Shared.Services
                 .AsNoTracking()
                 .FirstOrDefaultAsync(m => m.Id == id);
 
-            return maintenance is null ? null : MapToModel(maintenance);
+            return maintenance is null ? null : mapper.Map<MaintenanceModel>(maintenance);
         }
 
         public async Task<bool> UpdateMaintenanceAsync(MaintenanceModel model)
@@ -54,10 +50,7 @@ namespace FlameGuardLaundry.Shared.Services
             if (!itemExists)
                 throw new BadRequestException($"ClothingItem with ID '{model.ItemId}' does not exist.");
 
-            entity.ItemId = model.ItemId;
-            entity.Performed = model.Performed;
-            entity.MaintenanceType = model.MaintenanceType;
-            entity.Remarks = model.Remarks;
+            mapper.Map(model, entity);
 
             await context.SaveChangesAsync();
             return true;
@@ -80,28 +73,13 @@ namespace FlameGuardLaundry.Shared.Services
             if (!itemExists)
                 throw new NotFoundException($"ClothingItem with ID {itemId} not found.");
 
-            return await context.Maintenances
+            var maintenances = await context.Maintenances
                 .Where(m => m.ItemId == itemId)
                 .OrderByDescending(m => m.Performed)
                 .AsNoTracking()
-                .Select(m => new MaintenanceModel
-                {
-                    Id = m.Id,
-                    ItemId = m.ItemId,
-                    Performed = m.Performed,
-                    MaintenanceType = m.MaintenanceType,
-                    Remarks = m.Remarks
-                })
                 .ToListAsync();
-        }
 
-        private static MaintenanceModel MapToModel(Maintenance entity) => new()
-        {
-            Id = entity.Id,
-            ItemId = entity.ItemId,
-            Performed = entity.Performed,
-            MaintenanceType = entity.MaintenanceType,
-            Remarks = entity.Remarks
-        };
+            return mapper.Map<List<MaintenanceModel>>(maintenances);
+        }
     }
 }
