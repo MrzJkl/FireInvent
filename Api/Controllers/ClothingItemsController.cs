@@ -2,14 +2,20 @@
 using FlameGuardLaundry.Shared.Models;
 using FlameGuardLaundry.Shared.Services;
 using Microsoft.AspNetCore.Mvc;
+using Swashbuckle.AspNetCore.Annotations;
 
 namespace FlameGuardLaundry.Api.Controllers
 {
     [ApiController]
     [Route("clothingItems")]
-    public class ClothingItemsController(ClothingItemService itemService, ClothingItemAssignmentHistoryService assignmentHistoryService, MaintenanceService maintenanceService) : ControllerBase
+    public class ClothingItemsController(
+        ClothingItemService itemService,
+        ClothingItemAssignmentHistoryService assignmentHistoryService,
+        MaintenanceService maintenanceService) : ControllerBase
     {
         [HttpGet]
+        [SwaggerOperation(Summary = "List all clothing items", Description = "Returns a list of all clothing items.")]
+        [SwaggerResponse(200, "List of clothing items", typeof(List<ClothingItemModel>))]
         public async Task<ActionResult<List<ClothingItemModel>>> GetAll()
         {
             var items = await itemService.GetAllClothingItemsAsync();
@@ -17,6 +23,9 @@ namespace FlameGuardLaundry.Api.Controllers
         }
 
         [HttpGet("{id:guid}")]
+        [SwaggerOperation(Summary = "Get clothing item by ID", Description = "Returns a clothing item by its unique ID.")]
+        [SwaggerResponse(200, "Clothing item found", typeof(ClothingItemModel))]
+        [SwaggerResponse(404, "Clothing item not found")]
         public async Task<ActionResult<ClothingItemModel>> GetById(Guid id)
         {
             var item = await itemService.GetClothingItemByIdAsync(id);
@@ -24,6 +33,10 @@ namespace FlameGuardLaundry.Api.Controllers
         }
 
         [HttpPost]
+        [SwaggerOperation(Summary = "Create a new clothing item", Description = "Creates a new clothing item.")]
+        [SwaggerResponse(201, "Clothing item created", typeof(ClothingItemModel))]
+        [SwaggerResponse(400, "Invalid input or referenced variant/location not found")]
+        [SwaggerResponse(409, "A clothing item with the same identifier already exists")]
         public async Task<ActionResult<ClothingItemModel>> Create(ClothingItemModel model)
         {
             var created = await itemService.CreateClothingItemAsync(model);
@@ -31,6 +44,11 @@ namespace FlameGuardLaundry.Api.Controllers
         }
 
         [HttpPut("{id:guid}")]
+        [SwaggerOperation(Summary = "Update a clothing item", Description = "Updates an existing clothing item.")]
+        [SwaggerResponse(204, "Clothing item updated")]
+        [SwaggerResponse(400, "ID mismatch or referenced variant/location not found")]
+        [SwaggerResponse(404, "Clothing item not found")]
+        [SwaggerResponse(409, "A clothing item with the same identifier already exists")]
         public async Task<IActionResult> Update(Guid id, ClothingItemModel model)
         {
             if (id != model.Id)
@@ -41,6 +59,9 @@ namespace FlameGuardLaundry.Api.Controllers
         }
 
         [HttpDelete("{id:guid}")]
+        [SwaggerOperation(Summary = "Delete a clothing item", Description = "Deletes a clothing item by its unique ID.")]
+        [SwaggerResponse(204, "Clothing item deleted")]
+        [SwaggerResponse(404, "Clothing item not found")]
         public async Task<IActionResult> Delete(Guid id)
         {
             var success = await itemService.DeleteClothingItemAsync(id);
@@ -48,6 +69,9 @@ namespace FlameGuardLaundry.Api.Controllers
         }
 
         [HttpGet("{id:guid}/assignments")]
+        [SwaggerOperation(Summary = "List all assignments for a clothing item", Description = "Returns all assignment histories for a specific clothing item.")]
+        [SwaggerResponse(200, "List of assignment histories", typeof(List<ClothingItemAssignmentHistoryModel>))]
+        [SwaggerResponse(404, "Clothing item not found")]
         public async Task<ActionResult<List<ClothingItemAssignmentHistoryModel>>> GetAssignmentsForItem(Guid id)
         {
             var assignments = await assignmentHistoryService.GetAssignmentsForItemAsync(id);
@@ -55,6 +79,9 @@ namespace FlameGuardLaundry.Api.Controllers
         }
 
         [HttpGet("{id:guid}/maintenance")]
+        [SwaggerOperation(Summary = "List all maintenances for a clothing item", Description = "Returns all maintenance records for a specific clothing item.")]
+        [SwaggerResponse(200, "List of maintenances", typeof(List<MaintenanceModel>))]
+        [SwaggerResponse(404, "Clothing item not found")]
         public async Task<ActionResult<List<MaintenanceModel>>> GetMaintenanceForItem(Guid id)
         {
             var maintenances = await maintenanceService.GetMaintenancesForItemAsync(id);

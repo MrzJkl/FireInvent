@@ -2,6 +2,7 @@
 using FlameGuardLaundry.Shared.Models;
 using FlameGuardLaundry.Shared.Services;
 using Microsoft.AspNetCore.Mvc;
+using Swashbuckle.AspNetCore.Annotations;
 
 namespace FlameGuardLaundry.Api.Controllers
 {
@@ -11,6 +12,8 @@ namespace FlameGuardLaundry.Api.Controllers
     {
 
         [HttpGet]
+        [SwaggerOperation(Summary = "List all clothing variants", Description = "Returns a list of all clothing variants.")]
+        [SwaggerResponse(200, "List of clothing variants", typeof(List<ClothingVariantModel>))]
         public async Task<ActionResult<List<ClothingVariantModel>>> GetAll()
         {
             var variants = await variantService.GetAllVariantsAsync();
@@ -18,6 +21,9 @@ namespace FlameGuardLaundry.Api.Controllers
         }
 
         [HttpGet("{id:guid}")]
+        [SwaggerOperation(Summary = "Get clothing variant by ID", Description = "Returns a clothing variant by its unique ID.")]
+        [SwaggerResponse(200, "Clothing variant found", typeof(ClothingVariantModel))]
+        [SwaggerResponse(404, "Clothing variant not found")]
         public async Task<ActionResult<ClothingVariantModel>> GetById(Guid id)
         {
             var variant = await variantService.GetVariantByIdAsync(id);
@@ -28,6 +34,10 @@ namespace FlameGuardLaundry.Api.Controllers
         }
 
         [HttpPost]
+        [SwaggerOperation(Summary = "Create a new clothing variant", Description = "Creates a new clothing variant.")]
+        [SwaggerResponse(201, "Clothing variant created", typeof(ClothingVariantModel))]
+        [SwaggerResponse(409, "A clothing variant with the same name already exists for this product")]
+        [SwaggerResponse(400, "Referenced product does not exist")]
         public async Task<ActionResult<ClothingVariantModel>> Create(ClothingVariantModel model)
         {
             var created = await variantService.CreateVariantAsync(model);
@@ -35,6 +45,11 @@ namespace FlameGuardLaundry.Api.Controllers
         }
 
         [HttpPut("{id:guid}")]
+        [SwaggerOperation(Summary = "Update a clothing variant", Description = "Updates an existing clothing variant.")]
+        [SwaggerResponse(204, "Clothing variant updated")]
+        [SwaggerResponse(400, "ID mismatch")]
+        [SwaggerResponse(404, "Clothing variant not found")]
+        [SwaggerResponse(409, "Another variant with the same name already exists for this product")]
         public async Task<IActionResult> Update(Guid id, ClothingVariantModel model)
         {
             if (id != model.Id)
@@ -45,6 +60,9 @@ namespace FlameGuardLaundry.Api.Controllers
         }
 
         [HttpDelete("{id:guid}")]
+        [SwaggerOperation(Summary = "Delete a clothing variant", Description = "Deletes a clothing variant by its unique ID.")]
+        [SwaggerResponse(204, "Clothing variant deleted")]
+        [SwaggerResponse(404, "Clothing variant not found")]
         public async Task<IActionResult> Delete(Guid id)
         {
             var success = await variantService.DeleteVariantAsync(id);
@@ -52,6 +70,9 @@ namespace FlameGuardLaundry.Api.Controllers
         }
 
         [HttpGet("{id:guid}/items")]
+        [SwaggerOperation(Summary = "List all items for a variant", Description = "Returns all clothing items for a specific variant.")]
+        [SwaggerResponse(200, "List of clothing items for the variant", typeof(List<ClothingItemModel>))]
+        [SwaggerResponse(404, "Clothing variant not found")]
         public async Task<ActionResult<List<ClothingItemModel>>> GetItemsForVariant(Guid id)
         {
             var items = await variantService.GetItemsForVariantAsync(id);

@@ -2,6 +2,7 @@
 using FlameGuardLaundry.Shared.Models;
 using FlameGuardLaundry.Shared.Services;
 using Microsoft.AspNetCore.Mvc;
+using Swashbuckle.AspNetCore.Annotations;
 
 namespace FlameGuardLaundry.Api.Controllers
 {
@@ -10,6 +11,8 @@ namespace FlameGuardLaundry.Api.Controllers
     public class ClothingProductsController(ClothingProductService productService) : ControllerBase
     {
         [HttpGet]
+        [SwaggerOperation(Summary = "List all clothing products", Description = "Returns a list of all clothing products.")]
+        [SwaggerResponse(200, "List of clothing products", typeof(List<ClothingProductModel>))]
         public async Task<ActionResult<List<ClothingProductModel>>> GetAll()
         {
             var products = await productService.GetAllProductsAsync();
@@ -17,6 +20,9 @@ namespace FlameGuardLaundry.Api.Controllers
         }
 
         [HttpGet("{id:guid}")]
+        [SwaggerOperation(Summary = "Get clothing product by ID", Description = "Returns a clothing product by its unique ID.")]
+        [SwaggerResponse(200, "Clothing product found", typeof(ClothingProductModel))]
+        [SwaggerResponse(404, "Clothing product not found")]
         public async Task<ActionResult<ClothingProductModel>> GetById(Guid id)
         {
             var product = await productService.GetProductByIdAsync(id);
@@ -27,6 +33,9 @@ namespace FlameGuardLaundry.Api.Controllers
         }
 
         [HttpPost]
+        [SwaggerOperation(Summary = "Create a new clothing product", Description = "Creates a new clothing product.")]
+        [SwaggerResponse(201, "Clothing product created", typeof(ClothingProductModel))]
+        [SwaggerResponse(409, "A product with the same name and manufacturer already exists")]
         public async Task<ActionResult<ClothingProductModel>> Create(ClothingProductModel model)
         {
             var created = await productService.CreateProductAsync(model);
@@ -34,6 +43,11 @@ namespace FlameGuardLaundry.Api.Controllers
         }
 
         [HttpPut("{id:guid}")]
+        [SwaggerOperation(Summary = "Update a clothing product", Description = "Updates an existing clothing product.")]
+        [SwaggerResponse(204, "Clothing product updated")]
+        [SwaggerResponse(400, "ID mismatch")]
+        [SwaggerResponse(404, "Clothing product not found")]
+        [SwaggerResponse(409, "A product with the same name and manufacturer already exists")]
         public async Task<IActionResult> Update(Guid id, ClothingProductModel model)
         {
             if (id != model.Id)
@@ -51,6 +65,9 @@ namespace FlameGuardLaundry.Api.Controllers
         }
 
         [HttpDelete("{id:guid}")]
+        [SwaggerOperation(Summary = "Delete a clothing product", Description = "Deletes a clothing product by its unique ID.")]
+        [SwaggerResponse(204, "Clothing product deleted")]
+        [SwaggerResponse(404, "Clothing product not found")]
         public async Task<IActionResult> Delete(Guid id)
         {
             var success = await productService.DeleteProductAsync(id);
