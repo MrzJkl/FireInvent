@@ -75,7 +75,7 @@ namespace FlameGuardLaundry.Shared.Services
 
             var maintenances = await context.Maintenances
                 .Where(m => m.ItemId == itemId)
-                .OrderByDescending(m => m.Performed)
+                .OrderByDescending(m => m.PerformedAt)
                 .AsNoTracking()
                 .ToListAsync();
 

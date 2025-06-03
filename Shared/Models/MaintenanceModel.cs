@@ -11,11 +11,13 @@ public record MaintenanceModel
     public Guid ItemId { get; init; }
 
     [Required]
-    public DateTime Performed { get; init; }
+    public DateTime PerformedAt { get; init; }
 
     [Required]
     public MaintenanceType MaintenanceType { get; init; }
 
     [MaxLength(ModelConstants.MaxStringLengthLong)]
     public string? Remarks { get; init; }
+
+    public UserModel PerformedBy { get; init; } = new UserModel();
 }

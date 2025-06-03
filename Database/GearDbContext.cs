@@ -1,9 +1,11 @@
 ﻿using FlameGuardLaundry.Database.Models;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
 namespace FlameGuardLaundry.Database;
 
-public class GearDbContext(DbContextOptions<GearDbContext> options) : DbContext(options)
+public class GearDbContext(DbContextOptions<GearDbContext> options) : IdentityDbContext<IdentityUser>(options)
 {
     public DbSet<ClothingItem> ClothingItems => Set<ClothingItem>();
 

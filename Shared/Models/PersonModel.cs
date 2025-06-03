@@ -8,7 +8,6 @@ public record PersonModel
     public Guid Id { get; init; }
 
     [Required]
-
     [MaxLength(ModelConstants.MaxStringLength)]
     public string FirstName { get; init; } = string.Empty;
 
