@@ -3,8 +3,6 @@ import 'package:http/http.dart' as http;
 
 class HttpService {
   final String _baseUrl = "http://localhost:5004";
-  String? _token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9uYW1lIjoidXNlcjFAZXhhbXBsZS5jb20iLCJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9uYW1laWRlbnRpZmllciI6IjI4MDQ0NmU1LTI3OGMtNDczNy1hNmUyLTg3ZDVhNGE2ODBkOCIsImh0dHA6Ly9zY2hlbWFzLm1pY3Jvc29mdC5jb20vd3MvMjAwOC8wNi9pZGVudGl0eS9jbGFpbXMvcm9sZSI6WyJ1c2VyIiwiYWRtaW4iXSwiZXhwIjoxNzUwMTU4MjUwLCJpc3MiOiJmbGFtZWd1YXJkbGF1bmRyeSIsImF1ZCI6ImZsYW1lZ3VhcmRsYXVuZHJ5LXVzZXJzIn0.m3ue19fK62TF8Jx2grso4X3fQnlWSnDuNI3CWj0FL_Y";
-
 
   void setToken(String token) {
     _token = token;

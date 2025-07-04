@@ -108,6 +108,11 @@ builder.Services.AddScoped<UserService>();
 builder.Services.AddControllers(options =>
 {
     options.Filters.Add(new AuthorizeFilter());
+})
+.AddJsonOptions(options =>
+{
+    options.JsonSerializerOptions.PropertyNamingPolicy = System.Text.Json.JsonNamingPolicy.CamelCase;
+    options.JsonSerializerOptions.PropertyNameCaseInsensitive = true;
 });
 
 WebApplication app = builder.Build();
@@ -144,5 +149,3 @@ catch (Exception ex)
 }
 
 app.Run();
-
-record UserCredentials(string UserName, string Password);
