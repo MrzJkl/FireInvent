@@ -200,5 +200,11 @@ catch (Exception ex)
     Console.WriteLine($"Error during role/user setup: {ex.Message}");
 }
 
+app.MapGet("/", context =>
+{
+    context.Response.Redirect("/swagger");
+    return Task.CompletedTask;
+});
+
 
 app.Run();
