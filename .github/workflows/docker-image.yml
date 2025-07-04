@@ -27,6 +27,6 @@ jobs:
     - name: Build and push Docker image to GHCR
       uses: docker/build-push-action@v5
       with:
-        file: ./Api/Dockerfile
+        file: ./backend/Api/Dockerfile
         push: true
         tags: ghcr.io/mrzjkl/flameguardlaundry:latest
