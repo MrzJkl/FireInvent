@@ -36,7 +36,7 @@ public class ClothingProductsController(ClothingProductService productService) :
     [SwaggerOperation(Summary = "Create a new clothing product", Description = "Creates a new clothing product.")]
     [SwaggerResponse(201, "Clothing product created", typeof(ClothingProductModel))]
     [SwaggerResponse(409, "A product with the same name and manufacturer already exists")]
-    public async Task<ActionResult<ClothingProductModel>> Create(ClothingProductModel model)
+    public async Task<ActionResult<ClothingProductModel>> Create(CreateClothingProductModel model)
     {
         var created = await productService.CreateProductAsync(model);
         return CreatedAtAction(nameof(GetById), new { id = created.Id }, created);

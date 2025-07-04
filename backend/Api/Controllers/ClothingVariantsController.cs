@@ -38,7 +38,7 @@ public class ClothingVariantsController(ClothingVariantService variantService) :
     [SwaggerResponse(201, "Clothing variant created", typeof(ClothingVariantModel))]
     [SwaggerResponse(409, "A clothing variant with the same name already exists for this product")]
     [SwaggerResponse(400, "Referenced product does not exist")]
-    public async Task<ActionResult<ClothingVariantModel>> Create(ClothingVariantModel model)
+    public async Task<ActionResult<ClothingVariantModel>> Create(CreateClothingVariantModel model)
     {
         var created = await variantService.CreateVariantAsync(model);
         return CreatedAtAction(nameof(GetById), new { id = created.Id }, created);

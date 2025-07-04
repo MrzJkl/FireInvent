@@ -9,7 +9,7 @@ namespace FlameGuardLaundry.Shared.Services;
 
 public class PersonService(GearDbContext context, IMapper mapper)
 {
-    public async Task<PersonModel> CreatePersonAsync(PersonModel model)
+    public async Task<PersonModel> CreatePersonAsync(CreatePersonModel model)
     {
         var exists = await context.Persons.AnyAsync(p =>
             (p.FirstName == model.FirstName && p.LastName == model.LastName) ||

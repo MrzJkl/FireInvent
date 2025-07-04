@@ -33,7 +33,7 @@ public class StorageLocationsController(StorageLocationService locationService) 
     [SwaggerOperation(Summary = "Create a new storage location", Description = "Creates a new storage location.")]
     [SwaggerResponse(201, "Storage location created", typeof(StorageLocationModel))]
     [SwaggerResponse(409, "A storage location with the same name already exists")]
-    public async Task<ActionResult<StorageLocationModel>> Create(StorageLocationModel model)
+    public async Task<ActionResult<StorageLocationModel>> Create(CreateStorageLocationModel model)
     {
         var created = await locationService.CreateStorageLocationAsync(model);
         return CreatedAtAction(nameof(GetById), new { id = created.Id }, created);

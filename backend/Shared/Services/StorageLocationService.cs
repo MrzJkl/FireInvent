@@ -9,7 +9,7 @@ namespace FlameGuardLaundry.Shared.Services;
 
 public class StorageLocationService(GearDbContext context, IMapper mapper)
 {
-    public async Task<StorageLocationModel> CreateStorageLocationAsync(StorageLocationModel model)
+    public async Task<StorageLocationModel> CreateStorageLocationAsync(CreateStorageLocationModel model)
     {
         var exists = await context.StorageLocations
             .AnyAsync(s => s.Name == model.Name);

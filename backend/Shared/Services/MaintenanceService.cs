@@ -9,7 +9,7 @@ namespace FlameGuardLaundry.Shared.Services;
 
 public class MaintenanceService(GearDbContext context, IMapper mapper)
 {
-    public async Task<MaintenanceModel> CreateMaintenanceAsync(MaintenanceModel model)
+    public async Task<MaintenanceModel> CreateMaintenanceAsync(CreateMaintenanceModel model)
     {
         _ = await context.ClothingItems.FindAsync(model.ItemId) ?? throw new BadRequestException($"ClothingItem with ID '{model.ItemId}' does not exist.");
 

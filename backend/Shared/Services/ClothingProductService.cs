@@ -9,7 +9,7 @@ namespace FlameGuardLaundry.Shared.Services;
 
 public class ClothingProductService(GearDbContext context, IMapper mapper)
 {
-    public async Task<ClothingProductModel> CreateProductAsync(ClothingProductModel model)
+    public async Task<ClothingProductModel> CreateProductAsync(CreateClothingProductModel model)
     {
         var exists = await context.ClothingProducts.AnyAsync(p =>
             p.Name == model.Name && p.Manufacturer == model.Manufacturer);

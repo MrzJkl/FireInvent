@@ -33,7 +33,7 @@ public class MaintenancesController(MaintenanceService service) : ControllerBase
     [SwaggerOperation(Summary = "Create a new maintenance", Description = "Creates a new maintenance record.")]
     [SwaggerResponse(201, "Maintenance created", typeof(MaintenanceModel))]
     [SwaggerResponse(400, "Invalid input or referenced item does not exist")]
-    public async Task<ActionResult<MaintenanceModel>> Create(MaintenanceModel model)
+    public async Task<ActionResult<MaintenanceModel>> Create(CreateMaintenanceModel model)
     {
         var created = await service.CreateMaintenanceAsync(model);
         return CreatedAtAction(nameof(GetById), new { id = created.Id }, created);

@@ -33,7 +33,7 @@ public class PersonsController(PersonService personService) : ControllerBase
     [SwaggerOperation(Summary = "Create a new person", Description = "Creates a new person entry.")]
     [SwaggerResponse(201, "Person created", typeof(PersonModel))]
     [SwaggerResponse(409, "Person with same name or external ID already exists")]
-    public async Task<ActionResult<PersonModel>> Create(PersonModel model)
+    public async Task<ActionResult<PersonModel>> Create(CreatePersonModel model)
     {
         var created = await personService.CreatePersonAsync(model);
         return CreatedAtAction(nameof(GetById), new { id = created.Id }, created);

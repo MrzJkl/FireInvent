@@ -37,7 +37,7 @@ public class ClothingItemsController(
     [SwaggerResponse(201, "Clothing item created", typeof(ClothingItemModel))]
     [SwaggerResponse(400, "Invalid input or referenced variant/location not found")]
     [SwaggerResponse(409, "A clothing item with the same identifier already exists")]
-    public async Task<ActionResult<ClothingItemModel>> Create(ClothingItemModel model)
+    public async Task<ActionResult<ClothingItemModel>> Create(CreateClothingItemModel model)
     {
         var created = await itemService.CreateClothingItemAsync(model);
         return CreatedAtAction(nameof(GetById), new { id = created.Id }, created);

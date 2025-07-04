@@ -9,7 +9,7 @@ namespace FlameGuardLaundry.Shared.Services;
 
 public class ClothingItemService(GearDbContext context, IMapper mapper)
 {
-    public async Task<ClothingItemModel> CreateClothingItemAsync(ClothingItemModel model)
+    public async Task<ClothingItemModel> CreateClothingItemAsync(CreateClothingItemModel model)
     {
         if (!await context.ClothingVariants.AnyAsync(v => v.Id == model.VariantId))
             throw new BadRequestException("ClothingVariant not found.");

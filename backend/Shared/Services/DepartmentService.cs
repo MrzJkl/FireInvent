@@ -8,7 +8,7 @@ namespace FlameGuardLaundry.Shared.Services;
 
 public class DepartmentService(GearDbContext context, IMapper mapper)
 {
-    public async Task<DepartmentModel> CreateDepartmentAsync(DepartmentModel model)
+    public async Task<DepartmentModel> CreateDepartmentAsync(CreateDepartmentModel model)
     {
         var department = mapper.Map<Department>(model);
         department.Id = Guid.NewGuid();

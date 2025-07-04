@@ -9,7 +9,7 @@ namespace FlameGuardLaundry.Shared.Services;
 
 public class ClothingVariantService(GearDbContext context, IMapper mapper)
 {
-    public async Task<ClothingVariantModel> CreateVariantAsync(ClothingVariantModel model)
+    public async Task<ClothingVariantModel> CreateVariantAsync(CreateClothingVariantModel model)
     {
         var duplicate = await context.ClothingVariants.AnyAsync(v =>
             v.ProductId == model.ProductId &&

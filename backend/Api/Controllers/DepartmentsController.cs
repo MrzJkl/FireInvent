@@ -32,7 +32,7 @@ public class DepartmentsController(DepartmentService departmentService) : Contro
     [HttpPost]
     [SwaggerOperation(Summary = "Create a new department", Description = "Creates a new department.")]
     [SwaggerResponse(201, "Department created", typeof(DepartmentModel))]
-    public async Task<ActionResult<DepartmentModel>> Create(DepartmentModel model)
+    public async Task<ActionResult<DepartmentModel>> Create(CreateDepartmentModel model)
     {
         var created = await departmentService.CreateDepartmentAsync(model);
         return CreatedAtAction(nameof(GetById), new { id = created.Id }, created);
