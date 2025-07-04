@@ -123,6 +123,16 @@ builder.Services.AddControllers(options =>
 
 WebApplication app = builder.Build();
 
+using var scope = app.Services.CreateScope();
+
+var dbContext = scope.ServiceProvider.GetRequiredService<GearDbContext>();
+if ((await dbContext.Database.GetPendingMigrationsAsync()).Any())
+{
+    Console.WriteLine("Waiting for pending database migrations...");
+    await dbContext.Database.MigrateAsync();
+    Console.WriteLine("Successfully applied pending database migrations.");
+}
+
 app.UseMiddleware<ApiExceptionMiddleware>();
 
 app.MapControllers();
@@ -134,7 +144,6 @@ app.UseCors("AllowFlutterWeb");
 app.UseAuthentication();
 app.UseAuthorization();
 
-using var scope = app.Services.CreateScope();
 var services = scope.ServiceProvider;
 var roleManager = services.GetRequiredService<RoleManager<IdentityRole>>();
 var userManager = services.GetRequiredService<UserManager<IdentityUser>>();
