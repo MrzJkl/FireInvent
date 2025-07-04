@@ -1,0 +1,32 @@
+services:
+  db:
+    image: postgres:15
+    container_name: flameguard_db
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    volumes:
+      - db_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  api:
+    image: ghcr.io/mrzjkl/flameguardlaundry:latest
+    container_name: flameguard_api
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      ConnectionStrings__DefaultConnection: Host=db;Port=5432;Database=${POSTGRES_DB};Username=${POSTGRES_USER};Password=${POSTGRES_PASSWORD}
+      Jwt__Key: ${JWT_KEY}
+      DefaultUser__Email: ${DEFAULT_ADMIN_EMAIL}
+      DefaultUser__Password: ${DEFAULT_ADMIN_PASSWORD}
+    ports:
+      - "5001:8080"
+
+volumes:
+  db_data:

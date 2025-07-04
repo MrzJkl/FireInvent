@@ -9,15 +9,21 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc.Authorization;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
-using System.Security.Claims;
 using System.Text;
 
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
+builder.Configuration
+    .SetBasePath(Directory.GetCurrentDirectory())
+    .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
+    .AddEnvironmentVariables();
+
 builder.Services.Configure<JwtOptions>(
     builder.Configuration.GetRequiredSection("Jwt"));
+builder.Services.Configure<DefaultAdminOptions>(
+    builder.Configuration.GetSection("DefaultUser"));
 
 var jwtOptions = builder.Configuration.GetRequiredSection("Jwt").Get<JwtOptions>()!;
 
@@ -125,13 +131,14 @@ app.UseSwaggerUI();
 
 app.UseCors("AllowFlutterWeb");
 
-//app.UseHttpsRedirection();
-
 app.UseAuthentication();
 app.UseAuthorization();
 
 using var scope = app.Services.CreateScope();
-var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
+var services = scope.ServiceProvider;
+var roleManager = services.GetRequiredService<RoleManager<IdentityRole>>();
+var userManager = services.GetRequiredService<UserManager<IdentityUser>>();
+var defaultUserOptions = services.GetRequiredService<IOptions<DefaultAdminOptions>>().Value;
 
 try
 {
@@ -142,10 +149,47 @@ try
             await roleManager.CreateAsync(new IdentityRole(roleName));
         }
     }
+
+    if (!string.IsNullOrWhiteSpace(defaultUserOptions.Email) &&
+        !string.IsNullOrWhiteSpace(defaultUserOptions.Password))
+    {
+        var existingUser = await userManager.FindByEmailAsync(defaultUserOptions.Email);
+        if (existingUser == null)
+        {
+            var adminUser = new IdentityUser
+            {
+                UserName = defaultUserOptions.Email,
+                Email = defaultUserOptions.Email,
+                EmailConfirmed = true
+            };
+
+            var result = await userManager.CreateAsync(adminUser, defaultUserOptions.Password);
+            if (result.Succeeded)
+            {
+                await userManager.AddToRoleAsync(adminUser, Roles.Admin);
+                Console.WriteLine($"Default user created: {defaultUserOptions.Email}");
+            }
+            else
+            {
+                Console.WriteLine("Failed to create default admin user:");
+                foreach (var error in result.Errors)
+                    Console.WriteLine($"- {error.Description}");
+            }
+        }
+        else
+        {
+            Console.WriteLine("Default user already exists.");
+        }
+    }
+    else
+    {
+        Console.WriteLine("No default user created (DefaultUser section incomplete).");
+    }
 }
 catch (Exception ex)
 {
-    Console.WriteLine($"Error creating roles: {ex.Message}");
+    Console.WriteLine($"Error during role/user setup: {ex.Message}");
 }
+
 
 app.Run();
