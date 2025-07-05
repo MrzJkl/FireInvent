@@ -8,18 +8,12 @@ services:
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
     volumes:
       - db_data:/var/lib/postgresql/data
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER}"]
-      interval: 5s
-      timeout: 5s
-      retries: 5
 
   api:
     image: ghcr.io/mrzjkl/flameguardlaundryapi:latest
     container_name: flameguard_api
     depends_on:
-      db:
-        condition: service_healthy
+      - db
     environment:
       ConnectionStrings__DefaultConnection: Host=db;Port=5432;Database=${POSTGRES_DB};Username=${POSTGRES_USER};Password=${POSTGRES_PASSWORD}
       Jwt__Key: ${JWT_KEY}
