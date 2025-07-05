@@ -1,8 +1,8 @@
-import 'package:data_table_2/data_table_2.dart';
 import 'package:flameguardlaundry/constants.dart';
 import 'package:flameguardlaundry/main_drawer.dart';
 import 'package:flameguardlaundry/models/create_models/create_clothing_product_model.dart';
 import 'package:flameguardlaundry/models/gear_type.dart';
+import 'package:flameguardlaundry/widgets/clothing_products_table.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import '../models/clothing_product_model.dart';
@@ -138,7 +138,6 @@ class _ClothingProductListScreenState extends State<ClothingProductListScreen> {
       context: context,
       initial: model,
       onSubmit: (id, updated) async {
-        // Kombiniere id und updated zu einem ClothingProductModel
         final updatedModel = ClothingProductModel(
           id: id!,
           name: updated.name,
@@ -185,41 +184,10 @@ class _ClothingProductListScreenState extends State<ClothingProductListScreen> {
 
           final products = snapshot.data!;
 
-          return DataTable2(
-            columnSpacing: 16,
-            horizontalMargin: 12,
-            columns: const [
-              DataColumn(label: Text('Name')),
-              DataColumn(label: Text('Manufacturer')),
-              DataColumn(label: Text('Type')),
-              DataColumn(label: Text('Actions')),
-            ],
-            rows:
-                products.map((product) {
-                  return DataRow(
-                    cells: [
-                      DataCell(Text(product.name)),
-                      DataCell(Text(product.manufacturer)),
-                      DataCell(Text(product.type.name)),
-                      DataCell(
-                        Row(
-                          children: [
-                            IconButton(
-                              icon: const Icon(Icons.edit),
-                              onPressed: () => _edit(product),
-                              tooltip: 'Edit',
-                            ),
-                            IconButton(
-                              icon: const Icon(Icons.delete),
-                              onPressed: () => _delete(product.id!),
-                              tooltip: 'Delete',
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  );
-                }).toList(),
+          return ClothingProductTable(
+            products: products,
+            onEdit: _edit,
+            onDelete: _delete,
           );
         },
       ),
