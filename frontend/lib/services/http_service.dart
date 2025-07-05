@@ -1,5 +1,5 @@
 import 'dart:convert';
-import 'package:flameguardlaundry/env.dart';
+import 'package:flameguardlaundry/constants.dart';
 import 'package:http/http.dart' as http;
 import 'package:web/web.dart' as web;
 
@@ -13,14 +13,14 @@ class HttpService {
   }
 
   Future<http.Response> get(String path) async {
-    final uri = Uri.parse('$apiUrl$path');
+    final uri = Uri.parse('${Constants.baseUrl}$path');
     final response = await http.get(uri, headers: _headers());
     _handleErrors(response);
     return response;
   }
 
   Future<http.Response> post(String path, dynamic body) async {
-    final uri = Uri.parse('$apiUrl$path');
+    final uri = Uri.parse('${Constants.baseUrl}$path');
     final response = await http.post(
       uri,
       headers: _headers(),
@@ -31,7 +31,7 @@ class HttpService {
   }
 
   Future<http.Response> put(String path, dynamic body) async {
-    final uri = Uri.parse('$apiUrl$path');
+    final uri = Uri.parse('${Constants.baseUrl}$path');
     final response = await http.put(
       uri,
       headers: _headers(),
@@ -42,7 +42,7 @@ class HttpService {
   }
 
   Future<http.Response> delete(String path) async {
-    final uri = Uri.parse('$apiUrl$path');
+    final uri = Uri.parse('${Constants.baseUrl}$path');
     final response = await http.delete(uri, headers: _headers());
     _handleErrors(response);
     return response;

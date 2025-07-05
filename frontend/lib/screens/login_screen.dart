@@ -17,7 +17,7 @@ class LoginScreen extends StatefulWidget {
 class _LoginScreenState extends State<LoginScreen> {
   Future<String?> _authUser(LoginData data) async {
     final response = await http.post(
-      Uri.parse("$apiUrl/auth/login"),
+      Uri.parse("${Constants.baseUrl}/auth/login"),
       headers: {'Content-Type': 'application/json'},
       body: jsonEncode({'email': data.name, 'password': data.password}),
     );
@@ -35,6 +35,8 @@ class _LoginScreenState extends State<LoginScreen> {
   Widget build(BuildContext context) {
     return FlutterLogin(
       title: Constants.appName,
+      disableCustomPageTransformer: true,
+      userType: LoginUserType.email,
       onLogin: _authUser,
       onSubmitAnimationCompleted: () {
         Navigator.of(
@@ -43,11 +45,6 @@ class _LoginScreenState extends State<LoginScreen> {
       },
       onRecoverPassword: (_) => null,
       hideForgotPasswordButton: true,
-      messages: LoginMessages(
-        userHint: 'E-Mail-Address',
-        passwordHint: 'Password',
-        loginButton: 'Sign in',
-      ),
     );
   }
 }

@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_form_builder/flutter_form_builder.dart';
+import 'package:form_builder_validators/form_builder_validators.dart';
 import '../models/create_models/create_clothing_product_model.dart';
 import '../models/clothing_product_model.dart';
 import '../models/gear_type.dart';
@@ -14,64 +16,48 @@ class ClothingProductForm extends StatefulWidget {
 }
 
 class _ClothingProductFormState extends State<ClothingProductForm> {
-  final _formKey = GlobalKey<FormState>();
-  late TextEditingController _nameController;
-  late TextEditingController _manufacturerController;
-  late TextEditingController _descriptionController;
-  late GearType _type;
-
-  @override
-  void initState() {
-    super.initState();
-    _nameController = TextEditingController(text: widget.initial?.name ?? '');
-    _manufacturerController = TextEditingController(
-      text: widget.initial?.manufacturer ?? '',
-    );
-    _descriptionController = TextEditingController(
-      text: widget.initial?.description ?? '',
-    );
-    _type = widget.initial?.type ?? GearType.jacket;
-  }
-
-  @override
-  void dispose() {
-    _nameController.dispose();
-    _manufacturerController.dispose();
-    _descriptionController.dispose();
-    super.dispose();
-  }
+  final _formKey = GlobalKey<FormBuilderState>();
 
   @override
   Widget build(BuildContext context) {
-    return Form(
+    return FormBuilder(
       key: _formKey,
+      initialValue: {
+        'name': widget.initial?.name ?? '',
+        'manufacturer': widget.initial?.manufacturer ?? '',
+        'description': widget.initial?.description ?? '',
+        'type': widget.initial?.type ?? GearType.jacket,
+      },
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          TextFormField(
-            controller: _nameController,
+          FormBuilderTextField(
+            name: 'name',
             decoration: const InputDecoration(labelText: 'Name'),
-            validator:
-                (value) => value == null || value.isEmpty ? 'Required' : null,
+            validator: FormBuilderValidators.compose([
+              FormBuilderValidators.required(),
+            ]),
           ),
-          TextFormField(
-            controller: _manufacturerController,
+          FormBuilderTextField(
+            name: 'manufacturer',
             decoration: const InputDecoration(labelText: 'Manufacturer'),
-            validator:
-                (value) => value == null || value.isEmpty ? 'Required' : null,
+            validator: FormBuilderValidators.compose([
+              FormBuilderValidators.required(),
+            ]),
           ),
-          TextFormField(
-            controller: _descriptionController,
+          FormBuilderTextField(
+            name: 'description',
             decoration: const InputDecoration(labelText: 'Description'),
           ),
-          DropdownButtonFormField<GearType>(
-            value: _type,
+          FormBuilderDropdown<GearType>(
+            name: 'type',
+            decoration: const InputDecoration(labelText: 'Type'),
+            initialValue: widget.initial?.type ?? GearType.jacket,
             items:
                 GearType.values
                     .map((g) => DropdownMenuItem(value: g, child: Text(g.name)))
                     .toList(),
-            onChanged: (val) => setState(() => _type = val!),
-            decoration: const InputDecoration(labelText: 'Type'),
+            validator: FormBuilderValidators.required(),
           ),
           const SizedBox(height: 16),
           Row(
@@ -83,13 +69,14 @@ class _ClothingProductFormState extends State<ClothingProductForm> {
               ),
               ElevatedButton(
                 onPressed: () {
-                  if (_formKey.currentState?.validate() ?? false) {
+                  if (_formKey.currentState?.saveAndValidate() ?? false) {
+                    final values = _formKey.currentState!.value;
                     widget.onSubmit(
                       CreateClothingProductModel(
-                        name: _nameController.text,
-                        manufacturer: _manufacturerController.text,
-                        description: _descriptionController.text,
-                        type: _type,
+                        name: values['name'] as String,
+                        manufacturer: values['manufacturer'] as String,
+                        description: values['description'] as String,
+                        type: values['type'] as GearType,
                       ),
                     );
                   }

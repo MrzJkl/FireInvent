@@ -1,25 +1,26 @@
 import 'package:flameguardlaundry/constants.dart';
 import 'package:flameguardlaundry/main_drawer.dart';
 import 'package:flameguardlaundry/models/create_models/create_clothing_product_model.dart';
+import 'package:flameguardlaundry/models/create_models/create_person_model.dart';
 import 'package:flameguardlaundry/models/gear_type.dart';
-import 'package:flameguardlaundry/widgets/clothing_product_form.dart';
-import 'package:flameguardlaundry/widgets/clothing_products_table.dart';
+import 'package:flameguardlaundry/models/person_model.dart';
+import 'package:flameguardlaundry/services/person_service.dart';
+import 'package:flameguardlaundry/widgets/person_form.dart';
+import 'package:flameguardlaundry/widgets/persons_table.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import '../models/clothing_product_model.dart';
-import '../services/clothing_product_service.dart';
 
-class ClothingProductListScreen extends StatefulWidget {
-  const ClothingProductListScreen({super.key});
+class PersonListScreen extends StatefulWidget {
+  const PersonListScreen({super.key});
 
   @override
-  State<ClothingProductListScreen> createState() =>
-      _ClothingProductListScreenState();
+  State<PersonListScreen> createState() => _PersonListScreenState();
 }
 
-class _ClothingProductListScreenState extends State<ClothingProductListScreen> {
-  late Future<List<ClothingProductModel>> _productsFuture;
-  final ClothingProductService _service = GetIt.I<ClothingProductService>();
+class _PersonListScreenState extends State<PersonListScreen> {
+  late Future<List<PersonModel>> _personsFuture;
+  final PersonService _service = GetIt.I<PersonService>();
 
   @override
   void initState() {
@@ -29,7 +30,7 @@ class _ClothingProductListScreenState extends State<ClothingProductListScreen> {
 
   void _loadData() {
     setState(() {
-      _productsFuture = _service.getAll();
+      _personsFuture = _service.getAll();
     });
   }
 
@@ -38,19 +39,19 @@ class _ClothingProductListScreenState extends State<ClothingProductListScreen> {
     _loadData();
   }
 
-  Future<void> showClothingProductFormDialog({
+  Future<void> showPersonFormDialog({
     required BuildContext context,
-    ClothingProductModel? initial,
-    required void Function(String? id, CreateClothingProductModel) onSubmit,
+    PersonModel? initial,
+    required void Function(String? id, CreatePersonModel) onSubmit,
   }) async {
     await showDialog(
       context: context,
       builder:
           (_) => AlertDialog(
-            title: Text(initial == null ? 'Create Product' : 'Edit Product'),
+            title: Text(initial == null ? 'Create Person' : 'Edit Person'),
             content: SizedBox(
               width: 400,
-              child: ClothingProductForm(
+              child: PersonForm(
                 initial: initial,
                 onSubmit: (createModel) {
                   Navigator.of(context).pop();
@@ -62,17 +63,18 @@ class _ClothingProductListScreenState extends State<ClothingProductListScreen> {
     );
   }
 
-  void _edit(ClothingProductModel model) async {
-    await showClothingProductFormDialog(
+  void _edit(PersonModel model) async {
+    await showPersonFormDialog(
       context: context,
       initial: model,
       onSubmit: (id, updated) async {
-        final updatedModel = ClothingProductModel(
+        final updatedModel = PersonModel(
           id: id!,
-          name: updated.name,
-          manufacturer: updated.manufacturer,
-          description: updated.description,
-          type: updated.type,
+          firstName: updated.firstName,
+          lastName: updated.lastName,
+          contactInfo: updated.contactInfo,
+          externalId: updated.externalId,
+          remarks: updated.remarks,
         );
         await _service.update(id, updatedModel);
         _loadData();
@@ -81,7 +83,7 @@ class _ClothingProductListScreenState extends State<ClothingProductListScreen> {
   }
 
   void _create() async {
-    await showClothingProductFormDialog(
+    await showPersonFormDialog(
       context: context,
       onSubmit: (id, created) async {
         await _service.create(created);
@@ -97,24 +99,24 @@ class _ClothingProductListScreenState extends State<ClothingProductListScreen> {
       drawer: MainDrawer(),
       floatingActionButton: FloatingActionButton(
         onPressed: _create,
-        tooltip: 'Add Product',
+        tooltip: 'Add Person',
         child: const Icon(Icons.add),
       ),
-      body: FutureBuilder<List<ClothingProductModel>>(
-        future: _productsFuture,
+      body: FutureBuilder<List<PersonModel>>(
+        future: _personsFuture,
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator());
           } else if (snapshot.hasError) {
             return Center(child: Text('Error: ${snapshot.error}'));
           } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-            return const Center(child: Text('No products available.'));
+            return const Center(child: Text('No persons available.'));
           }
 
-          final products = snapshot.data!;
+          final persons = snapshot.data!;
 
-          return ClothingProductTable(
-            products: products,
+          return PersonsTable(
+            persons: persons,
             onEdit: _edit,
             onDelete: _delete,
           );
