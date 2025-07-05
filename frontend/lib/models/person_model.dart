@@ -1,25 +1,25 @@
+import 'package:flutter/widgets.dart';
 import 'package:json_annotation/json_annotation.dart';
+import 'create_models/create_person_model.dart';
 
 part 'person_model.g.dart';
 
 @JsonSerializable()
-class PersonModel {
-  final String? id;
-  final String firstName;
-  final String lastName;
-  final String? remarks;
-  final String? contactInfo;
-  final String? externalId;
+@immutable
+class PersonModel extends CreatePersonModel {
+  final String id;
 
-  PersonModel({
-    this.id,
-    required this.firstName,
-    required this.lastName,
-    this.remarks,
-    this.contactInfo,
-    this.externalId,
+  const PersonModel({
+    required this.id,
+    required super.firstName,
+    required super.lastName,
+    super.remarks,
+    super.contactInfo,
+    super.externalId,
   });
 
-  factory PersonModel.fromJson(Map<String, dynamic> json) => _$PersonModelFromJson(json);
+  factory PersonModel.fromJson(Map<String, dynamic> json) =>
+      _$PersonModelFromJson(json);
+  @override
   Map<String, dynamic> toJson() => _$PersonModelToJson(this);
 }

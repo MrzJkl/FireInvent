@@ -1,8 +1,8 @@
 import 'dart:convert';
+import 'package:flameguardlaundry/models/create_models/create_user_model.dart';
 import 'package:get_it/get_it.dart';
 
 import '../models/user_model.dart';
-import '../models/create_user_model.dart';
 import '../services/http_service.dart';
 
 class UserService {

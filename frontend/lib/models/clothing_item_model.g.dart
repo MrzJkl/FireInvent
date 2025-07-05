@@ -8,7 +8,7 @@ part of 'clothing_item_model.dart';
 
 ClothingItemModel _$ClothingItemModelFromJson(Map<String, dynamic> json) =>
     ClothingItemModel(
-      id: json['id'] as String?,
+      id: json['id'] as String,
       variantId: json['variantId'] as String,
       identifier: json['identifier'] as String?,
       storageLocationId: json['storageLocationId'] as String?,
@@ -22,19 +22,19 @@ ClothingItemModel _$ClothingItemModelFromJson(Map<String, dynamic> json) =>
 
 Map<String, dynamic> _$ClothingItemModelToJson(ClothingItemModel instance) =>
     <String, dynamic>{
-      'id': instance.id,
       'variantId': instance.variantId,
       'identifier': instance.identifier,
       'storageLocationId': instance.storageLocationId,
       'condition': _$GearConditionEnumMap[instance.condition]!,
       'purchaseDate': instance.purchaseDate.toIso8601String(),
       'retirementDate': instance.retirementDate?.toIso8601String(),
+      'id': instance.id,
     };
 
 const _$GearConditionEnumMap = {
-  GearCondition.excellent: 0,
-  GearCondition.good: 1,
-  GearCondition.fair: 2,
-  GearCondition.poor: 3,
-  GearCondition.retired: 4,
+  GearCondition.new_: 0,
+  GearCondition.used: 1,
+  GearCondition.damaged: 2,
+  GearCondition.destroyed: 3,
+  GearCondition.lost: 4,
 };

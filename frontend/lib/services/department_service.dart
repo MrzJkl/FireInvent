@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:flameguardlaundry/models/create_models/create_department_model.dart';
 import 'package:get_it/get_it.dart';
 
 import '../models/department_model.dart';
@@ -18,7 +19,7 @@ class DepartmentService {
     return DepartmentModel.fromJson(jsonDecode(response.body));
   }
 
-  Future<DepartmentModel> create(DepartmentModel model) async {
+  Future<DepartmentModel> create(CreateDepartmentModel model) async {
     final response = await http.post('/departments', model.toJson());
     return DepartmentModel.fromJson(jsonDecode(response.body));
   }

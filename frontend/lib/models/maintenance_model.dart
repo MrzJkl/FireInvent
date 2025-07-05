@@ -1,32 +1,27 @@
+import 'package:flameguardlaundry/models/maintenance_type.dart';
+import 'package:flameguardlaundry/models/user_model.dart';
+import 'package:flutter/widgets.dart';
 import 'package:json_annotation/json_annotation.dart';
-
-import 'user_model.dart';
+import 'create_models/create_maintenance_model.dart';
 
 part 'maintenance_model.g.dart';
 
-enum MaintenanceType {
-  @JsonValue(0)
-  standard,
-}
-
 @JsonSerializable()
-class MaintenanceModel {
-  final String? id;
-  final String itemId;
-  final DateTime performedAt;
-  final MaintenanceType maintenanceType;
-  final String? remarks;
-  final UserModel? performedBy;
+@immutable
+class MaintenanceModel extends CreateMaintenanceModel {
+  final String id;
 
-  MaintenanceModel({
-    this.id,
-    required this.itemId,
-    required this.performedAt,
-    required this.maintenanceType,
-    this.remarks,
-    this.performedBy,
+  const MaintenanceModel({
+    required this.id,
+    required super.itemId,
+    required super.performedAt,
+    required super.maintenanceType,
+    super.remarks,
+    super.performedBy,
   });
 
-  factory MaintenanceModel.fromJson(Map<String, dynamic> json) => _$MaintenanceModelFromJson(json);
+  factory MaintenanceModel.fromJson(Map<String, dynamic> json) =>
+      _$MaintenanceModelFromJson(json);
+  @override
   Map<String, dynamic> toJson() => _$MaintenanceModelToJson(this);
 }

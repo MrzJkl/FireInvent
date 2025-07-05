@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:flameguardlaundry/models/create_models/create_maintenance_model.dart';
 import 'package:get_it/get_it.dart';
 
 import '../models/maintenance_model.dart';
@@ -18,7 +19,7 @@ class MaintenanceService {
     return MaintenanceModel.fromJson(jsonDecode(response.body));
   }
 
-  Future<MaintenanceModel> create(MaintenanceModel model) async {
+  Future<MaintenanceModel> create(CreateMaintenanceModel model) async {
     final response = await http.post('/maintenances', model.toJson());
     return MaintenanceModel.fromJson(jsonDecode(response.body));
   }

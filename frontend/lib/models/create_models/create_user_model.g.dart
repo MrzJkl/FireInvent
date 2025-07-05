@@ -8,9 +8,9 @@ part of 'create_user_model.dart';
 
 CreateUserModel _$CreateUserModelFromJson(Map<String, dynamic> json) =>
     CreateUserModel(
-      email: json['email'] as String?,
-      userName: json['userName'] as String?,
-      password: json['password'] as String?,
+      email: json['email'] as String,
+      userName: json['userName'] as String,
+      password: json['password'] as String,
     );
 
 Map<String, dynamic> _$CreateUserModelToJson(CreateUserModel instance) =>

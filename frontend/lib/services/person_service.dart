@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:flameguardlaundry/models/create_models/create_person_model.dart';
 import 'package:get_it/get_it.dart';
 
 import '../models/person_model.dart';
@@ -18,7 +19,7 @@ class PersonService {
     return PersonModel.fromJson(jsonDecode(response.body));
   }
 
-  Future<PersonModel> create(PersonModel model) async {
+  Future<PersonModel> create(CreatePersonModel model) async {
     final response = await http.post('/persons', model.toJson());
     return PersonModel.fromJson(jsonDecode(response.body));
   }

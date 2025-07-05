@@ -9,7 +9,7 @@ part of 'storage_location_model.dart';
 StorageLocationModel _$StorageLocationModelFromJson(
   Map<String, dynamic> json,
 ) => StorageLocationModel(
-  id: json['id'] as String?,
+  id: json['id'] as String,
   name: json['name'] as String,
   remarks: json['remarks'] as String?,
 );
@@ -17,7 +17,7 @@ StorageLocationModel _$StorageLocationModelFromJson(
 Map<String, dynamic> _$StorageLocationModelToJson(
   StorageLocationModel instance,
 ) => <String, dynamic>{
-  'id': instance.id,
   'name': instance.name,
   'remarks': instance.remarks,
+  'id': instance.id,
 };

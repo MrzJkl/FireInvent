@@ -1,40 +1,27 @@
+import 'package:flameguardlaundry/models/gear_condition.dart';
+import 'package:flutter/widgets.dart';
 import 'package:json_annotation/json_annotation.dart';
+import 'create_models/create_clothing_item_model.dart';
 
 part 'clothing_item_model.g.dart';
 
-enum GearCondition {
-  @JsonValue(0)
-  excellent,
-  @JsonValue(1)
-  good,
-  @JsonValue(2)
-  fair,
-  @JsonValue(3)
-  poor,
-  @JsonValue(4)
-  retired,
-}
-
 @JsonSerializable()
-class ClothingItemModel {
-  final String? id;
-  final String variantId;
-  final String? identifier;
-  final String? storageLocationId;
-  final GearCondition condition;
-  final DateTime purchaseDate;
-  final DateTime? retirementDate;
+@immutable
+class ClothingItemModel extends CreateClothingItemModel {
+  final String id;
 
-  ClothingItemModel({
-    this.id,
-    required this.variantId,
-    this.identifier,
-    this.storageLocationId,
-    required this.condition,
-    required this.purchaseDate,
-    this.retirementDate,
+  const ClothingItemModel({
+    required this.id,
+    required super.variantId,
+    super.identifier,
+    super.storageLocationId,
+    required super.condition,
+    required super.purchaseDate,
+    required super.retirementDate,
   });
 
-  factory ClothingItemModel.fromJson(Map<String, dynamic> json) => _$ClothingItemModelFromJson(json);
+  factory ClothingItemModel.fromJson(Map<String, dynamic> json) =>
+      _$ClothingItemModelFromJson(json);
+  @override
   Map<String, dynamic> toJson() => _$ClothingItemModelToJson(this);
-} 
+}

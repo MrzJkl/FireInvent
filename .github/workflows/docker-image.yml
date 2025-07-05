@@ -30,4 +30,12 @@ jobs:
         context: ./backend
         file: ./backend/Api/Dockerfile
         push: true
-        tags: ghcr.io/mrzjkl/flameguardlaundry:latest
+        tags: ghcr.io/mrzjkl/flameguardlaundryapi:latest
+        
+    - name: Build and push Docker image to GHCR
+      uses: docker/build-push-action@v5
+      with:
+        context: ./frontend
+        file: ./frontend/Dockerfile
+        push: true
+        tags: ghcr.io/mrzjkl/flameguardlaundryfrontend:latest
