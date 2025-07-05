@@ -9,7 +9,7 @@ part of 'clothing_item_assignment_history_model.dart';
 ClothingItemAssignmentHistoryModel _$ClothingItemAssignmentHistoryModelFromJson(
   Map<String, dynamic> json,
 ) => ClothingItemAssignmentHistoryModel(
-  id: json['id'] as String?,
+  id: json['id'] as String,
   itemId: json['itemId'] as String,
   personId: json['personId'] as String,
   assignedFrom: DateTime.parse(json['assignedFrom'] as String),
@@ -22,9 +22,9 @@ ClothingItemAssignmentHistoryModel _$ClothingItemAssignmentHistoryModelFromJson(
 Map<String, dynamic> _$ClothingItemAssignmentHistoryModelToJson(
   ClothingItemAssignmentHistoryModel instance,
 ) => <String, dynamic>{
-  'id': instance.id,
   'itemId': instance.itemId,
   'personId': instance.personId,
   'assignedFrom': instance.assignedFrom.toIso8601String(),
   'assignedUntil': instance.assignedUntil?.toIso8601String(),
+  'id': instance.id,
 };

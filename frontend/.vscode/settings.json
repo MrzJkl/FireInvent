@@ -1,0 +1,29 @@
+{
+  "files.autoSave": "onFocusChange",
+  "editor.tabSize": 2,
+  "editor.formatOnSave": true,
+  "editor.detectIndentation": false,
+  "editor.defaultFormatter": "Dart-Code.flutter",
+  "arb-editor.suppressedWarnings": ["missing_metadata_for_key"],
+  "files.exclude": {
+    // "**/*.g.dart": true
+  },
+  "cSpell.language": "en,de",
+  "cSpell.ignorePaths": [
+    "**/ios",
+    "**/android",
+    "**/build",
+    "**/web",
+    "**/.dart_tool",
+    "**/.dart_tool",
+    "**/pubspec.lock",
+    "**/.vscode",
+    "**/pubspec.yaml",
+    "**/devtools_options.yaml",
+    "**/analysis_options.yaml",
+    "**/.metadata"
+  ],
+  "[xml]": {
+    "editor.defaultFormatter": "DotJoshJohnson.xml"
+  }
+}

@@ -1,3 +1,6 @@
+import 'package:data_table_2/data_table_2.dart';
+import 'package:flameguardlaundry/constants.dart';
+import 'package:flameguardlaundry/main_drawer.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import '../models/clothing_product_model.dart';
@@ -7,13 +10,13 @@ class ClothingProductListScreen extends StatefulWidget {
   const ClothingProductListScreen({super.key});
 
   @override
-  State<ClothingProductListScreen> createState() => _ClothingProductListScreenState();
+  State<ClothingProductListScreen> createState() =>
+      _ClothingProductListScreenState();
 }
 
 class _ClothingProductListScreenState extends State<ClothingProductListScreen> {
   late Future<List<ClothingProductModel>> _productsFuture;
-    final ClothingProductService _service = GetIt.I<ClothingProductService>();
-
+  final ClothingProductService _service = GetIt.I<ClothingProductService>();
 
   @override
   void initState() {
@@ -33,76 +36,101 @@ class _ClothingProductListScreenState extends State<ClothingProductListScreen> {
   }
 
   Future<void> showClothingProductFormDialog({
-  required BuildContext context,
-  ClothingProductModel? initial,
-  required void Function(ClothingProductModel) onSubmit,
-}) async {
-  final formKey = GlobalKey<FormState>();
-  final nameController = TextEditingController(text: initial?.name ?? '');
-  final manufacturerController = TextEditingController(text: initial?.manufacturer ?? '');
-  final descriptionController = TextEditingController(text: initial?.description ?? '');
-  GearType type = initial?.type ?? GearType.jacket;
+    required BuildContext context,
+    ClothingProductModel? initial,
+    required void Function(ClothingProductModel) onSubmit,
+  }) async {
+    final formKey = GlobalKey<FormState>();
+    final nameController = TextEditingController(text: initial?.name ?? '');
+    final manufacturerController = TextEditingController(
+      text: initial?.manufacturer ?? '',
+    );
+    final descriptionController = TextEditingController(
+      text: initial?.description ?? '',
+    );
+    GearType type = initial?.type ?? GearType.jacket;
 
-  await showDialog(
-    context: context,
-    builder: (_) => AlertDialog(
-      title: Text(initial == null ? 'Create Product' : 'Edit Product'),
-      content: SizedBox(
-        width: 400,
-        child: Form(
-          key: formKey,
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              TextFormField(
-                controller: nameController,
-                decoration: const InputDecoration(labelText: 'Name'),
-                validator: (value) => value == null || value.isEmpty ? 'Required' : null,
+    await showDialog(
+      context: context,
+      builder:
+          (_) => AlertDialog(
+            title: Text(initial == null ? 'Create Product' : 'Edit Product'),
+            content: SizedBox(
+              width: 400,
+              child: Form(
+                key: formKey,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    TextFormField(
+                      controller: nameController,
+                      decoration: const InputDecoration(labelText: 'Name'),
+                      validator:
+                          (value) =>
+                              value == null || value.isEmpty
+                                  ? 'Required'
+                                  : null,
+                    ),
+                    TextFormField(
+                      controller: manufacturerController,
+                      decoration: const InputDecoration(
+                        labelText: 'Manufacturer',
+                      ),
+                      validator:
+                          (value) =>
+                              value == null || value.isEmpty
+                                  ? 'Required'
+                                  : null,
+                    ),
+                    TextFormField(
+                      controller: descriptionController,
+                      decoration: const InputDecoration(
+                        labelText: 'Description',
+                      ),
+                    ),
+                    DropdownButtonFormField<GearType>(
+                      value: type,
+                      items:
+                          GearType.values
+                              .map(
+                                (g) => DropdownMenuItem(
+                                  value: g,
+                                  child: Text(g.name),
+                                ),
+                              )
+                              .toList(),
+                      onChanged: (val) => type = val!,
+                      decoration: const InputDecoration(labelText: 'Type'),
+                    ),
+                  ],
+                ),
               ),
-              TextFormField(
-                controller: manufacturerController,
-                decoration: const InputDecoration(labelText: 'Manufacturer'),
-                validator: (value) => value == null || value.isEmpty ? 'Required' : null,
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(),
+                child: const Text('Cancel'),
               ),
-              TextFormField(
-                controller: descriptionController,
-                decoration: const InputDecoration(labelText: 'Description'),
+              ElevatedButton(
+                onPressed: () {
+                  if (formKey.currentState?.validate() ?? false) {
+                    final model = ClothingProductModel(
+                      id: initial?.id,
+                      name: nameController.text,
+                      manufacturer: manufacturerController.text,
+                      description: descriptionController.text,
+                      type: type,
+                    );
+                    Navigator.of(context).pop();
+                    onSubmit(model);
+                  }
+                },
+                child: const Text('Save'),
               ),
-              DropdownButtonFormField<GearType>(
-                value: type,
-                items: GearType.values
-                    .map((g) => DropdownMenuItem(value: g, child: Text(g.name)))
-                    .toList(),
-                onChanged: (val) => type = val!,
-                decoration: const InputDecoration(labelText: 'Type'),
-              )
             ],
           ),
-        ),
-      ),
-      actions: [
-        TextButton(onPressed: () => Navigator.of(context).pop(), child: const Text('Cancel')),
-        ElevatedButton(
-          onPressed: () {
-            if (formKey.currentState?.validate() ?? false) {
-              final model = ClothingProductModel(
-                id: initial?.id,
-                name: nameController.text,
-                manufacturer: manufacturerController.text,
-                description: descriptionController.text,
-                type: type,
-              );
-              Navigator.of(context).pop();
-              onSubmit(model);
-            }
-          },
-          child: const Text('Save'),
-        )
-      ],
-    ),
-  );
-}
-
+    );
+  }
 
   void _edit(ClothingProductModel model) async {
     await showClothingProductFormDialog(
@@ -128,11 +156,13 @@ class _ClothingProductListScreenState extends State<ClothingProductListScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Clothing Products'),
-        
+      appBar: Constants.buildMainAppBar(context),
+      drawer: MainDrawer(),
+      floatingActionButton: FloatingActionButton(
+        onPressed: _create,
+        tooltip: 'Add Product',
+        child: const Icon(Icons.add),
       ),
-      floatingActionButton: FloatingActionButton(onPressed: _create, child: const Icon(Icons.add), tooltip: 'Add Product'),
       body: FutureBuilder<List<ClothingProductModel>>(
         future: _productsFuture,
         builder: (context, snapshot) {
@@ -145,32 +175,42 @@ class _ClothingProductListScreenState extends State<ClothingProductListScreen> {
           }
 
           final products = snapshot.data!;
-          return ListView.separated(
-            padding: const EdgeInsets.all(16),
-            itemCount: products.length,
-            separatorBuilder: (_, __) => const Divider(),
-            itemBuilder: (context, index) {
-              final product = products[index];
-              return ListTile(
-                title: Text(product.name),
-                subtitle: Text(product.manufacturer),
-                trailing: Wrap(
-                  spacing: 8,
-                  children: [
-                    IconButton(
-                      icon: const Icon(Icons.edit),
-                      onPressed: () => _edit(product),
-                      tooltip: 'Edit',
-                    ),
-                    IconButton(
-                      icon: const Icon(Icons.delete),
-                      onPressed: () => _delete(product.id!),
-                      tooltip: 'Delete',
-                    ),
-                  ],
-                ),
-              );
-            },
+
+          return DataTable2(
+            columnSpacing: 16,
+            horizontalMargin: 12,
+            columns: const [
+              DataColumn(label: Text('Name')),
+              DataColumn(label: Text('Manufacturer')),
+              DataColumn(label: Text('Type')),
+              DataColumn(label: Text('Actions')),
+            ],
+            rows:
+                products.map((product) {
+                  return DataRow(
+                    cells: [
+                      DataCell(Text(product.name)),
+                      DataCell(Text(product.manufacturer)),
+                      DataCell(Text(product.type.name)),
+                      DataCell(
+                        Row(
+                          children: [
+                            IconButton(
+                              icon: const Icon(Icons.edit),
+                              onPressed: () => _edit(product),
+                              tooltip: 'Edit',
+                            ),
+                            IconButton(
+                              icon: const Icon(Icons.delete),
+                              onPressed: () => _delete(product.id!),
+                              tooltip: 'Delete',
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  );
+                }).toList(),
           );
         },
       ),

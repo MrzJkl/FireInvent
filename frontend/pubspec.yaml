@@ -37,6 +37,8 @@ dependencies:
   json_annotation: ^4.9.0
   get_it: ^8.0.3
   http: ^1.4.0
+  flutter_login: ^5.1.0
+  data_table_2: ^2.6.0
   
 
 dev_dependencies:
@@ -50,7 +52,7 @@ dev_dependencies:
   # activated in the `analysis_options.yaml` file located at the root of your
   # package. See that file for information about deactivating specific lint
   # rules and activating additional ones.
-  flutter_lints: ^5.0.0
+  flutter_lints: ^6.0.0
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec

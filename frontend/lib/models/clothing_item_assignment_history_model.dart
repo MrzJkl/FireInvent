@@ -1,23 +1,26 @@
+import 'package:flameguardlaundry/models/create_clothing_item_assignment_history_model.dart';
+import 'package:flutter/widgets.dart';
 import 'package:json_annotation/json_annotation.dart';
 
 part 'clothing_item_assignment_history_model.g.dart';
 
 @JsonSerializable()
-class ClothingItemAssignmentHistoryModel {
-  final String? id;
-  final String itemId;
-  final String personId;
-  final DateTime assignedFrom;
-  final DateTime? assignedUntil;
+@immutable
+class ClothingItemAssignmentHistoryModel
+    extends CreateClothingItemAssignmentHistoryModel {
+  final String id;
 
-  ClothingItemAssignmentHistoryModel({
-    this.id,
-    required this.itemId,
-    required this.personId,
-    required this.assignedFrom,
-    this.assignedUntil,
+  const ClothingItemAssignmentHistoryModel({
+    required this.id,
+    required super.itemId,
+    required super.personId,
+    required super.assignedFrom,
+    required super.assignedUntil,
   });
 
-  factory ClothingItemAssignmentHistoryModel.fromJson(Map<String, dynamic> json) => _$ClothingItemAssignmentHistoryModelFromJson(json);
-  Map<String, dynamic> toJson() => _$ClothingItemAssignmentHistoryModelToJson(this);
+  factory ClothingItemAssignmentHistoryModel.fromJson(
+    Map<String, dynamic> json,
+  ) => _$ClothingItemAssignmentHistoryModelFromJson(json);
+  Map<String, dynamic> toJson() =>
+      _$ClothingItemAssignmentHistoryModelToJson(this);
 }

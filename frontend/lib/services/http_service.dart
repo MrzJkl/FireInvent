@@ -1,17 +1,20 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import 'package:web/web.dart' as web;
+
 
 class HttpService {
-  final String _baseUrl = "http://localhost:5004";
+  final String _baseUrl = "https://fgl.otc.joekel.dev";
 
-  void setToken(String token) {
-    _token = token;
-  }
 
-  Map<String, String> _headers() => {
+  Map<String, String> _headers()
+  {
+    final token = web.window.localStorage.getItem('jwt');
+    return {
     'Content-Type': 'application/json',
-    if (_token != null) 'Authorization': 'Bearer $_token',
+    if (token != null) 'Authorization': 'Bearer $token',
   };
+  } 
 
   Future<http.Response> get(String path) async {
     final uri = Uri.parse('$_baseUrl$path');
