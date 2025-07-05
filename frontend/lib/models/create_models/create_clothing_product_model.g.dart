@@ -1,29 +1,27 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
-part of 'clothing_product_model.dart';
+part of 'create_clothing_product_model.dart';
 
 // **************************************************************************
 // JsonSerializableGenerator
 // **************************************************************************
 
-ClothingProductModel _$ClothingProductModelFromJson(
+CreateClothingProductModel _$CreateClothingProductModelFromJson(
   Map<String, dynamic> json,
-) => ClothingProductModel(
-  id: json['id'] as String,
+) => CreateClothingProductModel(
   name: json['name'] as String,
   manufacturer: json['manufacturer'] as String,
   description: json['description'] as String?,
   type: $enumDecode(_$GearTypeEnumMap, json['type']),
 );
 
-Map<String, dynamic> _$ClothingProductModelToJson(
-  ClothingProductModel instance,
+Map<String, dynamic> _$CreateClothingProductModelToJson(
+  CreateClothingProductModel instance,
 ) => <String, dynamic>{
   'name': instance.name,
   'manufacturer': instance.manufacturer,
   'description': instance.description,
   'type': _$GearTypeEnumMap[instance.type]!,
-  'id': instance.id,
 };
 
 const _$GearTypeEnumMap = {

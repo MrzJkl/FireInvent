@@ -1,25 +1,23 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
-part of 'clothing_variant_model.dart';
+part of 'create_clothing_variant_model.dart';
 
 // **************************************************************************
 // JsonSerializableGenerator
 // **************************************************************************
 
-ClothingVariantModel _$ClothingVariantModelFromJson(
+CreateClothingVariantModel _$CreateClothingVariantModelFromJson(
   Map<String, dynamic> json,
-) => ClothingVariantModel(
-  id: json['id'] as String,
+) => CreateClothingVariantModel(
   productId: json['productId'] as String,
   name: json['name'] as String,
   additionalSpecs: json['additionalSpecs'] as String?,
 );
 
-Map<String, dynamic> _$ClothingVariantModelToJson(
-  ClothingVariantModel instance,
+Map<String, dynamic> _$CreateClothingVariantModelToJson(
+  CreateClothingVariantModel instance,
 ) => <String, dynamic>{
   'productId': instance.productId,
   'name': instance.name,
   'additionalSpecs': instance.additionalSpecs,
-  'id': instance.id,
 };

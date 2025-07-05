@@ -1,15 +1,22 @@
+import 'package:flutter/widgets.dart';
 import 'package:json_annotation/json_annotation.dart';
+import 'create_models/create_department_model.dart';
 
 part 'department_model.g.dart';
 
 @JsonSerializable()
-class DepartmentModel {
-  final String? id;
-  final String name;
-  final String? description;
+@immutable
+class DepartmentModel extends CreateDepartmentModel {
+  final String id;
 
-  DepartmentModel({this.id, required this.name, this.description});
+  const DepartmentModel({
+    required this.id,
+    required super.name,
+    super.description,
+  });
 
-  factory DepartmentModel.fromJson(Map<String, dynamic> json) => _$DepartmentModelFromJson(json);
+  factory DepartmentModel.fromJson(Map<String, dynamic> json) =>
+      _$DepartmentModelFromJson(json);
+  @override
   Map<String, dynamic> toJson() => _$DepartmentModelToJson(this);
 }

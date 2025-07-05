@@ -1,6 +1,8 @@
 import 'package:data_table_2/data_table_2.dart';
 import 'package:flameguardlaundry/constants.dart';
 import 'package:flameguardlaundry/main_drawer.dart';
+import 'package:flameguardlaundry/models/create_models/create_clothing_product_model.dart';
+import 'package:flameguardlaundry/models/gear_type.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import '../models/clothing_product_model.dart';
@@ -38,7 +40,7 @@ class _ClothingProductListScreenState extends State<ClothingProductListScreen> {
   Future<void> showClothingProductFormDialog({
     required BuildContext context,
     ClothingProductModel? initial,
-    required void Function(ClothingProductModel) onSubmit,
+    required void Function(String? id, CreateClothingProductModel) onSubmit,
   }) async {
     final formKey = GlobalKey<FormState>();
     final nameController = TextEditingController(text: initial?.name ?? '');
@@ -114,15 +116,14 @@ class _ClothingProductListScreenState extends State<ClothingProductListScreen> {
               ElevatedButton(
                 onPressed: () {
                   if (formKey.currentState?.validate() ?? false) {
-                    final model = ClothingProductModel(
-                      id: initial?.id,
+                    final createModel = CreateClothingProductModel(
                       name: nameController.text,
                       manufacturer: manufacturerController.text,
                       description: descriptionController.text,
                       type: type,
                     );
                     Navigator.of(context).pop();
-                    onSubmit(model);
+                    onSubmit(initial?.id, createModel);
                   }
                 },
                 child: const Text('Save'),
@@ -136,8 +137,16 @@ class _ClothingProductListScreenState extends State<ClothingProductListScreen> {
     await showClothingProductFormDialog(
       context: context,
       initial: model,
-      onSubmit: (updated) async {
-        await _service.update(model.id!, updated);
+      onSubmit: (id, updated) async {
+        // Kombiniere id und updated zu einem ClothingProductModel
+        final updatedModel = ClothingProductModel(
+          id: id!,
+          name: updated.name,
+          manufacturer: updated.manufacturer,
+          description: updated.description,
+          type: updated.type,
+        );
+        await _service.update(id, updatedModel);
         _loadData();
       },
     );
@@ -146,7 +155,7 @@ class _ClothingProductListScreenState extends State<ClothingProductListScreen> {
   void _create() async {
     await showClothingProductFormDialog(
       context: context,
-      onSubmit: (created) async {
+      onSubmit: (id, created) async {
         await _service.create(created);
         _loadData();
       },

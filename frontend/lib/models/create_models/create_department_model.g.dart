@@ -1,23 +1,21 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
-part of 'storage_location_model.dart';
+part of 'create_department_model.dart';
 
 // **************************************************************************
 // JsonSerializableGenerator
 // **************************************************************************
 
-StorageLocationModel _$StorageLocationModelFromJson(
+CreateDepartmentModel _$CreateDepartmentModelFromJson(
   Map<String, dynamic> json,
-) => StorageLocationModel(
-  id: json['id'] as String,
+) => CreateDepartmentModel(
   name: json['name'] as String,
-  remarks: json['remarks'] as String?,
+  description: json['description'] as String?,
 );
 
-Map<String, dynamic> _$StorageLocationModelToJson(
-  StorageLocationModel instance,
+Map<String, dynamic> _$CreateDepartmentModelToJson(
+  CreateDepartmentModel instance,
 ) => <String, dynamic>{
   'name': instance.name,
-  'remarks': instance.remarks,
-  'id': instance.id,
+  'description': instance.description,
 };

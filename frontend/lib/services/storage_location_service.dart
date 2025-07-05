@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:flameguardlaundry/models/create_models/create_storage_location_model.dart';
 import 'package:get_it/get_it.dart';
 
 import '../models/storage_location_model.dart';
@@ -18,7 +19,7 @@ class StorageLocationService {
     return StorageLocationModel.fromJson(jsonDecode(response.body));
   }
 
-  Future<StorageLocationModel> create(StorageLocationModel model) async {
+  Future<StorageLocationModel> create(CreateStorageLocationModel model) async {
     final response = await http.post('/storageLocations', model.toJson());
     return StorageLocationModel.fromJson(jsonDecode(response.body));
   }

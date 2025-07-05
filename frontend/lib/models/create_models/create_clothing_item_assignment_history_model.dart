@@ -17,4 +17,10 @@ class CreateClothingItemAssignmentHistoryModel {
     required this.assignedFrom,
     required this.assignedUntil,
   });
+
+  factory CreateClothingItemAssignmentHistoryModel.fromJson(
+    Map<String, dynamic> json,
+  ) => _$CreateClothingItemAssignmentHistoryModelFromJson(json);
+  Map<String, dynamic> toJson() =>
+      _$CreateClothingItemAssignmentHistoryModelToJson(this);
 }

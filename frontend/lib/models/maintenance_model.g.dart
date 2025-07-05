@@ -8,7 +8,7 @@ part of 'maintenance_model.dart';
 
 MaintenanceModel _$MaintenanceModelFromJson(Map<String, dynamic> json) =>
     MaintenanceModel(
-      id: json['id'] as String?,
+      id: json['id'] as String,
       itemId: json['itemId'] as String,
       performedAt: DateTime.parse(json['performedAt'] as String),
       maintenanceType: $enumDecode(
@@ -24,12 +24,12 @@ MaintenanceModel _$MaintenanceModelFromJson(Map<String, dynamic> json) =>
 
 Map<String, dynamic> _$MaintenanceModelToJson(MaintenanceModel instance) =>
     <String, dynamic>{
-      'id': instance.id,
       'itemId': instance.itemId,
       'performedAt': instance.performedAt.toIso8601String(),
       'maintenanceType': _$MaintenanceTypeEnumMap[instance.maintenanceType]!,
       'remarks': instance.remarks,
       'performedBy': instance.performedBy,
+      'id': instance.id,
     };
 
-const _$MaintenanceTypeEnumMap = {MaintenanceType.standard: 0};
+const _$MaintenanceTypeEnumMap = {MaintenanceType.washing: 0};

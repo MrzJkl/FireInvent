@@ -1,21 +1,23 @@
+import 'package:flutter/widgets.dart';
 import 'package:json_annotation/json_annotation.dart';
+import 'create_models/create_clothing_variant_model.dart';
 
 part 'clothing_variant_model.g.dart';
 
 @JsonSerializable()
-class ClothingVariantModel {
-  final String? id;
-  final String productId;
-  final String name;
-  final String? additionalSpecs;
+@immutable
+class ClothingVariantModel extends CreateClothingVariantModel {
+  final String id;
 
-  ClothingVariantModel({
-    this.id,
-    required this.productId,
-    required this.name,
-    this.additionalSpecs,
+  const ClothingVariantModel({
+    required this.id,
+    required super.productId,
+    required super.name,
+    super.additionalSpecs,
   });
 
-  factory ClothingVariantModel.fromJson(Map<String, dynamic> json) => _$ClothingVariantModelFromJson(json);
+  factory ClothingVariantModel.fromJson(Map<String, dynamic> json) =>
+      _$ClothingVariantModelFromJson(json);
+  @override
   Map<String, dynamic> toJson() => _$ClothingVariantModelToJson(this);
 }

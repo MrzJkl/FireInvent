@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:flameguardlaundry/models/create_models/create_clothing_variant_model.dart';
 import 'package:get_it/get_it.dart';
 
 import '../models/clothing_variant_model.dart';
@@ -19,7 +20,7 @@ class ClothingVariantService {
     return ClothingVariantModel.fromJson(jsonDecode(response.body));
   }
 
-  Future<ClothingVariantModel> create(ClothingVariantModel model) async {
+  Future<ClothingVariantModel> create(CreateClothingVariantModel model) async {
     final response = await http.post('/clothingVariants', model.toJson());
     return ClothingVariantModel.fromJson(jsonDecode(response.body));
   }
