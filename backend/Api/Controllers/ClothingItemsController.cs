@@ -87,4 +87,14 @@ public class ClothingItemsController(
         var maintenances = await maintenanceService.GetMaintenancesForItemAsync(id);
         return Ok(maintenances);
     }
+
+    [HttpGet("{clothingItemId:guid}/assignments")]
+    [SwaggerOperation(Summary = "List all assignments for a clothing item", Description = "Returns all assignments for a specific clothing item.")]
+    [SwaggerResponse(200, "List of assignments", typeof(List<ClothingItemAssignmentHistoryModel>))]
+    [SwaggerResponse(404, "Clothing item not found")]
+    public async Task<ActionResult<List<ClothingItemAssignmentHistoryModel>>> GetAssignmentsForClothingItem(Guid clothingItemId, [FromServices] ClothingItemAssignmentHistoryService assignmentHistoryService)
+    {
+        var assignments = await assignmentHistoryService.GetAssignmentsForClothingItemAsync(clothingItemId);
+        return Ok(assignments);
+    }
 }

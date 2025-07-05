@@ -3,15 +3,21 @@ using FlameGuardLaundry.Database;
 using FlameGuardLaundry.Database.Models;
 using FlameGuardLaundry.Shared.Exceptions;
 using FlameGuardLaundry.Shared.Models;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
 namespace FlameGuardLaundry.Shared.Services;
 
-public class MaintenanceService(GearDbContext context, IMapper mapper)
+public class MaintenanceService(GearDbContext context, IMapper mapper, UserManager<IdentityUser> userManager)
 {
     public async Task<MaintenanceModel> CreateMaintenanceAsync(CreateMaintenanceModel model)
     {
         _ = await context.ClothingItems.FindAsync(model.ItemId) ?? throw new BadRequestException($"ClothingItem with ID '{model.ItemId}' does not exist.");
+
+        if (!string.IsNullOrWhiteSpace(model.PerformedById))
+        {
+            var user = await userManager.FindByIdAsync(model.PerformedById) ?? throw new BadRequestException($"User with ID '{model.PerformedById}' does not exist.");
+        }
 
         var entity = mapper.Map<Maintenance>(model);
         entity.Id = Guid.NewGuid();
@@ -49,6 +55,13 @@ public class MaintenanceService(GearDbContext context, IMapper mapper)
         var itemExists = await context.ClothingItems.AnyAsync(i => i.Id == model.ItemId);
         if (!itemExists)
             throw new BadRequestException($"ClothingItem with ID '{model.ItemId}' does not exist.");
+
+        if (!string.IsNullOrWhiteSpace(model.PerformedById))
+        {
+            var user = await userManager.FindByIdAsync(model.PerformedById);
+            if (user == null)
+                throw new BadRequestException($"User with ID '{model.PerformedById}' does not exist.");
+        }
 
         mapper.Map(model, entity);
 

@@ -7,8 +7,11 @@ using FlameGuardLaundry.Shared.Options;
 using FlameGuardLaundry.Shared.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Mvc.Authorization;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
@@ -20,10 +23,18 @@ builder.Configuration
     .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
     .AddEnvironmentVariables();
 
+builder.Services.AddHealthChecks()
+    .AddDbContextCheck<GearDbContext>()
+    .AddProcessAllocatedMemoryHealthCheck(2000)
+    .AddDiskStorageHealthCheck(null)
+    .AddCheck("self", () => HealthCheckResult.Healthy());
+
 builder.Services.Configure<JwtOptions>(
     builder.Configuration.GetRequiredSection("Jwt"));
 builder.Services.Configure<DefaultAdminOptions>(
     builder.Configuration.GetSection("DefaultUser"));
+builder.Services.Configure<MailOptions>(
+    builder.Configuration.GetSection("MailOptions"));
 
 var jwtOptions = builder.Configuration.GetRequiredSection("Jwt").Get<JwtOptions>()!;
 
@@ -110,6 +121,7 @@ builder.Services.AddScoped<ClothingItemService>();
 builder.Services.AddScoped<MaintenanceService>();
 builder.Services.AddScoped<ClothingItemAssignmentHistoryService>();
 builder.Services.AddScoped<UserService>();
+builder.Services.AddTransient<IEmailSender, MailService>();
 
 builder.Services.AddControllers(options =>
 {
@@ -123,14 +135,23 @@ builder.Services.AddControllers(options =>
 
 WebApplication app = builder.Build();
 
+app.MapHealthChecks("/health");
+
 using var scope = app.Services.CreateScope();
 
 var dbContext = scope.ServiceProvider.GetRequiredService<GearDbContext>();
 if ((await dbContext.Database.GetPendingMigrationsAsync()).Any())
 {
     Console.WriteLine("Waiting for pending database migrations...");
-    await dbContext.Database.MigrateAsync();
-    Console.WriteLine("Successfully applied pending database migrations.");
+    try
+    {
+        await dbContext.Database.MigrateAsync();
+        Console.WriteLine("Successfully applied pending database migrations.");
+    }
+    catch (Exception ex)
+    {
+        Console.WriteLine($"Error applying migrations: {ex.Message}");
+    }
 }
 
 app.UseMiddleware<ApiExceptionMiddleware>();

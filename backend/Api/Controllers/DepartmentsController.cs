@@ -8,7 +8,7 @@ namespace FlameGuardLaundry.Api.Controllers;
 
 [ApiController]
 [Route("departments")]
-public class DepartmentsController(DepartmentService departmentService) : ControllerBase
+public class DepartmentsController(DepartmentService departmentService, PersonService personService) : ControllerBase
 {
     [HttpGet]
     [SwaggerOperation(Summary = "List all departments", Description = "Returns a list of all departments.")]
@@ -60,5 +60,15 @@ public class DepartmentsController(DepartmentService departmentService) : Contro
     {
         var success = await departmentService.DeleteDepartmentAsync(id);
         return success ? NoContent() : NotFound();
+    }
+
+    [HttpGet("{departmentId:guid}/persons")]
+    [SwaggerOperation(Summary = "List all persons in a department", Description = "Returns all persons that are members of the given department.")]
+    [SwaggerResponse(200, "List of persons", typeof(List<PersonModel>))]
+    [SwaggerResponse(404, "Department not found")]
+    public async Task<ActionResult<List<PersonModel>>> GetPersonsForDepartment(Guid departmentId)
+    {
+        var persons = await personService.GetPersonsForDepartmentAsync(departmentId);
+        return Ok(persons);
     }
 }

@@ -92,4 +92,32 @@ public class ClothingItemService(GearDbContext context, IMapper mapper)
         await context.SaveChangesAsync();
         return true;
     }
+
+    public async Task<List<ClothingItemModel>> GetItemsForVariantAsync(Guid variantId)
+    {
+        var variantExists = await context.ClothingVariants.AnyAsync(v => v.Id == variantId);
+        if (!variantExists)
+            throw new NotFoundException($"ClothingVariant with ID {variantId} not found.");
+
+        var items = await context.ClothingItems
+            .Where(i => i.VariantId == variantId)
+            .AsNoTracking()
+            .ToListAsync();
+
+        return mapper.Map<List<ClothingItemModel>>(items);
+    }
+
+    public async Task<List<ClothingItemModel>> GetClothingItemsForStorageLocationAsync(Guid storageLocationId)
+    {
+        var locationExists = await context.StorageLocations.AnyAsync(s => s.Id == storageLocationId);
+        if (!locationExists)
+            throw new NotFoundException($"StorageLocation with ID {storageLocationId} not found.");
+
+        var items = await context.ClothingItems
+            .Where(i => i.StorageLocationId == storageLocationId)
+            .AsNoTracking()
+            .ToListAsync();
+
+        return mapper.Map<List<ClothingItemModel>>(items);
+    }
 }

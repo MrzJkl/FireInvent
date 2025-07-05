@@ -1,10 +1,5 @@
 ﻿using FlameGuardLaundry.Contract;
-using System;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace FlameGuardLaundry.Shared.Models;
 
@@ -22,5 +17,7 @@ public record CreateMaintenanceModel
     [MaxLength(ModelConstants.MaxStringLengthLong)]
     public string? Remarks { get; init; }
 
-    public UserModel PerformedBy { get; init; } = new UserModel();
+    public string? PerformedById { get; init; }
+
+    public UserModel? PerformedBy { get; init; }
 }

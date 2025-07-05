@@ -85,4 +85,18 @@ public class PersonService(GearDbContext context, IMapper mapper)
         await context.SaveChangesAsync();
         return true;
     }
+
+    public async Task<List<PersonModel>> GetPersonsForDepartmentAsync(Guid departmentId)
+    {
+        var departmentExists = await context.Departments.AnyAsync(d => d.Id == departmentId);
+        if (!departmentExists)
+            throw new NotFoundException($"Department with ID {departmentId} not found.");
+
+        var persons = await context.Persons
+            .Where(p => p.Departments.Any(d => d.Id == departmentId))
+            .AsNoTracking()
+            .ToListAsync();
+
+        return mapper.Map<List<PersonModel>>(persons);
+    }
 }

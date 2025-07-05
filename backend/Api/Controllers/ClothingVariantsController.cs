@@ -8,7 +8,7 @@ namespace FlameGuardLaundry.Api.Controllers;
 
 [ApiController]
 [Route("clothingVariants")]
-public class ClothingVariantsController(ClothingVariantService variantService) : ControllerBase
+public class ClothingVariantsController(ClothingVariantService variantService, ClothingItemService itemService) : ControllerBase
 {
 
     [HttpGet]
@@ -69,13 +69,13 @@ public class ClothingVariantsController(ClothingVariantService variantService) :
         return success ? NoContent() : NotFound();
     }
 
-    [HttpGet("{id:guid}/items")]
-    [SwaggerOperation(Summary = "List all items for a variant", Description = "Returns all clothing items for a specific variant.")]
-    [SwaggerResponse(200, "List of clothing items for the variant", typeof(List<ClothingItemModel>))]
+    [HttpGet("{variantId:guid}/items")]
+    [SwaggerOperation(Summary = "List all clothing items for a variant", Description = "Returns all clothing items for a specific variant.")]
+    [SwaggerResponse(200, "List of clothing items", typeof(List<ClothingItemModel>))]
     [SwaggerResponse(404, "Clothing variant not found")]
-    public async Task<ActionResult<List<ClothingItemModel>>> GetItemsForVariant(Guid id)
+    public async Task<ActionResult<List<ClothingItemModel>>> GetItemsForVariant(Guid variantId, [FromServices] ClothingItemService itemService)
     {
-        var items = await variantService.GetItemsForVariantAsync(id);
+        var items = await itemService.GetItemsForVariantAsync(variantId);
         return Ok(items);
     }
 }

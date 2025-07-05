@@ -110,4 +110,19 @@ public class ClothingItemAssignmentHistoryService(GearDbContext context, IMapper
         await context.SaveChangesAsync();
         return true;
     }
+
+    public async Task<List<ClothingItemAssignmentHistoryModel>> GetAssignmentsForClothingItemAsync(Guid clothingItemId)
+    {
+        var itemExists = await context.ClothingItems.AnyAsync(i => i.Id == clothingItemId);
+        if (!itemExists)
+            throw new NotFoundException($"ClothingItem with ID {clothingItemId} not found.");
+
+        var assignments = await context.ClothingItemAssignmentHistories
+            .Where(a => a.ItemId == clothingItemId)
+            .OrderByDescending(a => a.AssignedFrom)
+            .AsNoTracking()
+            .ToListAsync();
+
+        return mapper.Map<List<ClothingItemAssignmentHistoryModel>>(assignments);
+    }
 }

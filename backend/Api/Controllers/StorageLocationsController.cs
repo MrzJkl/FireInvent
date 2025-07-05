@@ -8,7 +8,7 @@ namespace FlameGuardLaundry.Api.Controllers;
 
 [ApiController]
 [Route("storageLocations")]
-public class StorageLocationsController(StorageLocationService locationService) : ControllerBase
+public class StorageLocationsController(StorageLocationService locationService, ClothingItemService itemService) : ControllerBase
 {
     [HttpGet]
     [SwaggerOperation(Summary = "List all storage locations", Description = "Returns a list of all storage locations.")]
@@ -62,5 +62,15 @@ public class StorageLocationsController(StorageLocationService locationService) 
     {
         var success = await locationService.DeleteStorageLocationAsync(id);
         return success ? NoContent() : NotFound();
+    }
+
+    [HttpGet("{storageLocationId:guid}/clothingItems")]
+    [SwaggerOperation(Summary = "List all clothing items for a storage location", Description = "Returns all clothing items assigned to a storage location.")]
+    [SwaggerResponse(200, "List of clothing items", typeof(List<ClothingItemModel>))]
+    [SwaggerResponse(404, "Storage location not found")]
+    public async Task<ActionResult<List<ClothingItemModel>>> GetClothingItemsForLocation(Guid storageLocationId)
+    {
+        var items = await itemService.GetClothingItemsForStorageLocationAsync(storageLocationId);
+        return Ok(items);
     }
 }

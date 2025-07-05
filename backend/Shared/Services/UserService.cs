@@ -1,6 +1,7 @@
 ﻿using FlameGuardLaundry.Shared.Exceptions;
 using FlameGuardLaundry.Shared.Models;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.EntityFrameworkCore;
 
 namespace FlameGuardLaundry.Shared.Services;
@@ -30,12 +31,6 @@ public class UserService(UserManager<IdentityUser> userManager)
         };
 
         return await userManager.CreateAsync(user, model.Password);
-    }
-
-    public async Task<string> GeneratePasswordResetTokenAsync(string userId)
-    {
-        var user = await userManager.FindByIdAsync(userId);
-        return user == null ? throw new NotFoundException() : await userManager.GeneratePasswordResetTokenAsync(user);
     }
 
     public async Task<bool> DeleteUserAsync(string userId)

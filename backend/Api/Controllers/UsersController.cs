@@ -35,14 +35,6 @@ public class UsersController(UserService userService) : ControllerBase
         return BadRequest(ModelState);
     }
 
-    [HttpPost("{id}/reset-password")]
-    [Authorize(Roles = Roles.Admin)]
-    public async Task<ActionResult<string>> GeneratePasswordResetToken(string id)
-    {
-        var token = await userService.GeneratePasswordResetTokenAsync(id);
-        return Ok(token);
-    }
-
     [HttpDelete("{id}")]
     [Authorize(Roles = Roles.Admin)]
     public async Task<IActionResult> DeleteUser(string id)
