@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:flameguardlaundry/env.dart';
 import 'package:flameguardlaundry/main.dart';
 import 'package:http/http.dart' as http;
 import 'package:web/web.dart' as web;
@@ -16,7 +17,7 @@ class LoginScreen extends StatefulWidget {
 class _LoginScreenState extends State<LoginScreen> {
   Future<String?> _authUser(LoginData data) async {
     final response = await http.post(
-      Uri.parse("${Constants.apiBaseUrl}/auth/login"),
+      Uri.parse("$apiUrl/auth/login"),
       headers: {'Content-Type': 'application/json'},
       body: jsonEncode({'email': data.name, 'password': data.password}),
     );

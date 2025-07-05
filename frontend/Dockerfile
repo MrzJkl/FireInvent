@@ -23,5 +23,9 @@ FROM nginx:alpine
 # Copy built web app
 COPY --from=build /app/build/web /usr/share/nginx/html
 
-# Optional: custom nginx config (e.g., for fallback to index.html for routing)
-COPY nginx.conf /etc/nginx/conf.d/default.conf
+# new: entrypoint script reinlegen
+COPY docker-entrypoint.sh /docker-entrypoint.sh
+RUN chmod +x /docker-entrypoint.sh
+
+ENTRYPOINT ["/docker-entrypoint.sh"]
+CMD ["nginx", "-g", "daemon off;"]

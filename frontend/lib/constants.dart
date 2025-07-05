@@ -4,7 +4,6 @@ import 'package:web/web.dart' as web;
 
 class Constants {
   static const String appName = 'FlameGuard Laundry';
-  static const String apiBaseUrl = 'https://fgl.otc.joekel.dev';
   static PreferredSizeWidget buildMainAppBar(BuildContext context) {
     return AppBar(
       backgroundColor: Theme.of(context).colorScheme.inversePrimary,
