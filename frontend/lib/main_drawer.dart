@@ -1,5 +1,6 @@
 import 'package:flameguardlaundry/screens/clothing_product_list_screen.dart';
 import 'package:flameguardlaundry/screens/person_list_screen.dart';
+import 'package:flameguardlaundry/screens/department_list_screen.dart';
 import 'package:flameguardlaundry/screens/storage_location_list_screen.dart';
 import 'package:flutter/material.dart';
 
@@ -52,6 +53,15 @@ class _MainDrawerState extends State<MainDrawer> {
                 MaterialPageRoute(
                   builder: (_) => const StorageLocationListScreen(),
                 ),
+              );
+            },
+          ),
+          ListTile(
+            leading: Icon(Icons.house),
+            title: Text('Departments'),
+            onTap: () {
+              Navigator.of(context).pushReplacement(
+                MaterialPageRoute(builder: (_) => const DepartmentListScreen()),
               );
             },
           ),
