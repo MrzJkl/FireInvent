@@ -29,6 +29,7 @@ public class StorageLocationService(GearDbContext context, IMapper mapper)
     public async Task<List<StorageLocationModel>> GetAllStorageLocationsAsync()
     {
         var locations = await context.StorageLocations
+            .OrderBy(s => s.Name)
             .AsNoTracking()
             .ToListAsync();
 

@@ -29,6 +29,7 @@ public class ClothingProductService(GearDbContext context, IMapper mapper)
     public async Task<List<ClothingProductModel>> GetAllProductsAsync()
     {
         var products = await context.ClothingProducts
+            .OrderBy(p => p.Name)
             .AsNoTracking()
             .ToListAsync();
 

@@ -17,6 +17,7 @@ public class UserService(UserManager<IdentityUser> userManager)
                 Email = u.Email!,
                 UserName = u.UserName!
             })
+            .OrderBy(u => u.UserName)
             .ToListAsync();
 
         return users;

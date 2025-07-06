@@ -56,6 +56,7 @@ public class ClothingItemAssignmentHistoryService(GearDbContext context, IMapper
     {
         var entities = await context.ClothingItemAssignmentHistories
             .AsNoTracking()
+            .OrderByDescending(a => a.AssignedFrom)
             .ToListAsync();
 
         return mapper.Map<List<ClothingItemAssignmentHistoryModel>>(entities);

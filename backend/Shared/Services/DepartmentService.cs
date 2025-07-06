@@ -23,6 +23,7 @@ public class DepartmentService(GearDbContext context, IMapper mapper)
     {
         var departments = await context.Departments
             .AsNoTracking()
+            .OrderBy(v => v.Name)
             .ToListAsync();
 
         return mapper.Map<List<DepartmentModel>>(departments);

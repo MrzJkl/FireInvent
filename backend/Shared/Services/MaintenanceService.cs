@@ -32,6 +32,7 @@ public class MaintenanceService(GearDbContext context, IMapper mapper, UserManag
     {
         var entities = await context.Maintenances
             .AsNoTracking()
+            .OrderByDescending(v => v.PerformedAt)
             .ToListAsync();
 
         return mapper.Map<List<MaintenanceModel>>(entities);

@@ -35,6 +35,7 @@ public class ClothingVariantService(GearDbContext context, IMapper mapper)
     {
         var variants = await context.ClothingVariants
             .AsNoTracking()
+            .OrderBy(v => v.Name)
             .ToListAsync();
 
         return mapper.Map<List<ClothingVariantModel>>(variants);
@@ -88,6 +89,7 @@ public class ClothingVariantService(GearDbContext context, IMapper mapper)
 
         var items = await context.ClothingVariants
             .Where(i => i.ProductId == productId)
+            .OrderBy(v => v.Name)
             .AsNoTracking()
             .ToListAsync();
 

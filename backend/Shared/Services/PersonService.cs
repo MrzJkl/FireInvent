@@ -30,6 +30,8 @@ public class PersonService(GearDbContext context, IMapper mapper)
     public async Task<List<PersonModel>> GetAllPersonsAsync()
     {
         var persons = await context.Persons
+            .OrderBy(p => p.LastName)
+            .ThenBy(p => p.FirstName)
             .AsNoTracking()
             .ToListAsync();
 
@@ -94,6 +96,8 @@ public class PersonService(GearDbContext context, IMapper mapper)
 
         var persons = await context.Persons
             .Where(p => p.Departments.Any(d => d.Id == departmentId))
+            .OrderBy(p => p.LastName)
+            .ThenBy(p => p.FirstName)
             .AsNoTracking()
             .ToListAsync();
 
