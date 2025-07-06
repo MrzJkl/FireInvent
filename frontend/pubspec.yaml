@@ -41,6 +41,8 @@ dependencies:
   flutter_login: ^4.1.1
   flutter_form_builder: ^10.0.1
   form_builder_validators: ^11.2.0
+  js: ^0.6.7
+  web: ^1.1.1
   
 
 dev_dependencies:

@@ -88,13 +88,13 @@ public class ClothingItemsController(
         return Ok(maintenances);
     }
 
-    [HttpGet("{clothingItemId:guid}/assignments")]
+    [HttpGet("{id:guid}/assignments")]
     [SwaggerOperation(Summary = "List all assignments for a clothing item", Description = "Returns all assignments for a specific clothing item.")]
     [SwaggerResponse(200, "List of assignments", typeof(List<ClothingItemAssignmentHistoryModel>))]
     [SwaggerResponse(404, "Clothing item not found")]
-    public async Task<ActionResult<List<ClothingItemAssignmentHistoryModel>>> GetAssignmentsForClothingItem(Guid clothingItemId, [FromServices] ClothingItemAssignmentHistoryService assignmentHistoryService)
+    public async Task<ActionResult<List<ClothingItemAssignmentHistoryModel>>> GetAssignmentsForClothingItem(Guid id, [FromServices] ClothingItemAssignmentHistoryService assignmentHistoryService)
     {
-        var assignments = await assignmentHistoryService.GetAssignmentsForClothingItemAsync(clothingItemId);
+        var assignments = await assignmentHistoryService.GetAssignmentsForClothingItemAsync(id);
         return Ok(assignments);
     }
 }

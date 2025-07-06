@@ -21,6 +21,7 @@ class ClothingItemAssignmentHistoryModel
   factory ClothingItemAssignmentHistoryModel.fromJson(
     Map<String, dynamic> json,
   ) => _$ClothingItemAssignmentHistoryModelFromJson(json);
+  @override
   Map<String, dynamic> toJson() =>
       _$ClothingItemAssignmentHistoryModelToJson(this);
 }

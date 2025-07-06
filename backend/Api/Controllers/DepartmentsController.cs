@@ -62,13 +62,13 @@ public class DepartmentsController(DepartmentService departmentService, PersonSe
         return success ? NoContent() : NotFound();
     }
 
-    [HttpGet("{departmentId:guid}/persons")]
+    [HttpGet("{id:guid}/persons")]
     [SwaggerOperation(Summary = "List all persons in a department", Description = "Returns all persons that are members of the given department.")]
     [SwaggerResponse(200, "List of persons", typeof(List<PersonModel>))]
     [SwaggerResponse(404, "Department not found")]
-    public async Task<ActionResult<List<PersonModel>>> GetPersonsForDepartment(Guid departmentId)
+    public async Task<ActionResult<List<PersonModel>>> GetPersonsForDepartment(Guid id)
     {
-        var persons = await personService.GetPersonsForDepartmentAsync(departmentId);
+        var persons = await personService.GetPersonsForDepartmentAsync(id);
         return Ok(persons);
     }
 }

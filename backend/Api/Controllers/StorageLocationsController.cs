@@ -64,13 +64,13 @@ public class StorageLocationsController(StorageLocationService locationService, 
         return success ? NoContent() : NotFound();
     }
 
-    [HttpGet("{storageLocationId:guid}/clothingItems")]
+    [HttpGet("{id:guid}/clothingItems")]
     [SwaggerOperation(Summary = "List all clothing items for a storage location", Description = "Returns all clothing items assigned to a storage location.")]
     [SwaggerResponse(200, "List of clothing items", typeof(List<ClothingItemModel>))]
     [SwaggerResponse(404, "Storage location not found")]
-    public async Task<ActionResult<List<ClothingItemModel>>> GetClothingItemsForLocation(Guid storageLocationId)
+    public async Task<ActionResult<List<ClothingItemModel>>> GetClothingItemsForLocation(Guid id)
     {
-        var items = await itemService.GetClothingItemsForStorageLocationAsync(storageLocationId);
+        var items = await itemService.GetClothingItemsForStorageLocationAsync(id);
         return Ok(items);
     }
 }

@@ -1,5 +1,6 @@
 import 'package:flameguardlaundry/screens/clothing_product_list_screen.dart';
 import 'package:flameguardlaundry/screens/person_list_screen.dart';
+import 'package:flameguardlaundry/screens/storage_location_list_screen.dart';
 import 'package:flutter/material.dart';
 
 class MainDrawer extends StatefulWidget {
@@ -40,6 +41,17 @@ class _MainDrawerState extends State<MainDrawer> {
             onTap: () {
               Navigator.of(context).pushReplacement(
                 MaterialPageRoute(builder: (_) => const PersonListScreen()),
+              );
+            },
+          ),
+          ListTile(
+            leading: Icon(Icons.storage),
+            title: Text('Storage Locations'),
+            onTap: () {
+              Navigator.of(context).pushReplacement(
+                MaterialPageRoute(
+                  builder: (_) => const StorageLocationListScreen(),
+                ),
               );
             },
           ),

@@ -1,15 +1,15 @@
+import 'package:flameguardlaundry/models/storage_location_model.dart';
 import 'package:flutter/material.dart';
 import 'package:data_table_2/data_table_2.dart';
-import '../models/clothing_product_model.dart';
 
-class ClothingProductTable extends StatelessWidget {
-  final List<ClothingProductModel> products;
-  final void Function(ClothingProductModel) onEdit;
+class StorageLocationsTable extends StatelessWidget {
+  final List<StorageLocationModel> storageLocations;
+  final void Function(StorageLocationModel) onEdit;
   final void Function(String) onDelete;
 
-  const ClothingProductTable({
+  const StorageLocationsTable({
     super.key,
-    required this.products,
+    required this.storageLocations,
     required this.onEdit,
     required this.onDelete,
   });
@@ -21,28 +21,26 @@ class ClothingProductTable extends StatelessWidget {
       horizontalMargin: 12,
       columns: const [
         DataColumn(label: Text('Name')),
-        DataColumn(label: Text('Manufacturer')),
-        DataColumn(label: Text('Type')),
+        DataColumn(label: Text('Remarks')),
         DataColumn(label: Text('Actions')),
       ],
       rows:
-          products.map((product) {
+          storageLocations.map((storageLocation) {
             return DataRow(
               cells: [
-                DataCell(Text(product.name)),
-                DataCell(Text(product.manufacturer)),
-                DataCell(Text(product.type.name)),
+                DataCell(Text(storageLocation.name)),
+                DataCell(Text(storageLocation.remarks ?? '')),
                 DataCell(
                   Row(
                     children: [
                       IconButton(
                         icon: const Icon(Icons.edit),
-                        onPressed: () => onEdit(product),
+                        onPressed: () => onEdit(storageLocation),
                         tooltip: 'Edit',
                       ),
                       IconButton(
                         icon: const Icon(Icons.delete),
-                        onPressed: () => onDelete(product.id),
+                        onPressed: () => onDelete(storageLocation.id),
                         tooltip: 'Delete',
                       ),
                     ],
