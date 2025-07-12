@@ -1,6 +1,5 @@
 import 'package:fireinvent/models/clothing_variant_model.dart';
 import 'package:fireinvent/services/clothing_variant_service.dart';
-import 'package:fireinvent/services/department_service.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 
