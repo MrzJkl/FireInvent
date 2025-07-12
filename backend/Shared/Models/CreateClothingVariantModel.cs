@@ -1,7 +1,7 @@
-﻿using FlameGuardLaundry.Contract;
+﻿using FireInvent.Contract;
 using System.ComponentModel.DataAnnotations;
 
-namespace FlameGuardLaundry.Shared.Models;
+namespace FireInvent.Shared.Models;
 
 public record CreateClothingVariantModel
 {

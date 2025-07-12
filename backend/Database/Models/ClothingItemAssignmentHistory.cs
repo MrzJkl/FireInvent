@@ -2,7 +2,7 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace FlameGuardLaundry.Database.Models;
+namespace FireInvent.Database.Models;
 
 [Index(nameof(ItemId), nameof(AssignedFrom), IsUnique = true)]
 public record ClothingItemAssignmentHistory

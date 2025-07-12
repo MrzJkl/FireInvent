@@ -1,8 +1,8 @@
-﻿using FlameGuardLaundry.Shared.Exceptions;
+﻿using FireInvent.Shared.Exceptions;
 using System.Net;
 using System.Text.Json;
 
-namespace FlameGuardLaundry.Api.Middlewares;
+namespace FireInvent.Api.Middlewares;
 
 public class ApiExceptionMiddleware(RequestDelegate next)
 {

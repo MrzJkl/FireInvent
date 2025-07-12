@@ -5,11 +5,11 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
 	<FileScopedNamespace>true</FileScopedNamespace>
-	<AssemblyName>FlameGuardLaundry.$(MSBuildProjectName)</AssemblyName>
-	<RootNamespace>FlameGuardLaundry.$(MSBuildProjectName.Replace(" ", "_"))</RootNamespace>
-	<Title>FlameGuard Laundry</Title>
+	<AssemblyName>FireInvent.$(MSBuildProjectName)</AssemblyName>
+	<RootNamespace>FireInvent.$(MSBuildProjectName.Replace(" ", "_"))</RootNamespace>
+	<Title>FireInvent</Title>
 	<Authors>Moritz Jökel</Authors>
-	<Product>FlameGuard Laundry</Product>
+	<Product>FireInvent</Product>
   </PropertyGroup>
 
 </Project>

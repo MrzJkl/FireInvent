@@ -1,18 +1,18 @@
-import 'package:flameguardlaundry/constants.dart';
-import 'package:flameguardlaundry/screens/login_screen.dart';
+import 'package:fireinvent/constants.dart';
+import 'package:fireinvent/screens/login_screen.dart';
 import 'package:web/web.dart' as web;
 
-import 'package:flameguardlaundry/main_drawer.dart';
-import 'package:flameguardlaundry/services/clothing_assigment_service.dart';
-import 'package:flameguardlaundry/services/clothing_item_service.dart';
-import 'package:flameguardlaundry/services/clothing_product_service.dart';
-import 'package:flameguardlaundry/services/clothing_variant_service.dart';
-import 'package:flameguardlaundry/services/department_service.dart';
-import 'package:flameguardlaundry/services/http_service.dart';
-import 'package:flameguardlaundry/services/maintenance_service.dart';
-import 'package:flameguardlaundry/services/person_service.dart';
-import 'package:flameguardlaundry/services/storage_location_service.dart';
-import 'package:flameguardlaundry/services/user_service.dart';
+import 'package:fireinvent/main_drawer.dart';
+import 'package:fireinvent/services/clothing_assigment_service.dart';
+import 'package:fireinvent/services/clothing_item_service.dart';
+import 'package:fireinvent/services/clothing_product_service.dart';
+import 'package:fireinvent/services/clothing_variant_service.dart';
+import 'package:fireinvent/services/department_service.dart';
+import 'package:fireinvent/services/http_service.dart';
+import 'package:fireinvent/services/maintenance_service.dart';
+import 'package:fireinvent/services/person_service.dart';
+import 'package:fireinvent/services/storage_location_service.dart';
+import 'package:fireinvent/services/user_service.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 
@@ -52,7 +52,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'FlameGuard Laundry',
+      title: 'FireInvent',
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(
           seedColor: Color.fromARGB(255, 33, 150, 243),
@@ -82,7 +82,7 @@ class _RootPageState extends State<RootPage> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
             Text(
-              'Welcome to FlameGuard Laundry!',
+              'Welcome to FireInvent!',
               style: Theme.of(context).textTheme.headlineLarge,
             ),
           ],

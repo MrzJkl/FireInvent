@@ -1,5 +1,5 @@
-import 'package:flameguardlaundry/models/create_models/create_department_model.dart';
-import 'package:flameguardlaundry/models/department_model.dart';
+import 'package:fireinvent/models/create_models/create_department_model.dart';
+import 'package:fireinvent/models/department_model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';

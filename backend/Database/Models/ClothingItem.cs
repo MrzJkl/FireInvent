@@ -1,9 +1,9 @@
-﻿using FlameGuardLaundry.Contract;
+﻿using FireInvent.Contract;
 using Microsoft.EntityFrameworkCore;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace FlameGuardLaundry.Database.Models;
+namespace FireInvent.Database.Models;
 
 [Index(nameof(Identifier), IsUnique = true)]
 public record ClothingItem

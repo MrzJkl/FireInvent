@@ -1,8 +1,8 @@
-﻿using FlameGuardLaundry.Contract;
+﻿using FireInvent.Contract;
 using Microsoft.EntityFrameworkCore;
 using System.ComponentModel.DataAnnotations;
 
-namespace FlameGuardLaundry.Database.Models;
+namespace FireInvent.Database.Models;
 
 [Index(nameof(Name), IsUnique = true)]
 [Index(nameof(Name))]

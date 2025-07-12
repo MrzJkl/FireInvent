@@ -1,8 +1,8 @@
-import 'package:flameguardlaundry/constants.dart';
-import 'package:flameguardlaundry/main_drawer.dart';
-import 'package:flameguardlaundry/models/create_models/create_clothing_product_model.dart';
-import 'package:flameguardlaundry/widgets/clothing_product_form.dart';
-import 'package:flameguardlaundry/widgets/clothing_products_table.dart';
+import 'package:fireinvent/constants.dart';
+import 'package:fireinvent/main_drawer.dart';
+import 'package:fireinvent/models/create_models/create_clothing_product_model.dart';
+import 'package:fireinvent/widgets/clothing_product_form.dart';
+import 'package:fireinvent/widgets/clothing_products_table.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import '../models/clothing_product_model.dart';

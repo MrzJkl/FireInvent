@@ -1,10 +1,10 @@
 ﻿using AutoMapper;
-using FlameGuardLaundry.Database;
-using FlameGuardLaundry.Database.Models;
-using FlameGuardLaundry.Shared.Models;
+using FireInvent.Database;
+using FireInvent.Database.Models;
+using FireInvent.Shared.Models;
 using Microsoft.EntityFrameworkCore;
 
-namespace FlameGuardLaundry.Shared.Services;
+namespace FireInvent.Shared.Services;
 
 public class DepartmentService(GearDbContext context, IMapper mapper)
 {

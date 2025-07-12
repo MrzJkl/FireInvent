@@ -1,4 +1,4 @@
-import 'package:flameguardlaundry/models/storage_location_model.dart';
+import 'package:fireinvent/models/storage_location_model.dart';
 import 'package:flutter/material.dart';
 import 'package:data_table_2/data_table_2.dart';
 

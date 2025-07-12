@@ -1,9 +1,9 @@
-﻿using FlameGuardLaundry.Database.Models;
+﻿using FireInvent.Database.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
-namespace FlameGuardLaundry.Database;
+namespace FireInvent.Database;
 
 public class GearDbContext(DbContextOptions<GearDbContext> options) : IdentityDbContext<IdentityUser>(options)
 {

@@ -1,4 +1,4 @@
-import 'package:flameguardlaundry/models/gear_condition.dart';
+import 'package:fireinvent/models/gear_condition.dart';
 import 'package:flutter/widgets.dart';
 import 'package:json_annotation/json_annotation.dart';
 import 'create_models/create_clothing_item_model.dart';

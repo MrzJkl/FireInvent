@@ -1,10 +1,10 @@
-import 'package:flameguardlaundry/constants.dart';
-import 'package:flameguardlaundry/main_drawer.dart';
-import 'package:flameguardlaundry/models/create_models/create_department_model.dart';
-import 'package:flameguardlaundry/models/department_model.dart';
-import 'package:flameguardlaundry/services/department_service.dart';
-import 'package:flameguardlaundry/widgets/department_form.dart';
-import 'package:flameguardlaundry/widgets/departments_table.dart';
+import 'package:fireinvent/constants.dart';
+import 'package:fireinvent/main_drawer.dart';
+import 'package:fireinvent/models/create_models/create_department_model.dart';
+import 'package:fireinvent/models/department_model.dart';
+import 'package:fireinvent/services/department_service.dart';
+import 'package:fireinvent/widgets/department_form.dart';
+import 'package:fireinvent/widgets/departments_table.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 

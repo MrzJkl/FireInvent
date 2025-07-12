@@ -1,7 +1,7 @@
-import 'package:flameguardlaundry/screens/clothing_product_list_screen.dart';
-import 'package:flameguardlaundry/screens/person_list_screen.dart';
-import 'package:flameguardlaundry/screens/department_list_screen.dart';
-import 'package:flameguardlaundry/screens/storage_location_list_screen.dart';
+import 'package:fireinvent/screens/clothing_product_list_screen.dart';
+import 'package:fireinvent/screens/person_list_screen.dart';
+import 'package:fireinvent/screens/department_list_screen.dart';
+import 'package:fireinvent/screens/storage_location_list_screen.dart';
 import 'package:flutter/material.dart';
 
 class MainDrawer extends StatefulWidget {

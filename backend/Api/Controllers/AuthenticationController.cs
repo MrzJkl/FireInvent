@@ -1,6 +1,6 @@
-﻿using FlameGuardLaundry.Contract;
-using FlameGuardLaundry.Database.Models;
-using FlameGuardLaundry.Shared.Options;
+﻿using FireInvent.Contract;
+using FireInvent.Database.Models;
+using FireInvent.Shared.Options;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -10,7 +10,7 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 
-namespace FlameGuardLaundry.Api.Controllers;
+namespace FireInvent.Api.Controllers;
 
 [ApiController]
 [Route("auth")]

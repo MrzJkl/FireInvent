@@ -1,10 +1,10 @@
-﻿using FlameGuardLaundry.Shared.Exceptions;
-using FlameGuardLaundry.Shared.Models;
-using FlameGuardLaundry.Shared.Services;
+﻿using FireInvent.Shared.Exceptions;
+using FireInvent.Shared.Models;
+using FireInvent.Shared.Services;
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
 
-namespace FlameGuardLaundry.Api.Controllers;
+namespace FireInvent.Api.Controllers;
 
 [ApiController]
 [Route("clothingProducts")]
@@ -65,16 +65,6 @@ public class ClothingProductsController(ClothingProductService productService) :
     }
 
     [HttpDelete("{id:guid}")]
-    [SwaggerOperation(Summary = "Delete a clothing product", Description = "Deletes a clothing product by its unique ID.")]
-    [SwaggerResponse(204, "Clothing product deleted")]
-    [SwaggerResponse(404, "Clothing product not found")]
-    public async Task<IActionResult> Delete(Guid id)
-    {
-        var success = await productService.DeleteProductAsync(id);
-        return success ? NoContent() : NotFound();
-    }
-
-    [HttpDelete("{id:guid}/variants")]
     [SwaggerOperation(Summary = "Delete a clothing product", Description = "Deletes a clothing product by its unique ID.")]
     [SwaggerResponse(204, "Clothing product deleted")]
     [SwaggerResponse(404, "Clothing product not found")]

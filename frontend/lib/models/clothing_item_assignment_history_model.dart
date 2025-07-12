@@ -1,4 +1,4 @@
-import 'package:flameguardlaundry/models/create_models/create_clothing_item_assignment_history_model.dart';
+import 'package:fireinvent/models/create_models/create_clothing_item_assignment_history_model.dart';
 import 'package:flutter/widgets.dart';
 import 'package:json_annotation/json_annotation.dart';
 

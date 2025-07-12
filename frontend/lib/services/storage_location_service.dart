@@ -1,5 +1,5 @@
 import 'dart:convert';
-import 'package:flameguardlaundry/models/create_models/create_storage_location_model.dart';
+import 'package:fireinvent/models/create_models/create_storage_location_model.dart';
 import 'package:get_it/get_it.dart';
 
 import '../models/storage_location_model.dart';

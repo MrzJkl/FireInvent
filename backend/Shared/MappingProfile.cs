@@ -1,9 +1,9 @@
 ﻿using AutoMapper;
-using FlameGuardLaundry.Database.Models;
-using FlameGuardLaundry.Shared.Models;
+using FireInvent.Database.Models;
+using FireInvent.Shared.Models;
 using Microsoft.AspNetCore.Identity;
 
-namespace FlameGuardLaundry.Shared;
+namespace FireInvent.Shared;
 
 public class MappingProfile : Profile
 {
