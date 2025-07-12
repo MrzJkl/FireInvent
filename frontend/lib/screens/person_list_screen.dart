@@ -1,10 +1,10 @@
-import 'package:flameguardlaundry/constants.dart';
-import 'package:flameguardlaundry/main_drawer.dart';
-import 'package:flameguardlaundry/models/create_models/create_person_model.dart';
-import 'package:flameguardlaundry/models/person_model.dart';
-import 'package:flameguardlaundry/services/person_service.dart';
-import 'package:flameguardlaundry/widgets/person_form.dart';
-import 'package:flameguardlaundry/widgets/persons_table.dart';
+import 'package:fireinvent/constants.dart';
+import 'package:fireinvent/main_drawer.dart';
+import 'package:fireinvent/models/create_models/create_person_model.dart';
+import 'package:fireinvent/models/person_model.dart';
+import 'package:fireinvent/services/person_service.dart';
+import 'package:fireinvent/widgets/person_form.dart';
+import 'package:fireinvent/widgets/persons_table.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 

@@ -1,10 +1,10 @@
-﻿using FlameGuardLaundry.Shared.Exceptions;
-using FlameGuardLaundry.Shared.Models;
-using FlameGuardLaundry.Shared.Services;
+﻿using FireInvent.Shared.Exceptions;
+using FireInvent.Shared.Models;
+using FireInvent.Shared.Services;
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
 
-namespace FlameGuardLaundry.Api.Controllers;
+namespace FireInvent.Api.Controllers;
 
 [ApiController]
 [Route("assignments")]

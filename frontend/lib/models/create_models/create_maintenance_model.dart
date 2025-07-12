@@ -1,5 +1,5 @@
-import 'package:flameguardlaundry/models/maintenance_type.dart';
-import 'package:flameguardlaundry/models/user_model.dart';
+import 'package:fireinvent/models/maintenance_type.dart';
+import 'package:fireinvent/models/user_model.dart';
 import 'package:flutter/widgets.dart';
 import 'package:json_annotation/json_annotation.dart';
 

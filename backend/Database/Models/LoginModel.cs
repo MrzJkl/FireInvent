@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace FlameGuardLaundry.Database.Models;
+namespace FireInvent.Database.Models;
 
 public record LoginModel
 {

@@ -1,11 +1,11 @@
-﻿using FlameGuardLaundry.Shared.Options;
+﻿using FireInvent.Shared.Options;
 using MailKit.Net.Smtp;
 using MailKit.Security;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.Extensions.Options;
 using MimeKit;
 
-namespace FlameGuardLaundry.Shared.Services
+namespace FireInvent.Shared.Services
 {
     public class MailService(IOptions<MailOptions> mailOptions) : IEmailSender
     {

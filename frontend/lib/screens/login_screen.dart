@@ -1,8 +1,8 @@
 import 'dart:convert';
-import 'package:flameguardlaundry/main.dart';
+import 'package:fireinvent/main.dart';
 import 'package:http/http.dart' as http;
 import 'package:web/web.dart' as web;
-import 'package:flameguardlaundry/constants.dart';
+import 'package:fireinvent/constants.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_login/flutter_login.dart';
 

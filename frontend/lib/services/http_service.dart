@@ -1,5 +1,5 @@
 import 'dart:convert';
-import 'package:flameguardlaundry/constants.dart';
+import 'package:fireinvent/constants.dart';
 import 'package:http/http.dart' as http;
 import 'package:web/web.dart' as web;
 

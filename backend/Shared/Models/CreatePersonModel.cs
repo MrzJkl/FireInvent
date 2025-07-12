@@ -1,4 +1,4 @@
-﻿using FlameGuardLaundry.Contract;
+﻿using FireInvent.Contract;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -6,7 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace FlameGuardLaundry.Shared.Models;
+namespace FireInvent.Shared.Models;
 
 public record CreatePersonModel
 {

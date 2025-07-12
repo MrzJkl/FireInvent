@@ -1,4 +1,4 @@
-import 'package:flameguardlaundry/models/gear_type.dart';
+import 'package:fireinvent/models/gear_type.dart';
 import 'package:flutter/widgets.dart';
 import 'package:json_annotation/json_annotation.dart';
 

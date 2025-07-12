@@ -1,10 +1,10 @@
-﻿using FlameGuardLaundry.Shared.Exceptions;
-using FlameGuardLaundry.Shared.Models;
+﻿using FireInvent.Shared.Exceptions;
+using FireInvent.Shared.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.EntityFrameworkCore;
 
-namespace FlameGuardLaundry.Shared.Services;
+namespace FireInvent.Shared.Services;
 
 public class UserService(UserManager<IdentityUser> userManager)
 {

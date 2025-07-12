@@ -1,10 +1,10 @@
-﻿using FlameGuardLaundry.Contract;
-using FlameGuardLaundry.Shared.Models;
-using FlameGuardLaundry.Shared.Services;
+﻿using FireInvent.Contract;
+using FireInvent.Shared.Models;
+using FireInvent.Shared.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
-namespace FlameGuardLaundry.Api.Controllers;
+namespace FireInvent.Api.Controllers;
 
 [ApiController]
 [Route("/users")]

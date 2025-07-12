@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace FlameGuardLaundry.Shared.Models;
+namespace FireInvent.Shared.Models;
 
 public record ClothingItemAssignmentHistoryModel : CreateClothingItemAssignmentHistoryModel
 {

@@ -1,7 +1,7 @@
 ﻿using Microsoft.OpenApi.Models;
 using Swashbuckle.AspNetCore.SwaggerGen;
 
-namespace FlameGuardLaundry.Api.Swagger;
+namespace FireInvent.Api.Swagger;
 
 public class AddResponseHeadersFilter : IOperationFilter
 {

@@ -1,10 +1,10 @@
-using FlameGuardLaundry.Api.Middlewares;
-using FlameGuardLaundry.Api.Swagger;
-using FlameGuardLaundry.Contract;
-using FlameGuardLaundry.Database;
-using FlameGuardLaundry.Shared;
-using FlameGuardLaundry.Shared.Options;
-using FlameGuardLaundry.Shared.Services;
+using FireInvent.Api.Middlewares;
+using FireInvent.Api.Swagger;
+using FireInvent.Contract;
+using FireInvent.Database;
+using FireInvent.Shared;
+using FireInvent.Shared.Options;
+using FireInvent.Shared.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
@@ -72,7 +72,7 @@ builder.Services.AddCors(options =>
 builder.Services.AddAuthorization();
 
 builder.Services.AddDbContext<GearDbContext>(options =>
-    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection"), x => x.MigrationsAssembly("FlameGuardLaundry.Database")));
+    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection"), x => x.MigrationsAssembly("FireInvent.Database")));
 
 builder.Services.AddIdentityCore<IdentityUser>()
     .AddRoles<IdentityRole>()

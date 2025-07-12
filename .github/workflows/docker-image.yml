@@ -42,7 +42,7 @@ jobs:
           context: ./backend
           file: ./backend/Api/Dockerfile
           push: true
-          tags: ghcr.io/mrzjkl/flameguardlaundryapi:latest
+          tags: ghcr.io/mrzjkl/fireinventapi:latest
           cache-from: type=local,src=/tmp/.buildx-cache
           cache-to: type=local,dest=/tmp/.buildx-cache-new
 
@@ -52,7 +52,7 @@ jobs:
           context: ./frontend
           file: ./frontend/Dockerfile
           push: true
-          tags: ghcr.io/mrzjkl/flameguardlaundryfrontend:latest
+          tags: ghcr.io/mrzjkl/fireinventfrontend:latest
           cache-from: type=local,src=/tmp/.buildx-cache
           cache-to: type=local,dest=/tmp/.buildx-cache-new
 

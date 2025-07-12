@@ -1,4 +1,4 @@
-﻿namespace FlameGuardLaundry.Shared.Options
+﻿namespace FireInvent.Shared.Options
 {
     public class MailOptions
     {
