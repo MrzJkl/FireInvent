@@ -38,4 +38,10 @@ class ClothingVariantService {
     final List<dynamic> json = jsonDecode(response.body);
     return json.map((e) => ClothingItemModel.fromJson(e)).toList();
   }
+
+  Future<List<ClothingVariantModel>> getByProductId(String productId) async {
+    final response = await http.get('/clothingVariants/product/$productId');
+    final List<dynamic> json = jsonDecode(response.body);
+    return json.map((e) => ClothingVariantModel.fromJson(e)).toList();
+  }
 }

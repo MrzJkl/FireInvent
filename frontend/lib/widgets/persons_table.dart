@@ -20,8 +20,8 @@ class PersonsTable extends StatelessWidget {
       columnSpacing: 16,
       horizontalMargin: 12,
       columns: const [
-        DataColumn(label: Text('Firstname')),
         DataColumn(label: Text('Lastname')),
+        DataColumn(label: Text('Firstname')),
         DataColumn(label: Text('Remarks')),
         DataColumn(label: Text('Contact Info')),
         DataColumn(label: Text('External ID')),
@@ -31,8 +31,8 @@ class PersonsTable extends StatelessWidget {
           persons.map((person) {
             return DataRow(
               cells: [
-                DataCell(Text(person.firstName)),
                 DataCell(Text(person.lastName)),
+                DataCell(Text(person.firstName)),
                 DataCell(Text(person.remarks ?? '')),
                 DataCell(Text(person.contactInfo ?? '')),
                 DataCell(Text(person.externalId ?? '')),

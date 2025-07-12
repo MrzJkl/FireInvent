@@ -73,4 +73,14 @@ public class ClothingProductsController(ClothingProductService productService) :
         var success = await productService.DeleteProductAsync(id);
         return success ? NoContent() : NotFound();
     }
+
+    [HttpDelete("{id:guid}/variants")]
+    [SwaggerOperation(Summary = "Delete a clothing product", Description = "Deletes a clothing product by its unique ID.")]
+    [SwaggerResponse(204, "Clothing product deleted")]
+    [SwaggerResponse(404, "Clothing product not found")]
+    public async Task<IActionResult> Delete(Guid id)
+    {
+        var success = await productService.DeleteProductAsync(id);
+        return success ? NoContent() : NotFound();
+    }
 }
