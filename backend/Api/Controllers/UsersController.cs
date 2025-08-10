@@ -41,6 +41,6 @@ public class UsersController(UserService userService) : ControllerBase
     {
         var result = await userService.DeleteUserAsync(id);
 
-        return result ? NoContent() : NotFound();
+        return result ? NoContent() : throw new NotFoundException();
     }
 }

@@ -51,7 +51,7 @@ public class StorageLocationsController(StorageLocationService locationService, 
             throw new IdMismatchException();
 
         var success = await locationService.UpdateStorageLocationAsync(model);
-        return success ? NoContent() : NotFound();
+        return success ? NoContent() : throw new NotFoundException();
     }
 
     [HttpDelete("{id:guid}")]
@@ -61,7 +61,7 @@ public class StorageLocationsController(StorageLocationService locationService, 
     public async Task<IActionResult> Delete(Guid id)
     {
         var success = await locationService.DeleteStorageLocationAsync(id);
-        return success ? NoContent() : NotFound();
+        return success ? NoContent() : throw new NotFoundException();
     }
 
     [HttpGet("{id:guid}/clothingItems")]

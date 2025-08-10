@@ -50,7 +50,7 @@ public class MaintenancesController(MaintenanceService service) : ControllerBase
             throw new IdMismatchException();
 
         var success = await service.UpdateMaintenanceAsync(model);
-        return success ? NoContent() : NotFound();
+        return success ? NoContent() : throw new NotFoundException();
     }
 
     [HttpDelete("{id:guid}")]
@@ -60,6 +60,6 @@ public class MaintenancesController(MaintenanceService service) : ControllerBase
     public async Task<IActionResult> Delete(Guid id)
     {
         var success = await service.DeleteMaintenanceAsync(id);
-        return success ? NoContent() : NotFound();
+        return success ? NoContent() : throw new NotFoundException();
     }
 }

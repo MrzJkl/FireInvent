@@ -52,7 +52,7 @@ public class ClothingItemAssignmentHistoriesController(ClothingItemAssignmentHis
             throw new IdMismatchException();
 
         var success = await service.UpdateAssignmentAsync(model);
-        return success ? NoContent() : NotFound();
+        return success ? NoContent() : throw new NotFoundException();
     }
 
     [HttpDelete("{id:guid}")]
@@ -62,6 +62,6 @@ public class ClothingItemAssignmentHistoriesController(ClothingItemAssignmentHis
     public async Task<IActionResult> Delete(Guid id)
     {
         var success = await service.DeleteAssignmentAsync(id);
-        return success ? NoContent() : NotFound();
+        return success ? NoContent() : throw new NotFoundException();
     }
 }

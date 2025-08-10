@@ -27,7 +27,7 @@ public class ClothingProductsController(ClothingProductService productService) :
     {
         var product = await productService.GetProductByIdAsync(id);
         if (product is null)
-            return NotFound();
+            throw new NotFoundException();
 
         return Ok(product);
     }
@@ -56,7 +56,7 @@ public class ClothingProductsController(ClothingProductService productService) :
         try
         {
             var success = await productService.UpdateProductAsync(model);
-            return success ? NoContent() : NotFound();
+            return success ? NoContent() : throw new NotFoundException();
         }
         catch (InvalidOperationException ex)
         {
@@ -71,6 +71,6 @@ public class ClothingProductsController(ClothingProductService productService) :
     public async Task<IActionResult> Delete(Guid id)
     {
         var success = await productService.DeleteProductAsync(id);
-        return success ? NoContent() : NotFound();
+        return success ? NoContent() : throw new NotFoundException();
     }
 }

@@ -50,7 +50,7 @@ public class PersonsController(PersonService personService) : ControllerBase
             throw new IdMismatchException();
 
         var success = await personService.UpdatePersonAsync(model);
-        return success ? NoContent() : NotFound();
+        return success ? NoContent() : throw new NotFoundException();
 
     }
 
@@ -61,6 +61,6 @@ public class PersonsController(PersonService personService) : ControllerBase
     public async Task<IActionResult> Delete(Guid id)
     {
         var success = await personService.DeletePersonAsync(id);
-        return success ? NoContent() : NotFound();
+        return success ? NoContent() : throw new NotFoundException();
     }
 }

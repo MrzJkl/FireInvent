@@ -28,7 +28,7 @@ public class ClothingVariantsController(ClothingVariantService variantService, C
     {
         var variant = await variantService.GetVariantByIdAsync(id);
         if (variant is null)
-            return NotFound();
+            return throw new NotFoundException();
 
         return Ok(variant);
     }
@@ -56,7 +56,7 @@ public class ClothingVariantsController(ClothingVariantService variantService, C
             throw new IdMismatchException();
 
         var success = await variantService.UpdateVariantAsync(model);
-        return success ? NoContent() : NotFound();
+        return success ? NoContent() : throw new NotFoundException();
     }
 
     [HttpDelete("{id:guid}")]
@@ -66,7 +66,7 @@ public class ClothingVariantsController(ClothingVariantService variantService, C
     public async Task<IActionResult> Delete(Guid id)
     {
         var success = await variantService.DeleteVariantAsync(id);
-        return success ? NoContent() : NotFound();
+        return success ? NoContent() : throw new NotFoundException();
     }
 
     [HttpGet("{id:guid}/items")]
