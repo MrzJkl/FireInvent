@@ -110,7 +110,7 @@ builder.Services.AddSwaggerGen(c => {
     });
 });
 
-builder.Services.AddAutoMapper(typeof(MappingProfile));
+builder.Services.AddAutoMapper((config) => config.AddProfile<MappingProfile>());
 
 builder.Services.AddScoped<DepartmentService>();
 builder.Services.AddScoped<StorageLocationService>();
@@ -140,6 +140,7 @@ app.MapHealthChecks("/health");
 using var scope = app.Services.CreateScope();
 
 var dbContext = scope.ServiceProvider.GetRequiredService<GearDbContext>();
+await dbContext.Database.EnsureCreatedAsync();
 if ((await dbContext.Database.GetPendingMigrationsAsync()).Any())
 {
     Console.WriteLine("Waiting for pending database migrations...");
