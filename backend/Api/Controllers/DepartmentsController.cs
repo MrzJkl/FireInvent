@@ -49,7 +49,7 @@ public class DepartmentsController(DepartmentService departmentService, PersonSe
             throw new IdMismatchException();
 
         var success = await departmentService.UpdateDepartmentAsync(model);
-        return success ? NoContent() : NotFound();
+        return success ? NoContent() : throw new NotFoundException();
     }
 
     [HttpDelete("{id:guid}")]
@@ -59,7 +59,7 @@ public class DepartmentsController(DepartmentService departmentService, PersonSe
     public async Task<IActionResult> Delete(Guid id)
     {
         var success = await departmentService.DeleteDepartmentAsync(id);
-        return success ? NoContent() : NotFound();
+        return success ? NoContent() : throw new NotFoundException();
     }
 
     [HttpGet("{id:guid}/persons")]

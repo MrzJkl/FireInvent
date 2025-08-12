@@ -25,6 +25,10 @@ public class MappingProfile : Profile
             .ForMember(dest => dest.Id, opt => opt.MapFrom(src => Guid.NewGuid()));
         CreateMap<CreatePersonModel, Person>()
             .ForMember(dest => dest.Id, opt => opt.MapFrom(src => Guid.NewGuid()));
+        CreateMap<CreateOrderItemModel, OrderItem>()
+            .ForMember(dest => dest.Id, opt => opt.MapFrom(src => Guid.NewGuid()));
+        CreateMap<CreateOrderModel, Order>()
+            .ForMember(dest => dest.Id, opt => opt.MapFrom(src => Guid.NewGuid()));
         CreateMap<CreateUserModel, IdentityUser>()
             .ForMember(dest => dest.Id, opt => opt.MapFrom(src => Guid.NewGuid()));
 
@@ -36,6 +40,8 @@ public class MappingProfile : Profile
         CreateMap<Maintenance, MaintenanceModel>().ReverseMap();
         CreateMap<ClothingVariant, ClothingVariantModel>().ReverseMap();
         CreateMap<Person, PersonModel>().ReverseMap();
+        CreateMap<Order, OrderModel>().ReverseMap();
+        CreateMap<OrderItem, OrderItemModel>().ReverseMap();
         CreateMap<IdentityUser, UserModel>()
             .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
             .ForMember(dest => dest.UserName, opt => opt.MapFrom(src => src.UserName))

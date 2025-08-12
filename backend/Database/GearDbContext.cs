@@ -22,4 +22,8 @@ public class GearDbContext(DbContextOptions<GearDbContext> options) : IdentityDb
     public DbSet<Maintenance> Maintenances => Set<Maintenance>();
 
     public DbSet<ClothingItemAssignmentHistory> ClothingItemAssignmentHistories => Set<ClothingItemAssignmentHistory>();
+
+    public DbSet<Order> Orders => Set<Order>();
+
+    public DbSet<OrderItem> OrderItems => Set<OrderItem>();
 }

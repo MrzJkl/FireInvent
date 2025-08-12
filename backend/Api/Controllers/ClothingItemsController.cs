@@ -55,7 +55,7 @@ public class ClothingItemsController(
             throw new IdMismatchException();
 
         var success = await itemService.UpdateClothingItemAsync(model);
-        return success ? NoContent() : NotFound();
+        return success ? NoContent() : throw new NotFoundException();
     }
 
     [HttpDelete("{id:guid}")]
@@ -65,7 +65,7 @@ public class ClothingItemsController(
     public async Task<IActionResult> Delete(Guid id)
     {
         var success = await itemService.DeleteClothingItemAsync(id);
-        return success ? NoContent() : NotFound();
+        return success ? NoContent() : throw new NotFoundException();
     }
 
     [HttpGet("{id:guid}/assignments")]
