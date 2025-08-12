@@ -3,13 +3,8 @@ using Microsoft.EntityFrameworkCore;
 
 namespace FireInvent.Database;
 
-public class AppDbContext : DbContext
+public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(options)
 {
-    public AppDbContext(DbContextOptions<AppDbContext> options)
-    : base(options)
-    {
-    }
-
     public DbSet<ClothingItem> ClothingItems => Set<ClothingItem>();
 
     public DbSet<ClothingVariant> ClothingVariants => Set<ClothingVariant>();

@@ -11,13 +11,21 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using Serilog;
 
+const string SwaggerApiVersion = "v1";
+const string SwaggerEndpointUrl = $"/swagger/{SwaggerApiVersion}/swagger.json";
+const string SwaggerApiTitle = "FireInvent";
+const string SwaggerApiDescription = "Manage your inventory a modern way!";
+const string AuthScheme = "Bearer";
+
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
+// Configuration setup
 builder.Configuration
     .SetBasePath(Directory.GetCurrentDirectory())
     .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
     .AddEnvironmentVariables();
 
+// Serilog setup
 builder.Host.UseSerilog((context, services, configuration) =>
 {
     configuration
@@ -30,12 +38,7 @@ builder.Host.UseSerilog((context, services, configuration) =>
         .Enrich.WithCorrelationId();
 });
 
-builder.Services.AddHealthChecks()
-    .AddDbContextCheck<AppDbContext>()
-    .AddProcessAllocatedMemoryHealthCheck(2000)
-    .AddDiskStorageHealthCheck(null)
-    .AddCheck("self", () => HealthCheckResult.Healthy());
-
+// Configure Options
 builder.Services.Configure<AuthenticationOptions>(
     builder.Configuration.GetRequiredSection("Authentication"));
 builder.Services.Configure<DefaultAdminOptions>(
@@ -45,31 +48,52 @@ builder.Services.Configure<MailOptions>(
 
 var authOptions = builder.Configuration.GetRequiredSection("Authentication").Get<AuthenticationOptions>()!;
 
+// Authentication & Authorization
 builder.Services
-    .AddAuthentication("Bearer")
-    .AddJwtBearer("Bearer", options =>
+    .AddAuthentication(AuthScheme)
+    .AddJwtBearer(AuthScheme, options =>
     {
         options.Authority = authOptions.Authority;
         options.TokenValidationParameters = new TokenValidationParameters
         {
+            ValidateIssuer = true,
             ValidateAudience = false
+        };
+
+        options.Events = new Microsoft.AspNetCore.Authentication.JwtBearer.JwtBearerEvents
+        {
+            OnAuthenticationFailed = context =>
+            {
+                var logger = context.HttpContext.RequestServices.GetRequiredService<ILogger<Program>>();
+                logger.LogError(context.Exception, "Authentication failed.");
+                return Task.CompletedTask;
+            }
         };
     });
 
 builder.Services.AddAuthorization();
 
+// Database
 builder.Services.AddDbContext<AppDbContext>(options =>
-    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection"), x => x.MigrationsAssembly("FireInvent.Database")));
+    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection"),
+        x => x.MigrationsAssembly("FireInvent.Database")));
 
+// Health Checks
+builder.Services.AddHealthChecks()
+    .AddDbContextCheck<AppDbContext>()
+    .AddProcessAllocatedMemoryHealthCheck(2000)
+    .AddCheck("self", () => HealthCheckResult.Healthy());
+
+// Swagger
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen(c => {
+builder.Services.AddSwaggerGen(c =>
+{
     c.EnableAnnotations();
-
-    c.SwaggerDoc("v1", new OpenApiInfo
+    c.SwaggerDoc(SwaggerApiVersion, new OpenApiInfo
     {
-        Title = "FireInvent",
-        Version = "v1",
-        Description = "Manage your inventory a modern way!"
+        Title = SwaggerApiTitle,
+        Version = SwaggerApiVersion,
+        Description = SwaggerApiDescription
     });
 
     c.OperationFilter<AddResponseHeadersFilter>();
@@ -77,7 +101,7 @@ builder.Services.AddSwaggerGen(c => {
     c.AddSecurityDefinition("oidc", new OpenApiSecurityScheme
     {
         Type = SecuritySchemeType.OpenIdConnect,
-        OpenIdConnectUrl = new Uri("https://auth.example.com/application/o/my-api/.well-known/openid-configuration"),
+        OpenIdConnectUrl = new Uri(authOptions.OidcDiscoveryUrl),
         Description = "Login via OpenID Connect"
     });
 
@@ -92,13 +116,15 @@ builder.Services.AddSwaggerGen(c => {
                     Id = "oidc"
                 }
             },
-            new[] { "openid", "profile", "email" }
+            new[] { "openid", "profile", "email" } // scopes, die benötigt werden
         }
     });
 });
 
-builder.Services.AddAutoMapper((config) => config.AddProfile<MappingProfile>());
+// AutoMapper
+builder.Services.AddAutoMapper(config => config.AddProfile<MappingProfile>());
 
+// Application Services
 builder.Services.AddScoped<DepartmentService>();
 builder.Services.AddScoped<StorageLocationService>();
 builder.Services.AddScoped<PersonService>();
@@ -110,6 +136,7 @@ builder.Services.AddScoped<ClothingItemAssignmentHistoryService>();
 builder.Services.AddScoped<UserService>();
 builder.Services.AddTransient<MailService>();
 
+// Controllers
 builder.Services.AddControllers(options =>
 {
     options.Filters.Add(new AuthorizeFilter());
@@ -122,46 +149,59 @@ builder.Services.AddControllers(options =>
 
 WebApplication app = builder.Build();
 
+// Health Endpoint
 app.MapHealthChecks("/health");
 
-using var scope = app.Services.CreateScope();
+var logger = app.Services.GetRequiredService<ILogger<Program>>();
 
-var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-var log = scope.ServiceProvider.GetRequiredService<ILogger<Program>>();
-await dbContext.Database.EnsureCreatedAsync();
-var pendingMigrations = await dbContext.Database.GetPendingMigrationsAsync();
-if (pendingMigrations.Any())
+// Database migration & creation on startup
+using (var scope = app.Services.CreateScope())
 {
-    log.LogInformation("Waiting for pending database migrations (${Migrations})...", pendingMigrations);
-    try
+    var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+
+    await dbContext.Database.EnsureCreatedAsync();
+
+    var pendingMigrations = await dbContext.Database.GetPendingMigrationsAsync();
+    if (pendingMigrations.Any())
     {
-        await dbContext.Database.MigrateAsync();
-        log.LogInformation("Successfully applied pending database migrations.");
+        logger.LogInformation("Waiting for pending database migrations ({Migrations})...", pendingMigrations);
+        try
+        {
+            await dbContext.Database.MigrateAsync();
+            logger.LogInformation("Successfully applied pending database migrations.");
+        }
+        catch (Exception ex)
+        {
+            logger.LogCritical(ex, "Failed to apply pending database migrations.");
+        }
     }
-    catch (Exception ex)
+    else
     {
-        log.LogCritical(ex, "Failed to apply pending database migrations.");
+        logger.LogInformation("No pending database migrations.");
     }
 }
-else
-{
-    log.LogInformation("No pending database migrations.");
-}
 
+// Middlewares & Endpoints
+logger.LogDebug("Registering middlewares...");
 app.UseMiddleware<ApiExceptionMiddleware>();
 
-app.MapControllers();
+logger.LogDebug("Registering swagger...");
 app.UseSwagger();
 app.UseSwaggerUI(c =>
 {
-    c.SwaggerEndpoint("/swagger/v1/swagger.json", "Meine API v1");
+    c.SwaggerEndpoint(SwaggerEndpointUrl, $"{SwaggerApiTitle} {SwaggerApiVersion}");
     c.OAuthClientId(authOptions.ClientIdForSwagger);
     c.OAuthScopes([.. authOptions.Scopes]);
-    c.OAuthAppName("FireInvent Swagger");
+    c.OAuthAppName($"{SwaggerApiTitle} Swagger");
+    c.OAuthUsePkce();
 });
 
+logger.LogDebug("Registering authentication and authorization...");
 app.UseAuthentication();
 app.UseAuthorization();
+
+logger.LogDebug("Registering controllers end endpoints...");
+app.MapControllers();
 
 app.MapGet("/", context =>
 {
@@ -169,5 +209,8 @@ app.MapGet("/", context =>
     return Task.CompletedTask;
 });
 
+logger.LogInformation("Starting FireInvent API...");
 
 app.Run();
+
+logger.LogInformation("FireInvent API shutting down...");
