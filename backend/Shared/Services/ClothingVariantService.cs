@@ -7,7 +7,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace FireInvent.Shared.Services;
 
-public class ClothingVariantService(GearDbContext context, IMapper mapper)
+public class ClothingVariantService(AppDbContext context, IMapper mapper)
 {
     public async Task<ClothingVariantModel> CreateVariantAsync(CreateClothingVariantModel model)
     {

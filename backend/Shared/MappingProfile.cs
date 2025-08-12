@@ -1,7 +1,6 @@
 ﻿using AutoMapper;
 using FireInvent.Database.Models;
 using FireInvent.Shared.Models;
-using Microsoft.AspNetCore.Identity;
 
 namespace FireInvent.Shared;
 
@@ -29,8 +28,6 @@ public class MappingProfile : Profile
             .ForMember(dest => dest.Id, opt => opt.MapFrom(src => Guid.NewGuid()));
         CreateMap<CreateOrderModel, Order>()
             .ForMember(dest => dest.Id, opt => opt.MapFrom(src => Guid.NewGuid()));
-        CreateMap<CreateUserModel, IdentityUser>()
-            .ForMember(dest => dest.Id, opt => opt.MapFrom(src => Guid.NewGuid()));
 
         CreateMap<Department, DepartmentModel>().ReverseMap();
         CreateMap<StorageLocation, StorageLocationModel>().ReverseMap();
@@ -42,10 +39,7 @@ public class MappingProfile : Profile
         CreateMap<Person, PersonModel>().ReverseMap();
         CreateMap<Order, OrderModel>().ReverseMap();
         CreateMap<OrderItem, OrderItemModel>().ReverseMap();
-        CreateMap<IdentityUser, UserModel>()
-            .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
-            .ForMember(dest => dest.UserName, opt => opt.MapFrom(src => src.UserName))
-            .ForMember(dest => dest.Email, opt => opt.MapFrom(src => src.Email))
+        CreateMap<User, UserModel>()
             .ReverseMap();
     }
 }

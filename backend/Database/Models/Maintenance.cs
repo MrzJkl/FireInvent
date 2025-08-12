@@ -1,5 +1,4 @@
 ﻿using FireInvent.Contract;
-using Microsoft.AspNetCore.Identity;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
@@ -18,7 +17,7 @@ public record Maintenance
     public DateTime PerformedAt { get; set; }
 
     [ForeignKey(nameof(PerformedBy))]
-    public string? PeformedById { get; set; } = string.Empty;
+    public Guid? PeformedById { get; set; }
 
     [Required]
     public MaintenanceType MaintenanceType { get; set; }
@@ -28,5 +27,5 @@ public record Maintenance
 
     public virtual ClothingItem Item { get; set; } = null!;
 
-    public virtual IdentityUser? PerformedBy { get; set; } = null!;
+    public virtual User? PerformedBy { get; set; } = null!;
 }

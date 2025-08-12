@@ -1,12 +1,15 @@
 ﻿using FireInvent.Database.Models;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
 namespace FireInvent.Database;
 
-public class GearDbContext(DbContextOptions<GearDbContext> options) : IdentityDbContext<IdentityUser>(options)
+public class AppDbContext : DbContext
 {
+    public AppDbContext(DbContextOptions<AppDbContext> options)
+    : base(options)
+    {
+    }
+
     public DbSet<ClothingItem> ClothingItems => Set<ClothingItem>();
 
     public DbSet<ClothingVariant> ClothingVariants => Set<ClothingVariant>();
@@ -26,4 +29,6 @@ public class GearDbContext(DbContextOptions<GearDbContext> options) : IdentityDb
     public DbSet<Order> Orders => Set<Order>();
 
     public DbSet<OrderItem> OrderItems => Set<OrderItem>();
+
+    public DbSet<User> Users => Set<User>();
 }

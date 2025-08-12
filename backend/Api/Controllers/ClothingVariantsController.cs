@@ -27,10 +27,7 @@ public class ClothingVariantsController(ClothingVariantService variantService, C
     public async Task<ActionResult<ClothingVariantModel>> GetById(Guid id)
     {
         var variant = await variantService.GetVariantByIdAsync(id);
-        if (variant is null)
-            return throw new NotFoundException();
-
-        return Ok(variant);
+        return variant is null ? throw new NotFoundException() : (ActionResult<ClothingVariantModel>)Ok(variant);
     }
 
     [HttpPost]

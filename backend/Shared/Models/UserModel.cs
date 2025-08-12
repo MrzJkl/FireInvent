@@ -1,15 +1,19 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using Microsoft.EntityFrameworkCore;
+using System.ComponentModel.DataAnnotations;
 
 namespace FireInvent.Shared.Models;
 
 public record UserModel
 {
     [Required]
-    public string Id { get; init; } = string.Empty;
+    public Guid Id { get; init; }
 
     [Required]
-    public string Email { get; init; } = string.Empty;
+    public string EMail { get; set; } = string.Empty;
 
     [Required]
-    public string UserName { get; init; } = string.Empty;
+    public string? FirstName { get; set; }
+
+    [Required]
+    public string? LastName { get; set; }
 }

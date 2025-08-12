@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace FireInvent.Shared.Services;
 
-public class OrderService(GearDbContext context, IMapper mapper)
+public class OrderService(AppDbContext context, IMapper mapper)
 {
     public async Task<OrderModel?> GetOrderByIdAsync(Guid id)
     {

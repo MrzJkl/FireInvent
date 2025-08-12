@@ -26,10 +26,7 @@ public class ClothingProductsController(ClothingProductService productService) :
     public async Task<ActionResult<ClothingProductModel>> GetById(Guid id)
     {
         var product = await productService.GetProductByIdAsync(id);
-        if (product is null)
-            throw new NotFoundException();
-
-        return Ok(product);
+        return product is null ? throw new NotFoundException() : (ActionResult<ClothingProductModel>)Ok(product);
     }
 
     [HttpPost]

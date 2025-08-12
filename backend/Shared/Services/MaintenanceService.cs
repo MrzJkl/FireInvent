@@ -3,20 +3,19 @@ using FireInvent.Database;
 using FireInvent.Database.Models;
 using FireInvent.Shared.Exceptions;
 using FireInvent.Shared.Models;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
 namespace FireInvent.Shared.Services;
 
-public class MaintenanceService(GearDbContext context, IMapper mapper, UserManager<IdentityUser> userManager)
+public class MaintenanceService(AppDbContext context, IMapper mapper, UserService userService)
 {
     public async Task<MaintenanceModel> CreateMaintenanceAsync(CreateMaintenanceModel model)
     {
         _ = await context.ClothingItems.FindAsync(model.ItemId) ?? throw new BadRequestException($"ClothingItem with ID '{model.ItemId}' does not exist.");
 
-        if (!string.IsNullOrWhiteSpace(model.PerformedById))
+        if (model.PerformedById.HasValue)
         {
-            var user = await userManager.FindByIdAsync(model.PerformedById) ?? throw new BadRequestException($"User with ID '{model.PerformedById}' does not exist.");
+            _ = await userService.GetUserByIdAsync(model.PerformedById.Value) ?? throw new BadRequestException($"User with ID '{model.PerformedById}' does not exist.");
         }
 
         var entity = mapper.Map<Maintenance>(model);
@@ -57,11 +56,9 @@ public class MaintenanceService(GearDbContext context, IMapper mapper, UserManag
         if (!itemExists)
             throw new BadRequestException($"ClothingItem with ID '{model.ItemId}' does not exist.");
 
-        if (!string.IsNullOrWhiteSpace(model.PerformedById))
+        if (model.PerformedById.HasValue)
         {
-            var user = await userManager.FindByIdAsync(model.PerformedById);
-            if (user == null)
-                throw new BadRequestException($"User with ID '{model.PerformedById}' does not exist.");
+            _ = await userService.GetUserByIdAsync(model.PerformedById.Value) ?? throw new BadRequestException($"User with ID '{model.PerformedById}' does not exist.");
         }
 
         mapper.Map(model, entity);
