@@ -159,7 +159,17 @@ using (var scope = app.Services.CreateScope())
 {
     var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
 
-    await dbContext.Database.EnsureCreatedAsync();
+    try
+    {
+        logger.LogInformation("Ensuring datatbase is created.");
+        await dbContext.Database.EnsureCreatedAsync();
+    }
+    catch (Exception ex)
+    {
+        logger.LogCritical(ex, "Failed ensure that database is created.");
+        throw;
+    }
+
 
     var pendingMigrations = await dbContext.Database.GetPendingMigrationsAsync();
     if (pendingMigrations.Any())
