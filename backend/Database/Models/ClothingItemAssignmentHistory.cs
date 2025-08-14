@@ -18,6 +18,9 @@ public record ClothingItemAssignmentHistory
     [ForeignKey(nameof(Person))]
     public Guid PersonId { get; set; }
 
+    [ForeignKey(nameof(AssignedBy))]
+    public Guid? AssignedById { get; set; }
+
     [Required]
     public DateTime AssignedFrom { get; set; }
 
@@ -26,4 +29,6 @@ public record ClothingItemAssignmentHistory
     public virtual ClothingItem Item { get; set; } = null!;
 
     public virtual Person Person { get; set; } = null!;
+
+    public virtual User? AssignedBy { get; set; } = null!;
 }

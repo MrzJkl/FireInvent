@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace FireInvent.Shared.Services;
 
-public class DepartmentService(GearDbContext context, IMapper mapper)
+public class DepartmentService(AppDbContext context, IMapper mapper)
 {
     public async Task<DepartmentModel> CreateDepartmentAsync(CreateDepartmentModel model)
     {

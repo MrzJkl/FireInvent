@@ -1,8 +1,8 @@
-﻿using FireInvent.Contract;
+﻿using FireInvent.Shared.Exceptions;
 using FireInvent.Shared.Models;
 using FireInvent.Shared.Services;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Swashbuckle.AspNetCore.Annotations;
 
 namespace FireInvent.Api.Controllers;
 
@@ -11,36 +11,19 @@ namespace FireInvent.Api.Controllers;
 public class UsersController(UserService userService) : ControllerBase
 {
     [HttpGet]
-    public async Task<ActionResult<List<UserModel>>> GetAllUsers()
+    public async Task<ActionResult<List<UserModel>>> GetAll()
     {
         var users = await userService.GetAllUsersAsync();
         return Ok(users);
     }
 
-
-    [HttpPost]
-    [Authorize(Roles = Roles.Admin)]
-    public async Task<IActionResult> CreateUser([FromBody] CreateUserModel model)
+    [HttpGet("{id:guid}")]
+    [SwaggerOperation(Summary = "Get user by ID", Description = "Returns a user by its unique ID.")]
+    [SwaggerResponse(200, "User found", typeof(StorageLocationModel))]
+    [SwaggerResponse(404, "User not found")]
+    public async Task<ActionResult<UserModel>> GetById(Guid id)
     {
-        if (!ModelState.IsValid)
-            return BadRequest(ModelState);
-
-        var result = await userService.CreateUserAsync(model);
-        if (result.Succeeded)
-            return Ok();
-
-        foreach (var error in result.Errors)
-            ModelState.AddModelError(string.Empty, error.Description);
-
-        return BadRequest(ModelState);
-    }
-
-    [HttpDelete("{id}")]
-    [Authorize(Roles = Roles.Admin)]
-    public async Task<IActionResult> DeleteUser(string id)
-    {
-        var result = await userService.DeleteUserAsync(id);
-
-        return result ? NoContent() : throw new NotFoundException();
+        var user = await userService.GetUserByIdAsync(id);
+        return user is null ? throw new NotFoundException() : (ActionResult<UserModel>)Ok(user);
     }
 }

@@ -1,13 +1,12 @@
 ﻿using FireInvent.Shared.Options;
 using MailKit.Net.Smtp;
 using MailKit.Security;
-using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.Extensions.Options;
 using MimeKit;
 
 namespace FireInvent.Shared.Services
 {
-    public class MailService(IOptions<MailOptions> mailOptions) : IEmailSender
+    public class MailService(IOptions<MailOptions> mailOptions)
     {
         public async Task SendEmailAsync(string email, string subject, string htmlMessage)
         {

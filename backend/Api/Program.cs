@@ -1,117 +1,130 @@
 using FireInvent.Api.Middlewares;
 using FireInvent.Api.Swagger;
-using FireInvent.Contract;
 using FireInvent.Database;
 using FireInvent.Shared;
 using FireInvent.Shared.Options;
 using FireInvent.Shared.Services;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Mvc.Authorization;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
-using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
-using System.Text;
+using Microsoft.OpenApi.Models;
+using Serilog;
+
+const string SwaggerApiVersion = "v1";
+const string SwaggerEndpointUrl = $"/swagger/{SwaggerApiVersion}/swagger.json";
+const string SwaggerApiTitle = "FireInvent";
+const string SwaggerApiDescription = "Manage your inventory a modern way!";
+const string AuthScheme = "Bearer";
 
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
+// Configuration setup
 builder.Configuration
     .SetBasePath(Directory.GetCurrentDirectory())
     .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
     .AddEnvironmentVariables();
 
-builder.Services.AddHealthChecks()
-    .AddDbContextCheck<GearDbContext>()
-    .AddProcessAllocatedMemoryHealthCheck(2000)
-    .AddDiskStorageHealthCheck(null)
-    .AddCheck("self", () => HealthCheckResult.Healthy());
+// Serilog setup
+builder.Host.UseSerilog((context, services, configuration) =>
+{
+    configuration
+        .ReadFrom.Configuration(context.Configuration)
+        .ReadFrom.Services(services)
+        .Enrich.FromLogContext()
+        .Enrich.WithClientIp()
+        .Enrich.WithProcessId()
+        .Enrich.WithThreadId()
+        .Enrich.WithCorrelationId();
+});
 
-builder.Services.Configure<JwtOptions>(
-    builder.Configuration.GetRequiredSection("Jwt"));
+// Configure Options
+builder.Services.Configure<AuthenticationOptions>(
+    builder.Configuration.GetRequiredSection("Authentication"));
 builder.Services.Configure<DefaultAdminOptions>(
     builder.Configuration.GetSection("DefaultUser"));
 builder.Services.Configure<MailOptions>(
     builder.Configuration.GetSection("MailOptions"));
 
-var jwtOptions = builder.Configuration.GetRequiredSection("Jwt").Get<JwtOptions>()!;
+var authOptions = builder.Configuration.GetRequiredSection("Authentication").Get<AuthenticationOptions>()!;
 
-builder.Services.AddAuthentication(options =>
-{
-    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-})
-.AddJwtBearer(options =>
-{
-    options.TokenValidationParameters = new TokenValidationParameters
+// Authentication & Authorization
+builder.Services
+    .AddAuthentication(AuthScheme)
+    .AddJwtBearer(AuthScheme, options =>
     {
-        ValidateIssuer = true,
-        ValidateAudience = true,
-        ValidateLifetime = true,
-        ValidateIssuerSigningKey = true,
+        options.TokenValidationParameters = new TokenValidationParameters
+        {
+            // TODO: Validate Audience and Issuer when issue with authentik is fixed
+            ValidateIssuer = false,
+            ValidateAudience = false,
+        };
 
-        ValidIssuer = jwtOptions.Issuer,
-        ValidAudience = jwtOptions.Audience,
-        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtOptions.Key))
-    };
-});
-
-builder.Services.AddCors(options =>
-{
-    options.AddPolicy("AllowFlutterWeb", policy =>
-    {
-        policy
-            .AllowAnyOrigin()
-            .AllowAnyMethod()
-            .AllowAnyHeader();
+        options.Events = new Microsoft.AspNetCore.Authentication.JwtBearer.JwtBearerEvents
+        {  
+            OnAuthenticationFailed = context =>
+            {
+                var logger = context.HttpContext.RequestServices.GetRequiredService<ILogger<Program>>();
+                logger.LogError(context.Exception, "Authentication failed.");
+                return Task.CompletedTask;
+            }
+        };
     });
-});
 
 builder.Services.AddAuthorization();
 
-builder.Services.AddDbContext<GearDbContext>(options =>
-    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection"), x => x.MigrationsAssembly("FireInvent.Database")));
+// Database
+builder.Services.AddDbContext<AppDbContext>(options =>
+    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection"),
+        x => x.MigrationsAssembly("FireInvent.Database")));
 
-builder.Services.AddIdentityCore<IdentityUser>()
-    .AddRoles<IdentityRole>()
-    .AddEntityFrameworkStores<GearDbContext>()
-    .AddDefaultTokenProviders();
+// Health Checks
+builder.Services.AddHealthChecks()
+    .AddDbContextCheck<AppDbContext>()
+    .AddProcessAllocatedMemoryHealthCheck(2000)
+    .AddCheck("self", () => HealthCheckResult.Healthy());
 
+// Swagger
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen(c => {
+builder.Services.AddSwaggerGen(c =>
+{
     c.EnableAnnotations();
-    c.OperationFilter<AddResponseHeadersFilter>();
-
-    c.AddSecurityDefinition("Bearer", new Microsoft.OpenApi.Models.OpenApiSecurityScheme
+    c.SwaggerDoc(SwaggerApiVersion, new OpenApiInfo
     {
-        Name = "Authorization",
-        Type = Microsoft.OpenApi.Models.SecuritySchemeType.Http,
-        Scheme = "Bearer",
-        BearerFormat = "JWT",
-        In = Microsoft.OpenApi.Models.ParameterLocation.Header,
-        Description = "Insert your JWT-Token here."
+        Title = SwaggerApiTitle,
+        Version = SwaggerApiVersion,
+        Description = SwaggerApiDescription
     });
 
-    c.AddSecurityRequirement(new Microsoft.OpenApi.Models.OpenApiSecurityRequirement
+    c.OperationFilter<AddResponseHeadersFilter>();
+
+    c.AddSecurityDefinition("oidc", new OpenApiSecurityScheme
+    {
+        Type = SecuritySchemeType.OpenIdConnect,
+        OpenIdConnectUrl = new Uri(authOptions.OidcDiscoveryUrlForSwagger),
+        Description = "Login via OpenID Connect"
+    });
+
+    c.AddSecurityRequirement(new OpenApiSecurityRequirement
     {
         {
-            new Microsoft.OpenApi.Models.OpenApiSecurityScheme
+            new OpenApiSecurityScheme
             {
-                Reference = new Microsoft.OpenApi.Models.OpenApiReference
+                Reference = new OpenApiReference
                 {
-                    Type = Microsoft.OpenApi.Models.ReferenceType.SecurityScheme,
-                    Id = "Bearer"
+                    Type = ReferenceType.SecurityScheme,
+                    Id = "oidc"
                 }
             },
-            Array.Empty<string>()
+            new[] { "openid", "profile", "email" } // scopes, die benötigt werden
         }
     });
 });
 
-builder.Services.AddAutoMapper((config) => config.AddProfile<MappingProfile>());
+// AutoMapper
+builder.Services.AddAutoMapper(config => config.AddProfile<MappingProfile>());
 
+// Application Services
 builder.Services.AddScoped<DepartmentService>();
 builder.Services.AddScoped<StorageLocationService>();
 builder.Services.AddScoped<PersonService>();
@@ -121,8 +134,9 @@ builder.Services.AddScoped<ClothingItemService>();
 builder.Services.AddScoped<MaintenanceService>();
 builder.Services.AddScoped<ClothingItemAssignmentHistoryService>();
 builder.Services.AddScoped<UserService>();
-builder.Services.AddTransient<IEmailSender, MailService>();
+builder.Services.AddTransient<MailService>();
 
+// Controllers
 builder.Services.AddControllers(options =>
 {
     options.Filters.Add(new AuthorizeFilter());
@@ -135,92 +149,69 @@ builder.Services.AddControllers(options =>
 
 WebApplication app = builder.Build();
 
+// Health Endpoint
 app.MapHealthChecks("/health");
 
-using var scope = app.Services.CreateScope();
+var logger = app.Services.GetRequiredService<ILogger<Program>>();
 
-var dbContext = scope.ServiceProvider.GetRequiredService<GearDbContext>();
-await dbContext.Database.EnsureCreatedAsync();
-if ((await dbContext.Database.GetPendingMigrationsAsync()).Any())
+// Database migration & creation on startup
+using (var scope = app.Services.CreateScope())
 {
-    Console.WriteLine("Waiting for pending database migrations...");
+    var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+
     try
     {
-        await dbContext.Database.MigrateAsync();
-        Console.WriteLine("Successfully applied pending database migrations.");
+        logger.LogInformation("Ensuring datatbase is created.");
+        await dbContext.Database.EnsureCreatedAsync();
     }
     catch (Exception ex)
     {
-        Console.WriteLine($"Error applying migrations: {ex.Message}");
-    }
-}
-
-app.UseMiddleware<ApiExceptionMiddleware>();
-
-app.MapControllers();
-app.UseSwagger();
-app.UseSwaggerUI();
-
-app.UseCors("AllowFlutterWeb");
-
-app.UseAuthentication();
-app.UseAuthorization();
-
-var services = scope.ServiceProvider;
-var roleManager = services.GetRequiredService<RoleManager<IdentityRole>>();
-var userManager = services.GetRequiredService<UserManager<IdentityUser>>();
-var defaultUserOptions = services.GetRequiredService<IOptions<DefaultAdminOptions>>().Value;
-
-try
-{
-    foreach (var roleName in Roles.AllRoles)
-    {
-        if (!await roleManager.RoleExistsAsync(roleName))
-        {
-            await roleManager.CreateAsync(new IdentityRole(roleName));
-        }
+        logger.LogCritical(ex, "Failed ensure that database is created.");
+        throw;
     }
 
-    if (!string.IsNullOrWhiteSpace(defaultUserOptions.Email) &&
-        !string.IsNullOrWhiteSpace(defaultUserOptions.Password))
-    {
-        var existingUser = await userManager.FindByEmailAsync(defaultUserOptions.Email);
-        if (existingUser == null)
-        {
-            var adminUser = new IdentityUser
-            {
-                UserName = defaultUserOptions.Email,
-                Email = defaultUserOptions.Email,
-                EmailConfirmed = true
-            };
 
-            var result = await userManager.CreateAsync(adminUser, defaultUserOptions.Password);
-            if (result.Succeeded)
-            {
-                await userManager.AddToRoleAsync(adminUser, Roles.Admin);
-                Console.WriteLine($"Default user created: {defaultUserOptions.Email}");
-            }
-            else
-            {
-                Console.WriteLine("Failed to create default admin user:");
-                foreach (var error in result.Errors)
-                    Console.WriteLine($"- {error.Description}");
-            }
-        }
-        else
+    var pendingMigrations = await dbContext.Database.GetPendingMigrationsAsync();
+    if (pendingMigrations.Any())
+    {
+        logger.LogInformation("Waiting for pending database migrations ({Migrations})...", pendingMigrations);
+        try
         {
-            Console.WriteLine("Default user already exists.");
+            await dbContext.Database.MigrateAsync();
+            logger.LogInformation("Successfully applied pending database migrations.");
+        }
+        catch (Exception ex)
+        {
+            logger.LogCritical(ex, "Failed to apply pending database migrations.");
         }
     }
     else
     {
-        Console.WriteLine("No default user created (DefaultUser section incomplete).");
+        logger.LogInformation("No pending database migrations.");
     }
 }
-catch (Exception ex)
+
+// Middlewares & Endpoints
+logger.LogDebug("Registering middlewares...");
+app.UseMiddleware<ApiExceptionMiddleware>();
+
+logger.LogDebug("Registering swagger...");
+app.UseSwagger();
+app.UseSwaggerUI(c =>
 {
-    Console.WriteLine($"Error during role/user setup: {ex.Message}");
-}
+    c.SwaggerEndpoint(SwaggerEndpointUrl, $"{SwaggerApiTitle} {SwaggerApiVersion}");
+    c.OAuthClientId(authOptions.ClientIdForSwagger);
+    c.OAuthScopes([.. authOptions.Scopes]);
+    c.OAuthAppName($"{SwaggerApiTitle} Swagger");
+    c.OAuthUsePkce();
+});
+
+logger.LogDebug("Registering authentication and authorization...");
+app.UseAuthentication();
+app.UseAuthorization();
+
+logger.LogDebug("Registering controllers end endpoints...");
+app.MapControllers();
 
 app.MapGet("/", context =>
 {
@@ -228,5 +219,8 @@ app.MapGet("/", context =>
     return Task.CompletedTask;
 });
 
+logger.LogInformation("Starting FireInvent API...");
 
 app.Run();
+
+logger.LogInformation("FireInvent API shutting down...");

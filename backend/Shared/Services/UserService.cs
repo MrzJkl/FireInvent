@@ -1,47 +1,77 @@
-﻿using FireInvent.Shared.Exceptions;
+﻿using AutoMapper;
+using FireInvent.Database;
+using FireInvent.Database.Models;
 using FireInvent.Shared.Models;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
+using System.Security.Claims;
 
 namespace FireInvent.Shared.Services;
 
-public class UserService(UserManager<IdentityUser> userManager)
+public class UserService(AppDbContext context, IMapper mapper, ILogger<UserService> log)
 {
+    public async Task<UserModel?> GetUserByIdAsync(Guid id)
+    {
+        var user = await context.Users
+            .AsNoTracking()
+            .FirstOrDefaultAsync(u => u.Id == id);
+
+        return mapper.Map<UserModel?>(user);
+    }
+
     public async Task<List<UserModel>> GetAllUsersAsync()
     {
-        var users = await userManager.Users
-            .Select(u => new UserModel
-            {
-                Id = u.Id,
-                Email = u.Email!,
-                UserName = u.UserName!
-            })
-            .OrderBy(u => u.UserName)
+        var users = await context.Users
+            .OrderBy(u => u.LastName)
+            .ThenBy(u => u.FirstName)
+            .AsNoTracking()
             .ToListAsync();
 
-        return users;
+        return mapper.Map<List<UserModel>>(users);
     }
 
-    public async Task<IdentityResult> CreateUserAsync(CreateUserModel model)
+    public async Task<UserModel> SyncUserFromClaimsAsync(ClaimsPrincipal principal)
     {
-        var user = new IdentityUser
+        var (id, firstname, lastname, email) = GetUserDetailsFromClaims(principal);
+        var user = await context.Users.FindAsync(id);
+
+        if (user is null)
         {
-            UserName = model.UserName,
-            Email = model.Email,
-        };
+            user = new User()
+            {
+                Id = id,
+                FirstName = firstname,
+                LastName = lastname,
+                EMail = email,
+                CreatedAt = DateTime.Now,
+            };
 
-        return await userManager.CreateAsync(user, model.Password);
+            context.Users.Add(user);
+
+            log.LogInformation("Creating new user with ID {UserId} from claims.", id);
+        }
+        else
+        {
+            user.FirstName = firstname;
+            user.LastName = lastname;
+            user.EMail = email;
+            user.LastLogin = DateTime.Now;
+
+            log.LogInformation("Updating existing user with ID {UserId} from claims.", id);
+        }
+
+        await context.SaveChangesAsync();
+
+        return mapper.Map<UserModel>(user);
     }
 
-    public async Task<bool> DeleteUserAsync(string userId)
+    private static (Guid id, string firstname, string lastname, string email) GetUserDetailsFromClaims(ClaimsPrincipal principal)
     {
-        var user = await userManager.FindByIdAsync(userId);
-        if (user == null)
-            return false;
-
-        await userManager.DeleteAsync(user);
-
-        return true;
+        var id = Guid.Parse(principal.FindFirst("sub")?.Value ?? throw new InvalidOperationException("User ID claim is missing or invalid."));
+        var firstName = principal.FindFirst("email")?.Value ?? throw new InvalidOperationException("Email claim is missing or invalid."); ;
+        var lastName = principal.FindFirst("firstname")?.Value ?? throw new InvalidOperationException("FistName claim is missing or invalid.");
+        var email = principal.FindFirst("lastname")?.Value ?? throw new InvalidOperationException("LastName claim is missing or invalid.");
+        
+        return (id, firstName, lastName, email);
     }
 }

@@ -17,7 +17,7 @@ public record CreateMaintenanceModel
     [MaxLength(ModelConstants.MaxStringLengthLong)]
     public string? Remarks { get; init; }
 
-    public string? PerformedById { get; init; }
+    public Guid? PerformedById { get; init; }
 
     public UserModel? PerformedBy { get; init; }
 }

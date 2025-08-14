@@ -7,7 +7,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace FireInvent.Shared.Services;
 
-public class PersonService(GearDbContext context, IMapper mapper)
+public class PersonService(AppDbContext context, IMapper mapper)
 {
     public async Task<PersonModel> CreatePersonAsync(CreatePersonModel model)
     {

@@ -7,7 +7,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace FireInvent.Shared.Services;
 
-public class StorageLocationService(GearDbContext context, IMapper mapper)
+public class StorageLocationService(AppDbContext context, IMapper mapper)
 {
     public async Task<StorageLocationModel> CreateStorageLocationAsync(CreateStorageLocationModel model)
     {
