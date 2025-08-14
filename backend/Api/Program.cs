@@ -53,15 +53,15 @@ builder.Services
     .AddAuthentication(AuthScheme)
     .AddJwtBearer(AuthScheme, options =>
     {
-        options.Authority = authOptions.Authority;
         options.TokenValidationParameters = new TokenValidationParameters
         {
-            ValidateIssuer = true,
-            ValidateAudience = false
+            // TODO: Validate Audience and Issuer when issue with authentik is fixed
+            ValidateIssuer = false,
+            ValidateAudience = false,
         };
 
         options.Events = new Microsoft.AspNetCore.Authentication.JwtBearer.JwtBearerEvents
-        {
+        {  
             OnAuthenticationFailed = context =>
             {
                 var logger = context.HttpContext.RequestServices.GetRequiredService<ILogger<Program>>();
@@ -101,7 +101,7 @@ builder.Services.AddSwaggerGen(c =>
     c.AddSecurityDefinition("oidc", new OpenApiSecurityScheme
     {
         Type = SecuritySchemeType.OpenIdConnect,
-        OpenIdConnectUrl = new Uri(authOptions.OidcDiscoveryUrl),
+        OpenIdConnectUrl = new Uri(authOptions.OidcDiscoveryUrlForSwagger),
         Description = "Login via OpenID Connect"
     });
 
