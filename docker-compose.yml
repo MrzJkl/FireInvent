@@ -1,7 +1,7 @@
 services:
   db:
     image: postgres:17
-    container_name: flameguard_db
+    container_name: fireinvent_db
     environment:
       POSTGRES_DB: ${POSTGRES_DB}
       POSTGRES_USER: ${POSTGRES_USER}
@@ -10,27 +10,17 @@ services:
       - db_data:/var/lib/postgresql/data
 
   api:
-    image: ghcr.io/mrzjkl/flameguardlaundryapi:latest
-    container_name: flameguard_api
+    image: ghcr.io/mrzjkl/fireinventapi:latest
+    container_name: fireinvent_api
     depends_on:
       - db
     environment:
       ConnectionStrings__DefaultConnection: Host=db;Port=5432;Database=${POSTGRES_DB};Username=${POSTGRES_USER};Password=${POSTGRES_PASSWORD}
-      Jwt__Key: ${JWT_KEY}
-      DefaultUser__Email: ${DEFAULT_ADMIN_EMAIL}
-      DefaultUser__Password: ${DEFAULT_ADMIN_PASSWORD}
+      Authentication__Authority: ${AUTHORITY}
+      Authentication__OidcDiscoveryUrlForSwagger: ${OIDC_DISCOVERY_URL_FOR_SWAGGER}
+      Authentication__ClientIdForSwagger: ${CLIENT_ID_FOR_SWAGGER}
     ports:
       - "5001:8080"
-      
-  frontend:
-    image: ghcr.io/mrzjkl/flameguardlaundryfrontend:latest
-    container_name: flameguard_frontend
-    ports:
-      - "5002:80"
-    environment:
-      - API_URL=${API_URL}
-    depends_on:
-      - api
 
 volumes:
   db_data:
