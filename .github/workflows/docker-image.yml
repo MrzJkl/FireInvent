@@ -18,6 +18,9 @@ jobs:
       - name: Checkout source code
         uses: actions/checkout@v3
 
+      - name: Run tests
+        run: dotnet test --configuration Release --verbosity normal
+
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
@@ -39,8 +42,8 @@ jobs:
       - name: Build and push API image
         uses: docker/build-push-action@v5
         with:
-          context: ./backend
-          file: ./backend/Api/Dockerfile
+          context: .
+          file: ./Api/Dockerfile
           push: true
           tags: ghcr.io/mrzjkl/fireinventapi:latest
           cache-from: type=local,src=/tmp/.buildx-cache

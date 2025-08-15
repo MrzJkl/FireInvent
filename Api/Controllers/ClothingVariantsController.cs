@@ -8,7 +8,7 @@ namespace FireInvent.Api.Controllers;
 
 [ApiController]
 [Route("clothingVariants")]
-public class ClothingVariantsController(ClothingVariantService variantService, ClothingItemService itemService) : ControllerBase
+public class ClothingVariantsController(IClothingVariantService variantService, IClothingItemService itemService) : ControllerBase
 {
 
     [HttpGet]

@@ -8,7 +8,7 @@ namespace FireInvent.Api.Controllers;
 
 [ApiController]
 [Route("maintenances")]
-public class MaintenancesController(MaintenanceService service) : ControllerBase
+public class MaintenancesController(IMaintenanceService service) : ControllerBase
 {
     [HttpGet]
     [SwaggerOperation(Summary = "List all maintenances", Description = "Returns a list of all maintenance records.")]

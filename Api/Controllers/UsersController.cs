@@ -8,7 +8,7 @@ namespace FireInvent.Api.Controllers;
 
 [ApiController]
 [Route("/users")]
-public class UsersController(UserService userService) : ControllerBase
+public class UsersController(IUserService userService) : ControllerBase
 {
     [HttpGet]
     public async Task<ActionResult<List<UserModel>>> GetAll()

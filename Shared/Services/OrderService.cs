@@ -2,13 +2,12 @@
 using FireInvent.Contract;
 using FireInvent.Database;
 using FireInvent.Database.Models;
-using FireInvent.Shared.Exceptions;
 using FireInvent.Shared.Models;
 using Microsoft.EntityFrameworkCore;
 
 namespace FireInvent.Shared.Services;
 
-public class OrderService(AppDbContext context, IMapper mapper)
+public class OrderService(AppDbContext context, IMapper mapper) : IOrderService
 {
     public async Task<OrderModel?> GetOrderByIdAsync(Guid id)
     {

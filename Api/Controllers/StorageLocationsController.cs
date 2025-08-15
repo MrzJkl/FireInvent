@@ -8,7 +8,7 @@ namespace FireInvent.Api.Controllers;
 
 [ApiController]
 [Route("storageLocations")]
-public class StorageLocationsController(StorageLocationService locationService, ClothingItemService itemService) : ControllerBase
+public class StorageLocationsController(IStorageLocationService locationService, IClothingItemService itemService) : ControllerBase
 {
     [HttpGet]
     [SwaggerOperation(Summary = "List all storage locations", Description = "Returns a list of all storage locations.")]
