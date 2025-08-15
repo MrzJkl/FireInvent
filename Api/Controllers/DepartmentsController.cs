@@ -8,7 +8,7 @@ namespace FireInvent.Api.Controllers;
 
 [ApiController]
 [Route("departments")]
-public class DepartmentsController(DepartmentService departmentService, PersonService personService) : ControllerBase
+public class DepartmentsController(IDepartmentService departmentService, IPersonService personService) : ControllerBase
 {
     [HttpGet]
     [SwaggerOperation(Summary = "List all departments", Description = "Returns a list of all departments.")]

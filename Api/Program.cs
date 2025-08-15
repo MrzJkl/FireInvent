@@ -125,15 +125,15 @@ builder.Services.AddSwaggerGen(c =>
 builder.Services.AddAutoMapper(config => config.AddProfile<MappingProfile>());
 
 // Application Services
-builder.Services.AddScoped<DepartmentService>();
-builder.Services.AddScoped<StorageLocationService>();
-builder.Services.AddScoped<PersonService>();
-builder.Services.AddScoped<ClothingProductService>();
-builder.Services.AddScoped<ClothingVariantService>();
-builder.Services.AddScoped<ClothingItemService>();
-builder.Services.AddScoped<MaintenanceService>();
-builder.Services.AddScoped<ClothingItemAssignmentHistoryService>();
-builder.Services.AddScoped<UserService>();
+builder.Services.AddScoped<IDepartmentService, DepartmentService>();
+builder.Services.AddScoped<IStorageLocationService, StorageLocationService>();
+builder.Services.AddScoped<IPersonService, PersonService>();
+builder.Services.AddScoped<IClothingProductService, ClothingProductService>();
+builder.Services.AddScoped<IClothingVariantService, ClothingVariantService>();
+builder.Services.AddScoped<IClothingItemService, ClothingItemService>();
+builder.Services.AddScoped<IMaintenanceService, MaintenanceService>();
+builder.Services.AddScoped<IClothingItemAssignmentHistoryService, ClothingItemAssignmentHistoryService>();
+builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddTransient<MailService>();
 
 // Controllers

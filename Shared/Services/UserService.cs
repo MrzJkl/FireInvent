@@ -8,7 +8,7 @@ using System.Security.Claims;
 
 namespace FireInvent.Shared.Services;
 
-public class UserService(AppDbContext context, IMapper mapper, ILogger<UserService> log)
+public class UserService(AppDbContext context, IMapper mapper, ILogger<UserService> log) : IUserService
 {
     public async Task<UserModel?> GetUserByIdAsync(Guid id)
     {
@@ -71,7 +71,7 @@ public class UserService(AppDbContext context, IMapper mapper, ILogger<UserServi
         var firstName = principal.FindFirst("email")?.Value ?? throw new InvalidOperationException("Email claim is missing or invalid."); ;
         var lastName = principal.FindFirst("firstname")?.Value ?? throw new InvalidOperationException("FistName claim is missing or invalid.");
         var email = principal.FindFirst("lastname")?.Value ?? throw new InvalidOperationException("LastName claim is missing or invalid.");
-        
+
         return (id, firstName, lastName, email);
     }
 }

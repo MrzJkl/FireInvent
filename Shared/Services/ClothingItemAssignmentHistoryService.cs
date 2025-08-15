@@ -7,7 +7,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace FireInvent.Shared.Services;
 
-public class ClothingItemAssignmentHistoryService(AppDbContext context, IMapper mapper)
+public class ClothingItemAssignmentHistoryService(AppDbContext context, IMapper mapper) : IClothingItemAssignmentHistoryService
 {
     public async Task<ClothingItemAssignmentHistoryModel> CreateAssignmentAsync(CreateClothingItemAssignmentHistoryModel model)
     {

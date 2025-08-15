@@ -8,7 +8,7 @@ namespace FireInvent.Api.Controllers
 {
     [ApiController]
     [Route("orders")]
-    public class OrderController(OrderService orderService) : ControllerBase
+    public class OrderController(IOrderService orderService) : ControllerBase
     {
         [HttpGet]
         [SwaggerOperation(Summary = "List all orders", Description = "Returns a list of all orders.")]
