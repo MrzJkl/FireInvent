@@ -53,6 +53,7 @@ builder.Services
     .AddAuthentication(AuthScheme)
     .AddJwtBearer(AuthScheme, options =>
     {
+        options.Authority = authOptions.Authority;
         options.TokenValidationParameters = new TokenValidationParameters
         {
             // TODO: Validate Audience and Issuer when issue with authentik is fixed
