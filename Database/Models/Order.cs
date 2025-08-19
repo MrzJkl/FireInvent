@@ -12,12 +12,12 @@ namespace FireInvent.Database.Models
         public string? OrderIdentifier { get; set; }
 
         [Required]
-        public DateTime OrderDate { get; set; }
+        public DateTimeOffset OrderDate { get; set; }
 
         [Required]
         public OrderStatus Status { get; set; } = OrderStatus.Draft;
 
-        public DateTime? DeliveryDate { get; set; }
+        public DateTimeOffset? DeliveryDate { get; set; }
 
         public virtual ICollection<OrderItem> Items { get; set; } = [];
     }

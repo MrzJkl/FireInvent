@@ -6,16 +6,19 @@ using FireInvent.Shared.Options;
 using FireInvent.Shared.Services;
 using Microsoft.AspNetCore.Mvc.Authorization;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using Serilog;
+using System.IdentityModel.Tokens.Jwt;
 
 const string SwaggerApiVersion = "v1";
 const string SwaggerEndpointUrl = $"/swagger/{SwaggerApiVersion}/swagger.json";
 const string SwaggerApiTitle = "FireInvent";
 const string SwaggerApiDescription = "Manage your inventory a modern way!";
 const string AuthScheme = "Bearer";
+const string SeenJTICachePrefix = "seen_jti";
 
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
@@ -56,9 +59,10 @@ builder.Services
         options.Authority = authOptions.Authority;
         options.TokenValidationParameters = new TokenValidationParameters
         {
-            // TODO: Validate Audience and Issuer when issue with authentik is fixed
-            ValidateIssuer = false,
-            ValidateAudience = false,
+            ValidateIssuer = authOptions.ValidIssuers.Any(),
+            ValidateAudience = authOptions.ValidAudiences.Any(),
+            ValidIssuers = authOptions.ValidIssuers,
+            ValidAudiences = authOptions.ValidAudiences,
         };
 
         options.Events = new Microsoft.AspNetCore.Authentication.JwtBearer.JwtBearerEvents
@@ -66,13 +70,63 @@ builder.Services
             OnAuthenticationFailed = context =>
             {
                 var logger = context.HttpContext.RequestServices.GetRequiredService<ILogger<Program>>();
-                logger.LogError(context.Exception, "Authentication failed.");
+                logger.LogWarning(context.Exception, "Authentication failed.");
                 return Task.CompletedTask;
-            }
+            },
+            OnTokenValidated = context =>
+            {
+                if (context.Principal == null)
+                {
+                    return Task.CompletedTask;
+                }
+
+                var scopeFactory = context.HttpContext.RequestServices.GetRequiredService<IServiceScopeFactory>();
+
+                _ = Task.Run(async () =>
+                {
+                    try
+                    {
+                        var cache = context.HttpContext.RequestServices.GetRequiredService<IMemoryCache>();
+
+
+                        var jti = context.Principal.Claims.First(c => c.Type == JwtRegisteredClaimNames.Jti)?.Value;
+                        var cacheKey = $"{SeenJTICachePrefix}:{jti}";
+
+                        if (cache.TryGetValue(cacheKey, out _))
+                        {
+                            return;
+                        }
+
+                        using var scope = scopeFactory.CreateScope();
+
+                        var userService = scope.ServiceProvider.GetRequiredService<IUserService>();
+
+                        _ = await userService.SyncUserFromClaimsAsync(context.Principal);
+
+                        var exp = long.Parse(context.Principal.Claims.First(c => c.Type == JwtRegisteredClaimNames.Exp).Value);
+
+                        cache.Set(
+                            cacheKey,
+                            true,
+                            new MemoryCacheEntryOptions
+                            {
+                                AbsoluteExpiration = DateTimeOffset.FromUnixTimeSeconds(exp)
+                            });
+                    }
+                    catch (Exception ex)
+                    {
+                        var logger = context.HttpContext.RequestServices.GetRequiredService<ILogger<Program>>();
+                        logger.LogError(ex, "Error syncing user from claims in background.");
+                    }
+                });
+
+                return Task.CompletedTask;
+            },
         };
     });
 
 builder.Services.AddAuthorization();
+builder.Services.AddMemoryCache();
 
 // Database
 builder.Services.AddDbContext<AppDbContext>(options =>
@@ -117,7 +171,7 @@ builder.Services.AddSwaggerGen(c =>
                     Id = "oidc"
                 }
             },
-            new[] { "openid", "profile", "email" } // scopes, die benötigt werden
+            new[] { "openid", "profile", "email" }
         }
     });
 });
@@ -135,6 +189,7 @@ builder.Services.AddScoped<IClothingItemService, ClothingItemService>();
 builder.Services.AddScoped<IMaintenanceService, MaintenanceService>();
 builder.Services.AddScoped<IClothingItemAssignmentHistoryService, ClothingItemAssignmentHistoryService>();
 builder.Services.AddScoped<IUserService, UserService>();
+builder.Services.AddScoped<IOrderService, OrderService>();
 builder.Services.AddTransient<MailService>();
 
 // Controllers
@@ -162,7 +217,7 @@ using (var scope = app.Services.CreateScope())
 
     try
     {
-        logger.LogInformation("Ensuring datatbase is created.");
+        logger.LogInformation("Ensuring database is created.");
         await dbContext.Database.EnsureCreatedAsync();
     }
     catch (Exception ex)

@@ -17,7 +17,7 @@ public record CreateClothingItemModel
     public GearCondition Condition { get; init; }
 
     [Required]
-    public DateTime PurchaseDate { get; init; }
+    public DateTimeOffset PurchaseDate { get; init; }
 
-    public DateTime? RetirementDate { get; init; }
+    public DateTimeOffset? RetirementDate { get; init; }
 }

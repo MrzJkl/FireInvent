@@ -8,6 +8,10 @@ public class AuthenticationOptions
 
     public string ClientIdForSwagger { get; init; } = "fireinvent-swagger";
 
+    public List<string> ValidIssuers { get; init; } = [];
+
+    public List<string> ValidAudiences { get; init; } = [];
+
     public List<string> Scopes { get; init; } =
     [
         "openid",

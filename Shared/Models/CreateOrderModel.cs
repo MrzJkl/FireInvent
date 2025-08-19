@@ -9,7 +9,7 @@ namespace FireInvent.Shared.Models
         public string? OrderIdentifier { get; init; }
 
         [Required]
-        public DateTime OrderDate { get; init; }
+        public DateTimeOffset OrderDate { get; init; }
 
         [Required]
         public OrderStatus Status { get; init; }
@@ -17,6 +17,6 @@ namespace FireInvent.Shared.Models
         [Required]
         public List<CreateOrderItemModel> Items { get; init; } = [];
 
-        public DateTime? DeliveryDate { get; init; }
+        public DateTimeOffset? DeliveryDate { get; init; }
     }
 }

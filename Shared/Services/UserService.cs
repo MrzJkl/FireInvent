@@ -43,7 +43,8 @@ public class UserService(AppDbContext context, IMapper mapper, ILogger<UserServi
                 FirstName = firstname,
                 LastName = lastname,
                 EMail = email,
-                CreatedAt = DateTime.Now,
+                CreatedAt = DateTimeOffset.UtcNow,
+                LastLogin = DateTimeOffset.UtcNow,
             };
 
             context.Users.Add(user);
@@ -55,10 +56,12 @@ public class UserService(AppDbContext context, IMapper mapper, ILogger<UserServi
             user.FirstName = firstname;
             user.LastName = lastname;
             user.EMail = email;
-            user.LastLogin = DateTime.Now;
+            user.LastLogin = DateTimeOffset.UtcNow;
 
             log.LogInformation("Updating existing user with ID {UserId} from claims.", id);
         }
+
+        await Task.Delay(5000);
 
         await context.SaveChangesAsync();
 
@@ -67,10 +70,19 @@ public class UserService(AppDbContext context, IMapper mapper, ILogger<UserServi
 
     private static (Guid id, string firstname, string lastname, string email) GetUserDetailsFromClaims(ClaimsPrincipal principal)
     {
-        var id = Guid.Parse(principal.FindFirst("sub")?.Value ?? throw new InvalidOperationException("User ID claim is missing or invalid."));
-        var firstName = principal.FindFirst("email")?.Value ?? throw new InvalidOperationException("Email claim is missing or invalid."); ;
-        var lastName = principal.FindFirst("firstname")?.Value ?? throw new InvalidOperationException("FistName claim is missing or invalid.");
-        var email = principal.FindFirst("lastname")?.Value ?? throw new InvalidOperationException("LastName claim is missing or invalid.");
+        var firstName = principal.FindFirst(ClaimTypes.GivenName)?.Value
+            ?? throw new InvalidOperationException("GivenName claim is missing or invalid.");
+
+        var lastName = principal.FindFirst(ClaimTypes.Surname)?.Value
+            ?? throw new InvalidOperationException("Surname claim is missing or invalid.");
+
+        var email = principal.FindFirst(ClaimTypes.Email)?.Value
+            ?? throw new InvalidOperationException("Email claim is missing or invalid.");
+
+        var id = Guid.Parse(
+            principal.FindFirst(ClaimTypes.NameIdentifier)?.Value
+            ?? throw new InvalidOperationException("User ID claim is missing or invalid.")
+        );
 
         return (id, firstName, lastName, email);
     }

@@ -9,7 +9,7 @@ public record CreateMaintenanceModel
     public Guid ItemId { get; init; }
 
     [Required]
-    public DateTime PerformedAt { get; init; }
+    public DateTimeOffset PerformedAt { get; init; }
 
     [Required]
     public MaintenanceType MaintenanceType { get; init; }

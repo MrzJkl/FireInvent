@@ -12,7 +12,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace FireInvent.Database.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20250812110806_InitialCreate")]
+    [Migration("20250819190418_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -53,10 +53,10 @@ namespace FireInvent.Database.Migrations
                         .HasMaxLength(255)
                         .HasColumnType("character varying(255)");
 
-                    b.Property<DateTime>("PurchaseDate")
+                    b.Property<DateTimeOffset>("PurchaseDate")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<DateTime?>("RetirementDate")
+                    b.Property<DateTimeOffset?>("RetirementDate")
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<Guid?>("StorageLocationId")
@@ -86,10 +86,10 @@ namespace FireInvent.Database.Migrations
                     b.Property<Guid?>("AssignedById")
                         .HasColumnType("uuid");
 
-                    b.Property<DateTime>("AssignedFrom")
+                    b.Property<DateTimeOffset>("AssignedFrom")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<DateTime?>("AssignedUntil")
+                    b.Property<DateTimeOffset?>("AssignedUntil")
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<Guid>("ItemId")
@@ -211,7 +211,7 @@ namespace FireInvent.Database.Migrations
                     b.Property<Guid?>("PeformedById")
                         .HasColumnType("uuid");
 
-                    b.Property<DateTime>("PerformedAt")
+                    b.Property<DateTimeOffset>("PerformedAt")
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("Remarks")
@@ -233,10 +233,10 @@ namespace FireInvent.Database.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
-                    b.Property<DateTime?>("DeliveryDate")
+                    b.Property<DateTimeOffset?>("DeliveryDate")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<DateTime>("OrderDate")
+                    b.Property<DateTimeOffset>("OrderDate")
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("OrderIdentifier")
@@ -346,7 +346,7 @@ namespace FireInvent.Database.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
-                    b.Property<DateTime>("CreatedAt")
+                    b.Property<DateTimeOffset>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("EMail")
@@ -359,7 +359,7 @@ namespace FireInvent.Database.Migrations
                         .HasMaxLength(255)
                         .HasColumnType("character varying(255)");
 
-                    b.Property<DateTime?>("LastLogin")
+                    b.Property<DateTimeOffset?>("LastLogin")
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("LastName")

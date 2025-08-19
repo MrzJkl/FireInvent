@@ -8,7 +8,7 @@ namespace FireInvent.Database.Models
     public record User
     {
         [Key]
-        public Guid Id { get; init; }
+        public Guid Id { get; set; }
 
         [MaxLength(ModelConstants.MaxStringLength)]
         public string EMail { get; set; } = string.Empty;
@@ -20,8 +20,8 @@ namespace FireInvent.Database.Models
         public string LastName { get; set; } = string.Empty;
 
         [Required]
-        public DateTime CreatedAt { get; init; } = DateTime.UtcNow;
+        public DateTimeOffset CreatedAt { get; set; } = DateTime.UtcNow;
 
-        public DateTime? LastLogin { get; set; }
+        public DateTimeOffset? LastLogin { get; set; }
     }
 }

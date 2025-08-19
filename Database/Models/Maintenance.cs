@@ -14,7 +14,7 @@ public record Maintenance
     public Guid ItemId { get; set; }
 
     [Required]
-    public DateTime PerformedAt { get; set; }
+    public DateTimeOffset PerformedAt { get; set; }
 
     [ForeignKey(nameof(PerformedBy))]
     public Guid? PeformedById { get; set; }

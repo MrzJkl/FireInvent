@@ -25,9 +25,9 @@ public record ClothingItem
     public GearCondition Condition { get; set; }
 
     [Required]
-    public DateTime PurchaseDate { get; set; }
+    public DateTimeOffset PurchaseDate { get; set; }
 
-    public DateTime? RetirementDate { get; set; }
+    public DateTimeOffset? RetirementDate { get; set; }
 
     public virtual ClothingVariant Variant { get; set; } = null!;
 

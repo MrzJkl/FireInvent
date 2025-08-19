@@ -22,9 +22,9 @@ public record ClothingItemAssignmentHistory
     public Guid? AssignedById { get; set; }
 
     [Required]
-    public DateTime AssignedFrom { get; set; }
+    public DateTimeOffset AssignedFrom { get; set; }
 
-    public DateTime? AssignedUntil { get; set; }
+    public DateTimeOffset? AssignedUntil { get; set; }
 
     public virtual ClothingItem Item { get; set; } = null!;
 

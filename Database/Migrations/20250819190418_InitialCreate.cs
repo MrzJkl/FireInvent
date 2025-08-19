@@ -44,9 +44,9 @@ namespace FireInvent.Database.Migrations
                 {
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
                     OrderIdentifier = table.Column<string>(type: "character varying(255)", maxLength: 255, nullable: true),
-                    OrderDate = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    OrderDate = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
                     Status = table.Column<int>(type: "integer", nullable: false),
-                    DeliveryDate = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
+                    DeliveryDate = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -90,8 +90,8 @@ namespace FireInvent.Database.Migrations
                     EMail = table.Column<string>(type: "character varying(255)", maxLength: 255, nullable: false),
                     FirstName = table.Column<string>(type: "character varying(255)", maxLength: 255, nullable: false),
                     LastName = table.Column<string>(type: "character varying(255)", maxLength: 255, nullable: false),
-                    CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    LastLogin = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
+                    CreatedAt = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
+                    LastLogin = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -151,8 +151,8 @@ namespace FireInvent.Database.Migrations
                     Identifier = table.Column<string>(type: "character varying(255)", maxLength: 255, nullable: true),
                     StorageLocationId = table.Column<Guid>(type: "uuid", nullable: true),
                     Condition = table.Column<int>(type: "integer", nullable: false),
-                    PurchaseDate = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    RetirementDate = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
+                    PurchaseDate = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
+                    RetirementDate = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -204,8 +204,8 @@ namespace FireInvent.Database.Migrations
                     ItemId = table.Column<Guid>(type: "uuid", nullable: false),
                     PersonId = table.Column<Guid>(type: "uuid", nullable: false),
                     AssignedById = table.Column<Guid>(type: "uuid", nullable: true),
-                    AssignedFrom = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    AssignedUntil = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
+                    AssignedFrom = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
+                    AssignedUntil = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -235,7 +235,7 @@ namespace FireInvent.Database.Migrations
                 {
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
                     ItemId = table.Column<Guid>(type: "uuid", nullable: false),
-                    PerformedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    PerformedAt = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
                     PeformedById = table.Column<Guid>(type: "uuid", nullable: true),
                     MaintenanceType = table.Column<int>(type: "integer", nullable: false),
                     Remarks = table.Column<string>(type: "character varying(2000)", maxLength: 2000, nullable: true)

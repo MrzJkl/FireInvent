@@ -11,7 +11,7 @@ public record CreateClothingItemAssignmentHistoryModel
     public Guid PersonId { get; init; }
 
     [Required]
-    public DateTime AssignedFrom { get; init; }
+    public DateTimeOffset AssignedFrom { get; init; }
 
-    public DateTime? AssignedUntil { get; init; }
+    public DateTimeOffset? AssignedUntil { get; init; }
 }
