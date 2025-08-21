@@ -1,6 +1,8 @@
-﻿using FireInvent.Shared.Exceptions;
+﻿using FireInvent.Contract;
+using FireInvent.Shared.Exceptions;
 using FireInvent.Shared.Models;
 using FireInvent.Shared.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
 
@@ -33,6 +35,7 @@ public class StorageLocationsController(IStorageLocationService locationService,
     [SwaggerOperation(Summary = "Create a new storage location", Description = "Creates a new storage location.")]
     [SwaggerResponse(201, "Storage location created", typeof(StorageLocationModel))]
     [SwaggerResponse(409, "A storage location with the same name already exists")]
+    [Authorize(Roles = Roles.Admin + "," + Roles.Procurement)]
     public async Task<ActionResult<StorageLocationModel>> Create(CreateStorageLocationModel model)
     {
         var created = await locationService.CreateStorageLocationAsync(model);
@@ -45,6 +48,7 @@ public class StorageLocationsController(IStorageLocationService locationService,
     [SwaggerResponse(400, "ID mismatch")]
     [SwaggerResponse(404, "Storage location not found")]
     [SwaggerResponse(409, "A storage location with the same name already exists")]
+    [Authorize(Roles = Roles.Admin + "," + Roles.Procurement)]
     public async Task<IActionResult> Update(Guid id, StorageLocationModel model)
     {
         if (id != model.Id)
@@ -58,6 +62,7 @@ public class StorageLocationsController(IStorageLocationService locationService,
     [SwaggerOperation(Summary = "Delete a storage location", Description = "Deletes a storage location by its unique ID.")]
     [SwaggerResponse(204, "Storage location deleted")]
     [SwaggerResponse(404, "Storage location not found")]
+    [Authorize(Roles = Roles.Admin + "," + Roles.Procurement)]
     public async Task<IActionResult> Delete(Guid id)
     {
         var success = await locationService.DeleteStorageLocationAsync(id);

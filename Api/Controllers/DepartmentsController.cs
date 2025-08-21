@@ -1,6 +1,8 @@
-﻿using FireInvent.Shared.Exceptions;
+﻿using FireInvent.Contract;
+using FireInvent.Shared.Exceptions;
 using FireInvent.Shared.Models;
 using FireInvent.Shared.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
 
@@ -32,6 +34,7 @@ public class DepartmentsController(IDepartmentService departmentService, IPerson
     [HttpPost]
     [SwaggerOperation(Summary = "Create a new department", Description = "Creates a new department.")]
     [SwaggerResponse(201, "Department created", typeof(DepartmentModel))]
+    [Authorize(Roles = Roles.Admin + "," + Roles.Procurement)]
     public async Task<ActionResult<DepartmentModel>> Create(CreateDepartmentModel model)
     {
         var created = await departmentService.CreateDepartmentAsync(model);
@@ -43,6 +46,7 @@ public class DepartmentsController(IDepartmentService departmentService, IPerson
     [SwaggerResponse(204, "Department updated")]
     [SwaggerResponse(400, "ID mismatch")]
     [SwaggerResponse(404, "Department not found")]
+    [Authorize(Roles = Roles.Admin + "," + Roles.Procurement)]
     public async Task<IActionResult> Update(Guid id, DepartmentModel model)
     {
         if (id != model.Id)
@@ -56,6 +60,7 @@ public class DepartmentsController(IDepartmentService departmentService, IPerson
     [SwaggerOperation(Summary = "Delete a department", Description = "Deletes a department by its unique ID.")]
     [SwaggerResponse(204, "Department deleted")]
     [SwaggerResponse(404, "Department not found")]
+    [Authorize(Roles = Roles.Admin + "," + Roles.Procurement)]
     public async Task<IActionResult> Delete(Guid id)
     {
         var success = await departmentService.DeleteDepartmentAsync(id);

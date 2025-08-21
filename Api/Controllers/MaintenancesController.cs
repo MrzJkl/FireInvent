@@ -1,6 +1,8 @@
-﻿using FireInvent.Shared.Exceptions;
+﻿using FireInvent.Contract;
+using FireInvent.Shared.Exceptions;
 using FireInvent.Shared.Models;
 using FireInvent.Shared.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
 
@@ -33,6 +35,7 @@ public class MaintenancesController(IMaintenanceService service) : ControllerBas
     [SwaggerOperation(Summary = "Create a new maintenance", Description = "Creates a new maintenance record.")]
     [SwaggerResponse(201, "Maintenance created", typeof(MaintenanceModel))]
     [SwaggerResponse(400, "Invalid input or referenced item does not exist")]
+    [Authorize(Roles = Roles.Admin + "," + Roles.Maintenance)]
     public async Task<ActionResult<MaintenanceModel>> Create(CreateMaintenanceModel model)
     {
         var created = await service.CreateMaintenanceAsync(model);
@@ -44,6 +47,7 @@ public class MaintenancesController(IMaintenanceService service) : ControllerBas
     [SwaggerResponse(204, "Maintenance updated")]
     [SwaggerResponse(400, "ID mismatch or referenced item does not exist")]
     [SwaggerResponse(404, "Maintenance not found")]
+    [Authorize(Roles = Roles.Admin + "," + Roles.Maintenance)]
     public async Task<IActionResult> Update(Guid id, MaintenanceModel model)
     {
         if (id != model.Id)
@@ -57,6 +61,7 @@ public class MaintenancesController(IMaintenanceService service) : ControllerBas
     [SwaggerOperation(Summary = "Delete a maintenance", Description = "Deletes a maintenance record by its unique ID.")]
     [SwaggerResponse(204, "Maintenance deleted")]
     [SwaggerResponse(404, "Maintenance not found")]
+    [Authorize(Roles = Roles.Admin + "," + Roles.Maintenance)]
     public async Task<IActionResult> Delete(Guid id)
     {
         var success = await service.DeleteMaintenanceAsync(id);

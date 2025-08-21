@@ -1,6 +1,8 @@
-﻿using FireInvent.Shared.Exceptions;
+﻿using FireInvent.Contract;
+using FireInvent.Shared.Exceptions;
 using FireInvent.Shared.Models;
 using FireInvent.Shared.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
 
@@ -34,6 +36,7 @@ public class ClothingItemAssignmentHistoriesController(IClothingItemAssignmentHi
     [SwaggerResponse(201, "Assignment created", typeof(ClothingItemAssignmentHistoryModel))]
     [SwaggerResponse(400, "Invalid input or referenced item/person does not exist")]
     [SwaggerResponse(409, "An overlapping assignment already exists for this item")]
+    [Authorize(Roles = Roles.Admin + "," + Roles.Procurement)]
     public async Task<ActionResult<ClothingItemAssignmentHistoryModel>> Create(CreateClothingItemAssignmentHistoryModel model)
     {
         var created = await service.CreateAssignmentAsync(model);
@@ -46,6 +49,7 @@ public class ClothingItemAssignmentHistoriesController(IClothingItemAssignmentHi
     [SwaggerResponse(400, "ID mismatch or referenced item/person does not exist")]
     [SwaggerResponse(404, "Assignment not found")]
     [SwaggerResponse(409, "An overlapping assignment already exists for this item")]
+    [Authorize(Roles = Roles.Admin + "," + Roles.Procurement)]
     public async Task<IActionResult> Update(Guid id, ClothingItemAssignmentHistoryModel model)
     {
         if (id != model.Id)
@@ -59,6 +63,7 @@ public class ClothingItemAssignmentHistoriesController(IClothingItemAssignmentHi
     [SwaggerOperation(Summary = "Delete an assignment", Description = "Deletes a clothing item assignment history by its unique ID.")]
     [SwaggerResponse(204, "Assignment deleted")]
     [SwaggerResponse(404, "Assignment not found")]
+    [Authorize(Roles = Roles.Admin + "," + Roles.Procurement)]
     public async Task<IActionResult> Delete(Guid id)
     {
         var success = await service.DeleteAssignmentAsync(id);

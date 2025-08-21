@@ -1,6 +1,8 @@
-﻿using FireInvent.Shared.Exceptions;
+﻿using FireInvent.Contract;
+using FireInvent.Shared.Exceptions;
 using FireInvent.Shared.Models;
 using FireInvent.Shared.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
 
@@ -33,6 +35,7 @@ public class ClothingProductsController(IClothingProductService productService) 
     [SwaggerOperation(Summary = "Create a new clothing product", Description = "Creates a new clothing product.")]
     [SwaggerResponse(201, "Clothing product created", typeof(ClothingProductModel))]
     [SwaggerResponse(409, "A product with the same name and manufacturer already exists")]
+    [Authorize(Roles = Roles.Admin + "," + Roles.Procurement)]
     public async Task<ActionResult<ClothingProductModel>> Create(CreateClothingProductModel model)
     {
         var created = await productService.CreateProductAsync(model);
@@ -45,6 +48,7 @@ public class ClothingProductsController(IClothingProductService productService) 
     [SwaggerResponse(400, "ID mismatch")]
     [SwaggerResponse(404, "Clothing product not found")]
     [SwaggerResponse(409, "A product with the same name and manufacturer already exists")]
+    [Authorize(Roles = Roles.Admin + "," + Roles.Procurement)]
     public async Task<IActionResult> Update(Guid id, ClothingProductModel model)
     {
         if (id != model.Id)
@@ -65,6 +69,7 @@ public class ClothingProductsController(IClothingProductService productService) 
     [SwaggerOperation(Summary = "Delete a clothing product", Description = "Deletes a clothing product by its unique ID.")]
     [SwaggerResponse(204, "Clothing product deleted")]
     [SwaggerResponse(404, "Clothing product not found")]
+    [Authorize(Roles = Roles.Admin + "," + Roles.Procurement)]
     public async Task<IActionResult> Delete(Guid id)
     {
         var success = await productService.DeleteProductAsync(id);
