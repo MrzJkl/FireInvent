@@ -52,6 +52,7 @@ var authOptions = builder.Configuration.GetRequiredSection("Authentication").Get
 builder.Services.AddCustomAuthentication(AuthScheme, authOptions);
 builder.Services.AddAuthorization();
 builder.Services.AddMemoryCache();
+builder.Services.AddResponseCompression();
 
 // Database
 builder.Services.AddDbContext<AppDbContext>(options =>
@@ -133,6 +134,18 @@ builder.Services.AddControllers(options =>
 
 WebApplication app = builder.Build();
 
+app.UseSerilogRequestLogging(options =>
+{
+    options.MessageTemplate = "Handled {RequestPath} {RequestMethod} responded {StatusCode} in {Elapsed:0.00} ms";
+
+    options.EnrichDiagnosticContext = (diagnosticContext, httpContext) =>
+    {
+        diagnosticContext.Set("RequestHost", httpContext.Request.Host.Value ?? string.Empty);
+        diagnosticContext.Set("RequestScheme", httpContext.Request.Scheme);
+        diagnosticContext.Set("UserAgent", httpContext.Request.Headers.UserAgent.ToString());
+    };
+});
+
 // Health Endpoint
 app.MapHealthChecks("/health");
 
@@ -156,6 +169,7 @@ app.UseSwaggerUI(c =>
 logger.LogDebug("Registering authentication and authorization...");
 app.UseAuthentication();
 app.UseAuthorization();
+app.UseResponseCompression();
 
 logger.LogDebug("Registering controllers end endpoints...");
 app.MapControllers();
