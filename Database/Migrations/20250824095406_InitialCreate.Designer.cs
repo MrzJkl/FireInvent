@@ -12,7 +12,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace FireInvent.Database.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20250819190418_InitialCreate")]
+    [Migration("20250824095406_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />

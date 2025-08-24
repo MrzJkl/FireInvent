@@ -176,9 +176,6 @@ using (var scope = app.Services.CreateScope())
     {
         try
         {
-            logger.LogInformation("Ensuring database is created (Attempt {Attempt}/{MaxRetries})...", attempt, maxRetries);
-            await dbContext.Database.EnsureCreatedAsync();
-
             var pendingMigrations = await dbContext.Database.GetPendingMigrationsAsync();
             if (pendingMigrations.Any())
             {
