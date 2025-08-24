@@ -20,11 +20,10 @@ public static class AuthenticationExtensions
                 options.Authority = authOptions.Authority;
                 options.TokenValidationParameters = new TokenValidationParameters
                 {
-                    ValidateIssuer = authOptions.ValidIssuers.Any(),
-                    ValidateAudience = authOptions.ValidAudiences.Any(),
+                    ValidateIssuer = authOptions.ValidIssuers.Count != 0,
+                    ValidateAudience = authOptions.ValidAudiences.Count != 0,
                     ValidIssuers = authOptions.ValidIssuers,
                     ValidAudiences = authOptions.ValidAudiences,
-                    RoleClaimType = "roles",
                 };
 
                 options.Events = new JwtBearerEvents
@@ -38,27 +37,29 @@ public static class AuthenticationExtensions
                         logger.LogWarning(context.Exception, "Authentication failed.");
                         return Task.CompletedTask;
                     },
-                    OnTokenValidated = async context =>
+                    OnTokenValidated = context =>
                     {
-                        var handler = context.HttpContext.RequestServices
-                            .GetRequiredService<TokenValidatedHandler>();
-
                         _ = Task.Run(async () =>
                         {
+                            var scopeFactory = context.HttpContext.RequestServices.GetRequiredService<IServiceScopeFactory>();
+                            using var scope = scopeFactory.CreateScope();
+
                             try
                             {
+                                var handler = scope.ServiceProvider.GetRequiredService<TokenValidatedHandler>();
+
                                 await handler.HandleAsync(context);
                             }
                             catch (Exception ex)
                             {
-                                var logger = context.HttpContext.RequestServices
+                                var logger = scope.ServiceProvider
                                     .GetRequiredService<ILogger<TokenValidatedHandler>>();
                                 
                                 logger.LogError(ex, "Error during synchronization of user from claims.");
                             }
                         });
 
-                        await handler.HandleAsync(context);
+                        return Task.CompletedTask;
                     }
 
                 };
