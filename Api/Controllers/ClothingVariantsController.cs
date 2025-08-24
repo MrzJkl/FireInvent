@@ -1,6 +1,8 @@
-﻿using FireInvent.Shared.Exceptions;
+﻿using FireInvent.Contract;
+using FireInvent.Shared.Exceptions;
 using FireInvent.Shared.Models;
 using FireInvent.Shared.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
 
@@ -35,6 +37,7 @@ public class ClothingVariantsController(IClothingVariantService variantService, 
     [SwaggerResponse(201, "Clothing variant created", typeof(ClothingVariantModel))]
     [SwaggerResponse(409, "A clothing variant with the same name already exists for this product")]
     [SwaggerResponse(400, "Referenced product does not exist")]
+    [Authorize(Roles = Roles.Admin + "," + Roles.Procurement)]
     public async Task<ActionResult<ClothingVariantModel>> Create(CreateClothingVariantModel model)
     {
         var created = await variantService.CreateVariantAsync(model);
@@ -47,6 +50,7 @@ public class ClothingVariantsController(IClothingVariantService variantService, 
     [SwaggerResponse(400, "ID mismatch")]
     [SwaggerResponse(404, "Clothing variant not found")]
     [SwaggerResponse(409, "Another variant with the same name already exists for this product")]
+    [Authorize(Roles = Roles.Admin + "," + Roles.Procurement)]
     public async Task<IActionResult> Update(Guid id, ClothingVariantModel model)
     {
         if (id != model.Id)
@@ -60,6 +64,7 @@ public class ClothingVariantsController(IClothingVariantService variantService, 
     [SwaggerOperation(Summary = "Delete a clothing variant", Description = "Deletes a clothing variant by its unique ID.")]
     [SwaggerResponse(204, "Clothing variant deleted")]
     [SwaggerResponse(404, "Clothing variant not found")]
+    [Authorize(Roles = Roles.Admin + "," + Roles.Procurement)]
     public async Task<IActionResult> Delete(Guid id)
     {
         var success = await variantService.DeleteVariantAsync(id);

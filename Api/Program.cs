@@ -1,3 +1,4 @@
+using FireInvent.Api.Authentication;
 using FireInvent.Api.Middlewares;
 using FireInvent.Api.Swagger;
 using FireInvent.Database;
@@ -8,17 +9,14 @@ using Microsoft.AspNetCore.Mvc.Authorization;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
-using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using Serilog;
-using System.IdentityModel.Tokens.Jwt;
 
 const string SwaggerApiVersion = "v1";
 const string SwaggerEndpointUrl = $"/swagger/{SwaggerApiVersion}/swagger.json";
 const string SwaggerApiTitle = "FireInvent";
 const string SwaggerApiDescription = "Manage your inventory a modern way!";
 const string AuthScheme = "Bearer";
-const string SeenJTICachePrefix = "seen_jti";
 
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
@@ -51,80 +49,7 @@ builder.Services.Configure<MailOptions>(
 
 var authOptions = builder.Configuration.GetRequiredSection("Authentication").Get<AuthenticationOptions>()!;
 
-// Authentication & Authorization
-builder.Services
-    .AddAuthentication(AuthScheme)
-    .AddJwtBearer(AuthScheme, options =>
-    {
-        options.Authority = authOptions.Authority;
-        options.TokenValidationParameters = new TokenValidationParameters
-        {
-            ValidateIssuer = authOptions.ValidIssuers.Any(),
-            ValidateAudience = authOptions.ValidAudiences.Any(),
-            ValidIssuers = authOptions.ValidIssuers,
-            ValidAudiences = authOptions.ValidAudiences,
-        };
-
-        options.Events = new Microsoft.AspNetCore.Authentication.JwtBearer.JwtBearerEvents
-        {  
-            OnAuthenticationFailed = context =>
-            {
-                var logger = context.HttpContext.RequestServices.GetRequiredService<ILogger<Program>>();
-                logger.LogWarning(context.Exception, "Authentication failed.");
-                return Task.CompletedTask;
-            },
-            OnTokenValidated = context =>
-            {
-                if (context.Principal == null)
-                {
-                    return Task.CompletedTask;
-                }
-
-                var scopeFactory = context.HttpContext.RequestServices.GetRequiredService<IServiceScopeFactory>();
-
-                _ = Task.Run(async () =>
-                {
-                    try
-                    {
-                        var cache = context.HttpContext.RequestServices.GetRequiredService<IMemoryCache>();
-
-
-                        var jti = context.Principal.Claims.First(c => c.Type == JwtRegisteredClaimNames.Jti)?.Value;
-                        var cacheKey = $"{SeenJTICachePrefix}:{jti}";
-
-                        if (cache.TryGetValue(cacheKey, out _))
-                        {
-                            return;
-                        }
-
-                        using var scope = scopeFactory.CreateScope();
-
-                        var userService = scope.ServiceProvider.GetRequiredService<IUserService>();
-
-                        _ = await userService.SyncUserFromClaimsAsync(context.Principal);
-
-                        var exp = long.Parse(context.Principal.Claims.First(c => c.Type == JwtRegisteredClaimNames.Exp).Value);
-
-                        cache.Set(
-                            cacheKey,
-                            true,
-                            new MemoryCacheEntryOptions
-                            {
-                                AbsoluteExpiration = DateTimeOffset.FromUnixTimeSeconds(exp)
-                            });
-                    }
-                    catch (Exception ex)
-                    {
-                        var logger = context.HttpContext.RequestServices.GetRequiredService<ILogger<Program>>();
-                        logger.LogError(ex, "Error syncing user from claims in background.");
-                    }
-                });
-
-                return Task.CompletedTask;
-            },
-        };
-    });
-
+builder.Services.AddCustomAuthentication(AuthScheme, authOptions);
 builder.Services.AddAuthorization();
 builder.Services.AddMemoryCache();
 
@@ -179,7 +104,10 @@ builder.Services.AddSwaggerGen(c =>
 // AutoMapper
 builder.Services.AddAutoMapper(config => config.AddProfile<MappingProfile>());
 
-// Application Services
+// API Services
+builder.Services.AddScoped<TokenValidatedHandler>();
+
+// Shared Services
 builder.Services.AddScoped<IDepartmentService, DepartmentService>();
 builder.Services.AddScoped<IStorageLocationService, StorageLocationService>();
 builder.Services.AddScoped<IPersonService, PersonService>();
@@ -210,43 +138,6 @@ app.MapHealthChecks("/health");
 
 var logger = app.Services.GetRequiredService<ILogger<Program>>();
 
-// Database migration & creation on startup
-using (var scope = app.Services.CreateScope())
-{
-    var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-
-    try
-    {
-        logger.LogInformation("Ensuring database is created.");
-        await dbContext.Database.EnsureCreatedAsync();
-    }
-    catch (Exception ex)
-    {
-        logger.LogCritical(ex, "Failed ensure that database is created.");
-        throw;
-    }
-
-
-    var pendingMigrations = await dbContext.Database.GetPendingMigrationsAsync();
-    if (pendingMigrations.Any())
-    {
-        logger.LogInformation("Waiting for pending database migrations ({Migrations})...", pendingMigrations);
-        try
-        {
-            await dbContext.Database.MigrateAsync();
-            logger.LogInformation("Successfully applied pending database migrations.");
-        }
-        catch (Exception ex)
-        {
-            logger.LogCritical(ex, "Failed to apply pending database migrations.");
-        }
-    }
-    else
-    {
-        logger.LogInformation("No pending database migrations.");
-    }
-}
-
 // Middlewares & Endpoints
 logger.LogDebug("Registering middlewares...");
 app.UseMiddleware<ApiExceptionMiddleware>();
@@ -274,6 +165,48 @@ app.MapGet("/", context =>
     context.Response.Redirect("/swagger");
     return Task.CompletedTask;
 });
+
+using (var scope = app.Services.CreateScope())
+{
+    var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+    var maxRetries = 5;
+    var delay = TimeSpan.FromSeconds(2);
+
+    for (int attempt = 1; attempt <= maxRetries; attempt++)
+    {
+        try
+        {
+            logger.LogInformation("Ensuring database is created (Attempt {Attempt}/{MaxRetries})...", attempt, maxRetries);
+            await dbContext.Database.EnsureCreatedAsync();
+
+            var pendingMigrations = await dbContext.Database.GetPendingMigrationsAsync();
+            if (pendingMigrations.Any())
+            {
+                logger.LogInformation("Applying {Count} pending migrations: {Migrations}", pendingMigrations.Count(), string.Join(", ", pendingMigrations));
+                await dbContext.Database.MigrateAsync();
+                logger.LogInformation("Successfully applied pending database migrations.");
+            }
+            else
+            {
+                logger.LogInformation("No pending database migrations.");
+            }
+
+            break;
+        }
+        catch (Exception ex)
+        {
+            logger.LogWarning(ex, "Database not ready yet (Attempt {Attempt}/{MaxRetries}).", attempt, maxRetries);
+
+            if (attempt == maxRetries)
+            {
+                logger.LogCritical(ex, "Initial Database creation or migration failed after {MaxRetries} attempts.", maxRetries);
+                throw;
+            }
+
+            await Task.Delay(delay);
+        }
+    }
+}
 
 logger.LogInformation("Starting FireInvent API...");
 

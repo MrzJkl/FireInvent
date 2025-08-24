@@ -1,6 +1,8 @@
-﻿using FireInvent.Shared.Exceptions;
+﻿using FireInvent.Contract;
+using FireInvent.Shared.Exceptions;
 using FireInvent.Shared.Models;
 using FireInvent.Shared.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
 
@@ -33,6 +35,7 @@ public class PersonsController(IPersonService personService) : ControllerBase
     [SwaggerOperation(Summary = "Create a new person", Description = "Creates a new person entry.")]
     [SwaggerResponse(201, "Person created", typeof(PersonModel))]
     [SwaggerResponse(409, "Person with same name or external ID already exists")]
+    [Authorize(Roles = Roles.Admin + "," + Roles.Procurement)]
     public async Task<ActionResult<PersonModel>> Create(CreatePersonModel model)
     {
         var created = await personService.CreatePersonAsync(model);
@@ -44,6 +47,7 @@ public class PersonsController(IPersonService personService) : ControllerBase
     [SwaggerResponse(204, "Person updated")]
     [SwaggerResponse(404, "Person not found")]
     [SwaggerResponse(400, "ID mismatch")]
+    [Authorize(Roles = Roles.Admin + "," + Roles.Procurement)]
     public async Task<IActionResult> Update(Guid id, PersonModel model)
     {
         if (id != model.Id)
@@ -51,13 +55,13 @@ public class PersonsController(IPersonService personService) : ControllerBase
 
         var success = await personService.UpdatePersonAsync(model);
         return success ? NoContent() : throw new NotFoundException();
-
     }
 
     [HttpDelete("{id:guid}")]
     [SwaggerOperation(Summary = "Delete a person", Description = "Deletes a person by ID.")]
     [SwaggerResponse(204, "Person deleted")]
     [SwaggerResponse(404, "Person not found")]
+    [Authorize(Roles = Roles.Admin + "," + Roles.Procurement)]
     public async Task<IActionResult> Delete(Guid id)
     {
         var success = await personService.DeletePersonAsync(id);

@@ -1,6 +1,8 @@
-﻿using FireInvent.Shared.Exceptions;
+﻿using FireInvent.Contract;
+using FireInvent.Shared.Exceptions;
 using FireInvent.Shared.Models;
 using FireInvent.Shared.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
 
@@ -37,6 +39,7 @@ public class ClothingItemsController(
     [SwaggerResponse(201, "Clothing item created", typeof(ClothingItemModel))]
     [SwaggerResponse(400, "Invalid input or referenced variant/location not found")]
     [SwaggerResponse(409, "A clothing item with the same identifier already exists")]
+    [Authorize(Roles = Roles.Admin + "," + Roles.Procurement)]
     public async Task<ActionResult<ClothingItemModel>> Create(CreateClothingItemModel model)
     {
         var created = await itemService.CreateClothingItemAsync(model);
@@ -49,6 +52,7 @@ public class ClothingItemsController(
     [SwaggerResponse(400, "ID mismatch or referenced variant/location not found")]
     [SwaggerResponse(404, "Clothing item not found")]
     [SwaggerResponse(409, "A clothing item with the same identifier already exists")]
+    [Authorize(Roles = Roles.Admin + "," + Roles.Procurement)]
     public async Task<IActionResult> Update(Guid id, ClothingItemModel model)
     {
         if (id != model.Id)
@@ -62,6 +66,7 @@ public class ClothingItemsController(
     [SwaggerOperation(Summary = "Delete a clothing item", Description = "Deletes a clothing item by its unique ID.")]
     [SwaggerResponse(204, "Clothing item deleted")]
     [SwaggerResponse(404, "Clothing item not found")]
+    [Authorize(Roles = Roles.Admin + "," + Roles.Procurement)]
     public async Task<IActionResult> Delete(Guid id)
     {
         var success = await itemService.DeleteClothingItemAsync(id);

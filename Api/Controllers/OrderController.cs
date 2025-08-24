@@ -1,6 +1,8 @@
-﻿using FireInvent.Shared.Exceptions;
+﻿using FireInvent.Contract;
+using FireInvent.Shared.Exceptions;
 using FireInvent.Shared.Models;
 using FireInvent.Shared.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
 
@@ -32,6 +34,7 @@ namespace FireInvent.Api.Controllers
         [HttpPost]
         [SwaggerOperation(Summary = "Create a new order", Description = "Creates a new order.")]
         [SwaggerResponse(201, "Order created", typeof(OrderModel))]
+        [Authorize(Roles = Roles.Admin + "," + Roles.Procurement)]
         public async Task<ActionResult<OrderModel>> Create(CreateOrderModel model)
         {
             var created = await orderService.CreateOrderAsync(model);
@@ -43,6 +46,7 @@ namespace FireInvent.Api.Controllers
         [SwaggerResponse(204, "Order updated")]
         [SwaggerResponse(400, "ID mismatch")]
         [SwaggerResponse(404, "Order not found or cannot be updated")]
+        [Authorize(Roles = Roles.Admin + "," + Roles.Procurement)]
         public async Task<IActionResult> Update(Guid id, OrderModel model)
         {
             if (id != model.Id)
@@ -56,6 +60,7 @@ namespace FireInvent.Api.Controllers
         [SwaggerOperation(Summary = "Delete an order", Description = "Deletes an order by its unique ID.")]
         [SwaggerResponse(204, "Order deleted")]
         [SwaggerResponse(404, "Order not found.")]
+        [Authorize(Roles = Roles.Admin + "," + Roles.Procurement)]
         public async Task<IActionResult> Delete(Guid id)
         {
             var success = await orderService.DeleteOrderAsync(id);
