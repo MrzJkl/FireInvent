@@ -1,0 +1,94 @@
+services:
+  db_api:
+    image: postgres:17.6
+    container_name: fireinvent_db_api
+    environment:
+      POSTGRES_DB: ${API_DB_NAME:-fireinvent}
+      POSTGRES_USER: ${API_DB_USER:-fireinventuser}
+      POSTGRES_PASSWORD: ${API_DB_PASSWORD}
+    volumes:
+      - db_api_data:/var/lib/postgresql/data
+    networks:
+      - api_net
+
+  db_keycloak:
+    image: postgres:17.6
+    container_name: fireinvent_db_keycloak
+    environment:
+      POSTGRES_DB: ${KEYCLOAK_DB_NAME:-keycloak}
+      POSTGRES_USER: ${KEYCLOAK_DB_USER:-keycloakuser}
+      POSTGRES_PASSWORD: ${KEYCLOAK_DB_PASSWORD}
+    volumes:
+      - db_keycloak_data:/var/lib/postgresql/data
+    networks:
+      - keycloak_net
+
+  keycloak:
+    image: quay.io/keycloak/keycloak:26.3.0
+    container_name: fireinvent_keycloak
+    command: ["start-dev",]
+    environment:
+      KEYCLOAK_ADMIN: ${KEYCLOAK_ADMIN:-admin}
+      KEYCLOAK_ADMIN_PASSWORD: ${KEYCLOAK_ADMIN_PASSWORD}
+      KC_DB: postgres
+      KC_DB_URL: jdbc:postgresql://db_keycloak:5432/${KEYCLOAK_DB_NAME}
+      KC_DB_USERNAME: ${KEYCLOAK_DB_USER}
+      KC_DB_PASSWORD: ${KEYCLOAK_DB_PASSWORD}
+      KC_HOSTNAME: ${KEYCLOAK_HOSTNAME}
+    depends_on:
+      - db_keycloak
+    networks:
+      - keycloak_net
+    ports:
+      - "8080:8080"
+
+  keycloak_config:
+    image: adorsys/keycloak-config-cli:latest-26
+    container_name: fireinvent_keycloak_config
+    depends_on:
+      - keycloak
+    environment:
+      KEYCLOAK_URL: http://keycloak:8080
+      KEYCLOAK_USER: ${KEYCLOAK_ADMIN}
+      KEYCLOAK_PASSWORD: ${KEYCLOAK_ADMIN_PASSWORD}
+      KEYCLOAK_AVAILABILITYCHECK_ENABLED: "true"
+      KEYCLOAK_AVAILABILITYCHECK_TIMEOUT: 120s
+      IMPORT_FILES_LOCATIONS: /config/*
+      IMPORT_VAR-SUBSTITUTION_ENABLED: true
+      SMTP_HOST: ${SMTP_HOST}
+      SMTP_PORT: ${SMTP_PORT}
+      SMTP_FROM: ${SMTP_FROM}
+      SMTP_USER: ${SMTP_USER}
+      SMTP_PASSWORD: ${SMTP_PASSWORD}
+      FIREINVENT_SPA_URL: ${FIREINVENT_SPA_URL}
+      FIREINVENT_SWAGGER_URL: ${FIREINVENT_SWAGGER_URL}
+    volumes:
+      - ./keycloak:/config:ro
+    networks:
+      - keycloak_net
+
+  # api:
+  #   image: ghcr.io/mrzjkl/fireinventapi:latest
+  #   container_name: fireinvent_api
+  #   depends_on:
+  #     - db_api
+  #     - keycloak
+  #   environment:
+  #     ConnectionStrings__DefaultConnection: Host=db_api;Port=5432;Database=${API_DB_NAME};Username=${API_DB_USER};Password=${API_DB_PASSWORD}
+  #     Authentication__Authority: ${FIREINVENT_AUTHORITY}
+  #     Authentication__OidcDiscoveryUrlForSwagger: ${FIREINVENT_OIDC_DISCOVERY_URL_FOR_SWAGGER}
+  #     Authentication__ClientIdForSwagger: ${FIREINVENT_CLIENT_ID_FOR_SWAGGER}
+  #   ports:
+  #     - "5001:8080"
+  #   networks:
+  #     - api_net
+
+volumes:
+  db_api_data:
+  db_keycloak_data:
+
+networks:
+  api_net:
+    driver: bridge
+  keycloak_net:
+    driver: bridge
