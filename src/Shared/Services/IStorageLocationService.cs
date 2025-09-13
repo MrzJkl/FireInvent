@@ -1,13 +1,12 @@
 ﻿using FireInvent.Shared.Models;
 
-namespace FireInvent.Shared.Services
+namespace FireInvent.Shared.Services;
+
+public interface IStorageLocationService
 {
-    public interface IStorageLocationService
-    {
-        Task<StorageLocationModel> CreateStorageLocationAsync(CreateStorageLocationModel model);
-        Task<bool> DeleteStorageLocationAsync(Guid id);
-        Task<List<StorageLocationModel>> GetAllStorageLocationsAsync();
-        Task<StorageLocationModel?> GetStorageLocationByIdAsync(Guid id);
-        Task<bool> UpdateStorageLocationAsync(StorageLocationModel model);
-    }
+    Task<StorageLocationModel> CreateStorageLocationAsync(CreateStorageLocationModel model);
+    Task<bool> DeleteStorageLocationAsync(Guid id);
+    Task<List<StorageLocationModel>> GetAllStorageLocationsAsync();
+    Task<StorageLocationModel?> GetStorageLocationByIdAsync(Guid id);
+    Task<bool> UpdateStorageLocationAsync(StorageLocationModel model);
 }

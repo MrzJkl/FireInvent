@@ -1,10 +1,9 @@
-﻿namespace FireInvent.Contract
+﻿namespace FireInvent.Contract;
+
+public enum OrderStatus
 {
-    public enum OrderStatus
-    {
-        Draft,
-        Submitted,
-        Delivered,
-        Completed,
-    }
+    Draft,
+    Submitted,
+    Delivered,
+    Completed,
 }

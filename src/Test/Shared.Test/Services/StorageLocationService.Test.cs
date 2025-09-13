@@ -1,5 +1,4 @@
-﻿using AutoMapper;
-using FireInvent.Database.Models;
+﻿using FireInvent.Database.Models;
 using FireInvent.Shared.Exceptions;
 using FireInvent.Shared.Models;
 using FireInvent.Shared.Services;

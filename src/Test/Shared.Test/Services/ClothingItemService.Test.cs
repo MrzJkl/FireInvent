@@ -1,5 +1,4 @@
-﻿using AutoMapper;
-using FireInvent.Contract;
+﻿using FireInvent.Contract;
 using FireInvent.Database;
 using FireInvent.Database.Models;
 using FireInvent.Shared.Exceptions;
@@ -27,7 +26,7 @@ public class ClothingItemServiceTest
             Description = "Waterproof jacket",
             Type = ProductType.Jacket
         };
-        context.ClothingProducts.Add(product);
+        context.Products.Add(product);
         var variant = new Variant
         {
             Id = Guid.NewGuid(),
@@ -35,7 +34,7 @@ public class ClothingItemServiceTest
             Name = "Red",
             AdditionalSpecs = "XL, Reflective"
         };
-        context.ClothingVariants.Add(variant);
+        context.Variants.Add(variant);
         context.SaveChanges();
         return variant;
     }
@@ -81,7 +80,7 @@ public class ClothingItemServiceTest
         Assert.Equal(model.PurchaseDate, result.PurchaseDate);
         Assert.Equal(model.RetirementDate, result.RetirementDate);
 
-        var entity = await context.ClothingItems.FindAsync(result.Id);
+        var entity = await context.Items.FindAsync(result.Id);
         Assert.NotNull(entity);
         Assert.Equal(model.VariantId, entity!.VariantId);
         Assert.Equal(model.Identifier, entity.Identifier);
@@ -133,7 +132,7 @@ public class ClothingItemServiceTest
         var context = TestHelper.GetTestDbContext();
         var variant = CreateVariant(context);
         var location = CreateStorageLocation(context);
-        context.ClothingItems.Add(new Item
+        context.Items.Add(new Item
         {
             Id = Guid.NewGuid(),
             VariantId = variant.Id,
@@ -184,8 +183,8 @@ public class ClothingItemServiceTest
             PurchaseDate = new DateTime(2023, 1, 1),
             RetirementDate = null
         };
-        context.ClothingItems.Add(item1);
-        context.ClothingItems.Add(item2);
+        context.Items.Add(item1);
+        context.Items.Add(item2);
         context.SaveChanges();
 
         var service = new ClothingItemService(context, _mapper);
@@ -229,7 +228,7 @@ public class ClothingItemServiceTest
             PurchaseDate = new DateTime(2024, 1, 1),
             RetirementDate = new DateTime(2030, 1, 1)
         };
-        context.ClothingItems.Add(item);
+        context.Items.Add(item);
         context.SaveChanges();
 
         var service = new ClothingItemService(context, _mapper);
@@ -273,7 +272,7 @@ public class ClothingItemServiceTest
             PurchaseDate = new DateTime(2024, 1, 1),
             RetirementDate = new DateTime(2030, 1, 1)
         };
-        context.ClothingItems.Add(item);
+        context.Items.Add(item);
         context.SaveChanges();
 
         var service = new ClothingItemService(context, _mapper);
@@ -292,7 +291,7 @@ public class ClothingItemServiceTest
         var result = await service.UpdateClothingItemAsync(model);
 
         Assert.True(result);
-        var updated = await context.ClothingItems.FindAsync(item.Id);
+        var updated = await context.Items.FindAsync(item.Id);
         Assert.NotNull(updated);
         Assert.Equal(model.Identifier, updated!.Identifier);
         Assert.Equal(model.Condition, updated.Condition);
@@ -340,7 +339,7 @@ public class ClothingItemServiceTest
             PurchaseDate = new DateTime(2024, 1, 1),
             RetirementDate = new DateTime(2030, 1, 1)
         };
-        context.ClothingItems.Add(item);
+        context.Items.Add(item);
         context.SaveChanges();
 
         var service = new ClothingItemService(context, _mapper);
@@ -375,7 +374,7 @@ public class ClothingItemServiceTest
             PurchaseDate = new DateTime(2024, 1, 1),
             RetirementDate = new DateTime(2030, 1, 1)
         };
-        context.ClothingItems.Add(item);
+        context.Items.Add(item);
         context.SaveChanges();
 
         var service = new ClothingItemService(context, _mapper);
@@ -420,8 +419,8 @@ public class ClothingItemServiceTest
             PurchaseDate = new DateTime(2023, 1, 1),
             RetirementDate = null
         };
-        context.ClothingItems.Add(item1);
-        context.ClothingItems.Add(item2);
+        context.Items.Add(item1);
+        context.Items.Add(item2);
         context.SaveChanges();
 
         var service = new ClothingItemService(context, _mapper);
@@ -456,7 +455,7 @@ public class ClothingItemServiceTest
             PurchaseDate = new DateTime(2024, 1, 1),
             RetirementDate = new DateTime(2030, 1, 1)
         };
-        context.ClothingItems.Add(item);
+        context.Items.Add(item);
         context.SaveChanges();
 
         var service = new ClothingItemService(context, _mapper);
@@ -464,7 +463,7 @@ public class ClothingItemServiceTest
         var result = await service.DeleteClothingItemAsync(item.Id);
 
         Assert.True(result);
-        Assert.False(context.ClothingItems.Any());
+        Assert.False(context.Items.Any());
     }
 
     [Fact]
@@ -515,9 +514,9 @@ public class ClothingItemServiceTest
             PurchaseDate = new DateTime(2022, 1, 1),
             RetirementDate = null
         };
-        context.ClothingItems.Add(item1);
-        context.ClothingItems.Add(item2);
-        context.ClothingItems.Add(itemOther);
+        context.Items.Add(item1);
+        context.Items.Add(item2);
+        context.Items.Add(itemOther);
         context.SaveChanges();
 
         var service = new ClothingItemService(context, _mapper);
@@ -591,9 +590,9 @@ public class ClothingItemServiceTest
             PurchaseDate = new DateTime(2022, 1, 1),
             RetirementDate = null
         };
-        context.ClothingItems.Add(item1);
-        context.ClothingItems.Add(item2);
-        context.ClothingItems.Add(itemOther);
+        context.Items.Add(item1);
+        context.Items.Add(item2);
+        context.Items.Add(itemOther);
         context.SaveChanges();
 
         var service = new ClothingItemService(context, _mapper);

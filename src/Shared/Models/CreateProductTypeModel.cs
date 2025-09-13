@@ -1,15 +1,14 @@
 ﻿using FireInvent.Contract;
 using System.ComponentModel.DataAnnotations;
 
-namespace FireInvent.Shared.Models
-{
-    public record CreateProductTypeModel
-    {
-        [MaxLength(ModelConstants.MaxStringLength)]
-        [Required]
-        public string Name { get; init; } = string.Empty;
+namespace FireInvent.Shared.Models;
 
-        [MaxLength(ModelConstants.MaxStringLengthLong)]
-        public string? Description { get; init; }
-    }
+public record CreateProductTypeModel
+{
+    [MaxLength(ModelConstants.MaxStringLength)]
+    [Required]
+    public string Name { get; init; } = string.Empty;
+
+    [MaxLength(ModelConstants.MaxStringLengthLong)]
+    public string? Description { get; init; }
 }

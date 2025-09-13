@@ -1,7 +1,7 @@
-﻿using AutoMapper;
-using FireInvent.Database;
+﻿using FireInvent.Database;
 using FireInvent.Database.Models;
 using FireInvent.Shared.Exceptions;
+using FireInvent.Shared.Mapper;
 using FireInvent.Shared.Models;
 using FireInvent.Shared.Services;
 
@@ -9,12 +9,7 @@ namespace FireInvent.Test.Shared.Services;
 
 public class ClothingItemAssignmentHistoryServiceTest
 {
-    private readonly IMapper _mapper;
-
-    public ClothingItemAssignmentHistoryServiceTest()
-    {
-        _mapper = TestHelper.GetMapper();
-    }
+    private readonly ItemAssignmentHistoryMapper _mapper = new();
 
     private static Item CreateItem(AppDbContext context)
     {
@@ -26,7 +21,7 @@ public class ClothingItemAssignmentHistoryServiceTest
             Description = "Waterproof jacket",
             Type = Contract.ProductType.Jacket
         };
-        context.ClothingProducts.Add(product);
+        context.Products.Add(product);
         var variant = new Variant
         {
             Id = Guid.NewGuid(),
@@ -34,7 +29,7 @@ public class ClothingItemAssignmentHistoryServiceTest
             Name = "Red",
             AdditionalSpecs = "XL, Reflective"
         };
-        context.ClothingVariants.Add(variant);
+        context.Variants.Add(variant);
         var item = new Item
         {
             Id = Guid.NewGuid(),
@@ -43,7 +38,7 @@ public class ClothingItemAssignmentHistoryServiceTest
             Condition = Contract.ItemCondition.New,
             PurchaseDate = new DateTime(2024, 1, 1)
         };
-        context.ClothingItems.Add(item);
+        context.Items.Add(item);
         context.SaveChanges();
         return item;
     }
@@ -86,7 +81,7 @@ public class ClothingItemAssignmentHistoryServiceTest
         Assert.Equal(model.AssignedFrom, result.AssignedFrom);
         Assert.Equal(model.AssignedUntil, result.AssignedUntil);
 
-        var entity = await context.ClothingItemAssignmentHistories.FindAsync(result.Id);
+        var entity = await context.ItemAssignmentHistories.FindAsync(result.Id);
         Assert.NotNull(entity);
         Assert.Equal(model.ItemId, entity!.ItemId);
         Assert.Equal(model.PersonId, entity.PersonId);
@@ -134,7 +129,7 @@ public class ClothingItemAssignmentHistoryServiceTest
         var context = TestHelper.GetTestDbContext();
         var item = CreateItem(context);
         var person = CreatePerson(context);
-        context.ClothingItemAssignmentHistories.Add(new ItemAssignmentHistory
+        context.ItemAssignmentHistories.Add(new ItemAssignmentHistory
         {
             Id = Guid.NewGuid(),
             ItemId = item.Id,
@@ -179,8 +174,8 @@ public class ClothingItemAssignmentHistoryServiceTest
             AssignedFrom = new DateTime(2024, 7, 1),
             AssignedUntil = null
         };
-        context.ClothingItemAssignmentHistories.Add(assignment1);
-        context.ClothingItemAssignmentHistories.Add(assignment2);
+        context.ItemAssignmentHistories.Add(assignment1);
+        context.ItemAssignmentHistories.Add(assignment2);
         context.SaveChanges();
 
         var service = new ClothingItemAssignmentHistoryService(context, _mapper);
@@ -237,8 +232,8 @@ public class ClothingItemAssignmentHistoryServiceTest
             AssignedFrom = new DateTime(2024, 7, 1),
             AssignedUntil = null
         };
-        context.ClothingItemAssignmentHistories.Add(assignment1);
-        context.ClothingItemAssignmentHistories.Add(assignment2);
+        context.ItemAssignmentHistories.Add(assignment1);
+        context.ItemAssignmentHistories.Add(assignment2);
         context.SaveChanges();
 
         var service = new ClothingItemAssignmentHistoryService(context, _mapper);
@@ -278,7 +273,7 @@ public class ClothingItemAssignmentHistoryServiceTest
             AssignedFrom = new DateTime(2024, 1, 1),
             AssignedUntil = new DateTime(2024, 6, 1)
         };
-        context.ClothingItemAssignmentHistories.Add(assignment);
+        context.ItemAssignmentHistories.Add(assignment);
         context.SaveChanges();
 
         var service = new ClothingItemAssignmentHistoryService(context, _mapper);
@@ -318,7 +313,7 @@ public class ClothingItemAssignmentHistoryServiceTest
             AssignedFrom = new DateTime(2024, 1, 1),
             AssignedUntil = new DateTime(2024, 6, 1)
         };
-        context.ClothingItemAssignmentHistories.Add(assignment);
+        context.ItemAssignmentHistories.Add(assignment);
         context.SaveChanges();
 
         var service = new ClothingItemAssignmentHistoryService(context, _mapper);
@@ -335,7 +330,7 @@ public class ClothingItemAssignmentHistoryServiceTest
         var result = await service.UpdateAssignmentAsync(model);
 
         Assert.True(result);
-        var updated = await context.ClothingItemAssignmentHistories.FindAsync(assignment.Id);
+        var updated = await context.ItemAssignmentHistories.FindAsync(assignment.Id);
         Assert.NotNull(updated);
         Assert.Equal(model.ItemId, updated!.ItemId);
         Assert.Equal(model.PersonId, updated.PersonId);
@@ -379,7 +374,7 @@ public class ClothingItemAssignmentHistoryServiceTest
             AssignedFrom = new DateTime(2024, 1, 1),
             AssignedUntil = new DateTime(2024, 6, 1)
         };
-        context.ClothingItemAssignmentHistories.Add(assignment);
+        context.ItemAssignmentHistories.Add(assignment);
         context.SaveChanges();
 
         var service = new ClothingItemAssignmentHistoryService(context, _mapper);
@@ -410,7 +405,7 @@ public class ClothingItemAssignmentHistoryServiceTest
             AssignedFrom = new DateTime(2024, 1, 1),
             AssignedUntil = new DateTime(2024, 6, 1)
         };
-        context.ClothingItemAssignmentHistories.Add(assignment);
+        context.ItemAssignmentHistories.Add(assignment);
         context.SaveChanges();
 
         var service = new ClothingItemAssignmentHistoryService(context, _mapper);
@@ -449,8 +444,8 @@ public class ClothingItemAssignmentHistoryServiceTest
             AssignedFrom = new DateTime(2024, 7, 1),
             AssignedUntil = null
         };
-        context.ClothingItemAssignmentHistories.Add(assignment1);
-        context.ClothingItemAssignmentHistories.Add(assignment2);
+        context.ItemAssignmentHistories.Add(assignment1);
+        context.ItemAssignmentHistories.Add(assignment2);
         context.SaveChanges();
 
         var service = new ClothingItemAssignmentHistoryService(context, _mapper);
@@ -481,7 +476,7 @@ public class ClothingItemAssignmentHistoryServiceTest
             AssignedFrom = new DateTime(2024, 1, 1),
             AssignedUntil = new DateTime(2024, 6, 1)
         };
-        context.ClothingItemAssignmentHistories.Add(assignment);
+        context.ItemAssignmentHistories.Add(assignment);
         context.SaveChanges();
 
         var service = new ClothingItemAssignmentHistoryService(context, _mapper);
@@ -489,7 +484,7 @@ public class ClothingItemAssignmentHistoryServiceTest
         var result = await service.DeleteAssignmentAsync(assignment.Id);
 
         Assert.True(result);
-        Assert.False(context.ClothingItemAssignmentHistories.Any());
+        Assert.False(context.ItemAssignmentHistories.Any());
     }
 
     [Fact]

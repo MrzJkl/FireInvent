@@ -10,7 +10,7 @@ namespace FireInvent.Api.Controllers;
 
 [ApiController]
 [Route("assignments")]
-public class ClothingItemAssignmentHistoriesController(IClothingItemAssignmentHistoryService service) : ControllerBase
+public class ClothingItemAssignmentHistoriesController(IItemAssignmentHistoryService service) : ControllerBase
 {
     [HttpGet]
     [SwaggerOperation(Summary = "List all clothing item assignments", Description = "Returns a list of all clothing item assignment histories.")]

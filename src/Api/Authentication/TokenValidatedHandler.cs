@@ -1,42 +1,41 @@
-﻿namespace FireInvent.Api.Authentication
+﻿namespace FireInvent.Api.Authentication;
+
+using FireInvent.Shared.Services;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.Extensions.Caching.Memory;
+using System.IdentityModel.Tokens.Jwt;
+
+public class TokenValidatedHandler(
+    IMemoryCache cache,
+    IUserService userService)
 {
-    using FireInvent.Shared.Services;
-    using Microsoft.AspNetCore.Authentication.JwtBearer;
-    using Microsoft.Extensions.Caching.Memory;
-    using System.IdentityModel.Tokens.Jwt;
+    private const string SeenJTICachePrefix = "seen_jti";
 
-    public class TokenValidatedHandler(
-        IMemoryCache cache,
-        IUserService userService)
+    public async Task HandleAsync(TokenValidatedContext context)
     {
-        private const string SeenJTICachePrefix = "seen_jti";
+        if (context.Principal is null)
+            return;
 
-        public async Task HandleAsync(TokenValidatedContext context)
-        {
-            if (context.Principal is null)
-                return;
+        var jti = context.Principal.Claims
+            .FirstOrDefault(c => c.Type == JwtRegisteredClaimNames.Jti)?.Value;
 
-            var jti = context.Principal.Claims
-                .FirstOrDefault(c => c.Type == JwtRegisteredClaimNames.Jti)?.Value;
+        if (string.IsNullOrEmpty(jti)) return;
 
-            if (string.IsNullOrEmpty(jti)) return;
+        var cacheKey = $"{SeenJTICachePrefix}:{jti}";
+        if (cache.TryGetValue(cacheKey, out _)) return;
 
-            var cacheKey = $"{SeenJTICachePrefix}:{jti}";
-            if (cache.TryGetValue(cacheKey, out _)) return;
+        await userService.SyncUserFromClaimsAsync(context.Principal);
 
-            await userService.SyncUserFromClaimsAsync(context.Principal);
+        var exp = long.Parse(
+            context.Principal.Claims.First(c => c.Type == JwtRegisteredClaimNames.Exp).Value
+        );
 
-            var exp = long.Parse(
-                context.Principal.Claims.First(c => c.Type == JwtRegisteredClaimNames.Exp).Value
-            );
-
-            cache.Set(
-                cacheKey,
-                true,
-                new MemoryCacheEntryOptions
-                {
-                    AbsoluteExpiration = DateTimeOffset.FromUnixTimeSeconds(exp)
-                });
-        }
+        cache.Set(
+            cacheKey,
+            true,
+            new MemoryCacheEntryOptions
+            {
+                AbsoluteExpiration = DateTimeOffset.FromUnixTimeSeconds(exp)
+            });
     }
 }

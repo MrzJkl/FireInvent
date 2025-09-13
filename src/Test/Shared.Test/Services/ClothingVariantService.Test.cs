@@ -1,5 +1,4 @@
-﻿using AutoMapper;
-using FireInvent.Database;
+﻿using FireInvent.Database;
 using FireInvent.Database.Models;
 using FireInvent.Shared.Exceptions;
 using FireInvent.Shared.Models;
@@ -26,7 +25,7 @@ public class ClothingVariantServiceTest
             Description = "Waterproof jacket",
             Type = Contract.ProductType.Jacket
         };
-        context.ClothingProducts.Add(product);
+        context.Products.Add(product);
         context.SaveChanges();
         return product;
     }
@@ -53,7 +52,7 @@ public class ClothingVariantServiceTest
         Assert.Equal(model.Name, result.Name);
         Assert.Equal(model.AdditionalSpecs, result.AdditionalSpecs);
 
-        var entity = await context.ClothingVariants.FindAsync(result.Id);
+        var entity = await context.Variants.FindAsync(result.Id);
         Assert.NotNull(entity);
         Assert.Equal(model.ProductId, entity!.ProductId);
         Assert.Equal(model.Name, entity.Name);
@@ -65,7 +64,7 @@ public class ClothingVariantServiceTest
     {
         var context = TestHelper.GetTestDbContext();
         var product = CreateProduct(context);
-        context.ClothingVariants.Add(new Variant
+        context.Variants.Add(new Variant
         {
             Id = Guid.NewGuid(),
             ProductId = product.Id,
@@ -121,8 +120,8 @@ public class ClothingVariantServiceTest
             Name = "Blue",
             AdditionalSpecs = "L, Non-reflective"
         };
-        context.ClothingVariants.Add(variant1);
-        context.ClothingVariants.Add(variant2);
+        context.Variants.Add(variant1);
+        context.Variants.Add(variant2);
         context.SaveChanges();
 
         var service = new ClothingVariantService(context, _mapper);
@@ -156,7 +155,7 @@ public class ClothingVariantServiceTest
             Name = "Red",
             AdditionalSpecs = "XL, Reflective"
         };
-        context.ClothingVariants.Add(variant);
+        context.Variants.Add(variant);
         context.SaveChanges();
 
         var service = new ClothingVariantService(context, _mapper);
@@ -193,7 +192,7 @@ public class ClothingVariantServiceTest
             Name = "Red",
             AdditionalSpecs = "XL, Reflective"
         };
-        context.ClothingVariants.Add(variant);
+        context.Variants.Add(variant);
         context.SaveChanges();
 
         var service = new ClothingVariantService(context, _mapper);
@@ -209,7 +208,7 @@ public class ClothingVariantServiceTest
         var result = await service.UpdateVariantAsync(model);
 
         Assert.True(result);
-        var updated = await context.ClothingVariants.FindAsync(variant.Id);
+        var updated = await context.Variants.FindAsync(variant.Id);
         Assert.NotNull(updated);
         Assert.Equal(model.Name, updated!.Name);
         Assert.Equal(model.ProductId, updated.ProductId);
@@ -255,8 +254,8 @@ public class ClothingVariantServiceTest
             Name = "Blue",
             AdditionalSpecs = "L, Non-reflective"
         };
-        context.ClothingVariants.Add(variant1);
-        context.ClothingVariants.Add(variant2);
+        context.Variants.Add(variant1);
+        context.Variants.Add(variant2);
         context.SaveChanges();
 
         var service = new ClothingVariantService(context, _mapper);
@@ -284,7 +283,7 @@ public class ClothingVariantServiceTest
             Name = "Red",
             AdditionalSpecs = "XL, Reflective"
         };
-        context.ClothingVariants.Add(variant);
+        context.Variants.Add(variant);
         context.SaveChanges();
 
         var service = new ClothingVariantService(context, _mapper);
@@ -292,7 +291,7 @@ public class ClothingVariantServiceTest
         var result = await service.DeleteVariantAsync(variant.Id);
 
         Assert.True(result);
-        Assert.False(context.ClothingVariants.Any());
+        Assert.False(context.Variants.Any());
     }
 
     [Fact]
@@ -319,7 +318,7 @@ public class ClothingVariantServiceTest
             Description = "Fire-resistant pants",
             Type = Contract.ProductType.Pants
         };
-        context.ClothingProducts.Add(otherProduct);
+        context.Products.Add(otherProduct);
         context.SaveChanges();
 
         var variant1 = new Variant
@@ -343,9 +342,9 @@ public class ClothingVariantServiceTest
             Name = "Green",
             AdditionalSpecs = "M, Non-reflective"
         };
-        context.ClothingVariants.Add(variant1);
-        context.ClothingVariants.Add(variant2);
-        context.ClothingVariants.Add(variantOther);
+        context.Variants.Add(variant1);
+        context.Variants.Add(variant2);
+        context.Variants.Add(variantOther);
         context.SaveChanges();
 
         var service = new ClothingVariantService(context, _mapper);

@@ -5,7 +5,6 @@ using System.ComponentModel.DataAnnotations;
 namespace FireInvent.Database.Models;
 
 [Index(nameof(Name), IsUnique = true)]
-[Index(nameof(Name))]
 public record Department
 {
     [Key]

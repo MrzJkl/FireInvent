@@ -1,30 +1,29 @@
-﻿using AutoMapper;
-using FireInvent.Database;
+﻿using FireInvent.Database;
 using FireInvent.Database.Models;
 using FireInvent.Shared.Exceptions;
+using FireInvent.Shared.Mapper;
 using FireInvent.Shared.Models;
 using Microsoft.EntityFrameworkCore;
 
 namespace FireInvent.Shared.Services;
 
-public class MaintenanceService(AppDbContext context, IMapper mapper, IUserService userService) : IMaintenanceService
+public class MaintenanceService(AppDbContext context, IUserService userService, MaintenanceMapper mapper) : IMaintenanceService
 {
     public async Task<MaintenanceModel> CreateMaintenanceAsync(CreateMaintenanceModel model)
     {
-        _ = await context.ClothingItems.FindAsync(model.ItemId) ?? throw new BadRequestException($"ClothingItem with ID '{model.ItemId}' does not exist.");
+        _ = await context.Items.FindAsync(model.ItemId) ?? throw new BadRequestException($"ClothingItem with ID '{model.ItemId}' does not exist.");
 
         if (model.PerformedById.HasValue)
         {
             _ = await userService.GetUserByIdAsync(model.PerformedById.Value) ?? throw new BadRequestException($"User with ID '{model.PerformedById}' does not exist.");
         }
 
-        var entity = mapper.Map<Maintenance>(model);
-        entity.Id = Guid.NewGuid();
+        var entity = mapper.MapCreateMaintenanceModelToMaintenance(model);
 
         context.Maintenances.Add(entity);
         await context.SaveChangesAsync();
 
-        return mapper.Map<MaintenanceModel>(entity);
+        return mapper.MapMaintenanceToMaintenanceModel(entity);
     }
 
     public async Task<List<MaintenanceModel>> GetAllMaintenancesAsync()
@@ -34,7 +33,7 @@ public class MaintenanceService(AppDbContext context, IMapper mapper, IUserServi
             .OrderByDescending(v => v.PerformedAt)
             .ToListAsync();
 
-        return mapper.Map<List<MaintenanceModel>>(entities);
+        return mapper.MapMaintenancesToMaintenanceModels(entities);
     }
 
     public async Task<MaintenanceModel?> GetMaintenanceByIdAsync(Guid id)
@@ -43,7 +42,7 @@ public class MaintenanceService(AppDbContext context, IMapper mapper, IUserServi
             .AsNoTracking()
             .FirstOrDefaultAsync(m => m.Id == id);
 
-        return maintenance is null ? null : mapper.Map<MaintenanceModel>(maintenance);
+        return maintenance is null ? null : mapper.MapMaintenanceToMaintenanceModel(maintenance);
     }
 
     public async Task<bool> UpdateMaintenanceAsync(MaintenanceModel model)
@@ -52,7 +51,7 @@ public class MaintenanceService(AppDbContext context, IMapper mapper, IUserServi
         if (entity is null)
             return false;
 
-        var itemExists = await context.ClothingItems.AnyAsync(i => i.Id == model.ItemId);
+        var itemExists = await context.Items.AnyAsync(i => i.Id == model.ItemId);
         if (!itemExists)
             throw new BadRequestException($"ClothingItem with ID '{model.ItemId}' does not exist.");
 
@@ -61,7 +60,7 @@ public class MaintenanceService(AppDbContext context, IMapper mapper, IUserServi
             _ = await userService.GetUserByIdAsync(model.PerformedById.Value) ?? throw new BadRequestException($"User with ID '{model.PerformedById}' does not exist.");
         }
 
-        mapper.Map(model, entity);
+        mapper.MapMaintenanceModelToMaintenance(model, entity);
 
         await context.SaveChangesAsync();
         return true;
@@ -80,7 +79,7 @@ public class MaintenanceService(AppDbContext context, IMapper mapper, IUserServi
 
     public async Task<List<MaintenanceModel>> GetMaintenancesForItemAsync(Guid itemId)
     {
-        var itemExists = await context.ClothingItems.AnyAsync(i => i.Id == itemId);
+        var itemExists = await context.Items.AnyAsync(i => i.Id == itemId);
         if (!itemExists)
             throw new NotFoundException($"ClothingItem with ID {itemId} not found.");
 
@@ -90,6 +89,6 @@ public class MaintenanceService(AppDbContext context, IMapper mapper, IUserServi
             .AsNoTracking()
             .ToListAsync();
 
-        return mapper.Map<List<MaintenanceModel>>(maintenances);
+        return mapper.MapMaintenancesToMaintenanceModels(maintenances);
     }
 }

@@ -11,8 +11,8 @@ namespace FireInvent.Api.Controllers;
 [ApiController]
 [Route("clothingItems")]
 public class ClothingItemsController(
-    IClothingItemService itemService,
-    IClothingItemAssignmentHistoryService assignmentHistoryService,
+    IItemService itemService,
+    IItemAssignmentHistoryService assignmentHistoryService,
     IMaintenanceService maintenanceService) : ControllerBase
 {
     [HttpGet]

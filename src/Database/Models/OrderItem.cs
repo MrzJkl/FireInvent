@@ -1,26 +1,25 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace FireInvent.Database.Models
+namespace FireInvent.Database.Models;
+
+public record OrderItem
 {
-    public record OrderItem
-    {
-        [Key]
-        public Guid Id { get; set; }
+    [Key]
+    public Guid Id { get; set; }
 
-        [Required]
-        [ForeignKey(nameof(Order))]
-        public Guid OrderId { get; set; }
+    [Required]
+    [ForeignKey(nameof(Order))]
+    public Guid OrderId { get; set; }
 
-        [Required]
-        [ForeignKey(nameof(ClothingVariant))]
-        public Guid ClothingVariantId { get; set; }
+    [Required]
+    [ForeignKey(nameof(Variant))]
+    public Guid ClothingVariantId { get; set; }
 
-        [Required]
-        public int Quantity { get; set; }
+    [Required]
+    public int Quantity { get; set; }
 
-        public virtual Order Order { get; set; } = null!;
+    public virtual Order Order { get; set; } = null!;
 
-        public virtual Variant ClothingVariant { get; set; } = null!;
-    }
+    public virtual Variant Variant { get; set; } = null!;
 }

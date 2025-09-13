@@ -1,22 +1,28 @@
-﻿using AutoMapper;
-using FireInvent.Database;
+﻿using FireInvent.Database;
 using FireInvent.Database.Models;
+using FireInvent.Shared.Exceptions;
+using FireInvent.Shared.Mapper;
 using FireInvent.Shared.Models;
 using Microsoft.EntityFrameworkCore;
 
 namespace FireInvent.Shared.Services;
 
-public class DepartmentService(AppDbContext context, IMapper mapper) : IDepartmentService
+public class DepartmentService(AppDbContext context, DepartmentMapper mapper) : IDepartmentService
 {
     public async Task<DepartmentModel> CreateDepartmentAsync(CreateDepartmentModel model)
     {
-        var department = mapper.Map<Department>(model);
-        department.Id = Guid.NewGuid();
+        var exists = await context.Departments
+            .AnyAsync(c => c.Name == model.Name);
+
+        if (exists)
+            throw new ConflictException("A aepartment with the same name already exists.");
+
+        var department = mapper.MapCreateDepartmentModelToDepartment(model);
 
         await context.Departments.AddAsync(department);
         await context.SaveChangesAsync();
 
-        return mapper.Map<DepartmentModel>(department);
+        return mapper.MapDepartmentToDepartmentModel(department);
     }
 
     public async Task<List<DepartmentModel>> GetAllDepartmentsAsync()
@@ -26,7 +32,7 @@ public class DepartmentService(AppDbContext context, IMapper mapper) : IDepartme
             .OrderBy(v => v.Name)
             .ToListAsync();
 
-        return mapper.Map<List<DepartmentModel>>(departments);
+        return mapper.MapDepartmentsToDepartmentModels(departments);
     }
 
     public async Task<DepartmentModel?> GetDepartmentByIdAsync(Guid id)
@@ -35,7 +41,7 @@ public class DepartmentService(AppDbContext context, IMapper mapper) : IDepartme
             .AsNoTracking()
             .FirstOrDefaultAsync(d => d.Id == id);
 
-        return department is null ? null : mapper.Map<DepartmentModel>(department);
+        return department is null ? null : mapper.MapDepartmentToDepartmentModel(department);
     }
 
     public async Task<bool> UpdateDepartmentAsync(DepartmentModel model)
@@ -44,7 +50,13 @@ public class DepartmentService(AppDbContext context, IMapper mapper) : IDepartme
         if (department is null)
             return false;
 
-        mapper.Map(model, department);
+        var nameExists = await context.Departments.AnyAsync(d =>
+            d.Id != model.Id && d.Name == model.Name);
+
+        if (nameExists)
+            throw new ConflictException("Another department with the same name already exists.");
+
+        mapper.MapDepartmentModelToDepartment(model, department);
 
         await context.SaveChangesAsync();
         return true;

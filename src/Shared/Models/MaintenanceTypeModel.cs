@@ -1,10 +1,9 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace FireInvent.Shared.Models
+namespace FireInvent.Shared.Models;
+
+public record MaintenanceTypeModel : CreateMaintenanceTypeModel
 {
-    public record MaintenanceTypeModel : CreateMaintenanceTypeModel
-    {
-        [Required]
-        public Guid Id { get; init; }
-    }
+    [Required]
+    public Guid Id { get; init; }
 }

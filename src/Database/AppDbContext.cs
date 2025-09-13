@@ -5,11 +5,11 @@ namespace FireInvent.Database;
 
 public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(options)
 {
-    public DbSet<Item> ClothingItems => Set<Item>();
+    public DbSet<Item> Items => Set<Item>();
 
-    public DbSet<Variant> ClothingVariants => Set<Variant>();
+    public DbSet<Variant> Variants => Set<Variant>();
 
-    public DbSet<Product> ClothingProducts => Set<Product>();
+    public DbSet<Product> Products => Set<Product>();
 
     public DbSet<Person> Persons => Set<Person>();
 
@@ -19,7 +19,7 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
 
     public DbSet<Maintenance> Maintenances => Set<Maintenance>();
 
-    public DbSet<ItemAssignmentHistory> ClothingItemAssignmentHistories => Set<ItemAssignmentHistory>();
+    public DbSet<ItemAssignmentHistory> ItemAssignmentHistories => Set<ItemAssignmentHistory>();
 
     public DbSet<Order> Orders => Set<Order>();
 

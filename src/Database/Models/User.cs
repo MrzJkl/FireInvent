@@ -2,26 +2,25 @@
 using Microsoft.EntityFrameworkCore;
 using System.ComponentModel.DataAnnotations;
 
-namespace FireInvent.Database.Models
+namespace FireInvent.Database.Models;
+
+[Index(nameof(EMail), IsUnique = true)]
+public record User
 {
-    [Index(nameof(EMail), IsUnique = true)]
-    public record User
-    {
-        [Key]
-        public Guid Id { get; set; }
+    [Key]
+    public Guid Id { get; set; }
 
-        [MaxLength(ModelConstants.MaxStringLength)]
-        public string EMail { get; set; } = string.Empty;
+    [MaxLength(ModelConstants.MaxStringLength)]
+    public string EMail { get; set; } = string.Empty;
 
-        [MaxLength(ModelConstants.MaxStringLength)]
-        public string FirstName { get; set; } = string.Empty;
+    [MaxLength(ModelConstants.MaxStringLength)]
+    public string FirstName { get; set; } = string.Empty;
 
-        [MaxLength(ModelConstants.MaxStringLength)]
-        public string LastName { get; set; } = string.Empty;
+    [MaxLength(ModelConstants.MaxStringLength)]
+    public string LastName { get; set; } = string.Empty;
 
-        [Required]
-        public DateTimeOffset CreatedAt { get; set; } = DateTime.UtcNow;
+    [Required]
+    public DateTimeOffset CreatedAt { get; set; } = DateTime.UtcNow;
 
-        public DateTimeOffset? LastLogin { get; set; }
-    }
+    public DateTimeOffset? LastLogin { get; set; }
 }

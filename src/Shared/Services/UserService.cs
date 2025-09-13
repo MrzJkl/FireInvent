@@ -1,6 +1,6 @@
-﻿using AutoMapper;
-using FireInvent.Database;
+﻿using FireInvent.Database;
 using FireInvent.Database.Models;
+using FireInvent.Shared.Mapper;
 using FireInvent.Shared.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
@@ -8,7 +8,7 @@ using System.Security.Claims;
 
 namespace FireInvent.Shared.Services;
 
-public class UserService(AppDbContext context, IMapper mapper, ILogger<UserService> log) : IUserService
+public class UserService(AppDbContext context, ILogger<UserService> log, UserMapper mapper) : IUserService
 {
     public async Task<UserModel?> GetUserByIdAsync(Guid id)
     {
@@ -16,7 +16,7 @@ public class UserService(AppDbContext context, IMapper mapper, ILogger<UserServi
             .AsNoTracking()
             .FirstOrDefaultAsync(u => u.Id == id);
 
-        return mapper.Map<UserModel?>(user);
+        return user is null ? null : mapper.MapUserToUserModel(user);
     }
 
     public async Task<List<UserModel>> GetAllUsersAsync()
@@ -27,7 +27,7 @@ public class UserService(AppDbContext context, IMapper mapper, ILogger<UserServi
             .AsNoTracking()
             .ToListAsync();
 
-        return mapper.Map<List<UserModel>>(users);
+        return mapper.MapUsersToUserModels(users);
     }
 
     public async Task<UserModel> SyncUserFromClaimsAsync(ClaimsPrincipal principal)
@@ -61,11 +61,9 @@ public class UserService(AppDbContext context, IMapper mapper, ILogger<UserServi
             log.LogInformation("Updating existing user with ID {UserId} from claims.", id);
         }
 
-        await Task.Delay(5000);
-
         await context.SaveChangesAsync();
 
-        return mapper.Map<UserModel>(user);
+        return mapper.MapUserToUserModel(user);
     }
 
     private static (Guid id, string firstname, string lastname, string email) GetUserDetailsFromClaims(ClaimsPrincipal principal)

@@ -2,6 +2,7 @@ using FireInvent.Api.Authentication;
 using FireInvent.Api.Middlewares;
 using FireInvent.Api.Swagger;
 using FireInvent.Database;
+using FireInvent.Shared.Mapper;
 using FireInvent.Shared.Options;
 using FireInvent.Shared.Services;
 using Microsoft.AspNetCore.Mvc.Authorization;
@@ -104,15 +105,27 @@ builder.Services.AddSwaggerGen(c =>
 // API Services
 builder.Services.AddScoped<TokenValidatedHandler>();
 
+// Mappers
+builder.Services.AddSingleton<DepartmentMapper>();
+builder.Services.AddSingleton<ItemAssignmentHistoryMapper>();
+builder.Services.AddSingleton<ItemMapper>();
+builder.Services.AddSingleton<MaintenanceMapper>();
+builder.Services.AddSingleton<OrderMapper>();
+builder.Services.AddSingleton<PersonMapper>();
+builder.Services.AddSingleton<ProductMapper>();
+builder.Services.AddSingleton<StorageLocationMapper>();
+builder.Services.AddSingleton<UserMapper>();
+builder.Services.AddSingleton<VariantMapper>();
+
 // Shared Services
 builder.Services.AddScoped<IDepartmentService, DepartmentService>();
 builder.Services.AddScoped<IStorageLocationService, StorageLocationService>();
 builder.Services.AddScoped<IPersonService, PersonService>();
-builder.Services.AddScoped<IClothingProductService, ClothingProductService>();
-builder.Services.AddScoped<IClothingVariantService, ClothingVariantService>();
-builder.Services.AddScoped<IClothingItemService, ClothingItemService>();
+builder.Services.AddScoped<IProductService, ProductService>();
+builder.Services.AddScoped<IVariantService, VariantService>();
+builder.Services.AddScoped<IItemService, ItemService>();
 builder.Services.AddScoped<IMaintenanceService, MaintenanceService>();
-builder.Services.AddScoped<IClothingItemAssignmentHistoryService, ClothingItemAssignmentHistoryService>();
+builder.Services.AddScoped<IItemAssignmentHistoryService, ItemAssignmentHistoryService>();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IOrderService, OrderService>();
 builder.Services.AddTransient<MailService>();

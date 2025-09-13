@@ -1,13 +1,13 @@
-﻿using AutoMapper;
-using FireInvent.Database;
+﻿using FireInvent.Database;
 using FireInvent.Database.Models;
 using FireInvent.Shared.Exceptions;
+using FireInvent.Shared.Mapper;
 using FireInvent.Shared.Models;
 using Microsoft.EntityFrameworkCore;
 
 namespace FireInvent.Shared.Services;
 
-public class PersonService(AppDbContext context, IMapper mapper) : IPersonService
+public class PersonService(AppDbContext context, PersonMapper mapper) : IPersonService
 {
     public async Task<PersonModel> CreatePersonAsync(CreatePersonModel model)
     {
@@ -18,13 +18,13 @@ public class PersonService(AppDbContext context, IMapper mapper) : IPersonServic
         if (exists)
             throw new ConflictException("A person with the same name or external ID already exists.");
 
-        var person = mapper.Map<Person>(model);
+        var person = mapper.MapCreatePersonModelToPerson(model);
         person.Id = Guid.NewGuid();
 
         context.Persons.Add(person);
         await context.SaveChangesAsync();
 
-        return mapper.Map<PersonModel>(person);
+        return mapper.MapPersonToPersonModel(person);
     }
 
     public async Task<List<PersonModel>> GetAllPersonsAsync()
@@ -35,7 +35,7 @@ public class PersonService(AppDbContext context, IMapper mapper) : IPersonServic
             .AsNoTracking()
             .ToListAsync();
 
-        return mapper.Map<List<PersonModel>>(persons);
+        return mapper.MapPersonsToPersonModels(persons);
     }
 
     public async Task<PersonModel?> GetPersonByIdAsync(Guid id)
@@ -44,7 +44,7 @@ public class PersonService(AppDbContext context, IMapper mapper) : IPersonServic
             .AsNoTracking()
             .FirstOrDefaultAsync(p => p.Id == id);
 
-        return person is null ? null : mapper.Map<PersonModel>(person);
+        return person is null ? null : mapper.MapPersonToPersonModel(person);
     }
 
     public async Task<bool> UpdatePersonAsync(PersonModel model)
@@ -71,7 +71,7 @@ public class PersonService(AppDbContext context, IMapper mapper) : IPersonServic
                 throw new ConflictException("Another person with the same external ID already exists.");
         }
 
-        mapper.Map(model, person);
+        mapper.MapPersonModelToPerson(model, person);
 
         await context.SaveChangesAsync();
         return true;
@@ -101,6 +101,6 @@ public class PersonService(AppDbContext context, IMapper mapper) : IPersonServic
             .AsNoTracking()
             .ToListAsync();
 
-        return mapper.Map<List<PersonModel>>(persons);
+        return mapper.MapPersonsToPersonModels(persons);
     }
 }

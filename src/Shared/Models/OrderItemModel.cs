@@ -1,13 +1,12 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace FireInvent.Shared.Models
-{
-    public record OrderItemModel : CreateOrderItemModel
-    {
-        [Required]
-        public Guid Id { get; init; }
+namespace FireInvent.Shared.Models;
 
-        [Required]
-        public VariantModel ClothingVariant { get; init; } = new();
-    }
+public record OrderItemModel : CreateOrderItemModel
+{
+    [Required]
+    public Guid Id { get; init; }
+
+    [Required]
+    public VariantModel Variant { get; init; } = new();
 }

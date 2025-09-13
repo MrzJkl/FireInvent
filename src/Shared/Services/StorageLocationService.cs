@@ -1,13 +1,12 @@
-﻿using AutoMapper;
-using FireInvent.Database;
-using FireInvent.Database.Models;
+﻿using FireInvent.Database;
 using FireInvent.Shared.Exceptions;
+using FireInvent.Shared.Mapper;
 using FireInvent.Shared.Models;
 using Microsoft.EntityFrameworkCore;
 
 namespace FireInvent.Shared.Services;
 
-public class StorageLocationService(AppDbContext context, IMapper mapper) : IStorageLocationService
+public class StorageLocationService(AppDbContext context, StorageLocationMapper mapper) : IStorageLocationService
 {
     public async Task<StorageLocationModel> CreateStorageLocationAsync(CreateStorageLocationModel model)
     {
@@ -17,13 +16,13 @@ public class StorageLocationService(AppDbContext context, IMapper mapper) : ISto
         if (exists)
             throw new ConflictException($"A StorageLocation with name '{model.Name}' already exists.");
 
-        var location = mapper.Map<StorageLocation>(model);
+        var location = mapper.MapCreateStorageLocationModelToStorageLocation(model);
         location.Id = Guid.NewGuid();
 
         context.StorageLocations.Add(location);
         await context.SaveChangesAsync();
 
-        return mapper.Map<StorageLocationModel>(location);
+        return mapper.MapStorageLocationToStorageLocationModel(location);
     }
 
     public async Task<List<StorageLocationModel>> GetAllStorageLocationsAsync()
@@ -33,7 +32,7 @@ public class StorageLocationService(AppDbContext context, IMapper mapper) : ISto
             .AsNoTracking()
             .ToListAsync();
 
-        return mapper.Map<List<StorageLocationModel>>(locations);
+        return mapper.MapStorageLocationsToStorageLocationModels(locations);
     }
 
     public async Task<StorageLocationModel?> GetStorageLocationByIdAsync(Guid id)
@@ -42,7 +41,7 @@ public class StorageLocationService(AppDbContext context, IMapper mapper) : ISto
             .AsNoTracking()
             .FirstOrDefaultAsync(s => s.Id == id);
 
-        return location is null ? null : mapper.Map<StorageLocationModel>(location);
+        return location is null ? null : mapper.MapStorageLocationToStorageLocationModel(location);
     }
 
     public async Task<bool> UpdateStorageLocationAsync(StorageLocationModel model)
@@ -57,7 +56,7 @@ public class StorageLocationService(AppDbContext context, IMapper mapper) : ISto
         if (nameExists)
             throw new ConflictException($"A StorageLocation with name '{model.Name}' already exists.");
 
-        mapper.Map(model, location);
+        mapper.MapStorageLocationModelToStorageLocation(model, location);
 
         await context.SaveChangesAsync();
         return true;

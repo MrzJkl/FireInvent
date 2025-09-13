@@ -1,65 +1,63 @@
-﻿using AutoMapper;
-using FireInvent.Database;
-using FireInvent.Database.Models;
+﻿using FireInvent.Database;
 using FireInvent.Shared.Exceptions;
+using FireInvent.Shared.Mapper;
 using FireInvent.Shared.Models;
 using Microsoft.EntityFrameworkCore;
 
 namespace FireInvent.Shared.Services;
 
-public class ClothingProductService(AppDbContext context, IMapper mapper) : IClothingProductService
+public class ProductService(AppDbContext context, ProductMapper mapper) : IProductService
 {
     public async Task<ProductModel> CreateProductAsync(CreateProductModel model)
     {
-        var exists = await context.ClothingProducts.AnyAsync(p =>
+        var exists = await context.Products.AnyAsync(p =>
             p.Name == model.Name && p.Manufacturer == model.Manufacturer);
 
         if (exists)
-            throw new InvalidOperationException("A product with the same name and manufacturer already exists.");
+            throw new ConflictException("A product with the same name and manufacturer already exists.");
 
-        var product = mapper.Map<Product>(model);
-        product.Id = Guid.NewGuid();
+        var product = mapper.MapCreateProductModelToProduct(model);
 
-        context.ClothingProducts.Add(product);
+        context.Products.Add(product);
         await context.SaveChangesAsync();
 
-        return mapper.Map<ProductModel>(product);
+        return mapper.MapProductToProductModel(product);
     }
 
     public async Task<List<ProductModel>> GetAllProductsAsync()
     {
-        var products = await context.ClothingProducts
+        var products = await context.Products
             .OrderBy(p => p.Name)
             .AsNoTracking()
             .ToListAsync();
 
-        return mapper.Map<List<ProductModel>>(products);
+        return mapper.MapProductsToProductModels(products);
     }
 
     public async Task<ProductModel?> GetProductByIdAsync(Guid id)
     {
-        var product = await context.ClothingProducts
+        var product = await context.Products
             .AsNoTracking()
             .FirstOrDefaultAsync(p => p.Id == id);
 
-        return product is null ? null : mapper.Map<ProductModel>(product);
+        return product is null ? null : mapper.MapProductToProductModel(product);
     }
 
     public async Task<bool> UpdateProductAsync(ProductModel model)
     {
-        var product = await context.ClothingProducts.FindAsync(model.Id);
+        var product = await context.Products.FindAsync(model.Id);
         if (product is null)
             return false;
 
-        var duplicate = await context.ClothingProducts.AnyAsync(p =>
+        var duplicate = await context.Products.AnyAsync(p =>
             p.Id != model.Id &&
             p.Name == model.Name &&
             p.Manufacturer == model.Manufacturer);
 
         if (duplicate)
-            throw new ConflictException();
+            throw new ConflictException("A product with the same name and manufacturer already exists.");
 
-        mapper.Map(model, product);
+        mapper.MapProductModelToProduct(model, product);
 
         await context.SaveChangesAsync();
         return true;
@@ -67,11 +65,11 @@ public class ClothingProductService(AppDbContext context, IMapper mapper) : IClo
 
     public async Task<bool> DeleteProductAsync(Guid id)
     {
-        var product = await context.ClothingProducts.FindAsync(id);
+        var product = await context.Products.FindAsync(id);
         if (product is null)
             return false;
 
-        context.ClothingProducts.Remove(product);
+        context.Products.Remove(product);
         await context.SaveChangesAsync();
         return true;
     }

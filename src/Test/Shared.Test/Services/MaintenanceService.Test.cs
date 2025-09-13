@@ -1,5 +1,4 @@
-﻿using AutoMapper;
-using FireInvent.Contract;
+﻿using FireInvent.Contract;
 using FireInvent.Database;
 using FireInvent.Database.Models;
 using FireInvent.Shared.Exceptions;
@@ -28,7 +27,7 @@ public class MaintenanceServiceTest
             Description = "Waterproof jacket",
             Type = ProductType.Jacket
         };
-        context.ClothingProducts.Add(product);
+        context.Products.Add(product);
         var variant = new Variant
         {
             Id = Guid.NewGuid(),
@@ -36,7 +35,7 @@ public class MaintenanceServiceTest
             Name = "Red",
             AdditionalSpecs = "XL, Reflective"
         };
-        context.ClothingVariants.Add(variant);
+        context.Variants.Add(variant);
         var item = new Item
         {
             Id = Guid.NewGuid(),
@@ -45,7 +44,7 @@ public class MaintenanceServiceTest
             Condition = ItemCondition.New,
             PurchaseDate = new DateTime(2024, 1, 1)
         };
-        context.ClothingItems.Add(item);
+        context.Items.Add(item);
         context.SaveChanges();
         return item;
     }

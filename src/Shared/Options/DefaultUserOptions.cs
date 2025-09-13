@@ -1,9 +1,8 @@
-﻿namespace FireInvent.Shared.Options
-{
-    public class DefaultAdminOptions
-    {
-        public string? Email { get; set; }
+﻿namespace FireInvent.Shared.Options;
 
-        public string? Password { get; set; }
-    }
+public class DefaultAdminOptions
+{
+    public string? Email { get; set; }
+
+    public string? Password { get; set; }
 }

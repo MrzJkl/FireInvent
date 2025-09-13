@@ -1,18 +1,18 @@
-﻿using AutoMapper;
-using FireInvent.Database;
+﻿using FireInvent.Database;
 using FireInvent.Database.Models;
 using FireInvent.Shared.Exceptions;
+using FireInvent.Shared.Mapper;
 using FireInvent.Shared.Models;
 using Microsoft.EntityFrameworkCore;
 
 namespace FireInvent.Shared.Services;
 
-public class ClothingItemService(AppDbContext context, IMapper mapper) : IClothingItemService
+public class ItemService(AppDbContext context, ItemMapper mapper) : IItemService
 {
     public async Task<ItemModel> CreateClothingItemAsync(CreateItemModel model)
     {
-        if (!await context.ClothingVariants.AnyAsync(v => v.Id == model.VariantId))
-            throw new BadRequestException("ClothingVariant not found.");
+        if (!await context.Variants.AnyAsync(v => v.Id == model.VariantId))
+            throw new BadRequestException("Variant not found.");
 
         if (model.StorageLocationId.HasValue &&
             !await context.StorageLocations.AnyAsync(s => s.Id == model.StorageLocationId))
@@ -20,49 +20,48 @@ public class ClothingItemService(AppDbContext context, IMapper mapper) : IClothi
 
         if (!string.IsNullOrWhiteSpace(model.Identifier))
         {
-            var exists = await context.ClothingItems
+            var exists = await context.Items
                 .AnyAsync(c => c.Identifier == model.Identifier);
 
             if (exists)
-                throw new ConflictException($"ClothingItem with identifier '{model.Identifier}' already exists.");
+                throw new ConflictException($"Item with identifier '{model.Identifier}' already exists.");
         }
 
-        var item = mapper.Map<Item>(model);
-        item.Id = Guid.NewGuid();
+        var item = mapper.MapCreateItemModelToItem(model);
 
-        context.ClothingItems.Add(item);
+        context.Items.Add(item);
         await context.SaveChangesAsync();
 
-        return mapper.Map<ItemModel>(item);
+        return mapper.MapItemToItemModel(item);
     }
 
     public async Task<List<ItemModel>> GetAllClothingItemsAsync()
     {
-        var items = await context.ClothingItems
+        var items = await context.Items
             .AsNoTracking()
             .OrderBy(i => i.PurchaseDate)
             .ToListAsync();
 
-        return mapper.Map<List<ItemModel>>(items);
+        return mapper.MapItemsToItemModels(items);
     }
 
     public async Task<ItemModel?> GetClothingItemByIdAsync(Guid id)
     {
-        var item = await context.ClothingItems
+        var item = await context.Items
             .AsNoTracking()
             .FirstOrDefaultAsync(i => i.Id == id);
 
-        return item is null ? null : mapper.Map<ItemModel>(item);
+        return item is null ? null : mapper.MapItemToItemModel(item);
     }
 
     public async Task<bool> UpdateClothingItemAsync(ItemModel model)
     {
-        var item = await context.ClothingItems.FindAsync(model.Id);
+        var item = await context.Items.FindAsync(model.Id);
         if (item is null)
             return false;
 
-        if (!await context.ClothingVariants.AnyAsync(v => v.Id == model.VariantId))
-            throw new BadRequestException("ClothingVariant not found.");
+        if (!await context.Variants.AnyAsync(v => v.Id == model.VariantId))
+            throw new BadRequestException("Variant not found.");
 
         if (model.StorageLocationId.HasValue &&
             !await context.StorageLocations.AnyAsync(s => s.Id == model.StorageLocationId))
@@ -70,14 +69,14 @@ public class ClothingItemService(AppDbContext context, IMapper mapper) : IClothi
 
         if (!string.IsNullOrWhiteSpace(model.Identifier))
         {
-            var exists = await context.ClothingItems
+            var exists = await context.Items
                 .AnyAsync(c => c.Identifier == model.Identifier && c.Id != model.Id);
 
             if (exists)
                 throw new ConflictException($"ClothingItem with identifier '{model.Identifier}' already exists.");
         }
 
-        mapper.Map(model, item);
+        mapper.MapItemModelToItem(model, item);
 
         await context.SaveChangesAsync();
         return true;
@@ -85,28 +84,28 @@ public class ClothingItemService(AppDbContext context, IMapper mapper) : IClothi
 
     public async Task<bool> DeleteClothingItemAsync(Guid id)
     {
-        var item = await context.ClothingItems.FindAsync(id);
+        var item = await context.Items.FindAsync(id);
         if (item is null)
             return false;
 
-        context.ClothingItems.Remove(item);
+        context.Items.Remove(item);
         await context.SaveChangesAsync();
         return true;
     }
 
     public async Task<List<ItemModel>> GetItemsForVariantAsync(Guid variantId)
     {
-        var variantExists = await context.ClothingVariants.AnyAsync(v => v.Id == variantId);
+        var variantExists = await context.Variants.AnyAsync(v => v.Id == variantId);
         if (!variantExists)
-            throw new NotFoundException($"ClothingVariant with ID {variantId} not found.");
+            throw new NotFoundException($"Variant with ID {variantId} not found.");
 
-        var items = await context.ClothingItems
+        var items = await context.Items
             .Where(i => i.VariantId == variantId)
             .OrderBy(i => i.PurchaseDate)
             .AsNoTracking()
             .ToListAsync();
 
-        return mapper.Map<List<ItemModel>>(items);
+        return mapper.MapItemsToItemModels(items);
     }
 
     public async Task<List<ItemModel>> GetClothingItemsForStorageLocationAsync(Guid storageLocationId)
@@ -115,12 +114,12 @@ public class ClothingItemService(AppDbContext context, IMapper mapper) : IClothi
         if (!locationExists)
             throw new NotFoundException($"StorageLocation with ID {storageLocationId} not found.");
 
-        var items = await context.ClothingItems
+        var items = await context.Items
             .Where(i => i.StorageLocationId == storageLocationId)
             .OrderBy(i => i.PurchaseDate)
             .AsNoTracking()
             .ToListAsync();
 
-        return mapper.Map<List<ItemModel>>(items);
+        return mapper.MapItemsToItemModels(items);
     }
 }

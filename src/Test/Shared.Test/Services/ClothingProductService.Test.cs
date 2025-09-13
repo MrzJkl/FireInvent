@@ -1,5 +1,4 @@
-﻿using AutoMapper;
-using FireInvent.Database.Models;
+﻿using FireInvent.Database.Models;
 using FireInvent.Shared.Exceptions;
 using FireInvent.Shared.Models;
 using FireInvent.Shared.Services;
@@ -38,7 +37,7 @@ public class ClothingProductServiceTest
         Assert.Equal(model.Description, result.Description);
         Assert.Equal(model.Type, result.Type);
 
-        var entity = await context.ClothingProducts.FindAsync(result.Id);
+        var entity = await context.Products.FindAsync(result.Id);
         Assert.NotNull(entity);
         Assert.Equal(model.Name, entity!.Name);
         Assert.Equal(model.Manufacturer, entity.Manufacturer);
@@ -50,7 +49,7 @@ public class ClothingProductServiceTest
     public async Task CreateProductAsync_ShouldThrowIfDuplicate()
     {
         var context = TestHelper.GetTestDbContext();
-        context.ClothingProducts.Add(new Product
+        context.Products.Add(new Product
         {
             Id = Guid.NewGuid(),
             Name = "Jacket",
@@ -93,8 +92,8 @@ public class ClothingProductServiceTest
             Description = "Fire-resistant pants",
             Type = ProductType.Pants
         };
-        context.ClothingProducts.Add(product1);
-        context.ClothingProducts.Add(product2);
+        context.Products.Add(product1);
+        context.Products.Add(product2);
         context.SaveChanges();
 
         var service = new ClothingProductService(context, _mapper);
@@ -130,7 +129,7 @@ public class ClothingProductServiceTest
             Description = "Waterproof jacket",
             Type = ProductType.Jacket
         };
-        context.ClothingProducts.Add(product);
+        context.Products.Add(product);
         context.SaveChanges();
 
         var service = new ClothingProductService(context, _mapper);
@@ -168,7 +167,7 @@ public class ClothingProductServiceTest
             Description = "Waterproof jacket",
             Type = ProductType.Jacket
         };
-        context.ClothingProducts.Add(product);
+        context.Products.Add(product);
         context.SaveChanges();
 
         var service = new ClothingProductService(context, _mapper);
@@ -185,7 +184,7 @@ public class ClothingProductServiceTest
         var result = await service.UpdateProductAsync(model);
 
         Assert.True(result);
-        var updated = await context.ClothingProducts.FindAsync(product.Id);
+        var updated = await context.Products.FindAsync(product.Id);
         Assert.NotNull(updated);
         Assert.Equal(model.Name, updated!.Name);
         Assert.Equal(model.Manufacturer, updated.Manufacturer);
@@ -233,8 +232,8 @@ public class ClothingProductServiceTest
             Description = "Fire-resistant pants",
             Type = ProductType.Pants
         };
-        context.ClothingProducts.Add(product1);
-        context.ClothingProducts.Add(product2);
+        context.Products.Add(product1);
+        context.Products.Add(product2);
         context.SaveChanges();
 
         var service = new ClothingProductService(context, _mapper);
@@ -263,7 +262,7 @@ public class ClothingProductServiceTest
             Description = "Waterproof jacket",
             Type = ProductType.Jacket
         };
-        context.ClothingProducts.Add(product);
+        context.Products.Add(product);
         context.SaveChanges();
 
         var service = new ClothingProductService(context, _mapper);
@@ -271,7 +270,7 @@ public class ClothingProductServiceTest
         var result = await service.DeleteProductAsync(product.Id);
 
         Assert.True(result);
-        Assert.False(context.ClothingProducts.Any());
+        Assert.False(context.Products.Any());
     }
 
     [Fact]

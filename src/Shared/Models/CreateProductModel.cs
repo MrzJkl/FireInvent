@@ -1,5 +1,4 @@
 ﻿using FireInvent.Contract;
-using FireInvent.Database.Models;
 using System.ComponentModel.DataAnnotations;
 
 namespace FireInvent.Shared.Models;
