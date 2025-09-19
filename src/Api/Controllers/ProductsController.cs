@@ -9,12 +9,12 @@ using Swashbuckle.AspNetCore.Annotations;
 namespace FireInvent.Api.Controllers;
 
 [ApiController]
-[Route("clothingProducts")]
-public class ClothingProductsController(IProductService productService) : ControllerBase
+[Route("products")]
+public class ProductsController(IProductService productService) : ControllerBase
 {
     [HttpGet]
-    [SwaggerOperation(Summary = "List all clothing products", Description = "Returns a list of all clothing products.")]
-    [SwaggerResponse(200, "List of clothing products", typeof(List<ProductModel>))]
+    [SwaggerOperation(Summary = "List all products", Description = "Returns a list of all products.")]
+    [SwaggerResponse(200, "List of products", typeof(List<ProductModel>))]
     public async Task<ActionResult<List<ProductModel>>> GetAll()
     {
         var products = await productService.GetAllProductsAsync();
@@ -22,9 +22,9 @@ public class ClothingProductsController(IProductService productService) : Contro
     }
 
     [HttpGet("{id:guid}")]
-    [SwaggerOperation(Summary = "Get clothing product by ID", Description = "Returns a clothing product by its unique ID.")]
-    [SwaggerResponse(200, "Clothing product found", typeof(ProductModel))]
-    [SwaggerResponse(404, "Clothing product not found")]
+    [SwaggerOperation(Summary = "Get product by ID", Description = "Returns a product by its unique ID.")]
+    [SwaggerResponse(200, "Product found", typeof(ProductModel))]
+    [SwaggerResponse(404, "Product not found")]
     public async Task<ActionResult<ProductModel>> GetById(Guid id)
     {
         var product = await productService.GetProductByIdAsync(id);
@@ -32,8 +32,8 @@ public class ClothingProductsController(IProductService productService) : Contro
     }
 
     [HttpPost]
-    [SwaggerOperation(Summary = "Create a new clothing product", Description = "Creates a new clothing product.")]
-    [SwaggerResponse(201, "Clothing product created", typeof(ProductModel))]
+    [SwaggerOperation(Summary = "Create a new product", Description = "Creates a new product.")]
+    [SwaggerResponse(201, "Product created", typeof(ProductModel))]
     [SwaggerResponse(409, "A product with the same name and manufacturer already exists")]
     [Authorize(Roles = Roles.Admin + "," + Roles.Procurement)]
     public async Task<ActionResult<ProductModel>> Create(CreateProductModel model)
@@ -43,10 +43,10 @@ public class ClothingProductsController(IProductService productService) : Contro
     }
 
     [HttpPut("{id:guid}")]
-    [SwaggerOperation(Summary = "Update a clothing product", Description = "Updates an existing clothing product.")]
-    [SwaggerResponse(204, "Clothing product updated")]
+    [SwaggerOperation(Summary = "Update a product", Description = "Updates an existing product.")]
+    [SwaggerResponse(204, "Product updated")]
     [SwaggerResponse(400, "ID mismatch")]
-    [SwaggerResponse(404, "Clothing product not found")]
+    [SwaggerResponse(404, "Product not found")]
     [SwaggerResponse(409, "A product with the same name and manufacturer already exists")]
     [Authorize(Roles = Roles.Admin + "," + Roles.Procurement)]
     public async Task<IActionResult> Update(Guid id, ProductModel model)
@@ -66,9 +66,9 @@ public class ClothingProductsController(IProductService productService) : Contro
     }
 
     [HttpDelete("{id:guid}")]
-    [SwaggerOperation(Summary = "Delete a clothing product", Description = "Deletes a clothing product by its unique ID.")]
-    [SwaggerResponse(204, "Clothing product deleted")]
-    [SwaggerResponse(404, "Clothing product not found")]
+    [SwaggerOperation(Summary = "Delete a product", Description = "Deletes a product by its unique ID.")]
+    [SwaggerResponse(204, "Product deleted")]
+    [SwaggerResponse(404, "Product not found")]
     [Authorize(Roles = Roles.Admin + "," + Roles.Procurement)]
     public async Task<IActionResult> Delete(Guid id)
     {

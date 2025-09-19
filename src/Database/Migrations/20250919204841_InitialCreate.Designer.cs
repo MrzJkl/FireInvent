@@ -12,7 +12,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace FireInvent.Database.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20250913205705_InitialCreate")]
+    [Migration("20250919204841_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -219,20 +219,20 @@ namespace FireInvent.Database.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
-                    b.Property<Guid>("ClothingVariantId")
-                        .HasColumnType("uuid");
-
                     b.Property<Guid>("OrderId")
                         .HasColumnType("uuid");
 
                     b.Property<int>("Quantity")
                         .HasColumnType("integer");
 
+                    b.Property<Guid>("VariantId")
+                        .HasColumnType("uuid");
+
                     b.HasKey("Id");
 
-                    b.HasIndex("ClothingVariantId");
-
                     b.HasIndex("OrderId");
+
+                    b.HasIndex("VariantId");
 
                     b.ToTable("OrderItems");
                 });
@@ -505,15 +505,15 @@ namespace FireInvent.Database.Migrations
 
             modelBuilder.Entity("FireInvent.Database.Models.OrderItem", b =>
                 {
-                    b.HasOne("FireInvent.Database.Models.Variant", "Variant")
-                        .WithMany()
-                        .HasForeignKey("ClothingVariantId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.HasOne("FireInvent.Database.Models.Order", "Order")
                         .WithMany("Items")
                         .HasForeignKey("OrderId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("FireInvent.Database.Models.Variant", "Variant")
+                        .WithMany()
+                        .HasForeignKey("VariantId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 

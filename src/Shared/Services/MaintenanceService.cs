@@ -1,5 +1,4 @@
 ﻿using FireInvent.Database;
-using FireInvent.Database.Models;
 using FireInvent.Shared.Exceptions;
 using FireInvent.Shared.Mapper;
 using FireInvent.Shared.Models;
@@ -11,7 +10,7 @@ public class MaintenanceService(AppDbContext context, IUserService userService, 
 {
     public async Task<MaintenanceModel> CreateMaintenanceAsync(CreateMaintenanceModel model)
     {
-        _ = await context.Items.FindAsync(model.ItemId) ?? throw new BadRequestException($"ClothingItem with ID '{model.ItemId}' does not exist.");
+        _ = await context.Items.FindAsync(model.ItemId) ?? throw new BadRequestException($"Item with ID '{model.ItemId}' does not exist.");
 
         if (model.PerformedById.HasValue)
         {
@@ -53,7 +52,7 @@ public class MaintenanceService(AppDbContext context, IUserService userService, 
 
         var itemExists = await context.Items.AnyAsync(i => i.Id == model.ItemId);
         if (!itemExists)
-            throw new BadRequestException($"ClothingItem with ID '{model.ItemId}' does not exist.");
+            throw new BadRequestException($"Item with ID '{model.ItemId}' does not exist.");
 
         if (model.PerformedById.HasValue)
         {
@@ -81,7 +80,7 @@ public class MaintenanceService(AppDbContext context, IUserService userService, 
     {
         var itemExists = await context.Items.AnyAsync(i => i.Id == itemId);
         if (!itemExists)
-            throw new NotFoundException($"ClothingItem with ID {itemId} not found.");
+            throw new NotFoundException($"Item with ID {itemId} not found.");
 
         var maintenances = await context.Maintenances
             .Where(m => m.ItemId == itemId)

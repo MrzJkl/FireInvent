@@ -1,5 +1,4 @@
 ﻿using FireInvent.Database;
-using FireInvent.Database.Models;
 using FireInvent.Shared.Exceptions;
 using FireInvent.Shared.Mapper;
 using FireInvent.Shared.Models;
@@ -9,7 +8,7 @@ namespace FireInvent.Shared.Services;
 
 public class ItemService(AppDbContext context, ItemMapper mapper) : IItemService
 {
-    public async Task<ItemModel> CreateClothingItemAsync(CreateItemModel model)
+    public async Task<ItemModel> CreateItemAsync(CreateItemModel model)
     {
         if (!await context.Variants.AnyAsync(v => v.Id == model.VariantId))
             throw new BadRequestException("Variant not found.");
@@ -35,7 +34,7 @@ public class ItemService(AppDbContext context, ItemMapper mapper) : IItemService
         return mapper.MapItemToItemModel(item);
     }
 
-    public async Task<List<ItemModel>> GetAllClothingItemsAsync()
+    public async Task<List<ItemModel>> GetAllItemsAsync()
     {
         var items = await context.Items
             .AsNoTracking()
@@ -45,7 +44,7 @@ public class ItemService(AppDbContext context, ItemMapper mapper) : IItemService
         return mapper.MapItemsToItemModels(items);
     }
 
-    public async Task<ItemModel?> GetClothingItemByIdAsync(Guid id)
+    public async Task<ItemModel?> GetItemByIdAsync(Guid id)
     {
         var item = await context.Items
             .AsNoTracking()
@@ -54,7 +53,7 @@ public class ItemService(AppDbContext context, ItemMapper mapper) : IItemService
         return item is null ? null : mapper.MapItemToItemModel(item);
     }
 
-    public async Task<bool> UpdateClothingItemAsync(ItemModel model)
+    public async Task<bool> UpdateItemAsync(ItemModel model)
     {
         var item = await context.Items.FindAsync(model.Id);
         if (item is null)
@@ -73,7 +72,7 @@ public class ItemService(AppDbContext context, ItemMapper mapper) : IItemService
                 .AnyAsync(c => c.Identifier == model.Identifier && c.Id != model.Id);
 
             if (exists)
-                throw new ConflictException($"ClothingItem with identifier '{model.Identifier}' already exists.");
+                throw new ConflictException($"Item with identifier '{model.Identifier}' already exists.");
         }
 
         mapper.MapItemModelToItem(model, item);
@@ -82,7 +81,7 @@ public class ItemService(AppDbContext context, ItemMapper mapper) : IItemService
         return true;
     }
 
-    public async Task<bool> DeleteClothingItemAsync(Guid id)
+    public async Task<bool> DeleteItemAsync(Guid id)
     {
         var item = await context.Items.FindAsync(id);
         if (item is null)
@@ -108,7 +107,7 @@ public class ItemService(AppDbContext context, ItemMapper mapper) : IItemService
         return mapper.MapItemsToItemModels(items);
     }
 
-    public async Task<List<ItemModel>> GetClothingItemsForStorageLocationAsync(Guid storageLocationId)
+    public async Task<List<ItemModel>> GetItemsForStorageLocationAsync(Guid storageLocationId)
     {
         var locationExists = await context.StorageLocations.AnyAsync(s => s.Id == storageLocationId);
         if (!locationExists)

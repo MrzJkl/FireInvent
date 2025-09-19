@@ -2,18 +2,19 @@
 using FireInvent.Database;
 using FireInvent.Database.Models;
 using FireInvent.Shared.Exceptions;
+using FireInvent.Shared.Mapper;
 using FireInvent.Shared.Models;
 using FireInvent.Shared.Services;
 
 namespace FireInvent.Test.Shared.Services;
 
-public class ClothingItemServiceTest
+public class ItemServiceTest
 {
-    private readonly IMapper _mapper;
+    private readonly ItemMapper _mapper;
 
-    public ClothingItemServiceTest()
+    public ItemServiceTest()
     {
-        _mapper = TestHelper.GetMapper();
+        _mapper = new ItemMapper();
     }
 
     private static Variant CreateVariant(AppDbContext context)
@@ -52,12 +53,12 @@ public class ClothingItemServiceTest
     }
 
     [Fact]
-    public async Task CreateClothingItemAsync_ShouldCreateItem()
+    public async Task CreateItemAsync_ShouldCreateItem()
     {
         var context = TestHelper.GetTestDbContext();
         var variant = CreateVariant(context);
         var location = CreateStorageLocation(context);
-        var service = new ClothingItemService(context, _mapper);
+        var service = new ItemService(context, _mapper);
 
         var model = new CreateItemModel
         {
@@ -69,7 +70,7 @@ public class ClothingItemServiceTest
             RetirementDate = new DateTime(2030, 1, 1)
         };
 
-        var result = await service.CreateClothingItemAsync(model);
+        var result = await service.CreateItemAsync(model);
 
         Assert.NotNull(result);
         Assert.NotEqual(Guid.Empty, result.Id);
@@ -91,10 +92,10 @@ public class ClothingItemServiceTest
     }
 
     [Fact]
-    public async Task CreateClothingItemAsync_ShouldThrowIfVariantNotFound()
+    public async Task CreateItemAsync_ShouldThrowIfVariantNotFound()
     {
         var context = TestHelper.GetTestDbContext();
-        var service = new ClothingItemService(context, _mapper);
+        var service = new ItemService(context, _mapper);
 
         var model = new CreateItemModel
         {
@@ -104,15 +105,15 @@ public class ClothingItemServiceTest
             PurchaseDate = DateTime.Now
         };
 
-        await Assert.ThrowsAsync<BadRequestException>(() => service.CreateClothingItemAsync(model));
+        await Assert.ThrowsAsync<BadRequestException>(() => service.CreateItemAsync(model));
     }
 
     [Fact]
-    public async Task CreateClothingItemAsync_ShouldThrowIfStorageLocationNotFound()
+    public async Task CreateItemAsync_ShouldThrowIfStorageLocationNotFound()
     {
         var context = TestHelper.GetTestDbContext();
         var variant = CreateVariant(context);
-        var service = new ClothingItemService(context, _mapper);
+        var service = new ItemService(context, _mapper);
 
         var model = new CreateItemModel
         {
@@ -123,11 +124,11 @@ public class ClothingItemServiceTest
             PurchaseDate = DateTime.Now
         };
 
-        await Assert.ThrowsAsync<BadRequestException>(() => service.CreateClothingItemAsync(model));
+        await Assert.ThrowsAsync<BadRequestException>(() => service.CreateItemAsync(model));
     }
 
     [Fact]
-    public async Task CreateClothingItemAsync_ShouldThrowIfIdentifierExists()
+    public async Task CreateItemAsync_ShouldThrowIfIdentifierExists()
     {
         var context = TestHelper.GetTestDbContext();
         var variant = CreateVariant(context);
@@ -143,7 +144,7 @@ public class ClothingItemServiceTest
         });
         context.SaveChanges();
 
-        var service = new ClothingItemService(context, _mapper);
+        var service = new ItemService(context, _mapper);
 
         var model = new CreateItemModel
         {
@@ -154,11 +155,11 @@ public class ClothingItemServiceTest
             PurchaseDate = DateTime.Now
         };
 
-        await Assert.ThrowsAsync<ConflictException>(() => service.CreateClothingItemAsync(model));
+        await Assert.ThrowsAsync<ConflictException>(() => service.CreateItemAsync(model));
     }
 
     [Fact]
-    public async Task GetAllClothingItemsAsync_ShouldReturnAllItems()
+    public async Task GetAllItemsAsync_ShouldReturnAllItems()
     {
         var context = TestHelper.GetTestDbContext();
         var variant = CreateVariant(context);
@@ -187,9 +188,9 @@ public class ClothingItemServiceTest
         context.Items.Add(item2);
         context.SaveChanges();
 
-        var service = new ClothingItemService(context, _mapper);
+        var service = new ItemService(context, _mapper);
 
-        var result = await service.GetAllClothingItemsAsync();
+        var result = await service.GetAllItemsAsync();
 
         Assert.Equal(2, result.Count);
         var first = result.FirstOrDefault(i => i.Identifier == "ITEM-001");
@@ -213,7 +214,7 @@ public class ClothingItemServiceTest
     }
 
     [Fact]
-    public async Task GetClothingItemByIdAsync_ShouldReturnItem()
+    public async Task GetItemByIdAsync_ShouldReturnItem()
     {
         var context = TestHelper.GetTestDbContext();
         var variant = CreateVariant(context);
@@ -231,9 +232,9 @@ public class ClothingItemServiceTest
         context.Items.Add(item);
         context.SaveChanges();
 
-        var service = new ClothingItemService(context, _mapper);
+        var service = new ItemService(context, _mapper);
 
-        var result = await service.GetClothingItemByIdAsync(item.Id);
+        var result = await service.GetItemByIdAsync(item.Id);
 
         Assert.NotNull(result);
         Assert.Equal(item.Id, result!.Id);
@@ -246,18 +247,18 @@ public class ClothingItemServiceTest
     }
 
     [Fact]
-    public async Task GetClothingItemByIdAsync_ShouldReturnNullIfNotFound()
+    public async Task GetItemByIdAsync_ShouldReturnNullIfNotFound()
     {
         var context = TestHelper.GetTestDbContext();
-        var service = new ClothingItemService(context, _mapper);
+        var service = new ItemService(context, _mapper);
 
-        var result = await service.GetClothingItemByIdAsync(Guid.NewGuid());
+        var result = await service.GetItemByIdAsync(Guid.NewGuid());
 
         Assert.Null(result);
     }
 
     [Fact]
-    public async Task UpdateClothingItemAsync_ShouldUpdateItem()
+    public async Task UpdateItemAsync_ShouldUpdateItem()
     {
         var context = TestHelper.GetTestDbContext();
         var variant = CreateVariant(context);
@@ -275,7 +276,7 @@ public class ClothingItemServiceTest
         context.Items.Add(item);
         context.SaveChanges();
 
-        var service = new ClothingItemService(context, _mapper);
+        var service = new ItemService(context, _mapper);
 
         var model = new ItemModel
         {
@@ -288,7 +289,7 @@ public class ClothingItemServiceTest
             RetirementDate = new DateTime(2031, 1, 1)
         };
 
-        var result = await service.UpdateClothingItemAsync(model);
+        var result = await service.UpdateItemAsync(model);
 
         Assert.True(result);
         var updated = await context.Items.FindAsync(item.Id);
@@ -300,12 +301,12 @@ public class ClothingItemServiceTest
     }
 
     [Fact]
-    public async Task UpdateClothingItemAsync_ShouldReturnFalseIfNotFound()
+    public async Task UpdateItemAsync_ShouldReturnFalseIfNotFound()
     {
         var context = TestHelper.GetTestDbContext();
         var variant = CreateVariant(context);
         var location = CreateStorageLocation(context);
-        var service = new ClothingItemService(context, _mapper);
+        var service = new ItemService(context, _mapper);
 
         var model = new ItemModel
         {
@@ -318,13 +319,13 @@ public class ClothingItemServiceTest
             RetirementDate = new DateTime(2030, 1, 1)
         };
 
-        var result = await service.UpdateClothingItemAsync(model);
+        var result = await service.UpdateItemAsync(model);
 
         Assert.False(result);
     }
 
     [Fact]
-    public async Task UpdateClothingItemAsync_ShouldThrowIfVariantNotFound()
+    public async Task UpdateItemAsync_ShouldThrowIfVariantNotFound()
     {
         var context = TestHelper.GetTestDbContext();
         var variant = CreateVariant(context);
@@ -342,7 +343,7 @@ public class ClothingItemServiceTest
         context.Items.Add(item);
         context.SaveChanges();
 
-        var service = new ClothingItemService(context, _mapper);
+        var service = new ItemService(context, _mapper);
 
         var model = new ItemModel
         {
@@ -355,11 +356,11 @@ public class ClothingItemServiceTest
             RetirementDate = new DateTime(2031, 1, 1)
         };
 
-        await Assert.ThrowsAsync<BadRequestException>(() => service.UpdateClothingItemAsync(model));
+        await Assert.ThrowsAsync<BadRequestException>(() => service.UpdateItemAsync(model));
     }
 
     [Fact]
-    public async Task UpdateClothingItemAsync_ShouldThrowIfStorageLocationNotFound()
+    public async Task UpdateItemAsync_ShouldThrowIfStorageLocationNotFound()
     {
         var context = TestHelper.GetTestDbContext();
         var variant = CreateVariant(context);
@@ -377,7 +378,7 @@ public class ClothingItemServiceTest
         context.Items.Add(item);
         context.SaveChanges();
 
-        var service = new ClothingItemService(context, _mapper);
+        var service = new ItemService(context, _mapper);
 
         var model = new ItemModel
         {
@@ -390,11 +391,11 @@ public class ClothingItemServiceTest
             RetirementDate = new DateTime(2031, 1, 1)
         };
 
-        await Assert.ThrowsAsync<BadRequestException>(() => service.UpdateClothingItemAsync(model));
+        await Assert.ThrowsAsync<BadRequestException>(() => service.UpdateItemAsync(model));
     }
 
     [Fact]
-    public async Task UpdateClothingItemAsync_ShouldThrowIfIdentifierExists()
+    public async Task UpdateItemAsync_ShouldThrowIfIdentifierExists()
     {
         var context = TestHelper.GetTestDbContext();
         var variant = CreateVariant(context);
@@ -423,7 +424,7 @@ public class ClothingItemServiceTest
         context.Items.Add(item2);
         context.SaveChanges();
 
-        var service = new ClothingItemService(context, _mapper);
+        var service = new ItemService(context, _mapper);
 
         var model = new ItemModel
         {
@@ -436,11 +437,11 @@ public class ClothingItemServiceTest
             RetirementDate = null
         };
 
-        await Assert.ThrowsAsync<ConflictException>(() => service.UpdateClothingItemAsync(model));
+        await Assert.ThrowsAsync<ConflictException>(() => service.UpdateItemAsync(model));
     }
 
     [Fact]
-    public async Task DeleteClothingItemAsync_ShouldDeleteItem()
+    public async Task DeleteItemAsync_ShouldDeleteItem()
     {
         var context = TestHelper.GetTestDbContext();
         var variant = CreateVariant(context);
@@ -458,21 +459,21 @@ public class ClothingItemServiceTest
         context.Items.Add(item);
         context.SaveChanges();
 
-        var service = new ClothingItemService(context, _mapper);
+        var service = new ItemService(context, _mapper);
 
-        var result = await service.DeleteClothingItemAsync(item.Id);
+        var result = await service.DeleteItemAsync(item.Id);
 
         Assert.True(result);
         Assert.False(context.Items.Any());
     }
 
     [Fact]
-    public async Task DeleteClothingItemAsync_ShouldReturnFalseIfNotFound()
+    public async Task DeleteItemAsync_ShouldReturnFalseIfNotFound()
     {
         var context = TestHelper.GetTestDbContext();
-        var service = new ClothingItemService(context, _mapper);
+        var service = new ItemService(context, _mapper);
 
-        var result = await service.DeleteClothingItemAsync(Guid.NewGuid());
+        var result = await service.DeleteItemAsync(Guid.NewGuid());
 
         Assert.False(result);
     }
@@ -519,7 +520,7 @@ public class ClothingItemServiceTest
         context.Items.Add(itemOther);
         context.SaveChanges();
 
-        var service = new ClothingItemService(context, _mapper);
+        var service = new ItemService(context, _mapper);
 
         var result = await service.GetItemsForVariantAsync(variant.Id);
 
@@ -548,13 +549,13 @@ public class ClothingItemServiceTest
     public async Task GetItemsForVariantAsync_ShouldThrowIfVariantNotFound()
     {
         var context = TestHelper.GetTestDbContext();
-        var service = new ClothingItemService(context, _mapper);
+        var service = new ItemService(context, _mapper);
 
         await Assert.ThrowsAsync<NotFoundException>(() => service.GetItemsForVariantAsync(Guid.NewGuid()));
     }
 
     [Fact]
-    public async Task GetClothingItemsForStorageLocationAsync_ShouldReturnItemsForLocation()
+    public async Task GetItemsForStorageLocationAsync_ShouldReturnItemsForLocation()
     {
         var context = TestHelper.GetTestDbContext();
         var variant = CreateVariant(context);
@@ -595,9 +596,9 @@ public class ClothingItemServiceTest
         context.Items.Add(itemOther);
         context.SaveChanges();
 
-        var service = new ClothingItemService(context, _mapper);
+        var service = new ItemService(context, _mapper);
 
-        var result = await service.GetClothingItemsForStorageLocationAsync(location.Id);
+        var result = await service.GetItemsForStorageLocationAsync(location.Id);
 
         Assert.Equal(2, result.Count);
         var first = result.FirstOrDefault(i => i.Identifier == "ITEM-001");
@@ -621,11 +622,11 @@ public class ClothingItemServiceTest
     }
 
     [Fact]
-    public async Task GetClothingItemsForStorageLocationAsync_ShouldThrowIfLocationNotFound()
+    public async Task GetItemsForStorageLocationAsync_ShouldThrowIfLocationNotFound()
     {
         var context = TestHelper.GetTestDbContext();
-        var service = new ClothingItemService(context, _mapper);
+        var service = new ItemService(context, _mapper);
 
-        await Assert.ThrowsAsync<NotFoundException>(() => service.GetClothingItemsForStorageLocationAsync(Guid.NewGuid()));
+        await Assert.ThrowsAsync<NotFoundException>(() => service.GetItemsForStorageLocationAsync(Guid.NewGuid()));
     }
 }

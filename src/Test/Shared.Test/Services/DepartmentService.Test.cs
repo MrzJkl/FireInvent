@@ -1,4 +1,5 @@
 ﻿using FireInvent.Database.Models;
+using FireInvent.Shared.Mapper;
 using FireInvent.Shared.Models;
 using FireInvent.Shared.Services;
 
@@ -6,11 +7,11 @@ namespace FireInvent.Test.Shared.Services;
 
 public class DepartmentServiceTest
 {
-    private readonly IMapper _mapper;
+    private readonly DepartmentMapper _mapper;
 
     public DepartmentServiceTest()
     {
-        _mapper = TestHelper.GetMapper();
+        _mapper = new DepartmentMapper();
     }
 
     [Fact]

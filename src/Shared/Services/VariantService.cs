@@ -84,7 +84,7 @@ public class VariantService(AppDbContext context, VariantMapper mapper) : IVaria
     {
         var productExists = await context.Products.AnyAsync(v => v.Id == productId);
         if (!productExists)
-            throw new NotFoundException($"ClothingProduct with ID {productId} not found.");
+            throw new NotFoundException($"Product with ID {productId} not found.");
 
         var items = await context.Variants
             .Where(i => i.ProductId == productId)

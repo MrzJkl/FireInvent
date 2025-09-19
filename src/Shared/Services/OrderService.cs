@@ -1,6 +1,5 @@
 ﻿using FireInvent.Contract;
 using FireInvent.Database;
-using FireInvent.Database.Models;
 using FireInvent.Shared.Mapper;
 using FireInvent.Shared.Models;
 using Microsoft.EntityFrameworkCore;

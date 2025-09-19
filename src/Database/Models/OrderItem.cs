@@ -14,7 +14,7 @@ public record OrderItem
 
     [Required]
     [ForeignKey(nameof(Variant))]
-    public Guid ClothingVariantId { get; set; }
+    public Guid VariantId { get; set; }
 
     [Required]
     public int Quantity { get; set; }

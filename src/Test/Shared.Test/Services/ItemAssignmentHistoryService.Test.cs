@@ -7,7 +7,7 @@ using FireInvent.Shared.Services;
 
 namespace FireInvent.Test.Shared.Services;
 
-public class ClothingItemAssignmentHistoryServiceTest
+public class ItemAssignmentHistoryServiceTest
 {
     private readonly ItemAssignmentHistoryMapper _mapper = new();
 
@@ -62,7 +62,7 @@ public class ClothingItemAssignmentHistoryServiceTest
         var context = TestHelper.GetTestDbContext();
         var item = CreateItem(context);
         var person = CreatePerson(context);
-        var service = new ClothingItemAssignmentHistoryService(context, _mapper);
+        var service = new ItemAssignmentHistoryService(context, _mapper);
 
         var model = new CreateItemAssignmentHistoryModel
         {
@@ -94,7 +94,7 @@ public class ClothingItemAssignmentHistoryServiceTest
     {
         var context = TestHelper.GetTestDbContext();
         var person = CreatePerson(context);
-        var service = new ClothingItemAssignmentHistoryService(context, _mapper);
+        var service = new ItemAssignmentHistoryService(context, _mapper);
 
         var model = new CreateItemAssignmentHistoryModel
         {
@@ -111,7 +111,7 @@ public class ClothingItemAssignmentHistoryServiceTest
     {
         var context = TestHelper.GetTestDbContext();
         var item = CreateItem(context);
-        var service = new ClothingItemAssignmentHistoryService(context, _mapper);
+        var service = new ItemAssignmentHistoryService(context, _mapper);
 
         var model = new CreateItemAssignmentHistoryModel
         {
@@ -139,7 +139,7 @@ public class ClothingItemAssignmentHistoryServiceTest
         });
         context.SaveChanges();
 
-        var service = new ClothingItemAssignmentHistoryService(context, _mapper);
+        var service = new ItemAssignmentHistoryService(context, _mapper);
 
         var model = new CreateItemAssignmentHistoryModel
         {
@@ -178,7 +178,7 @@ public class ClothingItemAssignmentHistoryServiceTest
         context.ItemAssignmentHistories.Add(assignment2);
         context.SaveChanges();
 
-        var service = new ClothingItemAssignmentHistoryService(context, _mapper);
+        var service = new ItemAssignmentHistoryService(context, _mapper);
 
         var result = await service.GetAssignmentsForItemAsync(item.Id);
 
@@ -205,7 +205,7 @@ public class ClothingItemAssignmentHistoryServiceTest
     public async Task GetAssignmentsForItemAsync_ShouldThrowIfItemNotFound()
     {
         var context = TestHelper.GetTestDbContext();
-        var service = new ClothingItemAssignmentHistoryService(context, _mapper);
+        var service = new ItemAssignmentHistoryService(context, _mapper);
 
         await Assert.ThrowsAsync<NotFoundException>(() => service.GetAssignmentsForItemAsync(Guid.NewGuid()));
     }
@@ -236,7 +236,7 @@ public class ClothingItemAssignmentHistoryServiceTest
         context.ItemAssignmentHistories.Add(assignment2);
         context.SaveChanges();
 
-        var service = new ClothingItemAssignmentHistoryService(context, _mapper);
+        var service = new ItemAssignmentHistoryService(context, _mapper);
 
         var result = await service.GetAllAssignmentsAsync();
 
@@ -276,7 +276,7 @@ public class ClothingItemAssignmentHistoryServiceTest
         context.ItemAssignmentHistories.Add(assignment);
         context.SaveChanges();
 
-        var service = new ClothingItemAssignmentHistoryService(context, _mapper);
+        var service = new ItemAssignmentHistoryService(context, _mapper);
 
         var result = await service.GetAssignmentByIdAsync(assignment.Id);
 
@@ -292,7 +292,7 @@ public class ClothingItemAssignmentHistoryServiceTest
     public async Task GetAssignmentByIdAsync_ShouldReturnNullIfNotFound()
     {
         var context = TestHelper.GetTestDbContext();
-        var service = new ClothingItemAssignmentHistoryService(context, _mapper);
+        var service = new ItemAssignmentHistoryService(context, _mapper);
 
         var result = await service.GetAssignmentByIdAsync(Guid.NewGuid());
 
@@ -316,7 +316,7 @@ public class ClothingItemAssignmentHistoryServiceTest
         context.ItemAssignmentHistories.Add(assignment);
         context.SaveChanges();
 
-        var service = new ClothingItemAssignmentHistoryService(context, _mapper);
+        var service = new ItemAssignmentHistoryService(context, _mapper);
 
         var model = new ItemAssignmentHistoryModel
         {
@@ -344,7 +344,7 @@ public class ClothingItemAssignmentHistoryServiceTest
         var context = TestHelper.GetTestDbContext();
         var item = CreateItem(context);
         var person = CreatePerson(context);
-        var service = new ClothingItemAssignmentHistoryService(context, _mapper);
+        var service = new ItemAssignmentHistoryService(context, _mapper);
 
         var model = new ItemAssignmentHistoryModel
         {
@@ -377,7 +377,7 @@ public class ClothingItemAssignmentHistoryServiceTest
         context.ItemAssignmentHistories.Add(assignment);
         context.SaveChanges();
 
-        var service = new ClothingItemAssignmentHistoryService(context, _mapper);
+        var service = new ItemAssignmentHistoryService(context, _mapper);
 
         var model = new ItemAssignmentHistoryModel
         {
@@ -408,7 +408,7 @@ public class ClothingItemAssignmentHistoryServiceTest
         context.ItemAssignmentHistories.Add(assignment);
         context.SaveChanges();
 
-        var service = new ClothingItemAssignmentHistoryService(context, _mapper);
+        var service = new ItemAssignmentHistoryService(context, _mapper);
 
         var model = new ItemAssignmentHistoryModel
         {
@@ -448,7 +448,7 @@ public class ClothingItemAssignmentHistoryServiceTest
         context.ItemAssignmentHistories.Add(assignment2);
         context.SaveChanges();
 
-        var service = new ClothingItemAssignmentHistoryService(context, _mapper);
+        var service = new ItemAssignmentHistoryService(context, _mapper);
 
         var model = new ItemAssignmentHistoryModel
         {
@@ -479,7 +479,7 @@ public class ClothingItemAssignmentHistoryServiceTest
         context.ItemAssignmentHistories.Add(assignment);
         context.SaveChanges();
 
-        var service = new ClothingItemAssignmentHistoryService(context, _mapper);
+        var service = new ItemAssignmentHistoryService(context, _mapper);
 
         var result = await service.DeleteAssignmentAsync(assignment.Id);
 
@@ -491,7 +491,7 @@ public class ClothingItemAssignmentHistoryServiceTest
     public async Task DeleteAssignmentAsync_ShouldReturnFalseIfNotFound()
     {
         var context = TestHelper.GetTestDbContext();
-        var service = new ClothingItemAssignmentHistoryService(context, _mapper);
+        var service = new ItemAssignmentHistoryService(context, _mapper);
 
         var result = await service.DeleteAssignmentAsync(Guid.NewGuid());
 

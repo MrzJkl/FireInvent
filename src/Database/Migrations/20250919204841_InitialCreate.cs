@@ -209,7 +209,7 @@ namespace FireInvent.Database.Migrations
                 {
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
                     OrderId = table.Column<Guid>(type: "uuid", nullable: false),
-                    ClothingVariantId = table.Column<Guid>(type: "uuid", nullable: false),
+                    VariantId = table.Column<Guid>(type: "uuid", nullable: false),
                     Quantity = table.Column<int>(type: "integer", nullable: false)
                 },
                 constraints: table =>
@@ -222,8 +222,8 @@ namespace FireInvent.Database.Migrations
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_OrderItems_Variants_ClothingVariantId",
-                        column: x => x.ClothingVariantId,
+                        name: "FK_OrderItems_Variants_VariantId",
+                        column: x => x.VariantId,
                         principalTable: "Variants",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
@@ -360,14 +360,14 @@ namespace FireInvent.Database.Migrations
                 unique: true);
 
             migrationBuilder.CreateIndex(
-                name: "IX_OrderItems_ClothingVariantId",
-                table: "OrderItems",
-                column: "ClothingVariantId");
-
-            migrationBuilder.CreateIndex(
                 name: "IX_OrderItems_OrderId",
                 table: "OrderItems",
                 column: "OrderId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_OrderItems_VariantId",
+                table: "OrderItems",
+                column: "VariantId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Persons_ExternalId",

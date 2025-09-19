@@ -1,24 +1,25 @@
 ﻿using FireInvent.Database.Models;
 using FireInvent.Shared.Exceptions;
+using FireInvent.Shared.Mapper;
 using FireInvent.Shared.Models;
 using FireInvent.Shared.Services;
 
 namespace FireInvent.Test.Shared.Services;
 
-public class ClothingProductServiceTest
+public class ProductServiceTest
 {
-    private readonly IMapper _mapper;
+    private readonly ProductMapper _mapper;
 
-    public ClothingProductServiceTest()
+    public ProductServiceTest()
     {
-        _mapper = TestHelper.GetMapper();
+        _mapper = new ProductMapper();
     }
 
     [Fact]
     public async Task CreateProductAsync_ShouldCreateProduct()
     {
         var context = TestHelper.GetTestDbContext();
-        var service = new ClothingProductService(context, _mapper);
+        var service = new ProductService(context, _mapper);
 
         var model = new CreateProductModel
         {
@@ -59,7 +60,7 @@ public class ClothingProductServiceTest
         });
         context.SaveChanges();
 
-        var service = new ClothingProductService(context, _mapper);
+        var service = new ProductService(context, _mapper);
 
         var model = new CreateProductModel
         {
@@ -96,7 +97,7 @@ public class ClothingProductServiceTest
         context.Products.Add(product2);
         context.SaveChanges();
 
-        var service = new ClothingProductService(context, _mapper);
+        var service = new ProductService(context, _mapper);
 
         var result = await service.GetAllProductsAsync();
 
@@ -132,7 +133,7 @@ public class ClothingProductServiceTest
         context.Products.Add(product);
         context.SaveChanges();
 
-        var service = new ClothingProductService(context, _mapper);
+        var service = new ProductService(context, _mapper);
 
         var result = await service.GetProductByIdAsync(product.Id);
 
@@ -148,7 +149,7 @@ public class ClothingProductServiceTest
     public async Task GetProductByIdAsync_ShouldReturnNullIfNotFound()
     {
         var context = TestHelper.GetTestDbContext();
-        var service = new ClothingProductService(context, _mapper);
+        var service = new ProductService(context, _mapper);
 
         var result = await service.GetProductByIdAsync(Guid.NewGuid());
 
@@ -170,7 +171,7 @@ public class ClothingProductServiceTest
         context.Products.Add(product);
         context.SaveChanges();
 
-        var service = new ClothingProductService(context, _mapper);
+        var service = new ProductService(context, _mapper);
 
         var model = new ProductModel
         {
@@ -196,7 +197,7 @@ public class ClothingProductServiceTest
     public async Task UpdateProductAsync_ShouldReturnFalseIfNotFound()
     {
         var context = TestHelper.GetTestDbContext();
-        var service = new ClothingProductService(context, _mapper);
+        var service = new ProductService(context, _mapper);
 
         var model = new ProductModel
         {
@@ -236,7 +237,7 @@ public class ClothingProductServiceTest
         context.Products.Add(product2);
         context.SaveChanges();
 
-        var service = new ClothingProductService(context, _mapper);
+        var service = new ProductService(context, _mapper);
 
         var model = new ProductModel
         {
@@ -265,7 +266,7 @@ public class ClothingProductServiceTest
         context.Products.Add(product);
         context.SaveChanges();
 
-        var service = new ClothingProductService(context, _mapper);
+        var service = new ProductService(context, _mapper);
 
         var result = await service.DeleteProductAsync(product.Id);
 
@@ -277,7 +278,7 @@ public class ClothingProductServiceTest
     public async Task DeleteProductAsync_ShouldReturnFalseIfNotFound()
     {
         var context = TestHelper.GetTestDbContext();
-        var service = new ClothingProductService(context, _mapper);
+        var service = new ProductService(context, _mapper);
 
         var result = await service.DeleteProductAsync(Guid.NewGuid());
 

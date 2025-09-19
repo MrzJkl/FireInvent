@@ -1,5 +1,4 @@
 ﻿using FireInvent.Database;
-using FireInvent.Database.Models;
 using FireInvent.Shared.Exceptions;
 using FireInvent.Shared.Mapper;
 using FireInvent.Shared.Models;

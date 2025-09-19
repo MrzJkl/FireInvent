@@ -1,5 +1,6 @@
 ﻿using FireInvent.Database.Models;
 using FireInvent.Shared.Exceptions;
+using FireInvent.Shared.Mapper;
 using FireInvent.Shared.Models;
 using FireInvent.Shared.Services;
 
@@ -7,11 +8,11 @@ namespace FireInvent.Test.Shared.Services;
 
 public class PersonServiceTest
 {
-    private readonly IMapper _mapper;
+    private readonly PersonMapper _mapper;
 
     public PersonServiceTest()
     {
-        _mapper = TestHelper.GetMapper();
+        _mapper = new PersonMapper();
     }
 
     [Fact]

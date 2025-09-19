@@ -1,18 +1,19 @@
 ﻿using FireInvent.Database;
 using FireInvent.Database.Models;
 using FireInvent.Shared.Exceptions;
+using FireInvent.Shared.Mapper;
 using FireInvent.Shared.Models;
 using FireInvent.Shared.Services;
 
 namespace FireInvent.Test.Shared.Services;
 
-public class ClothingVariantServiceTest
+public class VariantServiceTest
 {
-    private readonly IMapper _mapper;
+    private readonly VariantMapper _mapper;
 
-    public ClothingVariantServiceTest()
+    public VariantServiceTest()
     {
-        _mapper = TestHelper.GetMapper();
+        _mapper = new VariantMapper();
     }
 
     private static Product CreateProduct(AppDbContext context)
@@ -35,7 +36,7 @@ public class ClothingVariantServiceTest
     {
         var context = TestHelper.GetTestDbContext();
         var product = CreateProduct(context);
-        var service = new ClothingVariantService(context, _mapper);
+        var service = new VariantService(context, _mapper);
 
         var model = new CreateVariantModel
         {
@@ -73,7 +74,7 @@ public class ClothingVariantServiceTest
         });
         context.SaveChanges();
 
-        var service = new ClothingVariantService(context, _mapper);
+        var service = new VariantService(context, _mapper);
 
         var model = new CreateVariantModel
         {
@@ -89,7 +90,7 @@ public class ClothingVariantServiceTest
     public async Task CreateVariantAsync_ShouldThrowIfProductNotExists()
     {
         var context = TestHelper.GetTestDbContext();
-        var service = new ClothingVariantService(context, _mapper);
+        var service = new VariantService(context, _mapper);
 
         var model = new CreateVariantModel
         {
@@ -124,7 +125,7 @@ public class ClothingVariantServiceTest
         context.Variants.Add(variant2);
         context.SaveChanges();
 
-        var service = new ClothingVariantService(context, _mapper);
+        var service = new VariantService(context, _mapper);
 
         var result = await service.GetAllVariantsAsync();
 
@@ -158,7 +159,7 @@ public class ClothingVariantServiceTest
         context.Variants.Add(variant);
         context.SaveChanges();
 
-        var service = new ClothingVariantService(context, _mapper);
+        var service = new VariantService(context, _mapper);
 
         var result = await service.GetVariantByIdAsync(variant.Id);
 
@@ -173,7 +174,7 @@ public class ClothingVariantServiceTest
     public async Task GetVariantByIdAsync_ShouldReturnNullIfNotFound()
     {
         var context = TestHelper.GetTestDbContext();
-        var service = new ClothingVariantService(context, _mapper);
+        var service = new VariantService(context, _mapper);
 
         var result = await service.GetVariantByIdAsync(Guid.NewGuid());
 
@@ -195,7 +196,7 @@ public class ClothingVariantServiceTest
         context.Variants.Add(variant);
         context.SaveChanges();
 
-        var service = new ClothingVariantService(context, _mapper);
+        var service = new VariantService(context, _mapper);
 
         var model = new VariantModel
         {
@@ -220,7 +221,7 @@ public class ClothingVariantServiceTest
     {
         var context = TestHelper.GetTestDbContext();
         var product = CreateProduct(context);
-        var service = new ClothingVariantService(context, _mapper);
+        var service = new VariantService(context, _mapper);
 
         var model = new VariantModel
         {
@@ -258,7 +259,7 @@ public class ClothingVariantServiceTest
         context.Variants.Add(variant2);
         context.SaveChanges();
 
-        var service = new ClothingVariantService(context, _mapper);
+        var service = new VariantService(context, _mapper);
 
         var model = new VariantModel
         {
@@ -286,7 +287,7 @@ public class ClothingVariantServiceTest
         context.Variants.Add(variant);
         context.SaveChanges();
 
-        var service = new ClothingVariantService(context, _mapper);
+        var service = new VariantService(context, _mapper);
 
         var result = await service.DeleteVariantAsync(variant.Id);
 
@@ -298,7 +299,7 @@ public class ClothingVariantServiceTest
     public async Task DeleteVariantAsync_ShouldReturnFalseIfNotFound()
     {
         var context = TestHelper.GetTestDbContext();
-        var service = new ClothingVariantService(context, _mapper);
+        var service = new VariantService(context, _mapper);
 
         var result = await service.DeleteVariantAsync(Guid.NewGuid());
 
@@ -347,7 +348,7 @@ public class ClothingVariantServiceTest
         context.Variants.Add(variantOther);
         context.SaveChanges();
 
-        var service = new ClothingVariantService(context, _mapper);
+        var service = new VariantService(context, _mapper);
 
         var result = await service.GetVariantsForProductAsync(product.Id);
 
@@ -370,7 +371,7 @@ public class ClothingVariantServiceTest
     public async Task GetVariantsForProductAsync_ShouldThrowIfProductNotFound()
     {
         var context = TestHelper.GetTestDbContext();
-        var service = new ClothingVariantService(context, _mapper);
+        var service = new VariantService(context, _mapper);
 
         await Assert.ThrowsAsync<NotFoundException>(() => service.GetVariantsForProductAsync(Guid.NewGuid()));
     }

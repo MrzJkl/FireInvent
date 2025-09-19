@@ -2,6 +2,7 @@
 using FireInvent.Database;
 using FireInvent.Database.Models;
 using FireInvent.Shared.Exceptions;
+using FireInvent.Shared.Mapper;
 using FireInvent.Shared.Models;
 using FireInvent.Shared.Services;
 using Moq;
@@ -10,11 +11,11 @@ namespace FireInvent.Test.Shared.Services;
 
 public class MaintenanceServiceTest
 {
-    private readonly IMapper _mapper;
+    private readonly MaintenanceMapper _mapper;
 
     public MaintenanceServiceTest()
     {
-        _mapper = TestHelper.GetMapper();
+        _mapper = new MaintenanceMapper();
     }
 
     private static Item CreateItem(AppDbContext context)
@@ -70,7 +71,7 @@ public class MaintenanceServiceTest
         var userServiceMock = new Mock<IUserService>();
         userServiceMock.Setup(s => s.GetUserByIdAsync(user.Id)).ReturnsAsync(user);
 
-        var service = new MaintenanceService(context, _mapper, userServiceMock.Object);
+        var service = new MaintenanceService(context, userServiceMock.Object, _mapper);
 
         var model = new CreateMaintenanceModel
         {
@@ -109,7 +110,7 @@ public class MaintenanceServiceTest
         var userServiceMock = new Mock<IUserService>();
         userServiceMock.Setup(s => s.GetUserByIdAsync(user.Id)).ReturnsAsync(user);
 
-        var service = new MaintenanceService(context, _mapper, userServiceMock.Object);
+        var service = new MaintenanceService(context, userServiceMock.Object, _mapper);
 
         var model = new CreateMaintenanceModel
         {
@@ -168,7 +169,7 @@ public class MaintenanceServiceTest
         context.SaveChanges();
 
         var userServiceMock = new Mock<IUserService>();
-        var service = new MaintenanceService(context, _mapper, userServiceMock.Object);
+        var service = new MaintenanceService(context, userServiceMock.Object, _mapper);
 
         var result = await service.GetAllMaintenancesAsync();
 
@@ -206,7 +207,7 @@ public class MaintenanceServiceTest
         context.SaveChanges();
 
         var userServiceMock = new Mock<IUserService>();
-        var service = new MaintenanceService(context, _mapper, userServiceMock.Object);
+        var service = new MaintenanceService(context, userServiceMock.Object, _mapper);
 
         var result = await service.GetMaintenanceByIdAsync(maintenance.Id);
 
@@ -249,7 +250,7 @@ public class MaintenanceServiceTest
         var userServiceMock = new Mock<IUserService>();
         userServiceMock.Setup(s => s.GetUserByIdAsync(user.Id)).ReturnsAsync(user);
 
-        var service = new MaintenanceService(context, _mapper, userServiceMock.Object);
+        var service = new MaintenanceService(context, userServiceMock.Object, _mapper);
 
         var model = new MaintenanceModel
         {
@@ -279,7 +280,7 @@ public class MaintenanceServiceTest
         var userServiceMock = new Mock<IUserService>();
         userServiceMock.Setup(s => s.GetUserByIdAsync(user.Id)).ReturnsAsync(user);
 
-        var service = new MaintenanceService(context, _mapper, userServiceMock.Object);
+        var service = new MaintenanceService(context, userServiceMock.Object, _mapper);
 
         var model = new MaintenanceModel
         {
@@ -315,7 +316,7 @@ public class MaintenanceServiceTest
         var userServiceMock = new Mock<IUserService>();
         userServiceMock.Setup(s => s.GetUserByIdAsync(user.Id)).ReturnsAsync(user);
 
-        var service = new MaintenanceService(context, _mapper, userServiceMock.Object);
+        var service = new MaintenanceService(context, userServiceMock.Object, _mapper);
 
         var model = new MaintenanceModel
         {
@@ -349,7 +350,7 @@ public class MaintenanceServiceTest
         var userServiceMock = new Mock<IUserService>();
         userServiceMock.Setup(s => s.GetUserByIdAsync(It.IsAny<Guid>())).ReturnsAsync((UserModel?)null);
 
-        var service = new MaintenanceService(context, _mapper, userServiceMock.Object);
+        var service = new MaintenanceService(context, userServiceMock.Object, _mapper);
 
         var model = new MaintenanceModel
         {
@@ -381,7 +382,7 @@ public class MaintenanceServiceTest
         context.SaveChanges();
 
         var userServiceMock = new Mock<IUserService>();
-        var service = new MaintenanceService(context, _mapper, userServiceMock.Object);
+        var service = new MaintenanceService(context, userServiceMock.Object, _mapper);
 
         var result = await service.DeleteMaintenanceAsync(maintenance.Id);
 
@@ -394,7 +395,7 @@ public class MaintenanceServiceTest
     {
         var context = TestHelper.GetTestDbContext();
         var userServiceMock = new Mock<IUserService>();
-        var service = new MaintenanceService(context, _mapper, userServiceMock.Object);
+        var service = new MaintenanceService(context, userServiceMock.Object, _mapper);
 
         var result = await service.DeleteMaintenanceAsync(Guid.NewGuid());
 
@@ -440,7 +441,7 @@ public class MaintenanceServiceTest
         context.SaveChanges();
 
         var userServiceMock = new Mock<IUserService>();
-        var service = new MaintenanceService(context, _mapper, userServiceMock.Object);
+        var service = new MaintenanceService(context, userServiceMock.Object, _mapper);
 
         var result = await service.GetMaintenancesForItemAsync(item.Id);
 
@@ -466,7 +467,7 @@ public class MaintenanceServiceTest
     {
         var context = TestHelper.GetTestDbContext();
         var userServiceMock = new Mock<IUserService>();
-        var service = new MaintenanceService(context, _mapper, userServiceMock.Object);
+        var service = new MaintenanceService(context, userServiceMock.Object, _mapper);
 
         await Assert.ThrowsAsync<NotFoundException>(() => service.GetMaintenancesForItemAsync(Guid.NewGuid()));
     }
