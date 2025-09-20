@@ -26,4 +26,8 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
     public DbSet<OrderItem> OrderItems => Set<OrderItem>();
 
     public DbSet<User> Users => Set<User>();
+
+    public DbSet<ProductType> ProductTypes => Set<ProductType>();
+
+    public DbSet<MaintenanceType> MaintenanceTypes => Set<MaintenanceType>();
 }

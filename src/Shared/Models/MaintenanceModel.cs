@@ -6,4 +6,8 @@ public record MaintenanceModel : CreateMaintenanceModel
 {
     [Required]
     public Guid Id { get; init; }
+
+    public UserModel? PerformedBy { get; init; }
+
+    public MaintenanceTypeModel Type { get; init; } = null!;
 }

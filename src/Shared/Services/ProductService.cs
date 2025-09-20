@@ -10,6 +10,8 @@ public class ProductService(AppDbContext context, ProductMapper mapper) : IProdu
 {
     public async Task<ProductModel> CreateProductAsync(CreateProductModel model)
     {
+        _ = await context.ProductTypes.FindAsync(model.TypeId) ?? throw new BadRequestException($"ProductType with ID '{model.TypeId}' does not exist.");
+
         var exists = await context.Products.AnyAsync(p =>
             p.Name == model.Name && p.Manufacturer == model.Manufacturer);
 
@@ -45,6 +47,8 @@ public class ProductService(AppDbContext context, ProductMapper mapper) : IProdu
 
     public async Task<bool> UpdateProductAsync(ProductModel model)
     {
+        _ = await context.ProductTypes.FindAsync(model.TypeId) ?? throw new BadRequestException($"ProductType with ID '{model.TypeId}' does not exist.");
+
         var product = await context.Products.FindAsync(model.Id);
         if (product is null)
             return false;

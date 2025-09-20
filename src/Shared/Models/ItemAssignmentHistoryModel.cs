@@ -6,4 +6,6 @@ public record ItemAssignmentHistoryModel : CreateItemAssignmentHistoryModel
 {
     [Required]
     public Guid Id { get; init; }
+
+    public UserModel? AssignedBy { get; init; }
 }

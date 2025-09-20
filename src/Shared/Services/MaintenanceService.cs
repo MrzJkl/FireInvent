@@ -11,6 +11,7 @@ public class MaintenanceService(AppDbContext context, IUserService userService, 
     public async Task<MaintenanceModel> CreateMaintenanceAsync(CreateMaintenanceModel model)
     {
         _ = await context.Items.FindAsync(model.ItemId) ?? throw new BadRequestException($"Item with ID '{model.ItemId}' does not exist.");
+        _ = await context.MaintenanceTypes.FindAsync(model.TypeId) ?? throw new BadRequestException($"MaintenanceType with ID '{model.TypeId}' does not exist.");
 
         if (model.PerformedById.HasValue)
         {
@@ -50,9 +51,8 @@ public class MaintenanceService(AppDbContext context, IUserService userService, 
         if (entity is null)
             return false;
 
-        var itemExists = await context.Items.AnyAsync(i => i.Id == model.ItemId);
-        if (!itemExists)
-            throw new BadRequestException($"Item with ID '{model.ItemId}' does not exist.");
+        _ = await context.Items.FindAsync(model.ItemId) ?? throw new BadRequestException($"Item with ID '{model.TypeId}' does not exist.");
+        _ = await context.MaintenanceTypes.FindAsync(model.TypeId) ?? throw new BadRequestException($"MaintenanceType with ID '{model.TypeId}' does not exist.");
 
         if (model.PerformedById.HasValue)
         {

@@ -25,7 +25,7 @@ namespace FireInvent.Database.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "MaintenanceType",
+                name: "MaintenanceTypes",
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
@@ -34,7 +34,7 @@ namespace FireInvent.Database.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_MaintenanceType", x => x.Id);
+                    table.PrimaryKey("PK_MaintenanceTypes", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -69,7 +69,7 @@ namespace FireInvent.Database.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "ProductType",
+                name: "ProductTypes",
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
@@ -78,7 +78,7 @@ namespace FireInvent.Database.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_ProductType", x => x.Id);
+                    table.PrimaryKey("PK_ProductTypes", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -148,9 +148,9 @@ namespace FireInvent.Database.Migrations
                 {
                     table.PrimaryKey("PK_Products", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_Products_ProductType_TypeId",
+                        name: "FK_Products_ProductTypes_TypeId",
                         column: x => x.TypeId,
-                        principalTable: "ProductType",
+                        principalTable: "ProductTypes",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
@@ -283,9 +283,9 @@ namespace FireInvent.Database.Migrations
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_Maintenances_MaintenanceType_TypeId",
+                        name: "FK_Maintenances_MaintenanceTypes_TypeId",
                         column: x => x.TypeId,
-                        principalTable: "MaintenanceType",
+                        principalTable: "MaintenanceTypes",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
@@ -354,8 +354,8 @@ namespace FireInvent.Database.Migrations
                 column: "TypeId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_MaintenanceType_Name",
-                table: "MaintenanceType",
+                name: "IX_MaintenanceTypes_Name",
+                table: "MaintenanceTypes",
                 column: "Name",
                 unique: true);
 
@@ -403,8 +403,8 @@ namespace FireInvent.Database.Migrations
                 column: "TypeId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_ProductType_Name",
-                table: "ProductType",
+                name: "IX_ProductTypes_Name",
+                table: "ProductTypes",
                 column: "Name",
                 unique: true);
 
@@ -457,7 +457,7 @@ namespace FireInvent.Database.Migrations
                 name: "Items");
 
             migrationBuilder.DropTable(
-                name: "MaintenanceType");
+                name: "MaintenanceTypes");
 
             migrationBuilder.DropTable(
                 name: "Users");
@@ -475,7 +475,7 @@ namespace FireInvent.Database.Migrations
                 name: "Products");
 
             migrationBuilder.DropTable(
-                name: "ProductType");
+                name: "ProductTypes");
         }
     }
 }

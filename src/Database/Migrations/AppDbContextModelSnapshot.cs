@@ -183,7 +183,7 @@ namespace FireInvent.Database.Migrations
                     b.HasIndex("Name")
                         .IsUnique();
 
-                    b.ToTable("MaintenanceType");
+                    b.ToTable("MaintenanceTypes");
                 });
 
             modelBuilder.Entity("FireInvent.Database.Models.Order", b =>
@@ -330,7 +330,7 @@ namespace FireInvent.Database.Migrations
                     b.HasIndex("Name")
                         .IsUnique();
 
-                    b.ToTable("ProductType");
+                    b.ToTable("ProductTypes");
                 });
 
             modelBuilder.Entity("FireInvent.Database.Models.StorageLocation", b =>

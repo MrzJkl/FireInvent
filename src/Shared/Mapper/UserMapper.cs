@@ -7,7 +7,7 @@ namespace FireInvent.Shared.Mapper;
 [Mapper]
 public partial class UserMapper
 {
-    public partial UserModel MapUserToUserModel(User User);
+    public partial UserModel MapUserToUserModel(User user);
 
-    public partial List<UserModel> MapUsersToUserModels(List<User> Users);
+    public partial List<UserModel> MapUsersToUserModels(List<User> users);
 }

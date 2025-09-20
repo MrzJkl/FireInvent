@@ -116,6 +116,8 @@ builder.Services.AddSingleton<ProductMapper>();
 builder.Services.AddSingleton<StorageLocationMapper>();
 builder.Services.AddSingleton<UserMapper>();
 builder.Services.AddSingleton<VariantMapper>();
+builder.Services.AddSingleton<ProductTypeMapper>();
+builder.Services.AddSingleton<MaintenanceTypeMapper>();
 
 // Shared Services
 builder.Services.AddScoped<IDepartmentService, DepartmentService>();
@@ -128,6 +130,8 @@ builder.Services.AddScoped<IMaintenanceService, MaintenanceService>();
 builder.Services.AddScoped<IItemAssignmentHistoryService, ItemAssignmentHistoryService>();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IOrderService, OrderService>();
+builder.Services.AddScoped<IMaintenanceTypeService, MaintenanceTypeService>();
+builder.Services.AddScoped<IProductTypeService, ProductTypeService>();
 builder.Services.AddTransient<MailService>();
 
 // Controllers

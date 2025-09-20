@@ -14,4 +14,6 @@ public record CreateItemAssignmentHistoryModel
     public DateTimeOffset AssignedFrom { get; init; }
 
     public DateTimeOffset? AssignedUntil { get; init; }
+
+    public Guid? AssignedById { get; init; }
 }
