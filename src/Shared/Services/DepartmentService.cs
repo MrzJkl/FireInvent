@@ -14,7 +14,7 @@ public class DepartmentService(AppDbContext context, DepartmentMapper mapper) : 
             .AnyAsync(c => c.Name == model.Name);
 
         if (exists)
-            throw new ConflictException("A aepartment with the same name already exists.");
+            throw new ConflictException("A department with the same name already exists.");
 
         var department = mapper.MapCreateDepartmentModelToDepartment(model);
 
