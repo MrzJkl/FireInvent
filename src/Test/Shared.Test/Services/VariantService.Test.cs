@@ -18,13 +18,20 @@ public class VariantServiceTest
 
     private static Product CreateProduct(AppDbContext context)
     {
+        var productType = new ProductType
+        {
+            Id = Guid.NewGuid(),
+            Name = "Clothing"
+        };
+        context.ProductTypes.Add(productType);
         var product = new Product
         {
             Id = Guid.NewGuid(),
             Name = "Jacket",
             Manufacturer = "BrandA",
             Description = "Waterproof jacket",
-            Type = Contract.ProductType.Jacket
+            Type = productType,
+            TypeId = productType.Id
         };
         context.Products.Add(product);
         context.SaveChanges();
@@ -311,13 +318,22 @@ public class VariantServiceTest
     {
         var context = TestHelper.GetTestDbContext();
         var product = CreateProduct(context);
+        var productType = new ProductType
+        {
+            Id = Guid.NewGuid(),
+            Name = "Clothing"
+        };
+        context.ProductTypes.Add(productType);
+        await context.SaveChangesAsync();
+
         var otherProduct = new Product
         {
             Id = Guid.NewGuid(),
             Name = "Pants",
             Manufacturer = "BrandB",
             Description = "Fire-resistant pants",
-            Type = Contract.ProductType.Pants
+            TypeId = productType.Id,
+            Type = productType
         };
         context.Products.Add(otherProduct);
         context.SaveChanges();

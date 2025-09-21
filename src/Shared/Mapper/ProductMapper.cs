@@ -15,5 +15,6 @@ public partial class ProductMapper : BaseMapper
     public partial List<ProductModel> MapProductsToProductModels(List<Product> products);
 
     [MapperIgnoreTarget(nameof(Product.Id))]
+    [MapperIgnoreTarget(nameof(Product.Type))]
     public partial void MapProductModelToProduct(ProductModel source, Product target);
 }

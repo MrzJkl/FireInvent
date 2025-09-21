@@ -19,13 +19,20 @@ public class ItemServiceTest
 
     private static Variant CreateVariant(AppDbContext context)
     {
+        var productType = new ProductType
+                    {
+            Id = Guid.NewGuid(),
+            Name = "Clothing"
+        };
+        context.ProductTypes.Add(productType);
         var product = new Product
         {
             Id = Guid.NewGuid(),
             Name = "Jacket",
             Manufacturer = "BrandA",
             Description = "Waterproof jacket",
-            Type = ProductType.Jacket
+            Type = productType,
+            TypeId = productType.Id
         };
         context.Products.Add(product);
         var variant = new Variant

@@ -7,7 +7,6 @@ namespace FireInvent.Shared.Mapper;
 [Mapper]
 public partial class ProductTypeMapper : BaseMapper
 {
-    [System.Diagnostics.CodeAnalysis.SuppressMessage("Mapper", "RMG020:Source member is not mapped to any target member", Justification = "Hiding is intended.")]
     public partial ProductTypeModel MapProductTypeToProductTypeModel(ProductType productType);
 
     [MapValue(nameof(ProductType.Id), Use = nameof(NewGuid))]

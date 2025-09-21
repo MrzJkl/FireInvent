@@ -13,13 +13,20 @@ public class ItemAssignmentHistoryServiceTest
 
     private static Item CreateItem(AppDbContext context)
     {
+        var productType = new ProductType
+        {
+            Id = Guid.NewGuid(),
+            Name = "Clothing"
+        };
+        context.ProductTypes.Add(productType);
         var product = new Product
         {
             Id = Guid.NewGuid(),
             Name = "Jacket",
             Manufacturer = "BrandA",
             Description = "Waterproof jacket",
-            Type = Contract.ProductType.Jacket
+            Type = productType,
+            TypeId = productType.Id
         };
         context.Products.Add(product);
         var variant = new Variant

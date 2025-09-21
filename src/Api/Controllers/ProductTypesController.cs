@@ -10,7 +10,7 @@ namespace FireInvent.Api.Controllers;
 
 [ApiController]
 [Route("productTypes")]
-public class ProductTypesController(IProductTypeService productTypeService, IPersonService personService) : ControllerBase
+public class ProductTypesController(IProductTypeService productTypeService) : ControllerBase
 {
     [HttpGet]
     [SwaggerOperation(Summary = "List all productTypes", Description = "Returns a list of all productTypes.")]

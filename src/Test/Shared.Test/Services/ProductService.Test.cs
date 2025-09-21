@@ -1,8 +1,10 @@
-﻿using FireInvent.Database.Models;
+﻿using FireInvent.Database;
+using FireInvent.Database.Models;
 using FireInvent.Shared.Exceptions;
 using FireInvent.Shared.Mapper;
 using FireInvent.Shared.Models;
 using FireInvent.Shared.Services;
+using Microsoft.EntityFrameworkCore;
 
 namespace FireInvent.Test.Shared.Services;
 
@@ -15,18 +17,31 @@ public class ProductServiceTest
         _mapper = new ProductMapper();
     }
 
+    private async Task<ProductType> AddProductTypeAsync(AppDbContext context)
+    {
+        var type = new ProductType
+        {
+            Id = Guid.NewGuid(),
+            Name = "Jacket"
+        };
+        context.ProductTypes.Add(type);
+        await context.SaveChangesAsync();
+        return type;
+    }
+
     [Fact]
     public async Task CreateProductAsync_ShouldCreateProduct()
     {
         var context = TestHelper.GetTestDbContext();
         var service = new ProductService(context, _mapper);
+        var productType = await AddProductTypeAsync(context);
 
         var model = new CreateProductModel
         {
             Name = "Jacket",
             Manufacturer = "BrandA",
             Description = "Waterproof jacket",
-            Type = ProductType.Jacket
+            TypeId = productType.Id,
         };
 
         var result = await service.CreateProductAsync(model);
@@ -36,27 +51,29 @@ public class ProductServiceTest
         Assert.Equal(model.Name, result.Name);
         Assert.Equal(model.Manufacturer, result.Manufacturer);
         Assert.Equal(model.Description, result.Description);
-        Assert.Equal(model.Type, result.Type);
+        Assert.Equal(model.TypeId, result.TypeId);
 
         var entity = await context.Products.FindAsync(result.Id);
         Assert.NotNull(entity);
         Assert.Equal(model.Name, entity!.Name);
         Assert.Equal(model.Manufacturer, entity.Manufacturer);
         Assert.Equal(model.Description, entity.Description);
-        Assert.Equal(model.Type, entity.Type);
+        Assert.Equal(model.TypeId, entity.TypeId);
     }
 
     [Fact]
     public async Task CreateProductAsync_ShouldThrowIfDuplicate()
     {
         var context = TestHelper.GetTestDbContext();
+        var productType = await AddProductTypeAsync(context);
+
         context.Products.Add(new Product
         {
             Id = Guid.NewGuid(),
             Name = "Jacket",
             Manufacturer = "BrandA",
             Description = "Waterproof jacket",
-            Type = ProductType.Jacket
+            TypeId = productType.Id,
         });
         context.SaveChanges();
 
@@ -67,23 +84,25 @@ public class ProductServiceTest
             Name = "Jacket",
             Manufacturer = "BrandA",
             Description = "Waterproof jacket",
-            Type = ProductType.Jacket
+            TypeId = productType.Id,
         };
 
-        await Assert.ThrowsAsync<InvalidOperationException>(() => service.CreateProductAsync(model));
+        await Assert.ThrowsAsync<ConflictException>(() => service.CreateProductAsync(model));
     }
 
     [Fact]
     public async Task GetAllProductsAsync_ShouldReturnAllProducts()
     {
         var context = TestHelper.GetTestDbContext();
+        var productType = await AddProductTypeAsync(context);
+
         var product1 = new Product
         {
             Id = Guid.NewGuid(),
             Name = "Jacket",
             Manufacturer = "BrandA",
             Description = "Waterproof jacket",
-            Type = ProductType.Jacket
+            TypeId = productType.Id,
         };
         var product2 = new Product
         {
@@ -91,7 +110,7 @@ public class ProductServiceTest
             Name = "Pants",
             Manufacturer = "BrandB",
             Description = "Fire-resistant pants",
-            Type = ProductType.Pants
+            TypeId = productType.Id,
         };
         context.Products.Add(product1);
         context.Products.Add(product2);
@@ -109,26 +128,28 @@ public class ProductServiceTest
         Assert.Equal(product1.Id, jacket!.Id);
         Assert.Equal(product1.Manufacturer, jacket.Manufacturer);
         Assert.Equal(product1.Description, jacket.Description);
-        Assert.Equal(product1.Type, jacket.Type);
+        Assert.Equal(product1.TypeId, jacket.TypeId);
 
         Assert.NotNull(pants);
         Assert.Equal(product2.Id, pants!.Id);
         Assert.Equal(product2.Manufacturer, pants.Manufacturer);
         Assert.Equal(product2.Description, pants.Description);
-        Assert.Equal(product2.Type, pants.Type);
+        Assert.Equal(product2.TypeId, pants.TypeId);
     }
 
     [Fact]
     public async Task GetProductByIdAsync_ShouldReturnProduct()
     {
         var context = TestHelper.GetTestDbContext();
+        var productType = await AddProductTypeAsync(context);
+
         var product = new Product
         {
             Id = Guid.NewGuid(),
             Name = "Jacket",
             Manufacturer = "BrandA",
             Description = "Waterproof jacket",
-            Type = ProductType.Jacket
+            TypeId = productType.Id,
         };
         context.Products.Add(product);
         context.SaveChanges();
@@ -142,7 +163,7 @@ public class ProductServiceTest
         Assert.Equal(product.Name, result.Name);
         Assert.Equal(product.Manufacturer, result.Manufacturer);
         Assert.Equal(product.Description, result.Description);
-        Assert.Equal(product.Type, result.Type);
+        Assert.Equal(product.TypeId, result.TypeId);
     }
 
     [Fact]
@@ -160,16 +181,20 @@ public class ProductServiceTest
     public async Task UpdateProductAsync_ShouldUpdateProduct()
     {
         var context = TestHelper.GetTestDbContext();
+        var productType = await AddProductTypeAsync(context);
+
         var product = new Product
         {
             Id = Guid.NewGuid(),
             Name = "Jacket",
             Manufacturer = "BrandA",
             Description = "Waterproof jacket",
-            Type = ProductType.Jacket
+            TypeId = productType.Id,
         };
         context.Products.Add(product);
-        context.SaveChanges();
+        await context.SaveChangesAsync();
+
+        var allproducts = await context.Products.ToListAsync();
 
         var service = new ProductService(context, _mapper);
 
@@ -179,18 +204,19 @@ public class ProductServiceTest
             Name = "Jacket Updated",
             Manufacturer = "BrandA Updated",
             Description = "Updated description",
-            Type = ProductType.Pants
+            TypeId = productType.Id,
         };
 
         var result = await service.UpdateProductAsync(model);
 
         Assert.True(result);
         var updated = await context.Products.FindAsync(product.Id);
+        var allproducts2 = await context.Products.ToListAsync();
         Assert.NotNull(updated);
         Assert.Equal(model.Name, updated!.Name);
         Assert.Equal(model.Manufacturer, updated.Manufacturer);
         Assert.Equal(model.Description, updated.Description);
-        Assert.Equal(model.Type, updated.Type);
+        Assert.Equal(model.TypeId, updated.TypeId);
     }
 
     [Fact]
@@ -198,6 +224,7 @@ public class ProductServiceTest
     {
         var context = TestHelper.GetTestDbContext();
         var service = new ProductService(context, _mapper);
+        var productType = await AddProductTypeAsync(context);
 
         var model = new ProductModel
         {
@@ -205,7 +232,7 @@ public class ProductServiceTest
             Name = "Jacket",
             Manufacturer = "BrandA",
             Description = "Waterproof jacket",
-            Type = ProductType.Jacket
+            TypeId = productType.Id,
         };
 
         var result = await service.UpdateProductAsync(model);
@@ -217,13 +244,15 @@ public class ProductServiceTest
     public async Task UpdateProductAsync_ShouldThrowIfDuplicate()
     {
         var context = TestHelper.GetTestDbContext();
+        var productType = await AddProductTypeAsync(context);
+
         var product1 = new Product
         {
             Id = Guid.NewGuid(),
             Name = "Jacket",
             Manufacturer = "BrandA",
             Description = "Waterproof jacket",
-            Type = ProductType.Jacket
+            TypeId = productType.Id,
         };
         var product2 = new Product
         {
@@ -231,7 +260,7 @@ public class ProductServiceTest
             Name = "Pants",
             Manufacturer = "BrandB",
             Description = "Fire-resistant pants",
-            Type = ProductType.Pants
+            TypeId = productType.Id,
         };
         context.Products.Add(product1);
         context.Products.Add(product2);
@@ -245,7 +274,7 @@ public class ProductServiceTest
             Name = "Jacket",
             Manufacturer = "BrandA",
             Description = "Fire-resistant pants",
-            Type = ProductType.Pants
+            TypeId = productType.Id,
         };
 
         await Assert.ThrowsAsync<ConflictException>(() => service.UpdateProductAsync(model));
@@ -255,13 +284,15 @@ public class ProductServiceTest
     public async Task DeleteProductAsync_ShouldDeleteProduct()
     {
         var context = TestHelper.GetTestDbContext();
+        var productType = await AddProductTypeAsync(context);
+
         var product = new Product
         {
             Id = Guid.NewGuid(),
             Name = "Jacket",
             Manufacturer = "BrandA",
             Description = "Waterproof jacket",
-            Type = ProductType.Jacket
+            TypeId = productType.Id,
         };
         context.Products.Add(product);
         context.SaveChanges();
