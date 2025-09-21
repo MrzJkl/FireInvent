@@ -24,7 +24,6 @@ jobs:
           dotnet-version: '9.0.x'
 
       - name: Run tests
-        # Pfad zur Solution im ./src Verzeichnis anpassen
         run: dotnet test ./src/Api/FireInventApi.sln --configuration Release --verbosity normal
 
       - name: Set up Docker Buildx
