@@ -24,7 +24,7 @@ jobs:
           dotnet-version: '9.0.x'
 
       - name: Run tests
-        run: dotnet test --configuration Release --verbosity normal
+        run: dotnet test ./src/Api/FireInventApi.sln --configuration Release --verbosity normal
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
@@ -47,8 +47,8 @@ jobs:
       - name: Build and push API image
         uses: docker/build-push-action@v5
         with:
-          context: .
-          file: ./Api/Dockerfile
+          context: ./src
+          file: ./src/Api/Dockerfile
           push: true
           tags: ghcr.io/mrzjkl/fireinventapi:latest
           cache-from: type=local,src=/tmp/.buildx-cache

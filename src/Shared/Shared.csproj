@@ -1,0 +1,25 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net9.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+	<FileScopedNamespace>true</FileScopedNamespace>
+	<AssemblyName>FireInvent.$(MSBuildProjectName)</AssemblyName>
+	<RootNamespace>FireInvent.$(MSBuildProjectName.Replace(" ", "_"))</RootNamespace>
+	<Title>FireInvent</Title>
+	<Authors>Moritz Jökel</Authors>
+	<Product>FireInvent</Product>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="MailKit" Version="4.13.0" />
+	<PackageReference Include="Riok.Mapperly" Version="4.2.1" ExcludeAssets="runtime" PrivateAssets="all" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Contract\Contract.csproj" />
+    <ProjectReference Include="..\Database\Database.csproj" />
+  </ItemGroup>
+
+</Project>
