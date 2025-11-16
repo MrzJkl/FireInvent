@@ -9,7 +9,7 @@ public record CreateItemModel
     public Guid VariantId { get; init; }
 
     [MaxLength(ModelConstants.MaxStringLength)]
-    public string? Identifier { get; init; } = string.Empty;
+    public string? Identifier { get; init; }
 
     public Guid? StorageLocationId { get; init; }
 

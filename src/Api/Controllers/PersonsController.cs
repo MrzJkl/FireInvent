@@ -10,7 +10,7 @@ namespace FireInvent.Api.Controllers;
 
 [ApiController]
 [Route("persons")]
-public class PersonsController(IPersonService personService) : ControllerBase
+public class PersonsController(IPersonService personService, IItemService itemService) : ControllerBase
 {
     [HttpGet]
     [SwaggerOperation(Summary = "List all persons", Description = "Returns a list of all persons.")]
@@ -66,5 +66,15 @@ public class PersonsController(IPersonService personService) : ControllerBase
     {
         var success = await personService.DeletePersonAsync(id);
         return success ? NoContent() : throw new NotFoundException();
+    }
+
+    [HttpGet("{id:guid}/items")]
+    [SwaggerOperation(Summary = "List all items assigned to a person", Description = "Returns all items assigned to a specific person.")]
+    [SwaggerResponse(200, "List of items", typeof(List<ItemModel>))]
+    [SwaggerResponse(404, "Person not found")]
+    public async Task<ActionResult<List<ItemModel>>> GetVariantsForProduct(Guid id)
+    {
+        var items = await itemService.GetItemsAssignedToPersonAsync(id);
+        return Ok(items);
     }
 }

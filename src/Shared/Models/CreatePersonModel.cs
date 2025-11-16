@@ -21,4 +21,6 @@ public record CreatePersonModel
 
     [MaxLength(ModelConstants.MaxStringLength)]
     public string? ExternalId { get; init; }
+
+    public List<Guid> DepartmentIds { get; init; } = [];
 }

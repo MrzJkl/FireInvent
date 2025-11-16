@@ -31,7 +31,11 @@ public class ItemService(AppDbContext context, ItemMapper mapper) : IItemService
         context.Items.Add(item);
         await context.SaveChangesAsync();
 
-        return mapper.MapItemToItemModel(item);
+        var createdItem = await context.Items
+            .AsNoTracking()
+            .SingleAsync(i => i.Id == item.Id);
+
+        return mapper.MapItemToItemModel(createdItem);
     }
 
     public async Task<List<ItemModel>> GetAllItemsAsync()
@@ -120,5 +124,36 @@ public class ItemService(AppDbContext context, ItemMapper mapper) : IItemService
             .ToListAsync();
 
         return mapper.MapItemsToItemModels(items);
+    }
+
+    public async Task<List<ItemModel>> GetItemsAssignedToPersonAsync(Guid personId)
+    {
+        var personExists = await context.Persons.AnyAsync(p => p.Id == personId);
+        if (!personExists)
+            throw new NotFoundException($"Person with ID {personId} not found.");
+
+        var itemInfos = await context.ItemAssignmentHistories
+            .Where(h => h.PersonId == personId)
+            .GroupBy(h => h.ItemId)
+            .Select(g => new { ItemId = g.Key, LastAssignedFrom = g.Max(h => h.AssignedFrom) })
+            .OrderByDescending(x => x.LastAssignedFrom)
+            .ToListAsync();
+
+        var itemIds = itemInfos.Select(x => x.ItemId).ToList();
+        if (itemIds.Count == 0)
+            return [];
+
+        var items = await context.Items
+            .Where(i => itemIds.Contains(i.Id))
+            .AsNoTracking()
+            .ToListAsync();
+
+        var itemsById = items.ToDictionary(i => i.Id);
+        var orderedItems = itemInfos
+            .Where(info => itemsById.ContainsKey(info.ItemId))
+            .Select(info => itemsById[info.ItemId])
+            .ToList();
+
+        return mapper.MapItemsToItemModels(orderedItems);
     }
 }

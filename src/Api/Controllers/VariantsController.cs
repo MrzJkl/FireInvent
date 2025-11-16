@@ -74,7 +74,7 @@ public class VariantsController(IVariantService variantService, IItemService ite
     [HttpGet("{id:guid}/items")]
     [SwaggerOperation(Summary = "List all items for a variant", Description = "Returns all items for a specific variant.")]
     [SwaggerResponse(200, "List of items", typeof(List<ItemModel>))]
-    [SwaggerResponse(404, "variant not found")]
+    [SwaggerResponse(404, "Variant not found")]
     public async Task<ActionResult<List<ItemModel>>> GetItemsForVariant(Guid id)
     {
         var items = await itemService.GetItemsForVariantAsync(id);

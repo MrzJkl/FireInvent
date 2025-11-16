@@ -10,5 +10,5 @@ public record CreateStorageLocationModel
     public string Name { get; init; } = string.Empty;
 
     [MaxLength(ModelConstants.MaxStringLengthLong)]
-    public string? Remarks { get; init; } = string.Empty;
+    public string? Remarks { get; init; }
 }

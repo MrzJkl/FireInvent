@@ -18,6 +18,9 @@ public static class AuthenticationExtensions
             .AddJwtBearer(scheme, options =>
             {
                 options.Authority = authOptions.Authority;
+#if DEBUG
+                options.RequireHttpsMetadata = false;
+#endif
                 options.TokenValidationParameters = new TokenValidationParameters
                 {
                     ValidateIssuer = authOptions.ValidIssuers.Count != 0,
@@ -37,31 +40,25 @@ public static class AuthenticationExtensions
                         logger.LogWarning(context.Exception, "Authentication failed.");
                         return Task.CompletedTask;
                     },
-                    OnTokenValidated = context =>
+                    OnTokenValidated = async context =>
                     {
-                        _ = Task.Run(async () =>
+                        var scopeFactory = context.HttpContext.RequestServices.GetRequiredService<IServiceScopeFactory>();
+                        using var scope = scopeFactory.CreateScope();
+
+                        try
                         {
-                            var scopeFactory = context.HttpContext.RequestServices.GetRequiredService<IServiceScopeFactory>();
-                            using var scope = scopeFactory.CreateScope();
+                            var handler = scope.ServiceProvider.GetRequiredService<TokenValidatedHandler>();
 
-                            try
-                            {
-                                var handler = scope.ServiceProvider.GetRequiredService<TokenValidatedHandler>();
+                            await handler.HandleAsync(context);
+                        }
+                        catch (Exception ex)
+                        {
+                            var logger = scope.ServiceProvider
+                                .GetRequiredService<ILogger<TokenValidatedHandler>>();
 
-                                await handler.HandleAsync(context);
-                            }
-                            catch (Exception ex)
-                            {
-                                var logger = scope.ServiceProvider
-                                    .GetRequiredService<ILogger<TokenValidatedHandler>>();
-                                
-                                logger.LogError(ex, "Error during synchronization of user from claims.");
-                            }
-                        });
-
-                        return Task.CompletedTask;
+                            logger.LogError(ex, "Error during synchronization of user from claims.");
+                        }
                     }
-
                 };
             });
 

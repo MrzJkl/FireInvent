@@ -10,7 +10,7 @@ namespace FireInvent.Api.Controllers;
 
 [ApiController]
 [Route("products")]
-public class ProductsController(IProductService productService) : ControllerBase
+public class ProductsController(IProductService productService, IVariantService variantService) : ControllerBase
 {
     [HttpGet]
     [SwaggerOperation(Summary = "List all products", Description = "Returns a list of all products.")]
@@ -74,5 +74,15 @@ public class ProductsController(IProductService productService) : ControllerBase
     {
         var success = await productService.DeleteProductAsync(id);
         return success ? NoContent() : throw new NotFoundException();
+    }
+
+    [HttpGet("{id:guid}/variants")]
+    [SwaggerOperation(Summary = "List all variants for a product", Description = "Returns all variants for a specific product.")]
+    [SwaggerResponse(200, "List of variants", typeof(List<VariantModel>))]
+    [SwaggerResponse(404, "Product not found")]
+    public async Task<ActionResult<List<ItemModel>>> GetVariantsForProduct(Guid id)
+    {
+        var items = await variantService.GetVariantsForProductAsync(id);
+        return Ok(items);
     }
 }
