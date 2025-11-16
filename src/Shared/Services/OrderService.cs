@@ -11,8 +11,6 @@ public class OrderService(AppDbContext context, OrderMapper mapper) : IOrderServ
     public async Task<OrderModel?> GetOrderByIdAsync(Guid id)
     {
         var order = await context.Orders
-            .Include(o => o.Items)
-            .ThenInclude(i => i.Variant)
             .AsNoTracking()
             .FirstOrDefaultAsync(o => o.Id == id);
 
@@ -22,8 +20,6 @@ public class OrderService(AppDbContext context, OrderMapper mapper) : IOrderServ
     public async Task<List<OrderModel>> GetAllOrdersAsync()
     {
         var orders = await context.Orders
-            .Include(o => o.Items)
-            .ThenInclude(i => i.Variant)
             .AsNoTracking()
             .ToListAsync();
 
@@ -43,7 +39,6 @@ public class OrderService(AppDbContext context, OrderMapper mapper) : IOrderServ
     public async Task<bool> UpdateOrderAsync(OrderModel model)
     {
         var entity = await context.Orders
-            .Include(o => o.Items)
             .FirstOrDefaultAsync(o => o.Id == model.Id);
 
         if (entity is null || entity.Status == OrderStatus.Completed)
@@ -58,7 +53,6 @@ public class OrderService(AppDbContext context, OrderMapper mapper) : IOrderServ
     public async Task<bool> DeleteOrderAsync(Guid id)
     {
         var entity = await context.Orders
-            .Include(o => o.Items)
             .FirstOrDefaultAsync(o => o.Id == id);
 
         if (entity is null)

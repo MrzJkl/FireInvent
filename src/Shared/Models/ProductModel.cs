@@ -10,5 +10,5 @@ public record ProductModel : CreateProductModel
 
 
     [Required]
-    public ProductTypeModel Type { get; init; }
+    public ProductTypeModel Type { get; init; } = null!;
 }

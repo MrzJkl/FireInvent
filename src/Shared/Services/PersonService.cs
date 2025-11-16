@@ -1,4 +1,5 @@
 ﻿using FireInvent.Database;
+using FireInvent.Database.Models;
 using FireInvent.Shared.Exceptions;
 using FireInvent.Shared.Mapper;
 using FireInvent.Shared.Models;
@@ -17,8 +18,13 @@ public class PersonService(AppDbContext context, PersonMapper mapper) : IPersonS
         if (exists)
             throw new ConflictException("A person with the same name or external ID already exists.");
 
+        var departments = await context.Departments
+            .Where(d => model.DepartmentIds.Contains(d.Id))
+            .ToListAsync();
+
         var person = mapper.MapCreatePersonModelToPerson(model);
         person.Id = Guid.NewGuid();
+        person.Departments = departments;
 
         context.Persons.Add(person);
         await context.SaveChangesAsync();
@@ -48,7 +54,10 @@ public class PersonService(AppDbContext context, PersonMapper mapper) : IPersonS
 
     public async Task<bool> UpdatePersonAsync(PersonModel model)
     {
-        var person = await context.Persons.FindAsync(model.Id);
+        var person = await context.Persons
+            .Include(p => p.Departments) // important, otherwise EF core will not track changes
+            .FirstOrDefaultAsync(p => p.Id == model.Id);
+
         if (person is null)
             return false;
 
@@ -71,6 +80,26 @@ public class PersonService(AppDbContext context, PersonMapper mapper) : IPersonS
         }
 
         mapper.MapPersonModelToPerson(model, person);
+
+        var requestedDeptIds = (model.DepartmentIds != null && model.DepartmentIds.Any())
+            ? model.DepartmentIds
+            : model.Departments?.Select(d => d.Id).ToList();
+
+        if (person.Departments == null)
+            person.Departments = [];
+
+        if (requestedDeptIds == null || requestedDeptIds.Count == 0)
+        {
+            person.Departments.Clear();
+        }
+        else
+        {
+            var departments = await context.Departments
+                .Where(d => requestedDeptIds.Contains(d.Id))
+                .ToListAsync();
+
+            person.Departments = departments;
+        }
 
         await context.SaveChangesAsync();
         return true;

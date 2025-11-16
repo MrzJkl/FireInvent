@@ -16,7 +16,7 @@ public record Item
     public Guid VariantId { get; set; }
 
     [MaxLength(ModelConstants.MaxStringLength)]
-    public string? Identifier { get; set; } = string.Empty;
+    public string? Identifier { get; set; }
 
     [ForeignKey(nameof(StorageLocation))]
     public Guid? StorageLocationId { get; set; }

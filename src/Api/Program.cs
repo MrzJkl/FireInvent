@@ -42,8 +42,6 @@ builder.Host.UseSerilog((context, services, configuration) =>
 // Configure Options
 builder.Services.Configure<AuthenticationOptions>(
     builder.Configuration.GetRequiredSection("Authentication"));
-builder.Services.Configure<DefaultAdminOptions>(
-    builder.Configuration.GetSection("DefaultUser"));
 builder.Services.Configure<MailOptions>(
     builder.Configuration.GetSection("MailOptions"));
 
@@ -57,7 +55,7 @@ builder.Services.AddResponseCompression();
 // Database
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection"),
-        x => x.MigrationsAssembly("FireInvent.Database")));
+        x => x.MigrationsAssembly("FireInvent.Database")).UseLazyLoadingProxies());
 
 // Health Checks
 builder.Services.AddHealthChecks()
