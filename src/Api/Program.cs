@@ -102,6 +102,19 @@ builder.Services.AddSwaggerGen(c =>
     });
 });
 
+#if DEBUG
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowAll", policy =>
+    {
+        policy
+            .AllowAnyOrigin()
+            .AllowAnyMethod()
+            .AllowAnyHeader();
+    });
+});
+#endif
+
 // API Services
 builder.Services.AddScoped<TokenValidatedHandler>();
 
@@ -183,6 +196,8 @@ logger.LogDebug("Registering authentication and authorization...");
 app.UseAuthentication();
 app.UseAuthorization();
 app.UseResponseCompression();
+
+app.UseCors("AllowAll");
 
 logger.LogDebug("Registering controllers end endpoints...");
 app.MapControllers();

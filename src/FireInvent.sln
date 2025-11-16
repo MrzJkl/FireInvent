@@ -16,7 +16,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		..\deployment\keycloak\config.yml = ..\deployment\keycloak\config.yml
 		..\deployment\docker-compose.yml = ..\deployment\docker-compose.yml
 		..\.github\workflows\docker-image.yml = ..\.github\workflows\docker-image.yml
-		..\deployment\example.env = ..\deployment\example.env
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{02EA681E-C7D8-13C7-8484-4AC65E1B71E8}"

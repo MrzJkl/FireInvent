@@ -4,7 +4,7 @@ using System.Text.Json;
 
 namespace FireInvent.Api.Middlewares;
 
-public class ApiExceptionMiddleware(RequestDelegate next)
+public class ApiExceptionMiddleware(RequestDelegate next, ILogger<ApiExceptionMiddleware> logger)
 {
     public async Task Invoke(HttpContext context)
     {
@@ -14,9 +14,17 @@ public class ApiExceptionMiddleware(RequestDelegate next)
         }
         catch (Exception ex)
         {
-            await HandleExceptionAsync(context, ex);
+            try
+            {
+                await HandleExceptionAsync(context, ex);
+            }
+            catch (Exception innerEx)
+            {
+                logger.LogError(innerEx, "Failed to handle exception in ApiExceptionMiddleware");
+            }
         }
     }
+
 
     private static Task HandleExceptionAsync(HttpContext context, Exception exception)
     {

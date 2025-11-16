@@ -18,6 +18,9 @@ public static class AuthenticationExtensions
             .AddJwtBearer(scheme, options =>
             {
                 options.Authority = authOptions.Authority;
+#if DEBUG
+                options.RequireHttpsMetadata = false;
+#endif
                 options.TokenValidationParameters = new TokenValidationParameters
                 {
                     ValidateIssuer = authOptions.ValidIssuers.Count != 0,
