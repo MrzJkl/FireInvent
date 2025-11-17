@@ -9,7 +9,7 @@ namespace FireInvent.Shared.Services;
 
 public class PersonService(AppDbContext context, PersonMapper mapper) : IPersonService
 {
-    public async Task<PersonModel> CreatePersonAsync(CreatePersonModel model)
+    public async Task<PersonModel> CreatePersonAsync(CreateOrUpdatePersonModel model)
     {
         var exists = await context.Persons.AnyAsync(p =>
             (p.FirstName == model.FirstName && p.LastName == model.LastName) ||

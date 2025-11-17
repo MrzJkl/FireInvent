@@ -35,7 +35,7 @@ public class OrderController(IOrderService orderService) : ControllerBase
     [SwaggerOperation(Summary = "Create a new order", Description = "Creates a new order.")]
     [SwaggerResponse(201, "Order created", typeof(OrderModel))]
     [Authorize(Roles = Roles.Admin + "," + Roles.Procurement)]
-    public async Task<ActionResult<OrderModel>> Create(CreateOrderModel model)
+    public async Task<ActionResult<OrderModel>> Create(CreateOrUpdateOrderModel model)
     {
         var created = await orderService.CreateOrderAsync(model);
         return CreatedAtAction(nameof(GetById), new { id = created.Id }, created);
@@ -47,7 +47,7 @@ public class OrderController(IOrderService orderService) : ControllerBase
     [SwaggerResponse(400, "ID mismatch")]
     [SwaggerResponse(404, "Order not found or cannot be updated")]
     [Authorize(Roles = Roles.Admin + "," + Roles.Procurement)]
-    public async Task<IActionResult> Update(Guid id, OrderModel model)
+    public async Task<IActionResult> Update(Guid id, CreateOrUpdateOrderModel model)
     {
         if (id != model.Id)
             throw new IdMismatchException();

@@ -10,7 +10,7 @@ public partial class OrderMapper : BaseMapper
     public partial OrderModel MapOrderToOrderModel(Order order);
 
     [MapValue(nameof(Order.Id), Use = nameof(NewGuid))]
-    public partial Order MapCreateOrderModelToOrder(CreateOrderModel createOrderModel);
+    public partial Order MapCreateOrderModelToOrder(CreateOrUpdateOrderModel createOrderModel);
 
     public partial List<OrderModel> MapOrdersToOrderModels(List<Order> orders);
 

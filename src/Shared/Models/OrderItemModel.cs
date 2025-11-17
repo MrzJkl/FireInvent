@@ -2,7 +2,7 @@
 
 namespace FireInvent.Shared.Models;
 
-public record OrderItemModel : CreateOrderItemModel
+public record OrderItemModel : CreateOrUpdateOrderItemModel
 {
     [Required]
     public Guid Id { get; init; }

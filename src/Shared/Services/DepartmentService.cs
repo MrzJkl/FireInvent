@@ -8,7 +8,7 @@ namespace FireInvent.Shared.Services;
 
 public class DepartmentService(AppDbContext context, DepartmentMapper mapper) : IDepartmentService
 {
-    public async Task<DepartmentModel> CreateDepartmentAsync(CreateDepartmentModel model)
+    public async Task<DepartmentModel> CreateDepartmentAsync(CreateOrUpdateDepartmentModel model)
     {
         var exists = await context.Departments
             .AnyAsync(c => c.Name == model.Name);
@@ -16,7 +16,7 @@ public class DepartmentService(AppDbContext context, DepartmentMapper mapper) : 
         if (exists)
             throw new ConflictException("A department with the same name already exists.");
 
-        var department = mapper.MapCreateDepartmentModelToDepartment(model);
+        var department = mapper.MapCreateOrUpdateDepartmentModelToDepartment(model);
 
         await context.Departments.AddAsync(department);
         await context.SaveChangesAsync();
@@ -43,19 +43,19 @@ public class DepartmentService(AppDbContext context, DepartmentMapper mapper) : 
         return department is null ? null : mapper.MapDepartmentToDepartmentModel(department);
     }
 
-    public async Task<bool> UpdateDepartmentAsync(DepartmentModel model)
+    public async Task<bool> UpdateDepartmentAsync(Guid id, CreateOrUpdateDepartmentModel model)
     {
-        var department = await context.Departments.FindAsync(model.Id);
+        var department = await context.Departments.FindAsync(id);
         if (department is null)
             return false;
 
         var nameExists = await context.Departments.AnyAsync(d =>
-            d.Id != model.Id && d.Name == model.Name);
+            d.Id != id && d.Name == model.Name);
 
         if (nameExists)
             throw new ConflictException("Another department with the same name already exists.");
 
-        mapper.MapDepartmentModelToDepartment(model, department);
+        mapper.MapCreateOrUpdateDepartmentModelToDepartment(model, department, id);
 
         await context.SaveChangesAsync();
         return true;

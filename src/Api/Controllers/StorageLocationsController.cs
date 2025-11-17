@@ -36,7 +36,7 @@ public class StorageLocationsController(IStorageLocationService locationService,
     [SwaggerResponse(201, "Storage location created", typeof(StorageLocationModel))]
     [SwaggerResponse(409, "A storage location with the same name already exists")]
     [Authorize(Roles = Roles.Admin + "," + Roles.Procurement)]
-    public async Task<ActionResult<StorageLocationModel>> Create(CreateStorageLocationModel model)
+    public async Task<ActionResult<StorageLocationModel>> Create(CreateOrUpdateStorageLocationModel model)
     {
         var created = await locationService.CreateStorageLocationAsync(model);
         return CreatedAtAction(nameof(GetById), new { id = created.Id }, created);
@@ -49,7 +49,7 @@ public class StorageLocationsController(IStorageLocationService locationService,
     [SwaggerResponse(404, "Storage location not found")]
     [SwaggerResponse(409, "A storage location with the same name already exists")]
     [Authorize(Roles = Roles.Admin + "," + Roles.Procurement)]
-    public async Task<IActionResult> Update(Guid id, StorageLocationModel model)
+    public async Task<IActionResult> Update(Guid id, CreateOrUpdateStorageLocationModel model)
     {
         if (id != model.Id)
             throw new IdMismatchException();

@@ -8,7 +8,7 @@ namespace FireInvent.Shared.Services
 {
     public class MaintenanceTypeService(AppDbContext context, MaintenanceTypeMapper mapper) : IMaintenanceTypeService
     {
-        public async Task<MaintenanceTypeModel> CreateMaintenanceTypeAsync(CreateMaintenanceTypeModel model)
+        public async Task<MaintenanceTypeModel> CreateMaintenanceTypeAsync(CreateOrUpdateMaintenanceTypeModel model)
         {
             var exists = await context.MaintenanceTypes
                 .AnyAsync(p => p.Name == model.Name);
@@ -16,7 +16,7 @@ namespace FireInvent.Shared.Services
             if (exists)
                 throw new ConflictException("A maintenanceType with the same name already exists.");
 
-            var maintenanceType = mapper.MapCreateMaintenanceTypeModelToMaintenanceType(model);
+            var maintenanceType = mapper.MapCreateOrUpdateMaintenanceTypeModelToMaintenanceType(model);
 
             await context.MaintenanceTypes.AddAsync(maintenanceType);
             await context.SaveChangesAsync();
@@ -43,19 +43,19 @@ namespace FireInvent.Shared.Services
             return maintenanceType is null ? null : mapper.MapMaintenanceTypeToMaintenanceTypeModel(maintenanceType);
         }
 
-        public async Task<bool> UpdateMaintenanceTypeAsync(MaintenanceTypeModel model)
+        public async Task<bool> UpdateMaintenanceTypeAsync(Guid id, CreateOrUpdateMaintenanceTypeModel model)
         {
-            var maintenanceType = await context.MaintenanceTypes.FindAsync(model.Id);
+            var maintenanceType = await context.MaintenanceTypes.FindAsync(id);
             if (maintenanceType is null)
                 return false;
 
             var nameExists = await context.MaintenanceTypes.AnyAsync(p =>
-                p.Id != model.Id && p.Name == model.Name);
+                p.Id != id && p.Name == model.Name);
 
             if (nameExists)
                 throw new ConflictException("Another maintenanceType with the same name already exists.");
 
-            mapper.MapMaintenanceTypeModelToMaintenanceType(model, maintenanceType);
+            mapper.MapCreateOrUpdateMaintenanceTypeModelToMaintenanceType(model, maintenanceType, id);
 
             await context.SaveChangesAsync();
             return true;

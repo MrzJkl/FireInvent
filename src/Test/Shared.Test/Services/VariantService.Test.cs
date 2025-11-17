@@ -45,7 +45,7 @@ public class VariantServiceTest
         var product = CreateProduct(context);
         var service = new VariantService(context, _mapper);
 
-        var model = new CreateVariantModel
+        var model = new CreateOrUpdateVariantModel
         {
             ProductId = product.Id,
             Name = "Red",
@@ -83,7 +83,7 @@ public class VariantServiceTest
 
         var service = new VariantService(context, _mapper);
 
-        var model = new CreateVariantModel
+        var model = new CreateOrUpdateVariantModel
         {
             ProductId = product.Id,
             Name = "Red",
@@ -99,7 +99,7 @@ public class VariantServiceTest
         var context = TestHelper.GetTestDbContext();
         var service = new VariantService(context, _mapper);
 
-        var model = new CreateVariantModel
+        var model = new CreateOrUpdateVariantModel
         {
             ProductId = Guid.NewGuid(),
             Name = "Red",

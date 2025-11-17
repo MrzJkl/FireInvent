@@ -36,7 +36,7 @@ public class ProductServiceTest
         var service = new ProductService(context, _mapper);
         var productType = await AddProductTypeAsync(context);
 
-        var model = new CreateProductModel
+        var model = new CreateOrUpdateProductModel
         {
             Name = "Jacket",
             Manufacturer = "BrandA",
@@ -79,7 +79,7 @@ public class ProductServiceTest
 
         var service = new ProductService(context, _mapper);
 
-        var model = new CreateProductModel
+        var model = new CreateOrUpdateProductModel
         {
             Name = "Jacket",
             Manufacturer = "BrandA",

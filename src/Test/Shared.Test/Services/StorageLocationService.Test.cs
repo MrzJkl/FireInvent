@@ -21,7 +21,7 @@ public class StorageLocationServiceTest
         var context = TestHelper.GetTestDbContext();
         var service = new StorageLocationService(context, _mapper);
 
-        var model = new CreateStorageLocationModel
+        var model = new CreateOrUpdateStorageLocationModel
         {
             Name = "Main Storage",
             Remarks = "Central warehouse"
@@ -54,7 +54,7 @@ public class StorageLocationServiceTest
 
         var service = new StorageLocationService(context, _mapper);
 
-        var model = new CreateStorageLocationModel
+        var model = new CreateOrUpdateStorageLocationModel
         {
             Name = "Main Storage",
             Remarks = "Central warehouse"

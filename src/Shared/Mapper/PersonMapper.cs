@@ -10,7 +10,7 @@ public partial class PersonMapper : BaseMapper
     public partial PersonModel MapPersonToPersonModel(Person person);
 
     [MapValue(nameof(Person.Id), Use = nameof(NewGuid))]
-    public partial Person MapCreatePersonModelToPerson(CreatePersonModel createPersonModel);
+    public partial Person MapCreatePersonModelToPerson(CreateOrUpdatePersonModel createPersonModel);
 
     public partial List<PersonModel> MapPersonsToPersonModels(List<Person> persons);
 

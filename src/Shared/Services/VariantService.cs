@@ -8,7 +8,7 @@ namespace FireInvent.Shared.Services;
 
 public class VariantService(AppDbContext context, VariantMapper mapper) : IVariantService
 {
-    public async Task<VariantModel> CreateVariantAsync(CreateVariantModel model)
+    public async Task<VariantModel> CreateVariantAsync(CreateOrUpdateVariantModel model)
     {
         var duplicate = await context.Variants.AnyAsync(v =>
             v.ProductId == model.ProductId &&

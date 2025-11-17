@@ -37,7 +37,7 @@ public class ItemAssignmentHistoriesController(IItemAssignmentHistoryService ser
     [SwaggerResponse(400, "Invalid input or referenced item/person does not exist")]
     [SwaggerResponse(409, "An overlapping assignment already exists for this item")]
     [Authorize(Roles = Roles.Admin + "," + Roles.Procurement)]
-    public async Task<ActionResult<ItemAssignmentHistoryModel>> Create(CreateItemAssignmentHistoryModel model)
+    public async Task<ActionResult<ItemAssignmentHistoryModel>> Create(CreateOrUpdateItemAssignmentHistoryModel model)
     {
         var created = await service.CreateAssignmentAsync(model);
         return CreatedAtAction(nameof(GetById), new { id = created.Id }, created);
@@ -50,7 +50,7 @@ public class ItemAssignmentHistoriesController(IItemAssignmentHistoryService ser
     [SwaggerResponse(404, "Assignment not found")]
     [SwaggerResponse(409, "An overlapping assignment already exists for this item")]
     [Authorize(Roles = Roles.Admin + "," + Roles.Procurement)]
-    public async Task<IActionResult> Update(Guid id, ItemAssignmentHistoryModel model)
+    public async Task<IActionResult> Update(Guid id, CreateOrUpdateItemAssignmentHistoryModel model)
     {
         if (id != model.Id)
             throw new IdMismatchException();

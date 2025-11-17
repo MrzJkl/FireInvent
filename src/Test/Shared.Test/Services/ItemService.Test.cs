@@ -67,7 +67,7 @@ public class ItemServiceTest
         var location = CreateStorageLocation(context);
         var service = new ItemService(context, _mapper);
 
-        var model = new CreateItemModel
+        var model = new CreateOrUpdateItemModel
         {
             VariantId = variant.Id,
             Identifier = "ITEM-001",
@@ -104,7 +104,7 @@ public class ItemServiceTest
         var context = TestHelper.GetTestDbContext();
         var service = new ItemService(context, _mapper);
 
-        var model = new CreateItemModel
+        var model = new CreateOrUpdateItemModel
         {
             VariantId = Guid.NewGuid(),
             Identifier = "ITEM-001",
@@ -122,7 +122,7 @@ public class ItemServiceTest
         var variant = CreateVariant(context);
         var service = new ItemService(context, _mapper);
 
-        var model = new CreateItemModel
+        var model = new CreateOrUpdateItemModel
         {
             VariantId = variant.Id,
             StorageLocationId = Guid.NewGuid(),
@@ -153,7 +153,7 @@ public class ItemServiceTest
 
         var service = new ItemService(context, _mapper);
 
-        var model = new CreateItemModel
+        var model = new CreateOrUpdateItemModel
         {
             VariantId = variant.Id,
             Identifier = "ITEM-001",

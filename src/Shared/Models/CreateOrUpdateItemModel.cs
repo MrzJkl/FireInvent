@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace FireInvent.Shared.Models;
 
-public record CreateItemModel
+public record CreateOrUpdateItemModel
 {
     [Required]
     public Guid VariantId { get; init; }

@@ -26,7 +26,7 @@ public class OrderService(AppDbContext context, OrderMapper mapper) : IOrderServ
         return mapper.MapOrdersToOrderModels(orders);
     }
 
-    public async Task<OrderModel> CreateOrderAsync(CreateOrderModel model)
+    public async Task<OrderModel> CreateOrderAsync(CreateOrUpdateOrderModel model)
     {
         var entity = mapper.MapCreateOrderModelToOrder(model);
 

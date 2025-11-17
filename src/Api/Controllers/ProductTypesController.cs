@@ -35,7 +35,7 @@ public class ProductTypesController(IProductTypeService productTypeService) : Co
     [SwaggerOperation(Summary = "Create a new productType", Description = "Creates a new productType.")]
     [SwaggerResponse(201, "ProductType created", typeof(ProductTypeModel))]
     [Authorize(Roles = Roles.Admin)]
-    public async Task<ActionResult<ProductTypeModel>> Create(CreateProductTypeModel model)
+    public async Task<ActionResult<ProductTypeModel>> Create(CreateOrUpdateProductTypeModel model)
     {
         var created = await productTypeService.CreateProductTypeAsync(model);
         return CreatedAtAction(nameof(GetById), new { id = created.Id }, created);
@@ -47,7 +47,7 @@ public class ProductTypesController(IProductTypeService productTypeService) : Co
     [SwaggerResponse(400, "ID mismatch")]
     [SwaggerResponse(404, "ProductType not found")]
     [Authorize(Roles = Roles.Admin)]
-    public async Task<IActionResult> Update(Guid id, ProductTypeModel model)
+    public async Task<IActionResult> Update(Guid id, CreateOrUpdateProductTypeModel model)
     {
         if (id != model.Id)
             throw new IdMismatchException();

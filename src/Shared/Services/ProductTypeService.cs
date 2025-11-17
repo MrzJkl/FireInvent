@@ -8,7 +8,7 @@ namespace FireInvent.Shared.Services
 {
     public class ProductTypeService(AppDbContext context, ProductTypeMapper mapper) : IProductTypeService
     {
-        public async Task<ProductTypeModel> CreateProductTypeAsync(CreateProductTypeModel model)
+        public async Task<ProductTypeModel> CreateProductTypeAsync(CreateOrUpdateProductTypeModel model)
         {
             var exists = await context.ProductTypes
                 .AnyAsync(p => p.Name == model.Name);

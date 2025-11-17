@@ -20,7 +20,7 @@ public class DepartmentServiceTest
         var context = TestHelper.GetTestDbContext();
         var service = new DepartmentService(context, _mapper);
 
-        var model = new CreateDepartmentModel
+        var model = new CreateOrUpdateDepartmentModel
         {
             Name = "Fire Department",
             Description = "Handles fire emergencies"

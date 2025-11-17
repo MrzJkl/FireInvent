@@ -8,7 +8,7 @@ namespace FireInvent.Shared.Services;
 
 public class ProductService(AppDbContext context, ProductMapper mapper) : IProductService
 {
-    public async Task<ProductModel> CreateProductAsync(CreateProductModel model)
+    public async Task<ProductModel> CreateProductAsync(CreateOrUpdateProductModel model)
     {
         _ = await context.ProductTypes.FindAsync(model.TypeId) ?? throw new BadRequestException($"ProductType with ID '{model.TypeId}' does not exist.");
 

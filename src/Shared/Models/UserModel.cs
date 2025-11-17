@@ -10,9 +10,7 @@ public record UserModel
     [Required]
     public string EMail { get; set; } = string.Empty;
 
-    [Required]
     public string? FirstName { get; set; }
 
-    [Required]
     public string? LastName { get; set; }
 }

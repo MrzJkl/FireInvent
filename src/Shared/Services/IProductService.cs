@@ -4,7 +4,7 @@ namespace FireInvent.Shared.Services;
 
 public interface IProductService
 {
-    Task<ProductModel> CreateProductAsync(CreateProductModel model);
+    Task<ProductModel> CreateProductAsync(CreateOrUpdateProductModel model);
     Task<bool> DeleteProductAsync(Guid id);
     Task<List<ProductModel>> GetAllProductsAsync();
     Task<ProductModel?> GetProductByIdAsync(Guid id);

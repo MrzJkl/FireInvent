@@ -40,7 +40,7 @@ public class ItemsController(
     [SwaggerResponse(400, "Invalid input or referenced variant/location not found")]
     [SwaggerResponse(409, "A item with the same identifier already exists")]
     [Authorize(Roles = Roles.Admin + "," + Roles.Procurement)]
-    public async Task<ActionResult<ItemModel>> Create(CreateItemModel model)
+    public async Task<ActionResult<ItemModel>> Create(CreateOrUpdateItemModel model)
     {
         var created = await itemService.CreateItemAsync(model);
         return CreatedAtAction(nameof(GetById), new { id = created.Id }, created);
@@ -53,7 +53,7 @@ public class ItemsController(
     [SwaggerResponse(404, "Item not found")]
     [SwaggerResponse(409, "A item with the same identifier already exists")]
     [Authorize(Roles = Roles.Admin + "," + Roles.Procurement)]
-    public async Task<IActionResult> Update(Guid id, ItemModel model)
+    public async Task<IActionResult> Update(Guid id, CreateOrUpdateItemModel model)
     {
         if (id != model.Id)
             throw new IdMismatchException();

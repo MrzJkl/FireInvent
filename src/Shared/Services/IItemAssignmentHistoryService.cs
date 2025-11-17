@@ -4,10 +4,10 @@ namespace FireInvent.Shared.Services;
 
 public interface IItemAssignmentHistoryService
 {
-    Task<ItemAssignmentHistoryModel> CreateAssignmentAsync(CreateItemAssignmentHistoryModel model);
+    Task<ItemAssignmentHistoryModel> CreateAssignmentAsync(CreateOrUpdateItemAssignmentHistoryModel model);
     Task<bool> DeleteAssignmentAsync(Guid id);
     Task<List<ItemAssignmentHistoryModel>> GetAllAssignmentsAsync();
     Task<ItemAssignmentHistoryModel?> GetAssignmentByIdAsync(Guid id);
     Task<List<ItemAssignmentHistoryModel>> GetAssignmentsForItemAsync(Guid itemId);
-    Task<bool> UpdateAssignmentAsync(ItemAssignmentHistoryModel model);
+    Task<bool> UpdateAssignmentAsync(Guid id, CreateOrUpdateItemAssignmentHistoryModel model);
 }

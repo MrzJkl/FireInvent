@@ -10,7 +10,7 @@ public partial class VariantMapper : BaseMapper
     public partial VariantModel MapVariantToVariantModel(Variant variant);
 
     [MapValue(nameof(Variant.Id), Use = nameof(NewGuid))]
-    public partial Variant MapCreateVariantModelToVariant(CreateVariantModel createVariantModel);
+    public partial Variant MapCreateVariantModelToVariant(CreateOrUpdateVariantModel createVariantModel);
 
     public partial List<VariantModel> MapVariantsToVariantModels(List<Variant> variants);
 

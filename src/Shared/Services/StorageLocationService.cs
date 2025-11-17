@@ -8,7 +8,7 @@ namespace FireInvent.Shared.Services;
 
 public class StorageLocationService(AppDbContext context, StorageLocationMapper mapper) : IStorageLocationService
 {
-    public async Task<StorageLocationModel> CreateStorageLocationAsync(CreateStorageLocationModel model)
+    public async Task<StorageLocationModel> CreateStorageLocationAsync(CreateOrUpdateStorageLocationModel model)
     {
         var exists = await context.StorageLocations
             .AnyAsync(s => s.Name == model.Name);

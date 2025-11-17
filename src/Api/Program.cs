@@ -1,6 +1,7 @@
 using FireInvent.Api.Authentication;
 using FireInvent.Api.Middlewares;
 using FireInvent.Api.Swagger;
+using FireInvent.Contract;
 using FireInvent.Database;
 using FireInvent.Shared.Mapper;
 using FireInvent.Shared.Options;
@@ -9,8 +10,11 @@ using Microsoft.AspNetCore.Mvc.Authorization;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
+using Microsoft.OpenApi.Any;
 using Microsoft.OpenApi.Models;
 using Serilog;
+using Swashbuckle.AspNetCore.SwaggerGen;
+using System.Text.Json.Serialization;
 
 const string SwaggerApiVersion = "v1";
 const string SwaggerEndpointUrl = $"/swagger/{SwaggerApiVersion}/swagger.json";
@@ -67,6 +71,27 @@ builder.Services.AddHealthChecks()
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c =>
 {
+    c.SchemaGeneratorOptions = new SchemaGeneratorOptions
+    {
+        UseInlineDefinitionsForEnums = true
+    };
+
+    c.MapType<ItemCondition>(() => new OpenApiSchema
+    {
+        Type = "string",
+        Enum = [.. Enum.GetNames<ItemCondition>()
+            .Select(n => new OpenApiString(n))
+            .Cast<IOpenApiAny>()]
+    });
+
+    c.MapType<OrderStatus>(() => new OpenApiSchema
+    {
+        Type = "string",
+        Enum = [.. Enum.GetNames<OrderStatus>()
+            .Select(n => new OpenApiString(n))
+            .Cast<IOpenApiAny>()]
+    });
+
     c.EnableAnnotations();
     c.SwaggerDoc(SwaggerApiVersion, new OpenApiInfo
     {
@@ -154,6 +179,7 @@ builder.Services.AddControllers(options =>
 {
     options.JsonSerializerOptions.PropertyNamingPolicy = System.Text.Json.JsonNamingPolicy.CamelCase;
     options.JsonSerializerOptions.PropertyNameCaseInsensitive = true;
+    options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
 });
 
 WebApplication app = builder.Build();

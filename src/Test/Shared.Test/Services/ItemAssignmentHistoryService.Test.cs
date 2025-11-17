@@ -71,7 +71,7 @@ public class ItemAssignmentHistoryServiceTest
         var person = CreatePerson(context);
         var service = new ItemAssignmentHistoryService(context, _mapper);
 
-        var model = new CreateItemAssignmentHistoryModel
+        var model = new CreateOrUpdateItemAssignmentHistoryModel
         {
             ItemId = item.Id,
             PersonId = person.Id,
@@ -103,7 +103,7 @@ public class ItemAssignmentHistoryServiceTest
         var person = CreatePerson(context);
         var service = new ItemAssignmentHistoryService(context, _mapper);
 
-        var model = new CreateItemAssignmentHistoryModel
+        var model = new CreateOrUpdateItemAssignmentHistoryModel
         {
             ItemId = Guid.NewGuid(),
             PersonId = person.Id,
@@ -120,7 +120,7 @@ public class ItemAssignmentHistoryServiceTest
         var item = CreateItem(context);
         var service = new ItemAssignmentHistoryService(context, _mapper);
 
-        var model = new CreateItemAssignmentHistoryModel
+        var model = new CreateOrUpdateItemAssignmentHistoryModel
         {
             ItemId = item.Id,
             PersonId = Guid.NewGuid(),
@@ -148,7 +148,7 @@ public class ItemAssignmentHistoryServiceTest
 
         var service = new ItemAssignmentHistoryService(context, _mapper);
 
-        var model = new CreateItemAssignmentHistoryModel
+        var model = new CreateOrUpdateItemAssignmentHistoryModel
         {
             ItemId = item.Id,
             PersonId = person.Id,

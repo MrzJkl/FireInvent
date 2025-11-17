@@ -10,7 +10,7 @@ public partial class ProductMapper : BaseMapper
     public partial ProductModel MapProductToProductModel(Product product);
 
     [MapValue(nameof(Product.Id), Use = nameof(NewGuid))]
-    public partial Product MapCreateProductModelToProduct(CreateProductModel createProductModel);
+    public partial Product MapCreateProductModelToProduct(CreateOrUpdateProductModel createProductModel);
 
     public partial List<ProductModel> MapProductsToProductModels(List<Product> products);
 

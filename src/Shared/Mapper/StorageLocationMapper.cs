@@ -10,7 +10,7 @@ public partial class StorageLocationMapper : BaseMapper
     public partial StorageLocationModel MapStorageLocationToStorageLocationModel(StorageLocation storageLocation);
 
     [MapValue(nameof(StorageLocation.Id), Use = nameof(NewGuid))]
-    public partial StorageLocation MapCreateStorageLocationModelToStorageLocation(CreateStorageLocationModel createStorageLocationModel);
+    public partial StorageLocation MapCreateStorageLocationModelToStorageLocation(CreateOrUpdateStorageLocationModel createStorageLocationModel);
 
     public partial List<StorageLocationModel> MapStorageLocationsToStorageLocationModels(List<StorageLocation> storageLocations);
 

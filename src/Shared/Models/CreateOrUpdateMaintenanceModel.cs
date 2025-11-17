@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace FireInvent.Shared.Models;
 
-public record CreateMaintenanceModel
+public record CreateOrUpdateMaintenanceModel
 {
     [Required]
     public Guid ItemId { get; init; }

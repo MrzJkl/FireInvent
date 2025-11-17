@@ -36,7 +36,7 @@ public class ProductsController(IProductService productService, IVariantService 
     [SwaggerResponse(201, "Product created", typeof(ProductModel))]
     [SwaggerResponse(409, "A product with the same name and manufacturer already exists")]
     [Authorize(Roles = Roles.Admin + "," + Roles.Procurement)]
-    public async Task<ActionResult<ProductModel>> Create(CreateProductModel model)
+    public async Task<ActionResult<ProductModel>> Create(CreateOrUpdateProductModel model)
     {
         var created = await productService.CreateProductAsync(model);
         return CreatedAtAction(nameof(GetById), new { id = created.Id }, created);
@@ -49,7 +49,7 @@ public class ProductsController(IProductService productService, IVariantService 
     [SwaggerResponse(404, "Product not found")]
     [SwaggerResponse(409, "A product with the same name and manufacturer already exists")]
     [Authorize(Roles = Roles.Admin + "," + Roles.Procurement)]
-    public async Task<IActionResult> Update(Guid id, ProductModel model)
+    public async Task<IActionResult> Update(Guid id, CreateOrUpdateProductModel model)
     {
         if (id != model.Id)
             throw new IdMismatchException();

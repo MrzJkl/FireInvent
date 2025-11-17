@@ -21,7 +21,7 @@ public class PersonServiceTest
         var context = TestHelper.GetTestDbContext();
         var service = new PersonService(context, _mapper);
 
-        var model = new CreatePersonModel
+        var model = new CreateOrUpdatePersonModel
         {
             FirstName = "Max",
             LastName = "Mustermann",
@@ -63,7 +63,7 @@ public class PersonServiceTest
 
         var service = new PersonService(context, _mapper);
 
-        var model = new CreatePersonModel
+        var model = new CreateOrUpdatePersonModel
         {
             FirstName = "Max",
             LastName = "Mustermann"
@@ -87,7 +87,7 @@ public class PersonServiceTest
 
         var service = new PersonService(context, _mapper);
 
-        var model = new CreatePersonModel
+        var model = new CreateOrUpdatePersonModel
         {
             FirstName = "Max",
             LastName = "Mustermann",

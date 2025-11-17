@@ -8,7 +8,7 @@ namespace FireInvent.Shared.Services;
 
 public class ItemService(AppDbContext context, ItemMapper mapper) : IItemService
 {
-    public async Task<ItemModel> CreateItemAsync(CreateItemModel model)
+    public async Task<ItemModel> CreateItemAsync(CreateOrUpdateItemModel model)
     {
         if (!await context.Variants.AnyAsync(v => v.Id == model.VariantId))
             throw new BadRequestException("Variant not found.");
@@ -26,7 +26,7 @@ public class ItemService(AppDbContext context, ItemMapper mapper) : IItemService
                 throw new ConflictException($"Item with identifier '{model.Identifier}' already exists.");
         }
 
-        var item = mapper.MapCreateItemModelToItem(model);
+        var item = mapper.MapCreateOrUpdateItemModelToItem(model);
 
         context.Items.Add(item);
         await context.SaveChangesAsync();
@@ -57,9 +57,9 @@ public class ItemService(AppDbContext context, ItemMapper mapper) : IItemService
         return item is null ? null : mapper.MapItemToItemModel(item);
     }
 
-    public async Task<bool> UpdateItemAsync(ItemModel model)
+    public async Task<bool> UpdateItemAsync(Guid id, CreateOrUpdateItemModel model)
     {
-        var item = await context.Items.FindAsync(model.Id);
+        var item = await context.Items.FindAsync(id);
         if (item is null)
             return false;
 
@@ -73,13 +73,13 @@ public class ItemService(AppDbContext context, ItemMapper mapper) : IItemService
         if (!string.IsNullOrWhiteSpace(model.Identifier))
         {
             var exists = await context.Items
-                .AnyAsync(c => c.Identifier == model.Identifier && c.Id != model.Id);
+                .AnyAsync(c => c.Identifier == model.Identifier && c.Id != id);
 
             if (exists)
                 throw new ConflictException($"Item with identifier '{model.Identifier}' already exists.");
         }
 
-        mapper.MapItemModelToItem(model, item);
+        mapper.MapCreateOrUpdateItemModelToItem(model, item, id);
 
         await context.SaveChangesAsync();
         return true;

@@ -38,7 +38,7 @@ public class VariantsController(IVariantService variantService, IItemService ite
     [SwaggerResponse(409, "A variant with the same name already exists for this product")]
     [SwaggerResponse(400, "Referenced product does not exist")]
     [Authorize(Roles = Roles.Admin + "," + Roles.Procurement)]
-    public async Task<ActionResult<VariantModel>> Create(CreateVariantModel model)
+    public async Task<ActionResult<VariantModel>> Create(CreateOrUpdateVariantModel model)
     {
         var created = await variantService.CreateVariantAsync(model);
         return CreatedAtAction(nameof(GetById), new { id = created.Id }, created);
@@ -51,7 +51,7 @@ public class VariantsController(IVariantService variantService, IItemService ite
     [SwaggerResponse(404, "variant not found")]
     [SwaggerResponse(409, "Another variant with the same name already exists for this product")]
     [Authorize(Roles = Roles.Admin + "," + Roles.Procurement)]
-    public async Task<IActionResult> Update(Guid id, VariantModel model)
+    public async Task<IActionResult> Update(Guid id, CreateOrUpdateVariantModel model)
     {
         if (id != model.Id)
             throw new IdMismatchException();
