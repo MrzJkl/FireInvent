@@ -50,7 +50,7 @@ public class StorageLocationsController(IStorageLocationService locationService,
     [Authorize(Roles = Roles.Admin + "," + Roles.Procurement)]
     public async Task<IActionResult> Update(Guid id, CreateOrUpdateStorageLocationModel model)
     {
-        var success = await locationService.UpdateStorageLocationAsync(id,model);
+        var success = await locationService.UpdateStorageLocationAsync(id, model);
         return success ? NoContent() : throw new NotFoundException();
     }
 

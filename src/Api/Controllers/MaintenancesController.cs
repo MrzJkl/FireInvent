@@ -50,7 +50,7 @@ public class MaintenancesController(IMaintenanceService service) : ControllerBas
     [Authorize(Roles = Roles.Admin + "," + Roles.Maintenance)]
     public async Task<IActionResult> Update(Guid id, CreateOrUpdateMaintenanceModel model)
     {
-        var success = await service.UpdateMaintenanceAsync(id,model);
+        var success = await service.UpdateMaintenanceAsync(id, model);
         return success ? NoContent() : throw new NotFoundException();
     }
 

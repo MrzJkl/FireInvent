@@ -53,7 +53,7 @@ public class VariantsController(IVariantService variantService, IItemService ite
     [Authorize(Roles = Roles.Admin + "," + Roles.Procurement)]
     public async Task<IActionResult> Update(Guid id, CreateOrUpdateVariantModel model)
     {
-        var success = await variantService.UpdateVariantAsync(id,model);
+        var success = await variantService.UpdateVariantAsync(id, model);
         return success ? NoContent() : throw new NotFoundException();
     }
 
