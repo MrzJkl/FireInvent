@@ -47,16 +47,13 @@ public class VariantsController(IVariantService variantService, IItemService ite
     [HttpPut("{id:guid}")]
     [SwaggerOperation(Summary = "Update a variant", Description = "Updates an existing variant.")]
     [SwaggerResponse(204, "variant updated")]
-    [SwaggerResponse(400, "ID mismatch")]
-    [SwaggerResponse(404, "variant not found")]
+    [SwaggerResponse(400, "Referenced Product not found")]
+    [SwaggerResponse(404, "Variant not found")]
     [SwaggerResponse(409, "Another variant with the same name already exists for this product")]
     [Authorize(Roles = Roles.Admin + "," + Roles.Procurement)]
     public async Task<IActionResult> Update(Guid id, CreateOrUpdateVariantModel model)
     {
-        if (id != model.Id)
-            throw new IdMismatchException();
-
-        var success = await variantService.UpdateVariantAsync(model);
+        var success = await variantService.UpdateVariantAsync(id,model);
         return success ? NoContent() : throw new NotFoundException();
     }
 

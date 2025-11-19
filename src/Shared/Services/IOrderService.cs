@@ -8,5 +8,5 @@ public interface IOrderService
     Task<bool> DeleteOrderAsync(Guid id);
     Task<List<OrderModel>> GetAllOrdersAsync();
     Task<OrderModel?> GetOrderByIdAsync(Guid id);
-    Task<bool> UpdateOrderAsync(OrderModel model);
+    Task<bool> UpdateOrderAsync(Guid id, CreateOrUpdateOrderModel model);
 }

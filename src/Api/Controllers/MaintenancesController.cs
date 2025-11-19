@@ -45,15 +45,12 @@ public class MaintenancesController(IMaintenanceService service) : ControllerBas
     [HttpPut("{id:guid}")]
     [SwaggerOperation(Summary = "Update a maintenance", Description = "Updates an existing maintenance record.")]
     [SwaggerResponse(204, "Maintenance updated")]
-    [SwaggerResponse(400, "ID mismatch or referenced item does not exist")]
+    [SwaggerResponse(400, "Referenced item does not exist")]
     [SwaggerResponse(404, "Maintenance not found")]
     [Authorize(Roles = Roles.Admin + "," + Roles.Maintenance)]
     public async Task<IActionResult> Update(Guid id, CreateOrUpdateMaintenanceModel model)
     {
-        if (id != model.Id)
-            throw new IdMismatchException();
-
-        var success = await service.UpdateMaintenanceAsync(model);
+        var success = await service.UpdateMaintenanceAsync(id,model);
         return success ? NoContent() : throw new NotFoundException();
     }
 

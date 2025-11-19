@@ -16,7 +16,7 @@ public class StorageLocationService(AppDbContext context, StorageLocationMapper 
         if (exists)
             throw new ConflictException($"A StorageLocation with name '{model.Name}' already exists.");
 
-        var location = mapper.MapCreateStorageLocationModelToStorageLocation(model);
+        var location = mapper.MapCreateOrUpdateStorageLocationModelToStorageLocation(model);
         location.Id = Guid.NewGuid();
 
         context.StorageLocations.Add(location);
@@ -44,19 +44,19 @@ public class StorageLocationService(AppDbContext context, StorageLocationMapper 
         return location is null ? null : mapper.MapStorageLocationToStorageLocationModel(location);
     }
 
-    public async Task<bool> UpdateStorageLocationAsync(StorageLocationModel model)
+    public async Task<bool> UpdateStorageLocationAsync(Guid id, CreateOrUpdateStorageLocationModel model)
     {
-        var location = await context.StorageLocations.FindAsync(model.Id);
+        var location = await context.StorageLocations.FindAsync(id);
         if (location is null)
             return false;
 
         var nameExists = await context.StorageLocations
-            .AnyAsync(s => s.Name == model.Name && s.Id != model.Id);
+            .AnyAsync(s => s.Name == model.Name && s.Id != id);
 
         if (nameExists)
             throw new ConflictException($"A StorageLocation with name '{model.Name}' already exists.");
 
-        mapper.MapStorageLocationModelToStorageLocation(model, location);
+        mapper.MapCreateOrUpdateStorageLocationModelToStorageLocation(model, location, id);
 
         await context.SaveChangesAsync();
         return true;

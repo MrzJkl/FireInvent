@@ -44,15 +44,11 @@ public class MaintenanceTypesController(IMaintenanceTypeService maintenanceTypeS
     [HttpPut("{id:guid}")]
     [SwaggerOperation(Summary = "Update a maintenanceType", Description = "Updates an existing maintenanceType.")]
     [SwaggerResponse(204, "MaintenanceType updated")]
-    [SwaggerResponse(400, "ID mismatch")]
     [SwaggerResponse(404, "MaintenanceType not found")]
     [Authorize(Roles = Roles.Admin)]
     public async Task<IActionResult> Update(Guid id, CreateOrUpdateMaintenanceTypeModel model)
     {
-        if (id != model.Id)
-            throw new IdMismatchException();
-
-        var success = await maintenanceTypeService.UpdateMaintenanceTypeAsync(model);
+        var success = await maintenanceTypeService.UpdateMaintenanceTypeAsync(id, model);
         return success ? NoContent() : throw new NotFoundException();
     }
 

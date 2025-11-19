@@ -45,16 +45,12 @@ public class StorageLocationsController(IStorageLocationService locationService,
     [HttpPut("{id:guid}")]
     [SwaggerOperation(Summary = "Update a storage location", Description = "Updates an existing storage location.")]
     [SwaggerResponse(204, "Storage location updated")]
-    [SwaggerResponse(400, "ID mismatch")]
     [SwaggerResponse(404, "Storage location not found")]
     [SwaggerResponse(409, "A storage location with the same name already exists")]
     [Authorize(Roles = Roles.Admin + "," + Roles.Procurement)]
     public async Task<IActionResult> Update(Guid id, CreateOrUpdateStorageLocationModel model)
     {
-        if (id != model.Id)
-            throw new IdMismatchException();
-
-        var success = await locationService.UpdateStorageLocationAsync(model);
+        var success = await locationService.UpdateStorageLocationAsync(id,model);
         return success ? NoContent() : throw new NotFoundException();
     }
 

@@ -44,15 +44,11 @@ public class ProductTypesController(IProductTypeService productTypeService) : Co
     [HttpPut("{id:guid}")]
     [SwaggerOperation(Summary = "Update a productType", Description = "Updates an existing productType.")]
     [SwaggerResponse(204, "ProductType updated")]
-    [SwaggerResponse(400, "ID mismatch")]
     [SwaggerResponse(404, "ProductType not found")]
     [Authorize(Roles = Roles.Admin)]
     public async Task<IActionResult> Update(Guid id, CreateOrUpdateProductTypeModel model)
     {
-        if (id != model.Id)
-            throw new IdMismatchException();
-
-        var success = await productTypeService.UpdateProductTypeAsync(model);
+        var success = await productTypeService.UpdateProductTypeAsync(id, model);
         return success ? NoContent() : throw new NotFoundException();
     }
 

@@ -8,5 +8,5 @@ public interface IProductService
     Task<bool> DeleteProductAsync(Guid id);
     Task<List<ProductModel>> GetAllProductsAsync();
     Task<ProductModel?> GetProductByIdAsync(Guid id);
-    Task<bool> UpdateProductAsync(ProductModel model);
+    Task<bool> UpdateProductAsync(Guid id, CreateOrUpdateProductModel model);
 }

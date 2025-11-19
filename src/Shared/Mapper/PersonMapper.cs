@@ -10,10 +10,9 @@ public partial class PersonMapper : BaseMapper
     public partial PersonModel MapPersonToPersonModel(Person person);
 
     [MapValue(nameof(Person.Id), Use = nameof(NewGuid))]
-    public partial Person MapCreatePersonModelToPerson(CreateOrUpdatePersonModel createPersonModel);
+    public partial Person MapCreateOrUpdatePersonModelToPerson(CreateOrUpdatePersonModel createPersonModel);
 
     public partial List<PersonModel> MapPersonsToPersonModels(List<Person> persons);
 
-    [MapperIgnoreTarget(nameof(Person.Id))]
-    public partial void MapPersonModelToPerson(PersonModel source, Person target);
+    public partial void MapCreateOrUpdatePersonModelToPerson(CreateOrUpdatePersonModel source, Person target, Guid id);
 }

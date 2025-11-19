@@ -9,5 +9,5 @@ public interface IPersonService
     Task<List<PersonModel>> GetAllPersonsAsync();
     Task<PersonModel?> GetPersonByIdAsync(Guid id);
     Task<List<PersonModel>> GetPersonsForDepartmentAsync(Guid departmentId);
-    Task<bool> UpdatePersonAsync(PersonModel model);
+    Task<bool> UpdatePersonAsync(Guid id, CreateOrUpdatePersonModel model);
 }

@@ -46,14 +46,10 @@ public class PersonsController(IPersonService personService, IItemService itemSe
     [SwaggerOperation(Summary = "Update a person", Description = "Updates an existing person.")]
     [SwaggerResponse(204, "Person updated")]
     [SwaggerResponse(404, "Person not found")]
-    [SwaggerResponse(400, "ID mismatch")]
     [Authorize(Roles = Roles.Admin + "," + Roles.Procurement)]
     public async Task<IActionResult> Update(Guid id, CreateOrUpdatePersonModel model)
     {
-        if (id != model.Id)
-            throw new IdMismatchException();
-
-        var success = await personService.UpdatePersonAsync(model);
+        var success = await personService.UpdatePersonAsync(id, model);
         return success ? NoContent() : throw new NotFoundException();
     }
 

@@ -9,5 +9,5 @@ public interface IVariantService
     Task<List<VariantModel>> GetAllVariantsAsync();
     Task<VariantModel?> GetVariantByIdAsync(Guid id);
     Task<List<VariantModel>> GetVariantsForProductAsync(Guid productId);
-    Task<bool> UpdateVariantAsync(VariantModel model);
+    Task<bool> UpdateVariantAsync(Guid id, CreateOrUpdateVariantModel model);
 }

@@ -49,10 +49,7 @@ public class OrderController(IOrderService orderService) : ControllerBase
     [Authorize(Roles = Roles.Admin + "," + Roles.Procurement)]
     public async Task<IActionResult> Update(Guid id, CreateOrUpdateOrderModel model)
     {
-        if (id != model.Id)
-            throw new IdMismatchException();
-
-        var success = await orderService.UpdateOrderAsync(model);
+        var success = await orderService.UpdateOrderAsync(id, model);
         return success ? NoContent() : throw new NotFoundException();
     }
 

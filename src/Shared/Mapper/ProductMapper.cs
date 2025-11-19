@@ -10,11 +10,9 @@ public partial class ProductMapper : BaseMapper
     public partial ProductModel MapProductToProductModel(Product product);
 
     [MapValue(nameof(Product.Id), Use = nameof(NewGuid))]
-    public partial Product MapCreateProductModelToProduct(CreateOrUpdateProductModel createProductModel);
+    public partial Product MapCreateOrUpdateProductModelToProduct(CreateOrUpdateProductModel createProductModel);
 
     public partial List<ProductModel> MapProductsToProductModels(List<Product> products);
 
-    [MapperIgnoreTarget(nameof(Product.Id))]
-    [MapperIgnoreTarget(nameof(Product.Type))]
-    public partial void MapProductModelToProduct(ProductModel source, Product target);
+    public partial void MapCreateOrUpdateProductModelToProduct(CreateOrUpdateProductModel source, Product target, Guid id);
 }

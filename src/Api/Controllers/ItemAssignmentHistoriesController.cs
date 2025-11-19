@@ -46,16 +46,13 @@ public class ItemAssignmentHistoriesController(IItemAssignmentHistoryService ser
     [HttpPut("{id:guid}")]
     [SwaggerOperation(Summary = "Update an assignment", Description = "Updates an existing item assignment history.")]
     [SwaggerResponse(204, "Assignment updated")]
-    [SwaggerResponse(400, "ID mismatch or referenced item/person does not exist")]
     [SwaggerResponse(404, "Assignment not found")]
+    [SwaggerResponse(400, "Referenced item/person does not exist")]
     [SwaggerResponse(409, "An overlapping assignment already exists for this item")]
     [Authorize(Roles = Roles.Admin + "," + Roles.Procurement)]
     public async Task<IActionResult> Update(Guid id, CreateOrUpdateItemAssignmentHistoryModel model)
     {
-        if (id != model.Id)
-            throw new IdMismatchException();
-
-        var success = await service.UpdateAssignmentAsync(model);
+        var success = await service.UpdateAssignmentAsync(id, model);
         return success ? NoContent() : throw new NotFoundException();
     }
 

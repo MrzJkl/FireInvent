@@ -10,10 +10,9 @@ public partial class VariantMapper : BaseMapper
     public partial VariantModel MapVariantToVariantModel(Variant variant);
 
     [MapValue(nameof(Variant.Id), Use = nameof(NewGuid))]
-    public partial Variant MapCreateVariantModelToVariant(CreateOrUpdateVariantModel createVariantModel);
+    public partial Variant MapCreateOrUpdateVariantModelToVariant(CreateOrUpdateVariantModel createVariantModel);
 
     public partial List<VariantModel> MapVariantsToVariantModels(List<Variant> variants);
 
-    [MapperIgnoreTarget(nameof(Variant.Id))]
-    public partial void MapVariantModelToVariant(VariantModel source, Variant target);
+    public partial void MapCreateOrUpdateVariantModelToVariant(CreateOrUpdateVariantModel source, Variant target, Guid id);
 }

@@ -22,7 +22,7 @@ public class PersonService(AppDbContext context, PersonMapper mapper) : IPersonS
             .Where(d => model.DepartmentIds.Contains(d.Id))
             .ToListAsync();
 
-        var person = mapper.MapCreatePersonModelToPerson(model);
+        var person = mapper.MapCreateOrUpdatePersonModelToPerson(model);
         person.Id = Guid.NewGuid();
         person.Departments = departments;
 
@@ -52,17 +52,16 @@ public class PersonService(AppDbContext context, PersonMapper mapper) : IPersonS
         return person is null ? null : mapper.MapPersonToPersonModel(person);
     }
 
-    public async Task<bool> UpdatePersonAsync(PersonModel model)
+    public async Task<bool> UpdatePersonAsync(Guid id, CreateOrUpdatePersonModel model)
     {
         var person = await context.Persons
-            .Include(p => p.Departments) // important, otherwise EF core will not track changes
-            .FirstOrDefaultAsync(p => p.Id == model.Id);
+            .FirstOrDefaultAsync(p => p.Id == id);
 
         if (person is null)
             return false;
 
         var nameExists = await context.Persons.AnyAsync(p =>
-            p.Id != model.Id &&
+            p.Id != id &&
             p.FirstName == model.FirstName &&
             p.LastName == model.LastName);
 
@@ -72,30 +71,26 @@ public class PersonService(AppDbContext context, PersonMapper mapper) : IPersonS
         if (!string.IsNullOrWhiteSpace(model.ExternalId))
         {
             var extIdExists = await context.Persons.AnyAsync(p =>
-                p.Id != model.Id &&
+                p.Id != id &&
                 p.ExternalId == model.ExternalId);
 
             if (extIdExists)
                 throw new ConflictException("Another person with the same external ID already exists.");
         }
 
-        mapper.MapPersonModelToPerson(model, person);
-
-        var requestedDeptIds = (model.DepartmentIds != null && model.DepartmentIds.Any())
-            ? model.DepartmentIds
-            : model.Departments?.Select(d => d.Id).ToList();
+        mapper.MapCreateOrUpdatePersonModelToPerson(model, person, id);
 
         if (person.Departments == null)
             person.Departments = [];
 
-        if (requestedDeptIds == null || requestedDeptIds.Count == 0)
+        if (model.DepartmentIds.Count == 0)
         {
             person.Departments.Clear();
         }
         else
         {
             var departments = await context.Departments
-                .Where(d => requestedDeptIds.Contains(d.Id))
+                .Where(d => model.DepartmentIds.Contains(d.Id))
                 .ToListAsync();
 
             person.Departments = departments;
