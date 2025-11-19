@@ -8,7 +8,7 @@ namespace FireInvent.Shared.Services;
 
 public class VariantService(AppDbContext context, VariantMapper mapper) : IVariantService
 {
-    public async Task<VariantModel> CreateVariantAsync(CreateVariantModel model)
+    public async Task<VariantModel> CreateVariantAsync(CreateOrUpdateVariantModel model)
     {
         var duplicate = await context.Variants.AnyAsync(v =>
             v.ProductId == model.ProductId &&
@@ -21,7 +21,7 @@ public class VariantService(AppDbContext context, VariantMapper mapper) : IVaria
         if (!productExists)
             throw new BadRequestException("Referenced product does not exist.");
 
-        var variant = mapper.MapCreateVariantModelToVariant(model);
+        var variant = mapper.MapCreateOrUpdateVariantModelToVariant(model);
         variant.Id = Guid.NewGuid();
 
         context.Variants.Add(variant);
@@ -49,21 +49,23 @@ public class VariantService(AppDbContext context, VariantMapper mapper) : IVaria
         return variant is null ? null : mapper.MapVariantToVariantModel(variant);
     }
 
-    public async Task<bool> UpdateVariantAsync(VariantModel model)
+    public async Task<bool> UpdateVariantAsync(Guid id, CreateOrUpdateVariantModel model)
     {
-        var variant = await context.Variants.FindAsync(model.Id);
+        var variant = await context.Variants.FindAsync(id);
         if (variant is null)
             return false;
 
+        _ = await context.Products.FindAsync(model.ProductId) ?? throw new BadRequestException($"Product with ID '{model.ProductId}' does not exist.");
+
         var duplicate = await context.Variants.AnyAsync(v =>
-            v.Id != model.Id &&
+            v.Id != id &&
             v.ProductId == model.ProductId &&
             v.Name == model.Name);
 
         if (duplicate)
             throw new ConflictException("Another variant with the same name already exists for this product.");
 
-        mapper.MapVariantModelToVariant(model, variant);
+        mapper.MapCreateOrUpdateVariantModelToVariant(model, variant, id);
 
         await context.SaveChangesAsync();
         return true;

@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace FireInvent.Shared.Models;
 
-public record CreatePersonModel
+public record CreateOrUpdatePersonModel
 {
     [Required]
     [MaxLength(ModelConstants.MaxStringLength)]

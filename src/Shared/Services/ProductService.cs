@@ -8,7 +8,7 @@ namespace FireInvent.Shared.Services;
 
 public class ProductService(AppDbContext context, ProductMapper mapper) : IProductService
 {
-    public async Task<ProductModel> CreateProductAsync(CreateProductModel model)
+    public async Task<ProductModel> CreateProductAsync(CreateOrUpdateProductModel model)
     {
         _ = await context.ProductTypes.FindAsync(model.TypeId) ?? throw new BadRequestException($"ProductType with ID '{model.TypeId}' does not exist.");
 
@@ -18,7 +18,7 @@ public class ProductService(AppDbContext context, ProductMapper mapper) : IProdu
         if (exists)
             throw new ConflictException("A product with the same name and manufacturer already exists.");
 
-        var product = mapper.MapCreateProductModelToProduct(model);
+        var product = mapper.MapCreateOrUpdateProductModelToProduct(model);
 
         context.Products.Add(product);
         await context.SaveChangesAsync();
@@ -45,23 +45,23 @@ public class ProductService(AppDbContext context, ProductMapper mapper) : IProdu
         return product is null ? null : mapper.MapProductToProductModel(product);
     }
 
-    public async Task<bool> UpdateProductAsync(ProductModel model)
+    public async Task<bool> UpdateProductAsync(Guid id, CreateOrUpdateProductModel model)
     {
         _ = await context.ProductTypes.FindAsync(model.TypeId) ?? throw new BadRequestException($"ProductType with ID '{model.TypeId}' does not exist.");
 
-        var product = await context.Products.FindAsync(model.Id);
+        var product = await context.Products.FindAsync(id);
         if (product is null)
             return false;
 
         var duplicate = await context.Products.AnyAsync(p =>
-            p.Id != model.Id &&
+            p.Id != id &&
             p.Name == model.Name &&
             p.Manufacturer == model.Manufacturer);
 
         if (duplicate)
             throw new ConflictException("A product with the same name and manufacturer already exists.");
 
-        mapper.MapProductModelToProduct(model, product);
+        mapper.MapCreateOrUpdateProductModelToProduct(model, product, id);
 
         await context.SaveChangesAsync();
         return true;

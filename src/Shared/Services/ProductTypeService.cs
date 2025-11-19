@@ -8,7 +8,7 @@ namespace FireInvent.Shared.Services
 {
     public class ProductTypeService(AppDbContext context, ProductTypeMapper mapper) : IProductTypeService
     {
-        public async Task<ProductTypeModel> CreateProductTypeAsync(CreateProductTypeModel model)
+        public async Task<ProductTypeModel> CreateProductTypeAsync(CreateOrUpdateProductTypeModel model)
         {
             var exists = await context.ProductTypes
                 .AnyAsync(p => p.Name == model.Name);
@@ -16,7 +16,7 @@ namespace FireInvent.Shared.Services
             if (exists)
                 throw new ConflictException("A productType with the same name already exists.");
 
-            var productType = mapper.MapCreateProductTypeModelToProductType(model);
+            var productType = mapper.MapCreateOrUpdateProductTypeModelToProductType(model);
 
             await context.ProductTypes.AddAsync(productType);
             await context.SaveChangesAsync();
@@ -43,19 +43,19 @@ namespace FireInvent.Shared.Services
             return productType is null ? null : mapper.MapProductTypeToProductTypeModel(productType);
         }
 
-        public async Task<bool> UpdateProductTypeAsync(ProductTypeModel model)
+        public async Task<bool> UpdateProductTypeAsync(Guid id, CreateOrUpdateProductTypeModel model)
         {
-            var productType = await context.ProductTypes.FindAsync(model.Id);
+            var productType = await context.ProductTypes.FindAsync(id);
             if (productType is null)
                 return false;
 
             var nameExists = await context.ProductTypes.AnyAsync(p =>
-                p.Id != model.Id && p.Name == model.Name);
+                p.Id != id && p.Name == model.Name);
 
             if (nameExists)
                 throw new ConflictException("Another productType with the same name already exists.");
 
-            mapper.MapProductTypeModelToProductType(model, productType);
+            mapper.MapCreateOrUpdateProductTypeModelToProductType(model, productType, id);
 
             await context.SaveChangesAsync();
             return true;

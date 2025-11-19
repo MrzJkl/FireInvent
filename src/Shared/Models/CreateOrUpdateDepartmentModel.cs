@@ -3,12 +3,12 @@ using System.ComponentModel.DataAnnotations;
 
 namespace FireInvent.Shared.Models;
 
-public record CreateStorageLocationModel
+public record CreateOrUpdateDepartmentModel
 {
     [Required]
     [MaxLength(ModelConstants.MaxStringLength)]
     public string Name { get; init; } = string.Empty;
 
     [MaxLength(ModelConstants.MaxStringLengthLong)]
-    public string? Remarks { get; init; }
+    public string? Description { get; init; }
 }

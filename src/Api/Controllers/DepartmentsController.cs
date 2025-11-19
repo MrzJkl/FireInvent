@@ -35,7 +35,7 @@ public class DepartmentsController(IDepartmentService departmentService, IPerson
     [SwaggerOperation(Summary = "Create a new department", Description = "Creates a new department.")]
     [SwaggerResponse(201, "Department created", typeof(DepartmentModel))]
     [Authorize(Roles = Roles.Admin + "," + Roles.Procurement)]
-    public async Task<ActionResult<DepartmentModel>> Create(CreateDepartmentModel model)
+    public async Task<ActionResult<DepartmentModel>> Create(CreateOrUpdateDepartmentModel model)
     {
         var created = await departmentService.CreateDepartmentAsync(model);
         return CreatedAtAction(nameof(GetById), new { id = created.Id }, created);
@@ -44,15 +44,11 @@ public class DepartmentsController(IDepartmentService departmentService, IPerson
     [HttpPut("{id:guid}")]
     [SwaggerOperation(Summary = "Update a department", Description = "Updates an existing department.")]
     [SwaggerResponse(204, "Department updated")]
-    [SwaggerResponse(400, "ID mismatch")]
     [SwaggerResponse(404, "Department not found")]
     [Authorize(Roles = Roles.Admin + "," + Roles.Procurement)]
-    public async Task<IActionResult> Update(Guid id, DepartmentModel model)
+    public async Task<IActionResult> Update(Guid id, CreateOrUpdateDepartmentModel model)
     {
-        if (id != model.Id)
-            throw new IdMismatchException();
-
-        var success = await departmentService.UpdateDepartmentAsync(model);
+        var success = await departmentService.UpdateDepartmentAsync(id, model);
         return success ? NoContent() : throw new NotFoundException();
     }
 

@@ -36,7 +36,7 @@ public class ProductsController(IProductService productService, IVariantService 
     [SwaggerResponse(201, "Product created", typeof(ProductModel))]
     [SwaggerResponse(409, "A product with the same name and manufacturer already exists")]
     [Authorize(Roles = Roles.Admin + "," + Roles.Procurement)]
-    public async Task<ActionResult<ProductModel>> Create(CreateProductModel model)
+    public async Task<ActionResult<ProductModel>> Create(CreateOrUpdateProductModel model)
     {
         var created = await productService.CreateProductAsync(model);
         return CreatedAtAction(nameof(GetById), new { id = created.Id }, created);
@@ -45,24 +45,13 @@ public class ProductsController(IProductService productService, IVariantService 
     [HttpPut("{id:guid}")]
     [SwaggerOperation(Summary = "Update a product", Description = "Updates an existing product.")]
     [SwaggerResponse(204, "Product updated")]
-    [SwaggerResponse(400, "ID mismatch")]
     [SwaggerResponse(404, "Product not found")]
     [SwaggerResponse(409, "A product with the same name and manufacturer already exists")]
     [Authorize(Roles = Roles.Admin + "," + Roles.Procurement)]
-    public async Task<IActionResult> Update(Guid id, ProductModel model)
+    public async Task<IActionResult> Update(Guid id, CreateOrUpdateProductModel model)
     {
-        if (id != model.Id)
-            throw new IdMismatchException();
-
-        try
-        {
-            var success = await productService.UpdateProductAsync(model);
-            return success ? NoContent() : throw new NotFoundException();
-        }
-        catch (InvalidOperationException ex)
-        {
-            return Conflict(new { error = ex.Message });
-        }
+        var success = await productService.UpdateProductAsync(id, model);
+        return success ? NoContent() : throw new NotFoundException();
     }
 
     [HttpDelete("{id:guid}")]

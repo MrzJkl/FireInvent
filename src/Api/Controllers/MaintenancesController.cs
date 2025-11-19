@@ -36,7 +36,7 @@ public class MaintenancesController(IMaintenanceService service) : ControllerBas
     [SwaggerResponse(201, "Maintenance created", typeof(MaintenanceModel))]
     [SwaggerResponse(400, "Invalid input or referenced item does not exist")]
     [Authorize(Roles = Roles.Admin + "," + Roles.Maintenance)]
-    public async Task<ActionResult<MaintenanceModel>> Create(CreateMaintenanceModel model)
+    public async Task<ActionResult<MaintenanceModel>> Create(CreateOrUpdateMaintenanceModel model)
     {
         var created = await service.CreateMaintenanceAsync(model);
         return CreatedAtAction(nameof(GetById), new { id = created.Id }, created);
@@ -45,15 +45,12 @@ public class MaintenancesController(IMaintenanceService service) : ControllerBas
     [HttpPut("{id:guid}")]
     [SwaggerOperation(Summary = "Update a maintenance", Description = "Updates an existing maintenance record.")]
     [SwaggerResponse(204, "Maintenance updated")]
-    [SwaggerResponse(400, "ID mismatch or referenced item does not exist")]
+    [SwaggerResponse(400, "Referenced item does not exist")]
     [SwaggerResponse(404, "Maintenance not found")]
     [Authorize(Roles = Roles.Admin + "," + Roles.Maintenance)]
-    public async Task<IActionResult> Update(Guid id, MaintenanceModel model)
+    public async Task<IActionResult> Update(Guid id, CreateOrUpdateMaintenanceModel model)
     {
-        if (id != model.Id)
-            throw new IdMismatchException();
-
-        var success = await service.UpdateMaintenanceAsync(model);
+        var success = await service.UpdateMaintenanceAsync(id, model);
         return success ? NoContent() : throw new NotFoundException();
     }
 

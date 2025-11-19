@@ -8,7 +8,7 @@ namespace FireInvent.Shared.Services;
 
 public class MaintenanceService(AppDbContext context, IUserService userService, MaintenanceMapper mapper) : IMaintenanceService
 {
-    public async Task<MaintenanceModel> CreateMaintenanceAsync(CreateMaintenanceModel model)
+    public async Task<MaintenanceModel> CreateMaintenanceAsync(CreateOrUpdateMaintenanceModel model)
     {
         _ = await context.Items.FindAsync(model.ItemId) ?? throw new BadRequestException($"Item with ID '{model.ItemId}' does not exist.");
         _ = await context.MaintenanceTypes.FindAsync(model.TypeId) ?? throw new BadRequestException($"MaintenanceType with ID '{model.TypeId}' does not exist.");
@@ -18,7 +18,7 @@ public class MaintenanceService(AppDbContext context, IUserService userService, 
             _ = await userService.GetUserByIdAsync(model.PerformedById.Value) ?? throw new BadRequestException($"User with ID '{model.PerformedById}' does not exist.");
         }
 
-        var entity = mapper.MapCreateMaintenanceModelToMaintenance(model);
+        var entity = mapper.MapCreateOrUpdateMaintenanceModelToMaintenance(model);
 
         context.Maintenances.Add(entity);
         await context.SaveChangesAsync();
@@ -45,9 +45,9 @@ public class MaintenanceService(AppDbContext context, IUserService userService, 
         return maintenance is null ? null : mapper.MapMaintenanceToMaintenanceModel(maintenance);
     }
 
-    public async Task<bool> UpdateMaintenanceAsync(MaintenanceModel model)
+    public async Task<bool> UpdateMaintenanceAsync(Guid id, CreateOrUpdateMaintenanceModel model)
     {
-        var entity = await context.Maintenances.FindAsync(model.Id);
+        var entity = await context.Maintenances.FindAsync(id);
         if (entity is null)
             return false;
 
@@ -59,7 +59,7 @@ public class MaintenanceService(AppDbContext context, IUserService userService, 
             _ = await userService.GetUserByIdAsync(model.PerformedById.Value) ?? throw new BadRequestException($"User with ID '{model.PerformedById}' does not exist.");
         }
 
-        mapper.MapMaintenanceModelToMaintenance(model, entity);
+        mapper.MapCreateOrUpdateMaintenanceModelToMaintenance(model, entity, id);
 
         await context.SaveChangesAsync();
         return true;

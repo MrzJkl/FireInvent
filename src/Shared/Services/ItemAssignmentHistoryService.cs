@@ -8,7 +8,7 @@ namespace FireInvent.Shared.Services;
 
 public class ItemAssignmentHistoryService(AppDbContext context, ItemAssignmentHistoryMapper mapper) : IItemAssignmentHistoryService
 {
-    public async Task<ItemAssignmentHistoryModel> CreateAssignmentAsync(CreateItemAssignmentHistoryModel model)
+    public async Task<ItemAssignmentHistoryModel> CreateAssignmentAsync(CreateOrUpdateItemAssignmentHistoryModel model)
     {
         if (!await context.Items.AnyAsync(i => i.Id == model.ItemId))
             throw new BadRequestException($"Item with ID '{model.ItemId}' does not exist.");
@@ -27,7 +27,7 @@ public class ItemAssignmentHistoryService(AppDbContext context, ItemAssignmentHi
         if (overlapExists)
             throw new ConflictException("An overlapping assignment already exists for this item.");
 
-        var entity = mapper.MapCreateItemAssignmentHistoryModelToItemAssignmentHistory(model);
+        var entity = mapper.MapCreateOrUpdateItemAssignmentHistoryModelToItemAssignmentHistory(model);
 
         context.ItemAssignmentHistories.Add(entity);
         await context.SaveChangesAsync();
@@ -69,9 +69,10 @@ public class ItemAssignmentHistoryService(AppDbContext context, ItemAssignmentHi
         return entity is null ? null : mapper.MapItemAssignmentHistoryToItemAssignmentHistoryModel(entity);
     }
 
-    public async Task<bool> UpdateAssignmentAsync(ItemAssignmentHistoryModel model)
+    public async Task<bool> UpdateAssignmentAsync(Guid id, CreateOrUpdateItemAssignmentHistoryModel model)
     {
-        var entity = await context.ItemAssignmentHistories.FindAsync(model.Id);
+        var entity = await context.ItemAssignmentHistories
+            .FindAsync(id);
         if (entity is null)
             return false;
 
@@ -83,7 +84,7 @@ public class ItemAssignmentHistoryService(AppDbContext context, ItemAssignmentHi
 
         bool overlapExists = await context.ItemAssignmentHistories
             .AnyAsync(a =>
-                a.Id != model.Id &&
+                a.Id != id &&
                 a.ItemId == model.ItemId &&
                 (
                     (model.AssignedUntil == null || a.AssignedFrom <= model.AssignedUntil) &&
@@ -93,7 +94,7 @@ public class ItemAssignmentHistoryService(AppDbContext context, ItemAssignmentHi
         if (overlapExists)
             throw new ConflictException("An overlapping assignment already exists for this item.");
 
-        mapper.MapItemAssignmentHistoryModelToItemAssignmentHistory(model, entity);
+        mapper.MapCreateOrUpdateItemAssignmentHistoryModelToItemAssignmentHistory(model, entity, id);
 
         await context.SaveChangesAsync();
         return true;

@@ -35,7 +35,7 @@ public class MaintenanceTypesController(IMaintenanceTypeService maintenanceTypeS
     [SwaggerOperation(Summary = "Create a new maintenanceType", Description = "Creates a new maintenanceType.")]
     [SwaggerResponse(201, "MaintenanceType created", typeof(MaintenanceTypeModel))]
     [Authorize(Roles = Roles.Admin)]
-    public async Task<ActionResult<MaintenanceTypeModel>> Create(CreateMaintenanceTypeModel model)
+    public async Task<ActionResult<MaintenanceTypeModel>> Create(CreateOrUpdateMaintenanceTypeModel model)
     {
         var created = await maintenanceTypeService.CreateMaintenanceTypeAsync(model);
         return CreatedAtAction(nameof(GetById), new { id = created.Id }, created);
@@ -44,15 +44,11 @@ public class MaintenanceTypesController(IMaintenanceTypeService maintenanceTypeS
     [HttpPut("{id:guid}")]
     [SwaggerOperation(Summary = "Update a maintenanceType", Description = "Updates an existing maintenanceType.")]
     [SwaggerResponse(204, "MaintenanceType updated")]
-    [SwaggerResponse(400, "ID mismatch")]
     [SwaggerResponse(404, "MaintenanceType not found")]
     [Authorize(Roles = Roles.Admin)]
-    public async Task<IActionResult> Update(Guid id, MaintenanceTypeModel model)
+    public async Task<IActionResult> Update(Guid id, CreateOrUpdateMaintenanceTypeModel model)
     {
-        if (id != model.Id)
-            throw new IdMismatchException();
-
-        var success = await maintenanceTypeService.UpdateMaintenanceTypeAsync(model);
+        var success = await maintenanceTypeService.UpdateMaintenanceTypeAsync(id, model);
         return success ? NoContent() : throw new NotFoundException();
     }
 

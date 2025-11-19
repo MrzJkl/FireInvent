@@ -36,7 +36,7 @@ public class PersonsController(IPersonService personService, IItemService itemSe
     [SwaggerResponse(201, "Person created", typeof(PersonModel))]
     [SwaggerResponse(409, "Person with same name or external ID already exists")]
     [Authorize(Roles = Roles.Admin + "," + Roles.Procurement)]
-    public async Task<ActionResult<PersonModel>> Create(CreatePersonModel model)
+    public async Task<ActionResult<PersonModel>> Create(CreateOrUpdatePersonModel model)
     {
         var created = await personService.CreatePersonAsync(model);
         return CreatedAtAction(nameof(GetById), new { id = created.Id }, created);
@@ -46,14 +46,10 @@ public class PersonsController(IPersonService personService, IItemService itemSe
     [SwaggerOperation(Summary = "Update a person", Description = "Updates an existing person.")]
     [SwaggerResponse(204, "Person updated")]
     [SwaggerResponse(404, "Person not found")]
-    [SwaggerResponse(400, "ID mismatch")]
     [Authorize(Roles = Roles.Admin + "," + Roles.Procurement)]
-    public async Task<IActionResult> Update(Guid id, PersonModel model)
+    public async Task<IActionResult> Update(Guid id, CreateOrUpdatePersonModel model)
     {
-        if (id != model.Id)
-            throw new IdMismatchException();
-
-        var success = await personService.UpdatePersonAsync(model);
+        var success = await personService.UpdatePersonAsync(id, model);
         return success ? NoContent() : throw new NotFoundException();
     }
 

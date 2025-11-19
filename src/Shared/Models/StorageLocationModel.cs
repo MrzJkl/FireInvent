@@ -2,7 +2,7 @@
 
 namespace FireInvent.Shared.Models;
 
-public record StorageLocationModel : CreateStorageLocationModel
+public record StorageLocationModel : CreateOrUpdateStorageLocationModel
 {
     [Required]
     public Guid Id { get; init; }

@@ -2,7 +2,7 @@
 
 namespace FireInvent.Shared.Models;
 
-public record CreateItemAssignmentHistoryModel
+public record CreateOrUpdateItemAssignmentHistoryModel
 {
     [Required]
     public Guid ItemId { get; init; }

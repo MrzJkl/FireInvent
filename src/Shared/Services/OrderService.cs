@@ -26,9 +26,9 @@ public class OrderService(AppDbContext context, OrderMapper mapper) : IOrderServ
         return mapper.MapOrdersToOrderModels(orders);
     }
 
-    public async Task<OrderModel> CreateOrderAsync(CreateOrderModel model)
+    public async Task<OrderModel> CreateOrderAsync(CreateOrUpdateOrderModel model)
     {
-        var entity = mapper.MapCreateOrderModelToOrder(model);
+        var entity = mapper.MapCreateOrUpdateOrderModelToOrder(model);
 
         context.Orders.Add(entity);
         await context.SaveChangesAsync();
@@ -36,15 +36,15 @@ public class OrderService(AppDbContext context, OrderMapper mapper) : IOrderServ
         return mapper.MapOrderToOrderModel(entity);
     }
 
-    public async Task<bool> UpdateOrderAsync(OrderModel model)
+    public async Task<bool> UpdateOrderAsync(Guid id, CreateOrUpdateOrderModel model)
     {
         var entity = await context.Orders
-            .FirstOrDefaultAsync(o => o.Id == model.Id);
+            .FirstOrDefaultAsync(o => o.Id == id);
 
         if (entity is null || entity.Status == OrderStatus.Completed)
             return false;
 
-        mapper.MapOrderModelToOrder(model, entity);
+        mapper.MapCreateOrUpdateOrderModelToOrder(model, entity, id);
 
         await context.SaveChangesAsync();
         return true;

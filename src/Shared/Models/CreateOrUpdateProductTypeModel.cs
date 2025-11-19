@@ -3,10 +3,10 @@ using System.ComponentModel.DataAnnotations;
 
 namespace FireInvent.Shared.Models;
 
-public record CreateMaintenanceTypeModel
+public record CreateOrUpdateProductTypeModel
 {
-    [Required]
     [MaxLength(ModelConstants.MaxStringLength)]
+    [Required]
     public string Name { get; init; } = string.Empty;
 
     [MaxLength(ModelConstants.MaxStringLengthLong)]

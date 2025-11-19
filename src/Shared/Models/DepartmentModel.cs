@@ -2,7 +2,7 @@
 
 namespace FireInvent.Shared.Models;
 
-public record DepartmentModel : CreateDepartmentModel
+public record DepartmentModel : CreateOrUpdateDepartmentModel
 {
     [Required]
     public Guid Id { get; init; }

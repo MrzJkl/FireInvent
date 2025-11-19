@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace FireInvent.Shared.Models;
 
-public record CreateOrderModel
+public record CreateOrUpdateOrderModel
 {
     [MaxLength(ModelConstants.MaxStringLength)]
     public string? OrderIdentifier { get; init; }
@@ -15,7 +15,7 @@ public record CreateOrderModel
     public OrderStatus Status { get; init; }
 
     [Required]
-    public List<CreateOrderItemModel> Items { get; init; } = [];
+    public List<CreateOrUpdateOrderItemModel> Items { get; init; } = [];
 
     public DateTimeOffset? DeliveryDate { get; init; }
 }
