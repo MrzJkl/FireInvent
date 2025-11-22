@@ -4,7 +4,6 @@ using FireInvent.Shared.Models;
 using FireInvent.Shared.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Swashbuckle.AspNetCore.Annotations;
 
 namespace FireInvent.Api.Controllers;
 
@@ -13,8 +12,9 @@ namespace FireInvent.Api.Controllers;
 public class StorageLocationsController(IStorageLocationService locationService, IItemService itemService) : ControllerBase
 {
     [HttpGet]
-    [SwaggerOperation(Summary = "List all storage locations", Description = "Returns a list of all storage locations.")]
-    [SwaggerResponse(200, "List of storage locations", typeof(List<StorageLocationModel>))]
+    [EndpointSummary("List all storage locations")]
+    [EndpointDescription("Returns a list of all storage locations.")]
+    [ProducesResponseType<List<StorageLocationModel>>(StatusCodes.Status200OK)]
     public async Task<ActionResult<List<StorageLocationModel>>> GetAll()
     {
         var locations = await locationService.GetAllStorageLocationsAsync();
@@ -22,9 +22,10 @@ public class StorageLocationsController(IStorageLocationService locationService,
     }
 
     [HttpGet("{id:guid}")]
-    [SwaggerOperation(Summary = "Get storage location by ID", Description = "Returns a storage location by its unique ID.")]
-    [SwaggerResponse(200, "Storage location found", typeof(StorageLocationModel))]
-    [SwaggerResponse(404, "Storage location not found")]
+    [EndpointSummary("Get storage location by ID")]
+    [EndpointDescription("Returns a storage location by its unique ID.")]
+    [ProducesResponseType<StorageLocationModel>(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<ActionResult<StorageLocationModel>> GetById(Guid id)
     {
         var location = await locationService.GetStorageLocationByIdAsync(id);
@@ -32,9 +33,10 @@ public class StorageLocationsController(IStorageLocationService locationService,
     }
 
     [HttpPost]
-    [SwaggerOperation(Summary = "Create a new storage location", Description = "Creates a new storage location.")]
-    [SwaggerResponse(201, "Storage location created", typeof(StorageLocationModel))]
-    [SwaggerResponse(409, "A storage location with the same name already exists")]
+    [EndpointSummary("Create a new storage location")]
+    [EndpointDescription("Creates a new storage location.")]
+    [ProducesResponseType<StorageLocationModel>(StatusCodes.Status201Created)]
+    [ProducesResponseType(StatusCodes.Status409Conflict)]
     [Authorize(Roles = Roles.Admin + "," + Roles.Procurement)]
     public async Task<ActionResult<StorageLocationModel>> Create(CreateOrUpdateStorageLocationModel model)
     {
@@ -43,10 +45,11 @@ public class StorageLocationsController(IStorageLocationService locationService,
     }
 
     [HttpPut("{id:guid}")]
-    [SwaggerOperation(Summary = "Update a storage location", Description = "Updates an existing storage location.")]
-    [SwaggerResponse(204, "Storage location updated")]
-    [SwaggerResponse(404, "Storage location not found")]
-    [SwaggerResponse(409, "A storage location with the same name already exists")]
+    [EndpointSummary("Update a storage location")]
+    [EndpointDescription("Updates an existing storage location.")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status409Conflict)]
     [Authorize(Roles = Roles.Admin + "," + Roles.Procurement)]
     public async Task<IActionResult> Update(Guid id, CreateOrUpdateStorageLocationModel model)
     {
@@ -55,9 +58,10 @@ public class StorageLocationsController(IStorageLocationService locationService,
     }
 
     [HttpDelete("{id:guid}")]
-    [SwaggerOperation(Summary = "Delete a storage location", Description = "Deletes a storage location by its unique ID.")]
-    [SwaggerResponse(204, "Storage location deleted")]
-    [SwaggerResponse(404, "Storage location not found")]
+    [EndpointSummary("Delete a storage location")]
+    [EndpointDescription("Deletes a storage location by its unique ID.")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     [Authorize(Roles = Roles.Admin + "," + Roles.Procurement)]
     public async Task<IActionResult> Delete(Guid id)
     {
@@ -66,9 +70,10 @@ public class StorageLocationsController(IStorageLocationService locationService,
     }
 
     [HttpGet("{id:guid}/items")]
-    [SwaggerOperation(Summary = "List all items for a storage location", Description = "Returns all items assigned to a storage location.")]
-    [SwaggerResponse(200, "List of items", typeof(List<ItemModel>))]
-    [SwaggerResponse(404, "Storage location not found")]
+    [EndpointSummary("List all items for a storage location")]
+    [EndpointDescription("Returns all items assigned to a storage location.")]
+    [ProducesResponseType<List<ItemModel>>(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<ActionResult<List<ItemModel>>> GetItemsForLocation(Guid id)
     {
         var items = await itemService.GetItemsForStorageLocationAsync(id);

@@ -1,6 +1,5 @@
 using FireInvent.Api.Authentication;
 using FireInvent.Api.Middlewares;
-using FireInvent.Api.Swagger;
 using FireInvent.Contract;
 using FireInvent.Database;
 using FireInvent.Shared.Mapper;

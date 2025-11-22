@@ -4,7 +4,6 @@ using FireInvent.Shared.Models;
 using FireInvent.Shared.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Swashbuckle.AspNetCore.Annotations;
 
 namespace FireInvent.Api.Controllers;
 
@@ -13,8 +12,9 @@ namespace FireInvent.Api.Controllers;
 public class PersonsController(IPersonService personService, IItemService itemService) : ControllerBase
 {
     [HttpGet]
-    [SwaggerOperation(Summary = "List all persons", Description = "Returns a list of all persons.")]
-    [SwaggerResponse(200, "List of persons", typeof(List<PersonModel>))]
+    [EndpointSummary("List all persons")]
+    [EndpointDescription("Returns a list of all persons.")]
+    [ProducesResponseType<List<PersonModel>>(StatusCodes.Status200OK)]
     public async Task<ActionResult<List<PersonModel>>> GetAll()
     {
         var persons = await personService.GetAllPersonsAsync();
@@ -22,9 +22,10 @@ public class PersonsController(IPersonService personService, IItemService itemSe
     }
 
     [HttpGet("{id:guid}")]
-    [SwaggerOperation(Summary = "Get person by ID", Description = "Returns a single person by their unique ID.")]
-    [SwaggerResponse(200, "Person found", typeof(PersonModel))]
-    [SwaggerResponse(404, "Person not found")]
+    [EndpointSummary("Get person by ID")]
+    [EndpointDescription("Returns a single person by their unique ID.")]
+    [ProducesResponseType<PersonModel>(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<ActionResult<PersonModel>> GetById(Guid id)
     {
         var person = await personService.GetPersonByIdAsync(id);
@@ -32,9 +33,10 @@ public class PersonsController(IPersonService personService, IItemService itemSe
     }
 
     [HttpPost]
-    [SwaggerOperation(Summary = "Create a new person", Description = "Creates a new person entry.")]
-    [SwaggerResponse(201, "Person created", typeof(PersonModel))]
-    [SwaggerResponse(409, "Person with same name or external ID already exists")]
+    [EndpointSummary("Create a new person")]
+    [EndpointDescription("Creates a new person entry.")]
+    [ProducesResponseType<PersonModel>(StatusCodes.Status201Created)]
+    [ProducesResponseType(StatusCodes.Status409Conflict)]
     [Authorize(Roles = Roles.Admin + "," + Roles.Procurement)]
     public async Task<ActionResult<PersonModel>> Create(CreateOrUpdatePersonModel model)
     {
@@ -43,9 +45,10 @@ public class PersonsController(IPersonService personService, IItemService itemSe
     }
 
     [HttpPut("{id:guid}")]
-    [SwaggerOperation(Summary = "Update a person", Description = "Updates an existing person.")]
-    [SwaggerResponse(204, "Person updated")]
-    [SwaggerResponse(404, "Person not found")]
+    [EndpointSummary("Update a person")]
+    [EndpointDescription("Updates an existing person.")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     [Authorize(Roles = Roles.Admin + "," + Roles.Procurement)]
     public async Task<IActionResult> Update(Guid id, CreateOrUpdatePersonModel model)
     {
@@ -54,9 +57,10 @@ public class PersonsController(IPersonService personService, IItemService itemSe
     }
 
     [HttpDelete("{id:guid}")]
-    [SwaggerOperation(Summary = "Delete a person", Description = "Deletes a person by ID.")]
-    [SwaggerResponse(204, "Person deleted")]
-    [SwaggerResponse(404, "Person not found")]
+    [EndpointSummary("Delete a person")]
+    [EndpointDescription("Deletes a person by ID.")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     [Authorize(Roles = Roles.Admin + "," + Roles.Procurement)]
     public async Task<IActionResult> Delete(Guid id)
     {
@@ -65,9 +69,10 @@ public class PersonsController(IPersonService personService, IItemService itemSe
     }
 
     [HttpGet("{id:guid}/items")]
-    [SwaggerOperation(Summary = "List all items assigned to a person", Description = "Returns all items assigned to a specific person.")]
-    [SwaggerResponse(200, "List of items", typeof(List<ItemModel>))]
-    [SwaggerResponse(404, "Person not found")]
+    [EndpointSummary("List all items assigned to a person")]
+    [EndpointDescription("Returns all items assigned to a specific person.")]
+    [ProducesResponseType<List<ItemModel>>(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<ActionResult<List<ItemModel>>> GetVariantsForProduct(Guid id)
     {
         var items = await itemService.GetItemsAssignedToPersonAsync(id);

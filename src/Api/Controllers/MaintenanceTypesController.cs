@@ -4,7 +4,6 @@ using FireInvent.Shared.Models;
 using FireInvent.Shared.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Swashbuckle.AspNetCore.Annotations;
 
 namespace FireInvent.Api.Controllers;
 
@@ -13,8 +12,9 @@ namespace FireInvent.Api.Controllers;
 public class MaintenanceTypesController(IMaintenanceTypeService maintenanceTypeService) : ControllerBase
 {
     [HttpGet]
-    [SwaggerOperation(Summary = "List all maintenanceTypes", Description = "Returns a list of all maintenanceTypes.")]
-    [SwaggerResponse(200, "List of maintenanceTypes", typeof(List<MaintenanceTypeModel>))]
+    [EndpointSummary("List all maintenanceTypes")]
+    [EndpointDescription("Returns a list of all maintenanceTypes.")]
+    [ProducesResponseType<List<MaintenanceTypeModel>>(StatusCodes.Status200OK)]
     public async Task<ActionResult<List<MaintenanceTypeModel>>> GetAll()
     {
         var maintenanceTypes = await maintenanceTypeService.GetAllMaintenanceTypesAsync();
@@ -22,9 +22,10 @@ public class MaintenanceTypesController(IMaintenanceTypeService maintenanceTypeS
     }
 
     [HttpGet("{id:guid}")]
-    [SwaggerOperation(Summary = "Get maintenanceType by ID", Description = "Returns a maintenanceType by its unique ID.")]
-    [SwaggerResponse(200, "MaintenanceType found", typeof(MaintenanceTypeModel))]
-    [SwaggerResponse(404, "MaintenanceType not found")]
+    [EndpointSummary("Get maintenanceType by ID")]
+    [EndpointDescription("Returns a maintenanceType by its unique ID.")]
+    [ProducesResponseType<MaintenanceTypeModel>(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<ActionResult<MaintenanceTypeModel>> GetById(Guid id)
     {
         var maintenanceType = await maintenanceTypeService.GetMaintenanceTypeByIdAsync(id);
@@ -32,8 +33,9 @@ public class MaintenanceTypesController(IMaintenanceTypeService maintenanceTypeS
     }
 
     [HttpPost]
-    [SwaggerOperation(Summary = "Create a new maintenanceType", Description = "Creates a new maintenanceType.")]
-    [SwaggerResponse(201, "MaintenanceType created", typeof(MaintenanceTypeModel))]
+    [EndpointSummary("Create a new maintenanceType")]
+    [EndpointDescription("Creates a new maintenanceType.")]
+    [ProducesResponseType<MaintenanceTypeModel>(StatusCodes.Status201Created)]
     [Authorize(Roles = Roles.Admin)]
     public async Task<ActionResult<MaintenanceTypeModel>> Create(CreateOrUpdateMaintenanceTypeModel model)
     {
@@ -42,9 +44,10 @@ public class MaintenanceTypesController(IMaintenanceTypeService maintenanceTypeS
     }
 
     [HttpPut("{id:guid}")]
-    [SwaggerOperation(Summary = "Update a maintenanceType", Description = "Updates an existing maintenanceType.")]
-    [SwaggerResponse(204, "MaintenanceType updated")]
-    [SwaggerResponse(404, "MaintenanceType not found")]
+    [EndpointSummary("Update a maintenanceType")]
+    [EndpointDescription("Updates an existing maintenanceType.")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     [Authorize(Roles = Roles.Admin)]
     public async Task<IActionResult> Update(Guid id, CreateOrUpdateMaintenanceTypeModel model)
     {
@@ -53,9 +56,10 @@ public class MaintenanceTypesController(IMaintenanceTypeService maintenanceTypeS
     }
 
     [HttpDelete("{id:guid}")]
-    [SwaggerOperation(Summary = "Delete a maintenanceType", Description = "Deletes a maintenanceType by its unique ID.")]
-    [SwaggerResponse(204, "MaintenanceType deleted")]
-    [SwaggerResponse(404, "MaintenanceType not found")]
+    [EndpointSummary("Delete a maintenanceType")]
+    [EndpointDescription("Deletes a maintenanceType by its unique ID.")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     [Authorize(Roles = Roles.Admin)]
     public async Task<IActionResult> Delete(Guid id)
     {

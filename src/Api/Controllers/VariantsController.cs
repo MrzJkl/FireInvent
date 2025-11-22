@@ -4,7 +4,6 @@ using FireInvent.Shared.Models;
 using FireInvent.Shared.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Swashbuckle.AspNetCore.Annotations;
 
 namespace FireInvent.Api.Controllers;
 
@@ -14,8 +13,9 @@ public class VariantsController(IVariantService variantService, IItemService ite
 {
 
     [HttpGet]
-    [SwaggerOperation(Summary = "List all variants", Description = "Returns a list of all variants.")]
-    [SwaggerResponse(200, "List of variants", typeof(List<VariantModel>))]
+    [EndpointSummary("List all variants")]
+    [EndpointDescription("Returns a list of all variants.")]
+    [ProducesResponseType<List<VariantModel>>(StatusCodes.Status200OK)]
     public async Task<ActionResult<List<VariantModel>>> GetAll()
     {
         var variants = await variantService.GetAllVariantsAsync();
@@ -23,9 +23,10 @@ public class VariantsController(IVariantService variantService, IItemService ite
     }
 
     [HttpGet("{id:guid}")]
-    [SwaggerOperation(Summary = "Get variant by ID", Description = "Returns a variant by its unique ID.")]
-    [SwaggerResponse(200, "variant found", typeof(VariantModel))]
-    [SwaggerResponse(404, "variant not found")]
+    [EndpointSummary("Get variant by ID")]
+    [EndpointDescription("Returns a variant by its unique ID.")]
+    [ProducesResponseType<VariantModel>(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<ActionResult<VariantModel>> GetById(Guid id)
     {
         var variant = await variantService.GetVariantByIdAsync(id);
@@ -33,10 +34,11 @@ public class VariantsController(IVariantService variantService, IItemService ite
     }
 
     [HttpPost]
-    [SwaggerOperation(Summary = "Create a new variant", Description = "Creates a new variant.")]
-    [SwaggerResponse(201, "variant created", typeof(VariantModel))]
-    [SwaggerResponse(409, "A variant with the same name already exists for this product")]
-    [SwaggerResponse(400, "Referenced product does not exist")]
+    [EndpointSummary("Create a new variant")]
+    [EndpointDescription("Creates a new variant.")]
+    [ProducesResponseType<VariantModel>(StatusCodes.Status201Created)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status409Conflict)]
     [Authorize(Roles = Roles.Admin + "," + Roles.Procurement)]
     public async Task<ActionResult<VariantModel>> Create(CreateOrUpdateVariantModel model)
     {
@@ -45,11 +47,12 @@ public class VariantsController(IVariantService variantService, IItemService ite
     }
 
     [HttpPut("{id:guid}")]
-    [SwaggerOperation(Summary = "Update a variant", Description = "Updates an existing variant.")]
-    [SwaggerResponse(204, "variant updated")]
-    [SwaggerResponse(400, "Referenced Product not found")]
-    [SwaggerResponse(404, "Variant not found")]
-    [SwaggerResponse(409, "Another variant with the same name already exists for this product")]
+    [EndpointSummary("Update a variant")]
+    [EndpointDescription("Updates an existing variant.")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status409Conflict)]
     [Authorize(Roles = Roles.Admin + "," + Roles.Procurement)]
     public async Task<IActionResult> Update(Guid id, CreateOrUpdateVariantModel model)
     {
@@ -58,9 +61,10 @@ public class VariantsController(IVariantService variantService, IItemService ite
     }
 
     [HttpDelete("{id:guid}")]
-    [SwaggerOperation(Summary = "Delete a variant", Description = "Deletes a variant by its unique ID.")]
-    [SwaggerResponse(204, "variant deleted")]
-    [SwaggerResponse(404, "variant not found")]
+    [EndpointSummary("Delete a variant")]
+    [EndpointDescription("Deletes a variant by its unique ID.")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     [Authorize(Roles = Roles.Admin + "," + Roles.Procurement)]
     public async Task<IActionResult> Delete(Guid id)
     {
@@ -69,9 +73,10 @@ public class VariantsController(IVariantService variantService, IItemService ite
     }
 
     [HttpGet("{id:guid}/items")]
-    [SwaggerOperation(Summary = "List all items for a variant", Description = "Returns all items for a specific variant.")]
-    [SwaggerResponse(200, "List of items", typeof(List<ItemModel>))]
-    [SwaggerResponse(404, "Variant not found")]
+    [EndpointSummary("List all items for a variant")]
+    [EndpointDescription("Returns all items for a specific variant.")]
+    [ProducesResponseType<List<ItemModel>>(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<ActionResult<List<ItemModel>>> GetItemsForVariant(Guid id)
     {
         var items = await itemService.GetItemsForVariantAsync(id);

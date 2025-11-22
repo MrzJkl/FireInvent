@@ -4,7 +4,6 @@ using FireInvent.Shared.Models;
 using FireInvent.Shared.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Swashbuckle.AspNetCore.Annotations;
 
 namespace FireInvent.Api.Controllers;
 
@@ -13,8 +12,9 @@ namespace FireInvent.Api.Controllers;
 public class MaintenancesController(IMaintenanceService service) : ControllerBase
 {
     [HttpGet]
-    [SwaggerOperation(Summary = "List all maintenances", Description = "Returns a list of all maintenance records.")]
-    [SwaggerResponse(200, "List of maintenances", typeof(List<MaintenanceModel>))]
+    [EndpointSummary("List all maintenances")]
+    [EndpointDescription("Returns a list of all maintenance records.")]
+    [ProducesResponseType<List<MaintenanceModel>>(StatusCodes.Status200OK)]
     public async Task<ActionResult<List<MaintenanceModel>>> GetAll()
     {
         var list = await service.GetAllMaintenancesAsync();
@@ -22,9 +22,10 @@ public class MaintenancesController(IMaintenanceService service) : ControllerBas
     }
 
     [HttpGet("{id:guid}")]
-    [SwaggerOperation(Summary = "Get maintenance by ID", Description = "Returns a maintenance record by its unique ID.")]
-    [SwaggerResponse(200, "Maintenance found", typeof(MaintenanceModel))]
-    [SwaggerResponse(404, "Maintenance not found")]
+    [EndpointSummary("Get maintenance by ID")]
+    [EndpointDescription("Returns a maintenance record by its unique ID.")]
+    [ProducesResponseType<MaintenanceModel>(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<ActionResult<MaintenanceModel>> GetById(Guid id)
     {
         var result = await service.GetMaintenanceByIdAsync(id);
@@ -32,9 +33,10 @@ public class MaintenancesController(IMaintenanceService service) : ControllerBas
     }
 
     [HttpPost]
-    [SwaggerOperation(Summary = "Create a new maintenance", Description = "Creates a new maintenance record.")]
-    [SwaggerResponse(201, "Maintenance created", typeof(MaintenanceModel))]
-    [SwaggerResponse(400, "Invalid input or referenced item does not exist")]
+    [EndpointSummary("Create a new maintenance")]
+    [EndpointDescription("Creates a new maintenance record.")]
+    [ProducesResponseType<MaintenanceModel>(StatusCodes.Status201Created)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [Authorize(Roles = Roles.Admin + "," + Roles.Maintenance)]
     public async Task<ActionResult<MaintenanceModel>> Create(CreateOrUpdateMaintenanceModel model)
     {
@@ -43,10 +45,11 @@ public class MaintenancesController(IMaintenanceService service) : ControllerBas
     }
 
     [HttpPut("{id:guid}")]
-    [SwaggerOperation(Summary = "Update a maintenance", Description = "Updates an existing maintenance record.")]
-    [SwaggerResponse(204, "Maintenance updated")]
-    [SwaggerResponse(400, "Referenced item does not exist")]
-    [SwaggerResponse(404, "Maintenance not found")]
+    [EndpointSummary("Update a maintenance")]
+    [EndpointDescription("Updates an existing maintenance record.")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     [Authorize(Roles = Roles.Admin + "," + Roles.Maintenance)]
     public async Task<IActionResult> Update(Guid id, CreateOrUpdateMaintenanceModel model)
     {
@@ -55,9 +58,10 @@ public class MaintenancesController(IMaintenanceService service) : ControllerBas
     }
 
     [HttpDelete("{id:guid}")]
-    [SwaggerOperation(Summary = "Delete a maintenance", Description = "Deletes a maintenance record by its unique ID.")]
-    [SwaggerResponse(204, "Maintenance deleted")]
-    [SwaggerResponse(404, "Maintenance not found")]
+    [EndpointSummary("Delete a maintenance")]
+    [EndpointDescription("Deletes a maintenance record by its unique ID.")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     [Authorize(Roles = Roles.Admin + "," + Roles.Maintenance)]
     public async Task<IActionResult> Delete(Guid id)
     {

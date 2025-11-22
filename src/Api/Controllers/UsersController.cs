@@ -4,7 +4,6 @@ using FireInvent.Shared.Models;
 using FireInvent.Shared.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Swashbuckle.AspNetCore.Annotations;
 
 namespace FireInvent.Api.Controllers;
 
@@ -13,6 +12,9 @@ namespace FireInvent.Api.Controllers;
 public class UsersController(IUserService userService) : ControllerBase
 {
     [HttpGet]
+    [EndpointSummary("List all users")]
+    [EndpointDescription("Returns a list of all users.")]
+    [ProducesResponseType<List<UserModel>>(StatusCodes.Status200OK)]
     [Authorize(Roles = Roles.Admin)]
     public async Task<ActionResult<List<UserModel>>> GetAll()
     {
@@ -21,9 +23,10 @@ public class UsersController(IUserService userService) : ControllerBase
     }
 
     [HttpGet("{id:guid}")]
-    [SwaggerOperation(Summary = "Get user by ID", Description = "Returns a user by its unique ID.")]
-    [SwaggerResponse(200, "User found", typeof(StorageLocationModel))]
-    [SwaggerResponse(404, "User not found")]
+    [EndpointSummary("Get user by ID")]
+    [EndpointDescription("Returns a user by its unique ID.")]
+    [ProducesResponseType<UserModel>(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<ActionResult<UserModel>> GetById(Guid id)
     {
         var user = await userService.GetUserByIdAsync(id);

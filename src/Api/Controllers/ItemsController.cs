@@ -4,7 +4,6 @@ using FireInvent.Shared.Models;
 using FireInvent.Shared.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Swashbuckle.AspNetCore.Annotations;
 
 namespace FireInvent.Api.Controllers;
 
@@ -16,8 +15,9 @@ public class ItemsController(
     IMaintenanceService maintenanceService) : ControllerBase
 {
     [HttpGet]
-    [SwaggerOperation(Summary = "List all items", Description = "Returns a list of all items.")]
-    [SwaggerResponse(200, "List of items", typeof(List<ItemModel>))]
+    [EndpointSummary("List all items")]
+    [EndpointDescription("Returns a list of all items.")]
+    [ProducesResponseType<List<ItemModel>>(StatusCodes.Status200OK)]
     public async Task<ActionResult<List<ItemModel>>> GetAll()
     {
         var items = await itemService.GetAllItemsAsync();
@@ -25,9 +25,10 @@ public class ItemsController(
     }
 
     [HttpGet("{id:guid}")]
-    [SwaggerOperation(Summary = "Get item by ID", Description = "Returns a item by its unique ID.")]
-    [SwaggerResponse(200, "Item found", typeof(ItemModel))]
-    [SwaggerResponse(404, "Item not found")]
+    [EndpointSummary("Get item by ID")]
+    [EndpointDescription("Returns a item by its unique ID.")]
+    [ProducesResponseType<ItemModel>(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<ActionResult<ItemModel>> GetById(Guid id)
     {
         var item = await itemService.GetItemByIdAsync(id);
@@ -35,10 +36,11 @@ public class ItemsController(
     }
 
     [HttpPost]
-    [SwaggerOperation(Summary = "Create a new item", Description = "Creates a new item.")]
-    [SwaggerResponse(201, "Item created", typeof(ItemModel))]
-    [SwaggerResponse(400, "Invalid input or referenced variant/location not found")]
-    [SwaggerResponse(409, "A item with the same identifier already exists")]
+    [EndpointSummary("Create a new item")]
+    [EndpointDescription("Creates a new item.")]
+    [ProducesResponseType<ItemModel>(StatusCodes.Status201Created)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status409Conflict)]
     [Authorize(Roles = Roles.Admin + "," + Roles.Procurement)]
     public async Task<ActionResult<ItemModel>> Create(CreateOrUpdateItemModel model)
     {
@@ -47,11 +49,12 @@ public class ItemsController(
     }
 
     [HttpPut("{id:guid}")]
-    [SwaggerOperation(Summary = "Update a item", Description = "Updates an existing item.")]
-    [SwaggerResponse(204, "Item updated")]
-    [SwaggerResponse(400, "Referenced variant/location not found")]
-    [SwaggerResponse(404, "Item not found")]
-    [SwaggerResponse(409, "A item with the same identifier already exists")]
+    [EndpointSummary("Update a item")]
+    [EndpointDescription("Updates an existing item.")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status409Conflict)]
     [Authorize(Roles = Roles.Admin + "," + Roles.Procurement)]
     public async Task<IActionResult> Update(Guid id, CreateOrUpdateItemModel model)
     {
@@ -60,9 +63,10 @@ public class ItemsController(
     }
 
     [HttpDelete("{id:guid}")]
-    [SwaggerOperation(Summary = "Delete a item", Description = "Deletes a item by its unique ID.")]
-    [SwaggerResponse(204, "Item deleted")]
-    [SwaggerResponse(404, "Item not found")]
+    [EndpointSummary("Delete a item")]
+    [EndpointDescription("Deletes a item by its unique ID.")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     [Authorize(Roles = Roles.Admin + "," + Roles.Procurement)]
     public async Task<IActionResult> Delete(Guid id)
     {
@@ -71,9 +75,10 @@ public class ItemsController(
     }
 
     [HttpGet("{id:guid}/assignments")]
-    [SwaggerOperation(Summary = "List all assignments for a item", Description = "Returns all assignment histories for a specific item.")]
-    [SwaggerResponse(200, "List of assignment histories", typeof(List<ItemAssignmentHistoryModel>))]
-    [SwaggerResponse(404, "Item not found")]
+    [EndpointSummary("List all assignments for a item")]
+    [EndpointDescription("Returns all assignment histories for a specific item.")]
+    [ProducesResponseType<List<ItemAssignmentHistoryModel>>(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<ActionResult<List<ItemAssignmentHistoryModel>>> GetAssignmentsForItem(Guid id)
     {
         var assignments = await assignmentHistoryService.GetAssignmentsForItemAsync(id);
@@ -81,9 +86,10 @@ public class ItemsController(
     }
 
     [HttpGet("{id:guid}/maintenance")]
-    [SwaggerOperation(Summary = "List all maintenances for a item", Description = "Returns all maintenance records for a specific item.")]
-    [SwaggerResponse(200, "List of maintenances", typeof(List<MaintenanceModel>))]
-    [SwaggerResponse(404, "Item not found")]
+    [EndpointSummary("List all maintenances for a item")]
+    [EndpointDescription("Returns all maintenance records for a specific item.")]
+    [ProducesResponseType<List<MaintenanceModel>>(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<ActionResult<List<MaintenanceModel>>> GetMaintenanceForItem(Guid id)
     {
         var maintenances = await maintenanceService.GetMaintenancesForItemAsync(id);

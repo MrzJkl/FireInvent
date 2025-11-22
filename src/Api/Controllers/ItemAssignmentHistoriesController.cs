@@ -4,7 +4,6 @@ using FireInvent.Shared.Models;
 using FireInvent.Shared.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Swashbuckle.AspNetCore.Annotations;
 
 namespace FireInvent.Api.Controllers;
 
@@ -13,8 +12,9 @@ namespace FireInvent.Api.Controllers;
 public class ItemAssignmentHistoriesController(IItemAssignmentHistoryService service) : ControllerBase
 {
     [HttpGet]
-    [SwaggerOperation(Summary = "List all item assignments", Description = "Returns a list of all item assignment histories.")]
-    [SwaggerResponse(200, "List of item assignment histories", typeof(List<ItemAssignmentHistoryModel>))]
+    [EndpointSummary("List all item assignments")]
+    [EndpointDescription("Returns a list of all item assignment histories.")]
+    [ProducesResponseType<List<ItemAssignmentHistoryModel>>(StatusCodes.Status200OK)]
     public async Task<ActionResult<List<ItemAssignmentHistoryModel>>> GetAll()
     {
         var assignments = await service.GetAllAssignmentsAsync();
@@ -22,9 +22,10 @@ public class ItemAssignmentHistoriesController(IItemAssignmentHistoryService ser
     }
 
     [HttpGet("{id:guid}")]
-    [SwaggerOperation(Summary = "Get assignment by ID", Description = "Returns a item assignment history by its unique ID.")]
-    [SwaggerResponse(200, "Assignment found", typeof(ItemAssignmentHistoryModel))]
-    [SwaggerResponse(404, "Assignment not found")]
+    [EndpointSummary("Get assignment by ID")]
+    [EndpointDescription("Returns a item assignment history by its unique ID.")]
+    [ProducesResponseType<ItemAssignmentHistoryModel>(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<ActionResult<ItemAssignmentHistoryModel>> GetById(Guid id)
     {
         var assignment = await service.GetAssignmentByIdAsync(id);
@@ -32,10 +33,11 @@ public class ItemAssignmentHistoriesController(IItemAssignmentHistoryService ser
     }
 
     [HttpPost]
-    [SwaggerOperation(Summary = "Create a new assignment", Description = "Creates a new item assignment history.")]
-    [SwaggerResponse(201, "Assignment created", typeof(ItemAssignmentHistoryModel))]
-    [SwaggerResponse(400, "Invalid input or referenced item/person does not exist")]
-    [SwaggerResponse(409, "An overlapping assignment already exists for this item")]
+    [EndpointSummary("Create a new assignment")]
+    [EndpointDescription("Creates a new item assignment history.")]
+    [ProducesResponseType<ItemAssignmentHistoryModel>(StatusCodes.Status201Created)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status409Conflict)]
     [Authorize(Roles = Roles.Admin + "," + Roles.Procurement)]
     public async Task<ActionResult<ItemAssignmentHistoryModel>> Create(CreateOrUpdateItemAssignmentHistoryModel model)
     {
@@ -44,11 +46,12 @@ public class ItemAssignmentHistoriesController(IItemAssignmentHistoryService ser
     }
 
     [HttpPut("{id:guid}")]
-    [SwaggerOperation(Summary = "Update an assignment", Description = "Updates an existing item assignment history.")]
-    [SwaggerResponse(204, "Assignment updated")]
-    [SwaggerResponse(404, "Assignment not found")]
-    [SwaggerResponse(400, "Referenced item/person does not exist")]
-    [SwaggerResponse(409, "An overlapping assignment already exists for this item")]
+    [EndpointSummary("Update an assignment")]
+    [EndpointDescription("Updates an existing item assignment history.")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status409Conflict)]
     [Authorize(Roles = Roles.Admin + "," + Roles.Procurement)]
     public async Task<IActionResult> Update(Guid id, CreateOrUpdateItemAssignmentHistoryModel model)
     {
@@ -57,9 +60,10 @@ public class ItemAssignmentHistoriesController(IItemAssignmentHistoryService ser
     }
 
     [HttpDelete("{id:guid}")]
-    [SwaggerOperation(Summary = "Delete an assignment", Description = "Deletes a item assignment history by its unique ID.")]
-    [SwaggerResponse(204, "Assignment deleted")]
-    [SwaggerResponse(404, "Assignment not found")]
+    [EndpointSummary("Delete an assignment")]
+    [EndpointDescription("Deletes a item assignment history by its unique ID.")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     [Authorize(Roles = Roles.Admin + "," + Roles.Procurement)]
     public async Task<IActionResult> Delete(Guid id)
     {
