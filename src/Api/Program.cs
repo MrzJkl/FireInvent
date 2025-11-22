@@ -10,10 +10,9 @@ using Microsoft.AspNetCore.Mvc.Authorization;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
-using Microsoft.OpenApi.Any;
-using Microsoft.OpenApi.Models;
+using Microsoft.OpenApi;
+using Scalar.AspNetCore;
 using Serilog;
-using Swashbuckle.AspNetCore.SwaggerGen;
 using System.Text.Json.Serialization;
 
 const string SwaggerApiVersion = "v1";
@@ -72,61 +71,7 @@ builder.Services.AddHealthChecks()
 
 // Swagger
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen(c =>
-{
-    c.SchemaGeneratorOptions = new SchemaGeneratorOptions
-    {
-        UseInlineDefinitionsForEnums = true
-    };
-
-    c.MapType<ItemCondition>(() => new OpenApiSchema
-    {
-        Type = "string",
-        Enum = [.. Enum.GetNames<ItemCondition>()
-            .Select(n => new OpenApiString(n))
-            .Cast<IOpenApiAny>()]
-    });
-
-    c.MapType<OrderStatus>(() => new OpenApiSchema
-    {
-        Type = "string",
-        Enum = [.. Enum.GetNames<OrderStatus>()
-            .Select(n => new OpenApiString(n))
-            .Cast<IOpenApiAny>()]
-    });
-
-    c.EnableAnnotations();
-    c.SwaggerDoc(SwaggerApiVersion, new OpenApiInfo
-    {
-        Title = SwaggerApiTitle,
-        Version = SwaggerApiVersion,
-        Description = SwaggerApiDescription
-    });
-
-    c.OperationFilter<AddResponseHeadersFilter>();
-
-    c.AddSecurityDefinition("oidc", new OpenApiSecurityScheme
-    {
-        Type = SecuritySchemeType.OpenIdConnect,
-        OpenIdConnectUrl = new Uri(authOptions.OidcDiscoveryUrlForSwagger),
-        Description = "Login via OpenID Connect"
-    });
-
-    c.AddSecurityRequirement(new OpenApiSecurityRequirement
-    {
-        {
-            new OpenApiSecurityScheme
-            {
-                Reference = new OpenApiReference
-                {
-                    Type = ReferenceType.SecurityScheme,
-                    Id = "oidc"
-                }
-            },
-            new[] { "openid", "profile", "email" }
-        }
-    });
-});
+builder.Services.AddOpenApi();
 
 #if DEBUG
 builder.Services.AddCors(options =>
@@ -209,15 +154,8 @@ logger.LogDebug("Registering middlewares...");
 app.UseMiddleware<ApiExceptionMiddleware>();
 
 logger.LogDebug("Registering swagger...");
-app.UseSwagger();
-app.UseSwaggerUI(c =>
-{
-    c.SwaggerEndpoint(SwaggerEndpointUrl, $"{SwaggerApiTitle} {SwaggerApiVersion}");
-    c.OAuthClientId(authOptions.ClientIdForSwagger);
-    c.OAuthScopes([.. authOptions.Scopes]);
-    c.OAuthAppName($"{SwaggerApiTitle} Swagger");
-    c.OAuthUsePkce();
-});
+app.MapOpenApi();
+app.MapScalarApiReference();
 
 logger.LogDebug("Registering authentication and authorization...");
 app.UseAuthentication();

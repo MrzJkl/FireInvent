@@ -80,8 +80,7 @@ public class PersonService(AppDbContext context, PersonMapper mapper) : IPersonS
 
         mapper.MapCreateOrUpdatePersonModelToPerson(model, person);
 
-        if (person.Departments == null)
-            person.Departments = [];
+        person.Departments ??= [];
 
         if (model.DepartmentIds.Count == 0)
         {
