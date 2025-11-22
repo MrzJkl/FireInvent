@@ -28,6 +28,9 @@ WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 builder.Configuration
     .SetBasePath(Directory.GetCurrentDirectory())
     .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
+#if DEBUG
+    .AddUserSecrets("fireinvent")
+#endif
     .AddEnvironmentVariables();
 
 // Serilog setup

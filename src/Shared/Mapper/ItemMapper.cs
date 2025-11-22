@@ -14,5 +14,8 @@ public partial class ItemMapper : BaseMapper
 
     public partial List<ItemModel> MapItemsToItemModels(List<Item> items);
 
+    [MapperIgnoreTarget(nameof(Item.Id))]
+    [MapperIgnoreTarget(nameof(Item.Variant))]
+    [MapperIgnoreTarget(nameof(Item.StorageLocation))]
     public partial void MapCreateOrUpdateItemModelToItem(CreateOrUpdateItemModel source, Item target, Guid id);
 }
