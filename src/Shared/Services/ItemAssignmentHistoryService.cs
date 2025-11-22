@@ -94,7 +94,7 @@ public class ItemAssignmentHistoryService(AppDbContext context, ItemAssignmentHi
         if (overlapExists)
             throw new ConflictException("An overlapping assignment already exists for this item.");
 
-        mapper.MapCreateOrUpdateItemAssignmentHistoryModelToItemAssignmentHistory(model, entity, id);
+        mapper.MapCreateOrUpdateItemAssignmentHistoryModelToItemAssignmentHistory(model, entity);
 
         await context.SaveChangesAsync();
         return true;

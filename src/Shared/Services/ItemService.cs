@@ -79,7 +79,7 @@ public class ItemService(AppDbContext context, ItemMapper mapper) : IItemService
                 throw new ConflictException($"Item with identifier '{model.Identifier}' already exists.");
         }
 
-        mapper.MapCreateOrUpdateItemModelToItem(model, item, id);
+        mapper.MapCreateOrUpdateItemModelToItem(model, item);
 
         await context.SaveChangesAsync();
         return true;

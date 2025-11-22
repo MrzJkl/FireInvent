@@ -14,5 +14,6 @@ public partial class MaintenanceTypeMapper : BaseMapper
 
     public partial List<MaintenanceTypeModel> MapMaintenanceTypesToMaintenanceTypeModels(List<MaintenanceType> maintenanceTypes);
 
-    public partial void MapCreateOrUpdateMaintenanceTypeModelToMaintenanceType(CreateOrUpdateMaintenanceTypeModel source, MaintenanceType target, Guid id);
+    [MapperIgnoreTarget(nameof(MaintenanceType.Id))]
+    public partial void MapCreateOrUpdateMaintenanceTypeModelToMaintenanceType(CreateOrUpdateMaintenanceTypeModel source, MaintenanceType target);
 }

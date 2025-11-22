@@ -59,7 +59,7 @@ public class MaintenanceService(AppDbContext context, IUserService userService, 
             _ = await userService.GetUserByIdAsync(model.PerformedById.Value) ?? throw new BadRequestException($"User with ID '{model.PerformedById}' does not exist.");
         }
 
-        mapper.MapCreateOrUpdateMaintenanceModelToMaintenance(model, entity, id);
+        mapper.MapCreateOrUpdateMaintenanceModelToMaintenance(model, entity);
 
         await context.SaveChangesAsync();
         return true;

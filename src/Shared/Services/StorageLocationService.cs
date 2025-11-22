@@ -56,7 +56,7 @@ public class StorageLocationService(AppDbContext context, StorageLocationMapper 
         if (nameExists)
             throw new ConflictException($"A StorageLocation with name '{model.Name}' already exists.");
 
-        mapper.MapCreateOrUpdateStorageLocationModelToStorageLocation(model, location, id);
+        mapper.MapCreateOrUpdateStorageLocationModelToStorageLocation(model, location);
 
         await context.SaveChangesAsync();
         return true;

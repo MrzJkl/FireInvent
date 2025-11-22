@@ -23,5 +23,5 @@ public partial class PersonMapper : BaseMapper
     [MapperIgnoreTarget(nameof(Person.AssignedItems))]
     [MapperIgnoreTarget(nameof(Person.Departments))]
     [MapperIgnoreSource(nameof(CreateOrUpdatePersonModel.DepartmentIds))]
-    public partial void MapCreateOrUpdatePersonModelToPerson(CreateOrUpdatePersonModel source, Person target, Guid id);
+    public partial void MapCreateOrUpdatePersonModelToPerson(CreateOrUpdatePersonModel source, Person target);
 }

@@ -44,7 +44,7 @@ public class OrderService(AppDbContext context, OrderMapper mapper) : IOrderServ
         if (entity is null || entity.Status == OrderStatus.Completed)
             return false;
 
-        mapper.MapCreateOrUpdateOrderModelToOrder(model, entity, id);
+        mapper.MapCreateOrUpdateOrderModelToOrder(model, entity);
 
         await context.SaveChangesAsync();
         return true;

@@ -24,5 +24,5 @@ public partial class ItemAssignmentHistoryMapper : BaseMapper
     [MapperIgnoreTarget(nameof(ItemAssignmentHistory.Item))]
     [MapperIgnoreTarget(nameof(ItemAssignmentHistory.Person))]
     [MapperIgnoreTarget(nameof(ItemAssignmentHistory.AssignedBy))]
-    public partial void MapCreateOrUpdateItemAssignmentHistoryModelToItemAssignmentHistory(CreateOrUpdateItemAssignmentHistoryModel source, ItemAssignmentHistory target, Guid id);
+    public partial void MapCreateOrUpdateItemAssignmentHistoryModelToItemAssignmentHistory(CreateOrUpdateItemAssignmentHistoryModel source, ItemAssignmentHistory target);
 }

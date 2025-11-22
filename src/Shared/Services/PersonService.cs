@@ -78,7 +78,7 @@ public class PersonService(AppDbContext context, PersonMapper mapper) : IPersonS
                 throw new ConflictException("Another person with the same external ID already exists.");
         }
 
-        mapper.MapCreateOrUpdatePersonModelToPerson(model, person, id);
+        mapper.MapCreateOrUpdatePersonModelToPerson(model, person);
 
         if (person.Departments == null)
             person.Departments = [];

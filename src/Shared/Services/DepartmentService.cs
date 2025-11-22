@@ -55,7 +55,7 @@ public class DepartmentService(AppDbContext context, DepartmentMapper mapper) : 
         if (nameExists)
             throw new ConflictException("Another department with the same name already exists.");
 
-        mapper.MapCreateOrUpdateDepartmentModelToDepartment(model, department, id);
+        mapper.MapCreateOrUpdateDepartmentModelToDepartment(model, department);
 
         await context.SaveChangesAsync();
         return true;

@@ -65,7 +65,7 @@ public class VariantService(AppDbContext context, VariantMapper mapper) : IVaria
         if (duplicate)
             throw new ConflictException("Another variant with the same name already exists for this product.");
 
-        mapper.MapCreateOrUpdateVariantModelToVariant(model, variant, id);
+        mapper.MapCreateOrUpdateVariantModelToVariant(model, variant);
 
         await context.SaveChangesAsync();
         return true;

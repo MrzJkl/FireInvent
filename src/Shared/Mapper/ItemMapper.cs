@@ -22,9 +22,10 @@ public partial class ItemMapper : BaseMapper
 
     public partial List<ItemModel> MapItemsToItemModels(List<Item> items);
 
+    [MapperIgnoreTarget(nameof(Item.Id))]
     [MapperIgnoreTarget(nameof(Item.Variant))]
     [MapperIgnoreTarget(nameof(Item.StorageLocation))]
     [MapperIgnoreTarget(nameof(Item.Assignments))]
     [MapperIgnoreTarget(nameof(Item.Maintenances))]
-    public partial void MapCreateOrUpdateItemModelToItem(CreateOrUpdateItemModel source, Item target, Guid id);
+    public partial void MapCreateOrUpdateItemModelToItem(CreateOrUpdateItemModel source, Item target);
 }
