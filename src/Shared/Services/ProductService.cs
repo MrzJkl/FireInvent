@@ -23,6 +23,10 @@ public class ProductService(AppDbContext context, ProductMapper mapper) : IProdu
         context.Products.Add(product);
         await context.SaveChangesAsync();
 
+        product = await context.Products
+            .AsNoTracking()
+            .SingleAsync(p => p.Id == product.Id);
+
         return mapper.MapProductToProductModel(product);
     }
 

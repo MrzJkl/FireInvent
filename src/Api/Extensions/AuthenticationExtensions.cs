@@ -1,4 +1,6 @@
-﻿namespace FireInvent.Api.Authentication;
+﻿using FireInvent.Api.Authentication;
+
+namespace FireInvent.Api.Extensions;
 
 using FireInvent.Shared.Options;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -35,7 +37,7 @@ public static class AuthenticationExtensions
                     {
                         var logger = context.HttpContext.RequestServices
                             .GetRequiredService<ILoggerFactory>()
-                            .CreateLogger("JwtBearer");
+                            .CreateLogger(nameof(AuthenticationExtensions));
 
                         logger.LogWarning(context.Exception, "Authentication failed.");
                         return Task.CompletedTask;
@@ -56,7 +58,7 @@ public static class AuthenticationExtensions
                             var logger = scope.ServiceProvider
                                 .GetRequiredService<ILogger<TokenValidatedHandler>>();
 
-                            logger.LogError(ex, "Error during synchronization of user from claims.");
+                            logger.LogError(ex, "Error during synchronization of user from token claims.");
                         }
                     }
                 };

@@ -15,7 +15,6 @@ public class UsersController(IUserService userService) : ControllerBase
     [EndpointSummary("List all users")]
     [EndpointDescription("Returns a list of all users.")]
     [ProducesResponseType<List<UserModel>>(StatusCodes.Status200OK)]
-    [Authorize(Roles = Roles.Admin)]
     public async Task<ActionResult<List<UserModel>>> GetAll()
     {
         var users = await userService.GetAllUsersAsync();

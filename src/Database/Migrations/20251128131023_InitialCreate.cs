@@ -270,7 +270,7 @@ namespace FireInvent.Database.Migrations
                     ItemId = table.Column<Guid>(type: "uuid", nullable: false),
                     TypeId = table.Column<Guid>(type: "uuid", nullable: false),
                     PerformedAt = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
-                    PeformedById = table.Column<Guid>(type: "uuid", nullable: true),
+                    PerformedById = table.Column<Guid>(type: "uuid", nullable: true),
                     Remarks = table.Column<string>(type: "character varying(2000)", maxLength: 2000, nullable: true)
                 },
                 constraints: table =>
@@ -289,8 +289,8 @@ namespace FireInvent.Database.Migrations
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_Maintenances_Users_PeformedById",
-                        column: x => x.PeformedById,
+                        name: "FK_Maintenances_Users_PerformedById",
+                        column: x => x.PerformedById,
                         principalTable: "Users",
                         principalColumn: "Id");
                 });
@@ -344,9 +344,9 @@ namespace FireInvent.Database.Migrations
                 column: "ItemId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Maintenances_PeformedById",
+                name: "IX_Maintenances_PerformedById",
                 table: "Maintenances",
-                column: "PeformedById");
+                column: "PerformedById");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Maintenances_TypeId",

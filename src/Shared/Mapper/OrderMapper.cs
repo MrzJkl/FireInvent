@@ -14,6 +14,5 @@ public partial class OrderMapper : BaseMapper
 
     public partial List<OrderModel> MapOrdersToOrderModels(List<Order> orders);
 
-    [MapperIgnoreTarget(nameof(Order.Id))]
     public partial void MapCreateOrUpdateOrderModelToOrder(CreateOrUpdateOrderModel source, Order target);
 }

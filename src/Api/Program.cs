@@ -1,7 +1,9 @@
+using Asp.Versioning;
 using FireInvent.Api.Authentication;
+using FireInvent.Api.Extensions;
 using FireInvent.Api.Middlewares;
-using FireInvent.Contract;
 using FireInvent.Database;
+using FireInvent.Shared.Converter;
 using FireInvent.Shared.Mapper;
 using FireInvent.Shared.Options;
 using FireInvent.Shared.Services;
@@ -9,15 +11,14 @@ using Microsoft.AspNetCore.Mvc.Authorization;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
-using Microsoft.OpenApi;
 using Scalar.AspNetCore;
 using Serilog;
 using System.Text.Json.Serialization;
 
-const string SwaggerApiVersion = "v1";
-const string SwaggerEndpointUrl = $"/swagger/{SwaggerApiVersion}/swagger.json";
-const string SwaggerApiTitle = "FireInvent";
-const string SwaggerApiDescription = "Manage your inventory a modern way!";
+const string ScalarApiVersion = "v1";
+const string ScalarEndpointUrl = $"/swagger/{ScalarApiVersion}/swagger.json";
+const string ScalarApiTitle = "FireInvent";
+const string ScalarApiDescription = "Manage your inventory a modern way!";
 const string AuthScheme = "Bearer";
 
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
@@ -68,9 +69,15 @@ builder.Services.AddHealthChecks()
     .AddProcessAllocatedMemoryHealthCheck(2000)
     .AddCheck("self", () => HealthCheckResult.Healthy());
 
-// Swagger
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddOpenApi();
+// Scalar API-Explorer
+builder.Services.AddVersioning();
+
+var versions = new List<ApiVersion>
+{
+    new(1, 0)
+};
+
+builder.Services.AddOpenApi(versions);
 
 #if DEBUG
 builder.Services.AddCors(options =>
@@ -127,6 +134,7 @@ builder.Services.AddControllers(options =>
     options.JsonSerializerOptions.PropertyNamingPolicy = System.Text.Json.JsonNamingPolicy.CamelCase;
     options.JsonSerializerOptions.PropertyNameCaseInsensitive = true;
     options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
+    options.JsonSerializerOptions.Converters.Add(new EmptyStringToNullConverter());
 });
 
 WebApplication app = builder.Build();
@@ -152,10 +160,8 @@ var logger = app.Services.GetRequiredService<ILogger<Program>>();
 logger.LogDebug("Registering middlewares...");
 app.UseMiddleware<ApiExceptionMiddleware>();
 
-logger.LogDebug("Registering swagger...");
-app.MapOpenApi();
-app.MapScalarApiReference();
-
+logger.LogDebug("Registering scalar...");
+app.ConfigureAddScalar();
 logger.LogDebug("Registering authentication and authorization...");
 app.UseAuthentication();
 app.UseAuthorization();
@@ -168,7 +174,7 @@ app.MapControllers();
 
 app.MapGet("/", context =>
 {
-    context.Response.Redirect("/swagger");
+    context.Response.Redirect("/scalar");
     return Task.CompletedTask;
 });
 

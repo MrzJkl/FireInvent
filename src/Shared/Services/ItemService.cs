@@ -31,11 +31,11 @@ public class ItemService(AppDbContext context, ItemMapper mapper) : IItemService
         context.Items.Add(item);
         await context.SaveChangesAsync();
 
-        var createdItem = await context.Items
+        item = await context.Items
             .AsNoTracking()
             .SingleAsync(i => i.Id == item.Id);
 
-        return mapper.MapItemToItemModel(createdItem);
+        return mapper.MapItemToItemModel(item);
     }
 
     public async Task<List<ItemModel>> GetAllItemsAsync()
