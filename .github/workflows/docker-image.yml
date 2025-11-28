@@ -25,6 +25,9 @@ jobs:
           VERSION="$(date +'%Y.%m.%d').${{ github.run_number }}"
           echo "version=$VERSION" >> $GITHUB_ENV
 
+      - name: Set short commit SHA
+        run: echo "short_sha=$(echo ${{ github.sha }} | cut -c1-7)" >> $GITHUB_ENV
+
       - name: Override Directory.Build.props for CI build
         run: |
           cat > ./src/Directory.Build.props <<EOF
@@ -70,7 +73,10 @@ jobs:
           context: ./src
           file: ./src/Api/Dockerfile
           push: true
-          tags: ghcr.io/mrzjkl/fireinventapi:latest
+          tags: |
+            ghcr.io/mrzjkl/fireinventapi:${{ env.version }}
+            ghcr.io/mrzjkl/fireinventapi:${{ env.short_sha }}
+            ghcr.io/mrzjkl/fireinventapi:latest
           cache-from: type=local,src=/tmp/.buildx-cache
           cache-to: type=local,dest=/tmp/.buildx-cache-new
 
