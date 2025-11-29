@@ -15,10 +15,6 @@ using Scalar.AspNetCore;
 using Serilog;
 using System.Text.Json.Serialization;
 
-const string ScalarApiVersion = "v1";
-const string ScalarEndpointUrl = $"/swagger/{ScalarApiVersion}/swagger.json";
-const string ScalarApiTitle = "FireInvent";
-const string ScalarApiDescription = "Manage your inventory a modern way!";
 const string AuthScheme = "Bearer";
 
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);

@@ -1,9 +1,5 @@
 ﻿using Asp.Versioning;
 using Asp.Versioning.ApiExplorer;
-using FireInvent.Shared.Options;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.OpenApi;
-using Microsoft.Extensions.Options;
 using Microsoft.OpenApi;
 using Scalar.AspNetCore;
 
@@ -13,10 +9,6 @@ namespace FireInvent.Api.Extensions
     {
         internal static IServiceCollection AddOpenApi(this IServiceCollection services, List<ApiVersion> apiVersions)
         {
-            var authenticationOptions = services
-                 .BuildServiceProvider()
-                 .GetRequiredService<IOptions<AuthenticationOptions>>();
-
             foreach (var version in apiVersions)
             {
                 services.Configure<ScalarOptions>(options => options.AddDocument($"v{version.MajorVersion}", $"v{version.MajorVersion}"));
@@ -68,8 +60,6 @@ namespace FireInvent.Api.Extensions
 
         internal static IApplicationBuilder ConfigureAddScalar(this WebApplication app)
         {
-            var applicationSettings = app.Configuration.Get<AuthenticationOptions>();
-
             app.MapOpenApi();
 
             app.MapScalarApiReference("/docs", (options, context) =>
@@ -78,14 +68,7 @@ namespace FireInvent.Api.Extensions
                     .ExpandAllTags()
                     .ExpandAllModelSections()
                     .WithDefaultHttpClient(ScalarTarget.CSharp, ScalarClient.HttpClient)
-                    .AddPreferredSecuritySchemes("OAuth2", "Bearer")
-                    .AddImplicitFlow("OAuth2", flow =>
-                    {
-                        flow.AuthorizationUrl = applicationSettings.OidcDiscoveryUrlForSwagger;
-                        flow.ClientId = "fireinvent-swagger";
-                        
-                        flow.SelectedScopes = ["openid", "profile", "email"];
-                    });
+                    .AddPreferredSecuritySchemes("OAuth2", "Bearer");
             });
 
             return app;
