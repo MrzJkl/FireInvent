@@ -55,7 +55,7 @@ namespace FireInvent.Shared.Services
             if (nameExists)
                 throw new ConflictException("Another maintenanceType with the same name already exists.");
 
-            mapper.MapCreateOrUpdateMaintenanceTypeModelToMaintenanceType(model, maintenanceType, id);
+            mapper.MapCreateOrUpdateMaintenanceTypeModelToMaintenanceType(model, maintenanceType);
 
             await context.SaveChangesAsync();
             return true;

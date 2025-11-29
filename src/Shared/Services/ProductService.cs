@@ -23,6 +23,10 @@ public class ProductService(AppDbContext context, ProductMapper mapper) : IProdu
         context.Products.Add(product);
         await context.SaveChangesAsync();
 
+        product = await context.Products
+            .AsNoTracking()
+            .SingleAsync(p => p.Id == product.Id);
+
         return mapper.MapProductToProductModel(product);
     }
 
@@ -61,7 +65,7 @@ public class ProductService(AppDbContext context, ProductMapper mapper) : IProdu
         if (duplicate)
             throw new ConflictException("A product with the same name and manufacturer already exists.");
 
-        mapper.MapCreateOrUpdateProductModelToProduct(model, product, id);
+        mapper.MapCreateOrUpdateProductModelToProduct(model, product);
 
         await context.SaveChangesAsync();
         return true;

@@ -27,12 +27,16 @@ public class ItemAssignmentHistoryService(AppDbContext context, ItemAssignmentHi
         if (overlapExists)
             throw new ConflictException("An overlapping assignment already exists for this item.");
 
-        var entity = mapper.MapCreateOrUpdateItemAssignmentHistoryModelToItemAssignmentHistory(model);
+        var assignment = mapper.MapCreateOrUpdateItemAssignmentHistoryModelToItemAssignmentHistory(model);
 
-        context.ItemAssignmentHistories.Add(entity);
+        context.ItemAssignmentHistories.Add(assignment);
         await context.SaveChangesAsync();
 
-        return mapper.MapItemAssignmentHistoryToItemAssignmentHistoryModel(entity);
+        assignment = await context.ItemAssignmentHistories
+            .AsNoTracking()
+            .SingleAsync(a => a.Id == assignment.Id);
+
+        return mapper.MapItemAssignmentHistoryToItemAssignmentHistoryModel(assignment);
     }
 
     public async Task<List<ItemAssignmentHistoryModel>> GetAssignmentsForItemAsync(Guid itemId)
@@ -94,7 +98,7 @@ public class ItemAssignmentHistoryService(AppDbContext context, ItemAssignmentHi
         if (overlapExists)
             throw new ConflictException("An overlapping assignment already exists for this item.");
 
-        mapper.MapCreateOrUpdateItemAssignmentHistoryModelToItemAssignmentHistory(model, entity, id);
+        mapper.MapCreateOrUpdateItemAssignmentHistoryModelToItemAssignmentHistory(model, entity);
 
         await context.SaveChangesAsync();
         return true;

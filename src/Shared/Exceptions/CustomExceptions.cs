@@ -11,11 +11,3 @@ public class NotFoundException(string? message = null) : Exception(message ?? "T
 public class BadRequestException(string? message = null) : Exception(message ?? "The request is invalid.")
 {
 }
-
-public class IdMismatchException : BadRequestException
-{
-    public IdMismatchException()
-        : base("The provided ID in the path does not match the ID inside the data model.")
-    {
-    }
-}

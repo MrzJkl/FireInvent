@@ -18,12 +18,16 @@ public class MaintenanceService(AppDbContext context, IUserService userService, 
             _ = await userService.GetUserByIdAsync(model.PerformedById.Value) ?? throw new BadRequestException($"User with ID '{model.PerformedById}' does not exist.");
         }
 
-        var entity = mapper.MapCreateOrUpdateMaintenanceModelToMaintenance(model);
+        var maintenance = mapper.MapCreateOrUpdateMaintenanceModelToMaintenance(model);
 
-        context.Maintenances.Add(entity);
+        context.Maintenances.Add(maintenance);
         await context.SaveChangesAsync();
 
-        return mapper.MapMaintenanceToMaintenanceModel(entity);
+        maintenance = await context.Maintenances
+            .AsNoTracking()
+            .SingleAsync(m => m.Id == maintenance.Id);
+
+        return mapper.MapMaintenanceToMaintenanceModel(maintenance);
     }
 
     public async Task<List<MaintenanceModel>> GetAllMaintenancesAsync()
@@ -59,7 +63,7 @@ public class MaintenanceService(AppDbContext context, IUserService userService, 
             _ = await userService.GetUserByIdAsync(model.PerformedById.Value) ?? throw new BadRequestException($"User with ID '{model.PerformedById}' does not exist.");
         }
 
-        mapper.MapCreateOrUpdateMaintenanceModelToMaintenance(model, entity, id);
+        mapper.MapCreateOrUpdateMaintenanceModelToMaintenance(model, entity);
 
         await context.SaveChangesAsync();
         return true;

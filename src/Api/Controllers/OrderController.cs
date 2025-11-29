@@ -4,7 +4,6 @@ using FireInvent.Shared.Models;
 using FireInvent.Shared.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Swashbuckle.AspNetCore.Annotations;
 
 namespace FireInvent.Api.Controllers;
 
@@ -13,8 +12,9 @@ namespace FireInvent.Api.Controllers;
 public class OrderController(IOrderService orderService) : ControllerBase
 {
     [HttpGet]
-    [SwaggerOperation(Summary = "List all orders", Description = "Returns a list of all orders.")]
-    [SwaggerResponse(200, "List of orders", typeof(List<OrderModel>))]
+    [EndpointSummary("List all orders")]
+    [EndpointDescription("Returns a list of all orders.")]
+    [ProducesResponseType<List<OrderModel>>(StatusCodes.Status200OK)]
     public async Task<ActionResult<List<OrderModel>>> GetAll()
     {
         var orders = await orderService.GetAllOrdersAsync();
@@ -22,9 +22,10 @@ public class OrderController(IOrderService orderService) : ControllerBase
     }
 
     [HttpGet("{id:guid}")]
-    [SwaggerOperation(Summary = "Get order by ID", Description = "Returns an order by its unique ID.")]
-    [SwaggerResponse(200, "Order found", typeof(OrderModel))]
-    [SwaggerResponse(404, "Order not found")]
+    [EndpointSummary("Get order by ID")]
+    [EndpointDescription("Returns an order by its unique ID.")]
+    [ProducesResponseType<OrderModel>(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<ActionResult<OrderModel>> GetById(Guid id)
     {
         var order = await orderService.GetOrderByIdAsync(id);
@@ -32,8 +33,9 @@ public class OrderController(IOrderService orderService) : ControllerBase
     }
 
     [HttpPost]
-    [SwaggerOperation(Summary = "Create a new order", Description = "Creates a new order.")]
-    [SwaggerResponse(201, "Order created", typeof(OrderModel))]
+    [EndpointSummary("Create a new order")]
+    [EndpointDescription("Creates a new order.")]
+    [ProducesResponseType<OrderModel>(StatusCodes.Status201Created)]
     [Authorize(Roles = Roles.Admin + "," + Roles.Procurement)]
     public async Task<ActionResult<OrderModel>> Create(CreateOrUpdateOrderModel model)
     {
@@ -42,10 +44,11 @@ public class OrderController(IOrderService orderService) : ControllerBase
     }
 
     [HttpPut("{id:guid}")]
-    [SwaggerOperation(Summary = "Update an order", Description = "Updates an existing order.")]
-    [SwaggerResponse(204, "Order updated")]
-    [SwaggerResponse(400, "ID mismatch")]
-    [SwaggerResponse(404, "Order not found or cannot be updated")]
+    [EndpointSummary("Update an order")]
+    [EndpointDescription("Updates an existing order.")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     [Authorize(Roles = Roles.Admin + "," + Roles.Procurement)]
     public async Task<IActionResult> Update(Guid id, CreateOrUpdateOrderModel model)
     {
@@ -54,9 +57,10 @@ public class OrderController(IOrderService orderService) : ControllerBase
     }
 
     [HttpDelete("{id:guid}")]
-    [SwaggerOperation(Summary = "Delete an order", Description = "Deletes an order by its unique ID.")]
-    [SwaggerResponse(204, "Order deleted")]
-    [SwaggerResponse(404, "Order not found.")]
+    [EndpointSummary("Delete an order")]
+    [EndpointDescription("Deletes an order by its unique ID.")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     [Authorize(Roles = Roles.Admin + "," + Roles.Procurement)]
     public async Task<IActionResult> Delete(Guid id)
     {

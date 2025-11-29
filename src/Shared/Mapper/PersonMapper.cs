@@ -14,5 +14,5 @@ public partial class PersonMapper : BaseMapper
 
     public partial List<PersonModel> MapPersonsToPersonModels(List<Person> persons);
 
-    public partial void MapCreateOrUpdatePersonModelToPerson(CreateOrUpdatePersonModel source, Person target, Guid id);
+    public partial void MapCreateOrUpdatePersonModelToPerson(CreateOrUpdatePersonModel source, Person target);
 }

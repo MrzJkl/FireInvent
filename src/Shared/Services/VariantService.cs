@@ -22,10 +22,13 @@ public class VariantService(AppDbContext context, VariantMapper mapper) : IVaria
             throw new BadRequestException("Referenced product does not exist.");
 
         var variant = mapper.MapCreateOrUpdateVariantModelToVariant(model);
-        variant.Id = Guid.NewGuid();
 
         context.Variants.Add(variant);
         await context.SaveChangesAsync();
+
+        variant = await context.Variants
+            .AsNoTracking()
+            .SingleAsync(v => v.Id == variant.Id);
 
         return mapper.MapVariantToVariantModel(variant);
     }
@@ -65,7 +68,7 @@ public class VariantService(AppDbContext context, VariantMapper mapper) : IVaria
         if (duplicate)
             throw new ConflictException("Another variant with the same name already exists for this product.");
 
-        mapper.MapCreateOrUpdateVariantModelToVariant(model, variant, id);
+        mapper.MapCreateOrUpdateVariantModelToVariant(model, variant);
 
         await context.SaveChangesAsync();
         return true;

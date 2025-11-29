@@ -13,6 +13,6 @@ public partial class ItemAssignmentHistoryMapper : BaseMapper
     public partial ItemAssignmentHistory MapCreateOrUpdateItemAssignmentHistoryModelToItemAssignmentHistory(CreateOrUpdateItemAssignmentHistoryModel createItemAssignmentHistoryModel);
 
     public partial List<ItemAssignmentHistoryModel> MapItemAssignmentHistorysToItemAssignmentHistoryModels(List<ItemAssignmentHistory> itemAssignmentHistorys);
-
-    public partial void MapCreateOrUpdateItemAssignmentHistoryModelToItemAssignmentHistory(CreateOrUpdateItemAssignmentHistoryModel source, ItemAssignmentHistory target, Guid id);
+        
+    public partial void MapCreateOrUpdateItemAssignmentHistoryModelToItemAssignmentHistory(CreateOrUpdateItemAssignmentHistoryModel source, ItemAssignmentHistory target);
 }

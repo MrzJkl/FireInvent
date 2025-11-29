@@ -4,7 +4,6 @@ using FireInvent.Shared.Models;
 using FireInvent.Shared.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Swashbuckle.AspNetCore.Annotations;
 
 namespace FireInvent.Api.Controllers;
 
@@ -13,8 +12,9 @@ namespace FireInvent.Api.Controllers;
 public class ProductsController(IProductService productService, IVariantService variantService) : ControllerBase
 {
     [HttpGet]
-    [SwaggerOperation(Summary = "List all products", Description = "Returns a list of all products.")]
-    [SwaggerResponse(200, "List of products", typeof(List<ProductModel>))]
+    [EndpointSummary("List all products")]
+    [EndpointDescription("Returns a list of all products.")]
+    [ProducesResponseType<List<ProductModel>>(StatusCodes.Status200OK)]
     public async Task<ActionResult<List<ProductModel>>> GetAll()
     {
         var products = await productService.GetAllProductsAsync();
@@ -22,9 +22,10 @@ public class ProductsController(IProductService productService, IVariantService 
     }
 
     [HttpGet("{id:guid}")]
-    [SwaggerOperation(Summary = "Get product by ID", Description = "Returns a product by its unique ID.")]
-    [SwaggerResponse(200, "Product found", typeof(ProductModel))]
-    [SwaggerResponse(404, "Product not found")]
+    [EndpointSummary("Get product by ID")]
+    [EndpointDescription("Returns a product by its unique ID.")]
+    [ProducesResponseType<ProductModel>(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<ActionResult<ProductModel>> GetById(Guid id)
     {
         var product = await productService.GetProductByIdAsync(id);
@@ -32,9 +33,10 @@ public class ProductsController(IProductService productService, IVariantService 
     }
 
     [HttpPost]
-    [SwaggerOperation(Summary = "Create a new product", Description = "Creates a new product.")]
-    [SwaggerResponse(201, "Product created", typeof(ProductModel))]
-    [SwaggerResponse(409, "A product with the same name and manufacturer already exists")]
+    [EndpointSummary("Create a new product")]
+    [EndpointDescription("Creates a new product.")]
+    [ProducesResponseType<ProductModel>(StatusCodes.Status201Created)]
+    [ProducesResponseType(StatusCodes.Status409Conflict)]
     [Authorize(Roles = Roles.Admin + "," + Roles.Procurement)]
     public async Task<ActionResult<ProductModel>> Create(CreateOrUpdateProductModel model)
     {
@@ -43,10 +45,11 @@ public class ProductsController(IProductService productService, IVariantService 
     }
 
     [HttpPut("{id:guid}")]
-    [SwaggerOperation(Summary = "Update a product", Description = "Updates an existing product.")]
-    [SwaggerResponse(204, "Product updated")]
-    [SwaggerResponse(404, "Product not found")]
-    [SwaggerResponse(409, "A product with the same name and manufacturer already exists")]
+    [EndpointSummary("Update a product")]
+    [EndpointDescription("Updates an existing product.")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status409Conflict)]
     [Authorize(Roles = Roles.Admin + "," + Roles.Procurement)]
     public async Task<IActionResult> Update(Guid id, CreateOrUpdateProductModel model)
     {
@@ -55,9 +58,10 @@ public class ProductsController(IProductService productService, IVariantService 
     }
 
     [HttpDelete("{id:guid}")]
-    [SwaggerOperation(Summary = "Delete a product", Description = "Deletes a product by its unique ID.")]
-    [SwaggerResponse(204, "Product deleted")]
-    [SwaggerResponse(404, "Product not found")]
+    [EndpointSummary("Delete a product")]
+    [EndpointDescription("Deletes a product by its unique ID.")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     [Authorize(Roles = Roles.Admin + "," + Roles.Procurement)]
     public async Task<IActionResult> Delete(Guid id)
     {
@@ -66,9 +70,10 @@ public class ProductsController(IProductService productService, IVariantService 
     }
 
     [HttpGet("{id:guid}/variants")]
-    [SwaggerOperation(Summary = "List all variants for a product", Description = "Returns all variants for a specific product.")]
-    [SwaggerResponse(200, "List of variants", typeof(List<VariantModel>))]
-    [SwaggerResponse(404, "Product not found")]
+    [EndpointSummary("List all variants for a product")]
+    [EndpointDescription("Returns all variants for a specific product.")]
+    [ProducesResponseType<List<VariantModel>>(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<ActionResult<List<ItemModel>>> GetVariantsForProduct(Guid id)
     {
         var items = await variantService.GetVariantsForProductAsync(id);

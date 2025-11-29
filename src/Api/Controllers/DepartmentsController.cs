@@ -4,7 +4,6 @@ using FireInvent.Shared.Models;
 using FireInvent.Shared.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Swashbuckle.AspNetCore.Annotations;
 
 namespace FireInvent.Api.Controllers;
 
@@ -13,8 +12,9 @@ namespace FireInvent.Api.Controllers;
 public class DepartmentsController(IDepartmentService departmentService, IPersonService personService) : ControllerBase
 {
     [HttpGet]
-    [SwaggerOperation(Summary = "List all departments", Description = "Returns a list of all departments.")]
-    [SwaggerResponse(200, "List of departments", typeof(List<DepartmentModel>))]
+    [EndpointSummary("List all departments")]
+    [EndpointDescription("Returns a list of all departments.")]
+    [ProducesResponseType<List<DepartmentModel>>(StatusCodes.Status200OK)]
     public async Task<ActionResult<List<DepartmentModel>>> GetAll()
     {
         var departments = await departmentService.GetAllDepartmentsAsync();
@@ -22,9 +22,10 @@ public class DepartmentsController(IDepartmentService departmentService, IPerson
     }
 
     [HttpGet("{id:guid}")]
-    [SwaggerOperation(Summary = "Get department by ID", Description = "Returns a department by its unique ID.")]
-    [SwaggerResponse(200, "Department found", typeof(DepartmentModel))]
-    [SwaggerResponse(404, "Department not found")]
+    [EndpointSummary("Get department by ID")]
+    [EndpointDescription("Returns a department by its unique ID.")]
+    [ProducesResponseType<DepartmentModel>(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<ActionResult<DepartmentModel>> GetById(Guid id)
     {
         var department = await departmentService.GetDepartmentByIdAsync(id);
@@ -32,8 +33,9 @@ public class DepartmentsController(IDepartmentService departmentService, IPerson
     }
 
     [HttpPost]
-    [SwaggerOperation(Summary = "Create a new department", Description = "Creates a new department.")]
-    [SwaggerResponse(201, "Department created", typeof(DepartmentModel))]
+    [EndpointSummary("Create a new department")]
+    [EndpointDescription("Creates a new department.")]
+    [ProducesResponseType<DepartmentModel>(StatusCodes.Status201Created)]
     [Authorize(Roles = Roles.Admin + "," + Roles.Procurement)]
     public async Task<ActionResult<DepartmentModel>> Create(CreateOrUpdateDepartmentModel model)
     {
@@ -42,9 +44,10 @@ public class DepartmentsController(IDepartmentService departmentService, IPerson
     }
 
     [HttpPut("{id:guid}")]
-    [SwaggerOperation(Summary = "Update a department", Description = "Updates an existing department.")]
-    [SwaggerResponse(204, "Department updated")]
-    [SwaggerResponse(404, "Department not found")]
+    [EndpointSummary("Update a department")]
+    [EndpointDescription("Updates an existing department.")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     [Authorize(Roles = Roles.Admin + "," + Roles.Procurement)]
     public async Task<IActionResult> Update(Guid id, CreateOrUpdateDepartmentModel model)
     {
@@ -53,9 +56,10 @@ public class DepartmentsController(IDepartmentService departmentService, IPerson
     }
 
     [HttpDelete("{id:guid}")]
-    [SwaggerOperation(Summary = "Delete a department", Description = "Deletes a department by its unique ID.")]
-    [SwaggerResponse(204, "Department deleted")]
-    [SwaggerResponse(404, "Department not found")]
+    [EndpointSummary("Delete a department")]
+    [EndpointDescription("Deletes a department by its unique ID.")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     [Authorize(Roles = Roles.Admin + "," + Roles.Procurement)]
     public async Task<IActionResult> Delete(Guid id)
     {
@@ -64,9 +68,10 @@ public class DepartmentsController(IDepartmentService departmentService, IPerson
     }
 
     [HttpGet("{id:guid}/persons")]
-    [SwaggerOperation(Summary = "List all persons in a department", Description = "Returns all persons that are members of the given department.")]
-    [SwaggerResponse(200, "List of persons", typeof(List<PersonModel>))]
-    [SwaggerResponse(404, "Department not found")]
+    [EndpointSummary("List all persons in a department")]
+    [EndpointDescription("Returns all persons that are members of the given department.")]
+    [ProducesResponseType<List<PersonModel>>(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<ActionResult<List<PersonModel>>> GetPersonsForDepartment(Guid id)
     {
         var persons = await personService.GetPersonsForDepartmentAsync(id);

@@ -1,5 +1,4 @@
 ﻿using FireInvent.Database;
-using FireInvent.Database.Models;
 using FireInvent.Shared.Exceptions;
 using FireInvent.Shared.Mapper;
 using FireInvent.Shared.Models;
@@ -18,13 +17,7 @@ public class PersonService(AppDbContext context, PersonMapper mapper) : IPersonS
         if (exists)
             throw new ConflictException("A person with the same name or external ID already exists.");
 
-        var departments = await context.Departments
-            .Where(d => model.DepartmentIds.Contains(d.Id))
-            .ToListAsync();
-
         var person = mapper.MapCreateOrUpdatePersonModelToPerson(model);
-        person.Id = Guid.NewGuid();
-        person.Departments = departments;
 
         context.Persons.Add(person);
         await context.SaveChangesAsync();
@@ -78,10 +71,9 @@ public class PersonService(AppDbContext context, PersonMapper mapper) : IPersonS
                 throw new ConflictException("Another person with the same external ID already exists.");
         }
 
-        mapper.MapCreateOrUpdatePersonModelToPerson(model, person, id);
+        mapper.MapCreateOrUpdatePersonModelToPerson(model, person);
 
-        if (person.Departments == null)
-            person.Departments = [];
+        person.Departments ??= [];
 
         if (model.DepartmentIds.Count == 0)
         {

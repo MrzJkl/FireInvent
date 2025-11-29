@@ -12,7 +12,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace FireInvent.Database.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20250920195953_InitialCreate")]
+    [Migration("20251128131023_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -20,7 +20,10 @@ namespace FireInvent.Database.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "9.0.9")
+                .HasAnnotation("ProductVersion", "10.0.0")
+                .HasAnnotation("Proxies:ChangeTracking", false)
+                .HasAnnotation("Proxies:CheckEquality", false)
+                .HasAnnotation("Proxies:LazyLoading", true)
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
@@ -142,11 +145,11 @@ namespace FireInvent.Database.Migrations
                     b.Property<Guid>("ItemId")
                         .HasColumnType("uuid");
 
-                    b.Property<Guid?>("PeformedById")
-                        .HasColumnType("uuid");
-
                     b.Property<DateTimeOffset>("PerformedAt")
                         .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid?>("PerformedById")
+                        .HasColumnType("uuid");
 
                     b.Property<string>("Remarks")
                         .HasMaxLength(2000)
@@ -159,7 +162,7 @@ namespace FireInvent.Database.Migrations
 
                     b.HasIndex("ItemId");
 
-                    b.HasIndex("PeformedById");
+                    b.HasIndex("PerformedById");
 
                     b.HasIndex("TypeId");
 
@@ -488,7 +491,7 @@ namespace FireInvent.Database.Migrations
 
                     b.HasOne("FireInvent.Database.Models.User", "PerformedBy")
                         .WithMany()
-                        .HasForeignKey("PeformedById");
+                        .HasForeignKey("PerformedById");
 
                     b.HasOne("FireInvent.Database.Models.MaintenanceType", "Type")
                         .WithMany()

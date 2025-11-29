@@ -14,5 +14,5 @@ public partial class ProductTypeMapper : BaseMapper
 
     public partial List<ProductTypeModel> MapProductTypesToProductTypeModels(List<ProductType> productTypes);
 
-    public partial void MapCreateOrUpdateProductTypeModelToProductType(CreateOrUpdateProductTypeModel source, ProductType target, Guid id);
+    public partial void MapCreateOrUpdateProductTypeModelToProductType(CreateOrUpdateProductTypeModel source, ProductType target);
 }

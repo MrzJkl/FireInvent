@@ -14,5 +14,5 @@ public partial class StorageLocationMapper : BaseMapper
 
     public partial List<StorageLocationModel> MapStorageLocationsToStorageLocationModels(List<StorageLocation> storageLocations);
 
-    public partial void MapCreateOrUpdateStorageLocationModelToStorageLocation(CreateOrUpdateStorageLocationModel source, StorageLocation target, Guid id);
+    public partial void MapCreateOrUpdateStorageLocationModelToStorageLocation(CreateOrUpdateStorageLocationModel source, StorageLocation target);
 }

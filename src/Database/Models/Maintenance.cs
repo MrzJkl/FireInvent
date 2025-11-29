@@ -21,7 +21,7 @@ public record Maintenance
     public DateTimeOffset PerformedAt { get; set; }
 
     [ForeignKey(nameof(PerformedBy))]
-    public Guid? PeformedById { get; set; }
+    public Guid? PerformedById { get; set; }
 
     [MaxLength(ModelConstants.MaxStringLengthLong)]
     public string? Remarks { get; set; }

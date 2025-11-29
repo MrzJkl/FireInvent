@@ -14,5 +14,5 @@ public partial class MaintenanceMapper : BaseMapper
 
     public partial List<MaintenanceModel> MapMaintenancesToMaintenanceModels(List<Maintenance> maintenances);
 
-    public partial void MapCreateOrUpdateMaintenanceModelToMaintenance(CreateOrUpdateMaintenanceModel source, Maintenance target, Guid id);
+    public partial void MapCreateOrUpdateMaintenanceModelToMaintenance(CreateOrUpdateMaintenanceModel source, Maintenance target);
 }

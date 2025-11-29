@@ -14,5 +14,5 @@ public partial class DepartmentMapper : BaseMapper
 
     public partial List<DepartmentModel> MapDepartmentsToDepartmentModels(List<Department> departments);
 
-    public partial void MapCreateOrUpdateDepartmentModelToDepartment(CreateOrUpdateDepartmentModel source, Department target, Guid id);
+    public partial void MapCreateOrUpdateDepartmentModelToDepartment(CreateOrUpdateDepartmentModel source, Department target);
 }

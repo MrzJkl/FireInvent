@@ -14,5 +14,5 @@ public partial class ItemMapper : BaseMapper
 
     public partial List<ItemModel> MapItemsToItemModels(List<Item> items);
 
-    public partial void MapCreateOrUpdateItemModelToItem(CreateOrUpdateItemModel source, Item target, Guid id);
+    public partial void MapCreateOrUpdateItemModelToItem(CreateOrUpdateItemModel source, Item target);
 }

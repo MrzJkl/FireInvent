@@ -14,5 +14,5 @@ public partial class ProductMapper : BaseMapper
 
     public partial List<ProductModel> MapProductsToProductModels(List<Product> products);
 
-    public partial void MapCreateOrUpdateProductModelToProduct(CreateOrUpdateProductModel source, Product target, Guid id);
+    public partial void MapCreateOrUpdateProductModelToProduct(CreateOrUpdateProductModel source, Product target);
 }

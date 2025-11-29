@@ -19,10 +19,32 @@ jobs:
       - name: Checkout source code
         uses: actions/checkout@v3
 
-      - name: Setup .NET 9 SDK
+      - name: Generate version from date
+        id: set_version
+        run: |
+          VERSION="$(date +'%Y.%m.%d').${{ github.run_number }}"
+          echo "version=$VERSION" >> $GITHUB_ENV
+
+      - name: Set short commit SHA
+        run: echo "short_sha=$(echo ${{ github.sha }} | cut -c1-7)" >> $GITHUB_ENV
+
+      - name: Override Directory.Build.props for CI build
+        run: |
+          cat > ./src/Directory.Build.props <<EOF
+          <Project>
+            <PropertyGroup>
+              <Version>${{ env.version }}</Version>
+              <FileVersion>${{ env.version }}</FileVersion>
+              <!-- AssemblyVersion bleibt bei Breaking Change-Release vom Main-Branch -->
+              <AssemblyVersion>1.0.0.0</AssemblyVersion>
+            </PropertyGroup>
+          </Project>
+          EOF
+
+      - name: Setup .NET 10 SDK
         uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: '9.0.x'
+          dotnet-version: '10.0.x'
 
       - name: Run tests
         run: dotnet test ./src/FireInvent.sln --configuration Release --verbosity normal
@@ -51,7 +73,10 @@ jobs:
           context: ./src
           file: ./src/Api/Dockerfile
           push: true
-          tags: ghcr.io/mrzjkl/fireinventapi:latest
+          tags: |
+            ghcr.io/mrzjkl/fireinventapi:${{ env.version }}
+            ghcr.io/mrzjkl/fireinventapi:${{ env.short_sha }}
+            ghcr.io/mrzjkl/fireinventapi:latest
           cache-from: type=local,src=/tmp/.buildx-cache
           cache-to: type=local,dest=/tmp/.buildx-cache-new
 

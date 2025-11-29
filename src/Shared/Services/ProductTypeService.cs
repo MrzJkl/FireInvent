@@ -55,7 +55,7 @@ namespace FireInvent.Shared.Services
             if (nameExists)
                 throw new ConflictException("Another productType with the same name already exists.");
 
-            mapper.MapCreateOrUpdateProductTypeModelToProductType(model, productType, id);
+            mapper.MapCreateOrUpdateProductTypeModelToProductType(model, productType);
 
             await context.SaveChangesAsync();
             return true;

@@ -1,8 +1,9 @@
+using Asp.Versioning;
 using FireInvent.Api.Authentication;
+using FireInvent.Api.Extensions;
 using FireInvent.Api.Middlewares;
-using FireInvent.Api.Swagger;
-using FireInvent.Contract;
 using FireInvent.Database;
+using FireInvent.Shared.Converter;
 using FireInvent.Shared.Mapper;
 using FireInvent.Shared.Options;
 using FireInvent.Shared.Services;
@@ -10,16 +11,10 @@ using Microsoft.AspNetCore.Mvc.Authorization;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
-using Microsoft.OpenApi.Any;
-using Microsoft.OpenApi.Models;
+using Scalar.AspNetCore;
 using Serilog;
-using Swashbuckle.AspNetCore.SwaggerGen;
 using System.Text.Json.Serialization;
 
-const string SwaggerApiVersion = "v1";
-const string SwaggerEndpointUrl = $"/swagger/{SwaggerApiVersion}/swagger.json";
-const string SwaggerApiTitle = "FireInvent";
-const string SwaggerApiDescription = "Manage your inventory a modern way!";
 const string AuthScheme = "Bearer";
 
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
@@ -28,6 +23,9 @@ WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 builder.Configuration
     .SetBasePath(Directory.GetCurrentDirectory())
     .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
+#if DEBUG
+    .AddUserSecrets("fireinvent")
+#endif
     .AddEnvironmentVariables();
 
 // Serilog setup
@@ -67,63 +65,15 @@ builder.Services.AddHealthChecks()
     .AddProcessAllocatedMemoryHealthCheck(2000)
     .AddCheck("self", () => HealthCheckResult.Healthy());
 
-// Swagger
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen(c =>
+// Scalar API-Explorer
+builder.Services.AddVersioning();
+
+var versions = new List<ApiVersion>
 {
-    c.SchemaGeneratorOptions = new SchemaGeneratorOptions
-    {
-        UseInlineDefinitionsForEnums = true
-    };
+    new(1, 0)
+};
 
-    c.MapType<ItemCondition>(() => new OpenApiSchema
-    {
-        Type = "string",
-        Enum = [.. Enum.GetNames<ItemCondition>()
-            .Select(n => new OpenApiString(n))
-            .Cast<IOpenApiAny>()]
-    });
-
-    c.MapType<OrderStatus>(() => new OpenApiSchema
-    {
-        Type = "string",
-        Enum = [.. Enum.GetNames<OrderStatus>()
-            .Select(n => new OpenApiString(n))
-            .Cast<IOpenApiAny>()]
-    });
-
-    c.EnableAnnotations();
-    c.SwaggerDoc(SwaggerApiVersion, new OpenApiInfo
-    {
-        Title = SwaggerApiTitle,
-        Version = SwaggerApiVersion,
-        Description = SwaggerApiDescription
-    });
-
-    c.OperationFilter<AddResponseHeadersFilter>();
-
-    c.AddSecurityDefinition("oidc", new OpenApiSecurityScheme
-    {
-        Type = SecuritySchemeType.OpenIdConnect,
-        OpenIdConnectUrl = new Uri(authOptions.OidcDiscoveryUrlForSwagger),
-        Description = "Login via OpenID Connect"
-    });
-
-    c.AddSecurityRequirement(new OpenApiSecurityRequirement
-    {
-        {
-            new OpenApiSecurityScheme
-            {
-                Reference = new OpenApiReference
-                {
-                    Type = ReferenceType.SecurityScheme,
-                    Id = "oidc"
-                }
-            },
-            new[] { "openid", "profile", "email" }
-        }
-    });
-});
+builder.Services.AddOpenApi(versions);
 
 #if DEBUG
 builder.Services.AddCors(options =>
@@ -180,6 +130,7 @@ builder.Services.AddControllers(options =>
     options.JsonSerializerOptions.PropertyNamingPolicy = System.Text.Json.JsonNamingPolicy.CamelCase;
     options.JsonSerializerOptions.PropertyNameCaseInsensitive = true;
     options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
+    options.JsonSerializerOptions.Converters.Add(new EmptyStringToNullConverter());
 });
 
 WebApplication app = builder.Build();
@@ -205,17 +156,8 @@ var logger = app.Services.GetRequiredService<ILogger<Program>>();
 logger.LogDebug("Registering middlewares...");
 app.UseMiddleware<ApiExceptionMiddleware>();
 
-logger.LogDebug("Registering swagger...");
-app.UseSwagger();
-app.UseSwaggerUI(c =>
-{
-    c.SwaggerEndpoint(SwaggerEndpointUrl, $"{SwaggerApiTitle} {SwaggerApiVersion}");
-    c.OAuthClientId(authOptions.ClientIdForSwagger);
-    c.OAuthScopes([.. authOptions.Scopes]);
-    c.OAuthAppName($"{SwaggerApiTitle} Swagger");
-    c.OAuthUsePkce();
-});
-
+logger.LogDebug("Registering scalar...");
+app.ConfigureAddScalar();
 logger.LogDebug("Registering authentication and authorization...");
 app.UseAuthentication();
 app.UseAuthorization();
@@ -228,7 +170,7 @@ app.MapControllers();
 
 app.MapGet("/", context =>
 {
-    context.Response.Redirect("/swagger");
+    context.Response.Redirect("/scalar");
     return Task.CompletedTask;
 });
 

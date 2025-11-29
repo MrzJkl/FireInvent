@@ -1,5 +1,8 @@
-﻿namespace FireInvent.Contract;
+﻿using System.Text.Json.Serialization;
 
+namespace FireInvent.Contract;
+
+[JsonConverter(typeof(JsonStringEnumConverter<ItemCondition>))]
 public enum ItemCondition
 {
     New,

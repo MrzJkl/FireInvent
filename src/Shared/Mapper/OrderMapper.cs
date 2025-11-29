@@ -14,5 +14,5 @@ public partial class OrderMapper : BaseMapper
 
     public partial List<OrderModel> MapOrdersToOrderModels(List<Order> orders);
 
-    public partial void MapCreateOrUpdateOrderModelToOrder(CreateOrUpdateOrderModel source, Order target, Guid id);
+    public partial void MapCreateOrUpdateOrderModelToOrder(CreateOrUpdateOrderModel source, Order target);
 }

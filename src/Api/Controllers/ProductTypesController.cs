@@ -4,7 +4,6 @@ using FireInvent.Shared.Models;
 using FireInvent.Shared.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Swashbuckle.AspNetCore.Annotations;
 
 namespace FireInvent.Api.Controllers;
 
@@ -13,8 +12,9 @@ namespace FireInvent.Api.Controllers;
 public class ProductTypesController(IProductTypeService productTypeService) : ControllerBase
 {
     [HttpGet]
-    [SwaggerOperation(Summary = "List all productTypes", Description = "Returns a list of all productTypes.")]
-    [SwaggerResponse(200, "List of productTypes", typeof(List<ProductTypeModel>))]
+    [EndpointSummary("List all productTypes")]
+    [EndpointDescription("Returns a list of all productTypes.")]
+    [ProducesResponseType<List<ProductTypeModel>>(StatusCodes.Status200OK)]
     public async Task<ActionResult<List<ProductTypeModel>>> GetAll()
     {
         var productTypes = await productTypeService.GetAllProductTypesAsync();
@@ -22,9 +22,10 @@ public class ProductTypesController(IProductTypeService productTypeService) : Co
     }
 
     [HttpGet("{id:guid}")]
-    [SwaggerOperation(Summary = "Get productType by ID", Description = "Returns a productType by its unique ID.")]
-    [SwaggerResponse(200, "ProductType found", typeof(ProductTypeModel))]
-    [SwaggerResponse(404, "ProductType not found")]
+    [EndpointSummary("Get productType by ID")]
+    [EndpointDescription("Returns a productType by its unique ID.")]
+    [ProducesResponseType<ProductTypeModel>(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<ActionResult<ProductTypeModel>> GetById(Guid id)
     {
         var productType = await productTypeService.GetProductTypeByIdAsync(id);
@@ -32,8 +33,9 @@ public class ProductTypesController(IProductTypeService productTypeService) : Co
     }
 
     [HttpPost]
-    [SwaggerOperation(Summary = "Create a new productType", Description = "Creates a new productType.")]
-    [SwaggerResponse(201, "ProductType created", typeof(ProductTypeModel))]
+    [EndpointSummary("Create a new productType")]
+    [EndpointDescription("Creates a new productType.")]
+    [ProducesResponseType<ProductTypeModel>(StatusCodes.Status201Created)]
     [Authorize(Roles = Roles.Admin)]
     public async Task<ActionResult<ProductTypeModel>> Create(CreateOrUpdateProductTypeModel model)
     {
@@ -42,9 +44,10 @@ public class ProductTypesController(IProductTypeService productTypeService) : Co
     }
 
     [HttpPut("{id:guid}")]
-    [SwaggerOperation(Summary = "Update a productType", Description = "Updates an existing productType.")]
-    [SwaggerResponse(204, "ProductType updated")]
-    [SwaggerResponse(404, "ProductType not found")]
+    [EndpointSummary("Update a productType")]
+    [EndpointDescription("Updates an existing productType.")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     [Authorize(Roles = Roles.Admin)]
     public async Task<IActionResult> Update(Guid id, CreateOrUpdateProductTypeModel model)
     {
@@ -53,9 +56,10 @@ public class ProductTypesController(IProductTypeService productTypeService) : Co
     }
 
     [HttpDelete("{id:guid}")]
-    [SwaggerOperation(Summary = "Delete a productType", Description = "Deletes a productType by its unique ID.")]
-    [SwaggerResponse(204, "ProductType deleted")]
-    [SwaggerResponse(404, "ProductType not found")]
+    [EndpointSummary("Delete a productType")]
+    [EndpointDescription("Deletes a productType by its unique ID.")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     [Authorize(Roles = Roles.Admin)]
     public async Task<IActionResult> Delete(Guid id)
     {
