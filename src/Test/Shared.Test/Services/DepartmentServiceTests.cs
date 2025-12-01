@@ -4,6 +4,10 @@ using FireInvent.Shared.Services;
 
 namespace FireInvent.Test.Shared.Services;
 
+/// <summary>
+/// Unit tests for DepartmentService.
+/// These tests focus on CRUD operations and duplicate name conflict detection.
+/// </summary>
 public class DepartmentServiceTests
 {
     private readonly DepartmentMapper _mapper = new();

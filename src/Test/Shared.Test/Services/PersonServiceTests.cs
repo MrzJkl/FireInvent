@@ -4,6 +4,10 @@ using FireInvent.Shared.Services;
 
 namespace FireInvent.Test.Shared.Services;
 
+/// <summary>
+/// Unit tests for PersonService.
+/// These tests focus on CRUD operations, duplicate name/external ID conflict detection, and department relationships.
+/// </summary>
 public class PersonServiceTests
 {
     private readonly PersonMapper _mapper = new();

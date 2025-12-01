@@ -4,6 +4,10 @@ using FireInvent.Shared.Services;
 
 namespace FireInvent.Test.Shared.Services;
 
+/// <summary>
+/// Unit tests for MaintenanceTypeService.
+/// These tests focus on CRUD operations and duplicate name conflict detection.
+/// </summary>
 public class MaintenanceTypeServiceTests
 {
     private readonly MaintenanceTypeMapper _mapper = new();
