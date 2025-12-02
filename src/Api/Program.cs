@@ -200,7 +200,10 @@ app.UseAuthentication();
 app.UseAuthorization();
 app.UseResponseCompression();
 
-app.UseCors(CorsPolicyName);
+if (corsOptions.Enabled)
+{
+    app.UseCors(CorsPolicyName);
+}
 
 logger.LogDebug("Registering controllers end endpoints...");
 app.MapControllers();
