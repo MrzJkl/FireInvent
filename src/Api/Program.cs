@@ -16,6 +16,7 @@ using Serilog;
 using System.Text.Json.Serialization;
 
 const string AuthScheme = "Bearer";
+const string CorsPolicyName = "FireInventCors";
 
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
@@ -23,6 +24,7 @@ WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 builder.Configuration
     .SetBasePath(Directory.GetCurrentDirectory())
     .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
+    .AddJsonFile($"appsettings.{builder.Environment.EnvironmentName}.json", optional: true, reloadOnChange: true)
 #if DEBUG
     .AddUserSecrets("fireinvent")
 #endif
@@ -46,13 +48,19 @@ builder.Services.Configure<AuthenticationOptions>(
     builder.Configuration.GetRequiredSection("Authentication"));
 builder.Services.Configure<MailOptions>(
     builder.Configuration.GetSection("MailOptions"));
+builder.Services.Configure<CorsOptions>(
+    builder.Configuration.GetSection("Cors"));
 
 var authOptions = builder.Configuration.GetRequiredSection("Authentication").Get<AuthenticationOptions>()!;
+var corsOptions = builder.Configuration.GetSection("Cors").Get<CorsOptions>() ?? new CorsOptions();
 
 builder.Services.AddCustomAuthentication(AuthScheme, authOptions);
 builder.Services.AddAuthorization();
 builder.Services.AddMemoryCache();
-builder.Services.AddResponseCompression();
+builder.Services.AddResponseCompression(options =>
+{
+    options.EnableForHttps = true;
+});
 
 // Database
 builder.Services.AddDbContext<AppDbContext>(options =>
@@ -75,18 +83,47 @@ var versions = new List<ApiVersion>
 
 builder.Services.AddOpenApi(versions);
 
-#if DEBUG
-builder.Services.AddCors(options =>
+// CORS configuration
+if (corsOptions.Enabled)
 {
-    options.AddPolicy("AllowAll", policy =>
+    builder.Services.AddCors(options =>
     {
-        policy
-            .AllowAnyOrigin()
-            .AllowAnyMethod()
-            .AllowAnyHeader();
+        options.AddPolicy(CorsPolicyName, policy =>
+        {
+            if (corsOptions.AllowedOrigins.Count == 0)
+            {
+                policy.AllowAnyOrigin();
+            }
+            else
+            {
+                policy.WithOrigins(corsOptions.AllowedOrigins.ToArray());
+            }
+
+            if (corsOptions.AllowedMethods.Count == 0)
+            {
+                policy.AllowAnyMethod();
+            }
+            else
+            {
+                policy.WithMethods(corsOptions.AllowedMethods.ToArray());
+            }
+
+            if (corsOptions.AllowedHeaders.Count == 0)
+            {
+                policy.AllowAnyHeader();
+            }
+            else
+            {
+                policy.WithHeaders(corsOptions.AllowedHeaders.ToArray());
+            }
+
+            if (corsOptions.AllowCredentials)
+            {
+                policy.AllowCredentials();
+            }
+        });
     });
-});
-#endif
+}
 
 // API Services
 builder.Services.AddScoped<TokenValidatedHandler>();
@@ -163,7 +200,7 @@ app.UseAuthentication();
 app.UseAuthorization();
 app.UseResponseCompression();
 
-app.UseCors("AllowAll");
+app.UseCors(CorsPolicyName);
 
 logger.LogDebug("Registering controllers end endpoints...");
 app.MapControllers();

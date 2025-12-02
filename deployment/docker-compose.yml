@@ -2,27 +2,40 @@ services:
   db_api:
     image: postgres:17.6
     container_name: fireinvent_db_api
+    restart: unless-stopped
     environment:
       POSTGRES_DB: ${API_DB_NAME:-fireinvent}
       POSTGRES_USER: ${API_DB_USER:-fireinventuser}
       POSTGRES_PASSWORD: ${API_DB_PASSWORD}
     volumes:
       - db_api_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${API_DB_USER:-fireinventuser} -d ${API_DB_NAME:-fireinvent}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   db_keycloak:
     image: postgres:17.6
     container_name: fireinvent_db_keycloak
+    restart: unless-stopped
     environment:
       POSTGRES_DB: ${KEYCLOAK_DB_NAME:-keycloak}
       POSTGRES_USER: ${KEYCLOAK_DB_USER:-keycloakuser}
       POSTGRES_PASSWORD: ${KEYCLOAK_DB_PASSWORD}
     volumes:
       - db_keycloak_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${KEYCLOAK_DB_USER:-keycloakuser} -d ${KEYCLOAK_DB_NAME:-keycloak}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   keycloak:
     image: quay.io/keycloak/keycloak:26.3.0
     container_name: fireinvent_keycloak
-    command: ["start-dev",]
+    restart: unless-stopped
+    command: ["start-dev"]
     environment:
       KEYCLOAK_ADMIN: ${KEYCLOAK_ADMIN:-admin}
       KEYCLOAK_ADMIN_PASSWORD: ${KEYCLOAK_ADMIN_PASSWORD}
@@ -32,15 +45,23 @@ services:
       KC_DB_PASSWORD: ${KEYCLOAK_DB_PASSWORD}
       KC_HOSTNAME: ${KEYCLOAK_HOSTNAME}
     depends_on:
-      - db_keycloak
+      db_keycloak:
+        condition: service_healthy
     ports:
       - "8080:8080"
+    healthcheck:
+      test: ["CMD-SHELL", "exec 3<>/dev/tcp/localhost/8080"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
 
   keycloak_config:
     image: adorsys/keycloak-config-cli:latest-26
     container_name: fireinvent_keycloak_config
     depends_on:
-      - keycloak
+      keycloak:
+        condition: service_healthy
     environment:
       KEYCLOAK_URL: http://keycloak:8080
       KEYCLOAK_USER: ${KEYCLOAK_ADMIN}
@@ -64,15 +85,27 @@ services:
       context: ./../src
       dockerfile: ./Api/Dockerfile
     container_name: fireinvent_api
+    restart: unless-stopped
     depends_on:
-      - db_api
+      db_api:
+        condition: service_healthy
     environment:
+      ASPNETCORE_ENVIRONMENT: Production
       ConnectionStrings__DefaultConnection: Host=db_api;Port=5432;Database=${API_DB_NAME};Username=${API_DB_USER};Password=${API_DB_PASSWORD}
       Authentication__Authority: ${FIREINVENT_AUTHORITY}
       Authentication__OidcDiscoveryUrlForSwagger: ${FIREINVENT_OIDC_DISCOVERY_URL_FOR_SWAGGER}
       Authentication__ClientIdForSwagger: ${FIREINVENT_CLIENT_ID_FOR_SWAGGER}
+      Authentication__RequireHttpsMetadata: ${AUTH_REQUIRE_HTTPS_METADATA:-true}
+      Cors__Enabled: "true"
+      Cors__AllowedOrigins__0: ${CORS_ALLOWED_ORIGINS:-}
     ports:
       - "5001:8080"
+    healthcheck:
+      test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:8080/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
 
 volumes:
   db_api_data:
