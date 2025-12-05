@@ -195,6 +195,7 @@ app.UseMiddleware<ApiExceptionMiddleware>();
 
 logger.LogDebug("Registering scalar...");
 app.ConfigureAddScalar();
+
 logger.LogDebug("Registering authentication and authorization...");
 app.UseAuthentication();
 app.UseAuthorization();
