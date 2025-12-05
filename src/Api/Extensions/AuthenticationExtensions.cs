@@ -20,15 +20,15 @@ public static class AuthenticationExtensions
             .AddJwtBearer(scheme, options =>
             {
                 options.Authority = authOptions.Authority;
-#if DEBUG
-                options.RequireHttpsMetadata = false;
-#endif
+                options.RequireHttpsMetadata = authOptions.RequireHttpsMetadata;
                 options.TokenValidationParameters = new TokenValidationParameters
                 {
                     ValidateIssuer = authOptions.ValidIssuers.Count != 0,
                     ValidateAudience = authOptions.ValidAudiences.Count != 0,
                     ValidIssuers = authOptions.ValidIssuers,
                     ValidAudiences = authOptions.ValidAudiences,
+                    ValidateLifetime = authOptions.ValidateLifetime,
+                    ClockSkew = TimeSpan.FromSeconds(authOptions.ClockSkewSeconds),
                 };
 
                 options.Events = new JwtBearerEvents

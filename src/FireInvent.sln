@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 18
-VisualStudioVersion = 18.0.11222.15 d18.0
+VisualStudioVersion = 18.0.11222.15
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Api", "Api\Api.csproj", "{11E21D93-80FD-4BA1-9EF7-B79A1C627AFB}"
 EndProject
@@ -14,9 +14,10 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{8EC462FD-D22E-90A8-E5CE-7E832BA40C5D}"
 	ProjectSection(SolutionItems) = preProject
 		..\deployment\keycloak\config.yml = ..\deployment\keycloak\config.yml
+		..\.github\workflows\api-docker-image.yml = ..\.github\workflows\api-docker-image.yml
 		Directory.build.props = Directory.build.props
 		..\deployment\docker-compose.yml = ..\deployment\docker-compose.yml
-		..\.github\workflows\docker-image.yml = ..\.github\workflows\docker-image.yml
+		..\.github\workflows\keycloak-docker-image.yml = ..\.github\workflows\keycloak-docker-image.yml
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{02EA681E-C7D8-13C7-8484-4AC65E1B71E8}"

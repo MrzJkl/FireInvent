@@ -38,21 +38,6 @@ roles:
     description: Maintenance management
 
 clients:
-- clientId: fireinvent-swagger
-  name: FireInvent Swagger
-  protocol: openid-connect
-  publicClient: true
-  standardFlowEnabled: true
-  implicitFlowEnabled: false
-  directAccessGrantsEnabled: false
-  serviceAccountsEnabled: false
-  attributes:
-    "pkce.code.challenge.method": "S256"
-  redirectUris:
-  - $(env:FIREINVENT_SWAGGER_URL)/*
-  webOrigins:
-  - $(env:FIREINVENT_SWAGGER_URL)/*
-
 - clientId: fireinvent-spa
   name: FireInvent Single Page Application
   protocol: openid-connect

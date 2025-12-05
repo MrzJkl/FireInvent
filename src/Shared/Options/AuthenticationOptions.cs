@@ -14,4 +14,10 @@ public class AuthenticationOptions
         "profile",
         "email",
     ];
+
+    public bool RequireHttpsMetadata { get; init; } = true;
+
+    public bool ValidateLifetime { get; init; } = true;
+
+    public int ClockSkewSeconds { get; init; } = 60;
 }

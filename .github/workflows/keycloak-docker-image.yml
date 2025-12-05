@@ -1,0 +1,67 @@
+name: Build Keycloak Docker Image and Push to GHCR
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - master
+    paths:
+      - 'deployment/keycloak/**'
+
+jobs:
+  build-and-push:
+    name: Build and push Keycloak Docker image
+    runs-on: ubuntu-latest
+
+    permissions:
+      packages: write
+      contents: read
+
+    steps:
+      - name: Checkout source code
+        uses: actions/checkout@v4
+
+      - name: Generate version from date
+        id: set_version
+        run: |
+          VERSION="$(date +'%Y.%m.%d').${{ github.run_number }}"
+          echo "version=$VERSION" >> $GITHUB_ENV
+
+      - name: Set short commit SHA
+        run: echo "short_sha=$(echo ${{ github.sha }} | cut -c1-7)" >> $GITHUB_ENV
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Cache Docker layers
+        uses: actions/cache@v4
+        with:
+          path: /tmp/.buildx-cache
+          key: ${{ runner.os }}-buildx-keycloak-${{ github.sha }}
+          restore-keys: |
+            ${{ runner.os }}-buildx-keycloak-
+
+      - name: Log in to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GHCR_TOKEN }}
+
+      - name: Build and push Keycloak image
+        uses: docker/build-push-action@v5
+        with:
+          context: ./deployment/keycloak
+          file: ./deployment/keycloak/Dockerfile
+          push: true
+          tags: |
+            ghcr.io/mrzjkl/fireinventkeycloak:${{ env.version }}
+            ghcr.io/mrzjkl/fireinventkeycloak:${{ env.short_sha }}
+            ghcr.io/mrzjkl/fireinventkeycloak:latest
+          cache-from: type=local,src=/tmp/.buildx-cache
+          cache-to: type=local,dest=/tmp/.buildx-cache-new
+
+      - name: Move new cache
+        run: |
+          rm -rf /tmp/.buildx-cache
+          mv /tmp/.buildx-cache-new /tmp/.buildx-cache

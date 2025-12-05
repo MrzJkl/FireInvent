@@ -5,7 +5,10 @@
       "launchBrowser": true,
       "launchUrl": "docs",
       "dotnetRunMessages": true,
-      "applicationUrl": "https://localhost:7197;http://localhost:5004"
+      "applicationUrl": "https://localhost:7197;http://localhost:5004",
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "Development"
+      }
     },
     "IIS Express": {
       "commandName": "IISExpress",
