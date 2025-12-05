@@ -1,4 +1,19 @@
 services:
+  reverse_proxy:
+    image: caddy:2-alpine
+    container_name: fireinvent_reverse_proxy
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+      - "443:443/udp"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    networks:
+      - caddy_net
+
   db_api:
     image: postgres:17.7
     container_name: fireinvent_db_api
@@ -14,6 +29,8 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
+    networks:
+      - backend
 
   db_keycloak:
     image: postgres:17.7
@@ -30,6 +47,8 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
+    networks:
+      - backend
 
   keycloak:
     image: ghcr.io/mrzjkl/fireinventkeycloak:latest
@@ -47,14 +66,15 @@ services:
     depends_on:
       db_keycloak:
         condition: service_healthy
-    ports:
-      - "8080:8080"
     healthcheck:
       test: ["CMD-SHELL", "exec 3<>/dev/tcp/localhost/8080"]
       interval: 10s
       timeout: 5s
       retries: 10
       start_period: 30s
+    networks:
+      - caddy_net
+      - backend
 
   keycloak_config:
     image: adorsys/keycloak-config-cli:latest-26
@@ -79,6 +99,8 @@ services:
       FIREINVENT_SWAGGER_URL: ${FIREINVENT_SWAGGER_URL}
     volumes:
       - ./keycloak:/config:ro
+    networks:
+      - backend
 
   api:
     image: ghcr.io/mrzjkl/fireinventapi:latest
@@ -102,6 +124,9 @@ services:
       timeout: 10s
       retries: 3
       start_period: 10s
+    networks:
+      - caddy_net
+      - backend
 
   ui:
     image: ghcr.io/mrzjkl/fireinventui:latest
@@ -112,9 +137,17 @@ services:
       VITE_KEYCLOAK_URL: ${VITE_KEYCLOAK_URL}
       VITE_KEYCLOAK_REALM: ${VITE_KEYCLOAK_REALM:-fireinvent}
       VITE_KEYCLOAK_CLIENT_ID: ${VITE_KEYCLOAK_CLIENT_ID:-fireinvent-spa}
-    ports:
-      - "80:80"
+    networks:
+      - caddy_net
 
 volumes:
   db_api_data:
   db_keycloak_data:
+  caddy_data:
+  caddy_config:
+
+networks:
+  caddy_net:
+    driver: bridge
+  backend:
+    driver: bridge
