@@ -46,8 +46,6 @@ builder.Host.UseSerilog((context, services, configuration) =>
 // Configure Options
 builder.Services.Configure<AuthenticationOptions>(
     builder.Configuration.GetRequiredSection("Authentication"));
-builder.Services.Configure<MailOptions>(
-    builder.Configuration.GetSection("MailOptions"));
 builder.Services.Configure<CorsOptions>(
     builder.Configuration.GetSection("Cors"));
 builder.Services.Configure<KeycloakAdminOptions>(
@@ -158,7 +156,6 @@ builder.Services.AddScoped<IOrderService, OrderService>();
 builder.Services.AddScoped<IMaintenanceTypeService, MaintenanceTypeService>();
 builder.Services.AddScoped<IProductTypeService, ProductTypeService>();
 builder.Services.AddHttpClient<IKeycloakAdminService, KeycloakAdminService>();
-builder.Services.AddTransient<MailService>();
 
 // Controllers
 builder.Services.AddControllers(options =>

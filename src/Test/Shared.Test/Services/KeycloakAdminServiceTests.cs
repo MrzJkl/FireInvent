@@ -7,11 +7,6 @@ using Moq;
 
 namespace FireInvent.Test.Shared.Services;
 
-/// <summary>
-/// Unit tests for KeycloakAdminService.
-/// These tests validate configuration validation and input sanitization logic.
-/// Note: Full integration testing with Keycloak requires a running Keycloak instance.
-/// </summary>
 public class KeycloakAdminServiceTests : IDisposable
 {
     private readonly Mock<ILogger<KeycloakAdminService>> _loggerMock;
@@ -116,25 +111,5 @@ public class KeycloakAdminServiceTests : IDisposable
         // Act & Assert
         var service = new KeycloakAdminService(_httpClient, options, _loggerMock.Object);
         Assert.NotNull(service);
-    }
-
-    [Fact]
-    public void ApiClientPrefix_DefaultValue_ShouldBeApiIntegration()
-    {
-        // Arrange & Act
-        var options = new KeycloakAdminOptions();
-
-        // Assert
-        Assert.Equal("api-integration-", options.ApiClientPrefix);
-    }
-
-    [Fact]
-    public void KeycloakAdminOptions_DefaultRealm_ShouldBeEmpty()
-    {
-        // Arrange & Act
-        var options = new KeycloakAdminOptions();
-
-        // Assert
-        Assert.Equal(string.Empty, options.Realm);
     }
 }

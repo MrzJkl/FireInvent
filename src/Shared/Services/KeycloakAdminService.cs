@@ -10,14 +10,11 @@ using System.Text.Json.Serialization;
 
 namespace FireInvent.Shared.Services;
 
-/// <summary>
-/// Service for managing API integrations via Keycloak Admin API.
-/// </summary>
 public class KeycloakAdminService : IKeycloakAdminService
 {
     private const int TokenExpiryBufferSeconds = 30;
     private const int DefaultTokenExpirySeconds = 300;
-    private const int IntegrationTokenLifespanSeconds = 3600; // 1 hour
+    private const int IntegrationTokenLifespanSeconds = 3600;
 
     private readonly HttpClient _httpClient;
     private readonly KeycloakAdminOptions _options;
@@ -92,7 +89,6 @@ public class KeycloakAdminService : IKeycloakAdminService
 
         await EnsureAuthenticatedAsync();
 
-        // Check if a client with this ID already exists
         var existingClients = await GetClientsByClientIdAsync(clientId);
         if (existingClients.Any())
         {
@@ -114,7 +110,6 @@ public class KeycloakAdminService : IKeycloakAdminService
             Attributes = new Dictionary<string, string>
             {
                 ["description"] = description ?? string.Empty,
-                // Set access token lifespan to 1 hour
                 ["access.token.lifespan"] = IntegrationTokenLifespanSeconds.ToString()
             },
             ProtocolMappers = new List<ProtocolMapper>
@@ -153,15 +148,12 @@ public class KeycloakAdminService : IKeycloakAdminService
                 throw new InvalidOperationException($"Failed to create client: {response.StatusCode} - {errorContent}");
             }
 
-            // Retrieve the created client to get its internal ID and secret
             var createdClients = await GetClientsByClientIdAsync(clientId);
             var createdClient = createdClients.FirstOrDefault()
                 ?? throw new InvalidOperationException("Failed to retrieve the created client.");
 
-            // Assign the integration role to the service account
             await AssignIntegrationRoleToServiceAccountAsync(createdClient.Id!);
 
-            // Get the client secret
             var secretResponse = await _httpClient.GetAsync(
                 $"admin/realms/{_options.Realm}/clients/{createdClient.Id}/client-secret");
             secretResponse.EnsureSuccessStatusCode();
@@ -211,7 +203,7 @@ public class KeycloakAdminService : IKeycloakAdminService
                         ? c.Attributes["description"] 
                         : null,
                     Enabled = c.Enabled ?? false,
-                    CreatedAt = null // Keycloak doesn't provide creation timestamp in client object
+                    CreatedAt = null
                 })
                 .OrderBy(i => i.Name)
                 .ToList();
@@ -330,26 +322,18 @@ public class KeycloakAdminService : IKeycloakAdminService
             ?? new List<KeycloakClient>();
     }
 
-    /// <summary>
-    /// Sanitizes the user-provided name to create a valid client ID.
-    /// </summary>
     private static string SanitizeClientId(string name)
     {
-        // Replace spaces and special characters with hyphens, convert to lowercase
         var sanitized = new string(name
             .ToLowerInvariant()
             .Select(c => char.IsLetterOrDigit(c) ? c : '-')
             .ToArray());
 
-        // Remove consecutive hyphens using regex
         sanitized = System.Text.RegularExpressions.Regex.Replace(sanitized, "-+", "-");
 
         return sanitized.Trim('-');
     }
 
-    /// <summary>
-    /// Extracts a readable name from a client ID by removing the prefix and replacing hyphens.
-    /// </summary>
     private string ExtractNameFromClientId(string clientId)
     {
         if (!clientId.StartsWith(_options.ApiClientPrefix))
@@ -360,7 +344,6 @@ public class KeycloakAdminService : IKeycloakAdminService
             .Trim();
     }
 
-    // Internal models for Keycloak API responses
     private class TokenResponse
     {
         [JsonPropertyName("access_token")]
