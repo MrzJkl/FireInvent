@@ -17,6 +17,7 @@ public class KeycloakAdminService : IKeycloakAdminService
 {
     private const int TokenExpiryBufferSeconds = 30;
     private const int DefaultTokenExpirySeconds = 300;
+    private const int IntegrationTokenLifespanSeconds = 3600; // 1 hour
 
     private readonly HttpClient _httpClient;
     private readonly KeycloakAdminOptions _options;
@@ -113,8 +114,8 @@ public class KeycloakAdminService : IKeycloakAdminService
             Attributes = new Dictionary<string, string>
             {
                 ["description"] = description ?? string.Empty,
-                // Set access token lifespan to 1 hour (3600 seconds)
-                ["access.token.lifespan"] = "3600"
+                // Set access token lifespan to 1 hour
+                ["access.token.lifespan"] = IntegrationTokenLifespanSeconds.ToString()
             },
             ProtocolMappers = new List<ProtocolMapper>
             {
