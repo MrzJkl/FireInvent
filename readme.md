@@ -8,6 +8,7 @@ FireInvent is a modern inventory management system designed for organizations th
 - **Assignment Tracking**: Manage assignment history of items to persons and departments.
 - **Maintenance Logging**: Record and monitor maintenance activities for each item.
 - **User Management**: Synchronize users via OpenID Connect and manage user data.
+- **API Integration Management**: Create and manage third-party API access credentials for integrations.
 - **Health Checks**: Built-in endpoints for system and database health monitoring.
 - **Secure Authentication**: JWT Bearer authentication and OpenID Connect integration.
 - **Swagger/OpenAPI**: Interactive API documentation and testing via Swagger UI.
@@ -45,6 +46,7 @@ FireInvent is a modern inventory management system designed for organizations th
 
 3. **Configure authentication**
 - Set OpenID Connect settings in `Api/appsettings.json` under `Authentication`.
+- Configure Keycloak Admin API settings under `KeycloakAdmin` for API integration management.
 
 4. **Run database migrations**
 
@@ -58,8 +60,23 @@ FireInvent is a modern inventory management system designed for organizations th
 
 - **Authentication**: JWT Bearer and OpenID Connect.
 - **Endpoints**: CRUD operations for users, departments, clothing products, variants, items, assignments, and maintenance.
+- **API Integrations** (Admin-only): Create, list, and delete API access credentials for third-party integrations via confidential clients in Keycloak.
 - **Health**: `/health` endpoint for system status.
 - **Swagger**: `/swagger` for API documentation and testing.
+
+### API Integration Management
+
+Administrators can create API integrations to allow third-party applications to access the FireInvent API:
+
+1. **Create Integration**: POST to `/api-integrations` with a name and optional description.
+   - Returns client ID and secret (shown only once)
+   - Creates a confidential client in Keycloak with service account enabled
+   
+2. **List Integrations**: GET `/api-integrations` to view all existing integrations.
+
+3. **Delete Integration**: DELETE `/api-integrations/{clientId}` to revoke access.
+
+Integrations use the OAuth 2.0 client credentials grant flow to obtain access tokens.
 
 ## Contributing
 

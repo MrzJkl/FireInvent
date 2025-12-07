@@ -96,6 +96,11 @@ services:
       Authentication__RequireHttpsMetadata: ${AUTH_REQUIRE_HTTPS_METADATA:-true}
       Cors__Enabled: "true"
       Cors__AllowedOrigins__0: ${CORS_ALLOWED_ORIGINS:-}
+      KeycloakAdmin__Url: ${KEYCLOAK_ADMIN_URL:-http://keycloak:8080}
+      KeycloakAdmin__Realm: ${KEYCLOAK_REALM:-fireinvent}
+      KeycloakAdmin__AdminUsername: ${KEYCLOAK_ADMIN:-admin}
+      KeycloakAdmin__AdminPassword: ${KEYCLOAK_ADMIN_PASSWORD}
+      KeycloakAdmin__ApiClientPrefix: ${KEYCLOAK_API_CLIENT_PREFIX:-api-integration-}
     ports:
       - "5001:8080"
     healthcheck:

@@ -1,0 +1,132 @@
+using FireInvent.Shared.Exceptions;
+using FireInvent.Shared.Options;
+using FireInvent.Shared.Services;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
+using Moq;
+
+namespace FireInvent.Test.Shared.Services;
+
+/// <summary>
+/// Unit tests for KeycloakAdminService.
+/// These tests validate configuration validation and input sanitization logic.
+/// Note: Full integration testing with Keycloak requires a running Keycloak instance.
+/// </summary>
+public class KeycloakAdminServiceTests
+{
+    private readonly Mock<ILogger<KeycloakAdminService>> _loggerMock;
+
+    public KeycloakAdminServiceTests()
+    {
+        _loggerMock = new Mock<ILogger<KeycloakAdminService>>();
+    }
+
+    [Fact]
+    public void Constructor_WithMissingUrl_ShouldThrowInvalidOperationException()
+    {
+        // Arrange
+        var options = Options.Create(new KeycloakAdminOptions
+        {
+            Url = "",
+            Realm = "test",
+            AdminUsername = "admin",
+            AdminPassword = "password"
+        });
+
+        // Act & Assert
+        var exception = Assert.Throws<InvalidOperationException>(
+            () => new KeycloakAdminService(options, _loggerMock.Object));
+        Assert.Contains("URL", exception.Message);
+    }
+
+    [Fact]
+    public void Constructor_WithMissingRealm_ShouldThrowInvalidOperationException()
+    {
+        // Arrange
+        var options = Options.Create(new KeycloakAdminOptions
+        {
+            Url = "http://localhost:8080",
+            Realm = "",
+            AdminUsername = "admin",
+            AdminPassword = "password"
+        });
+
+        // Act & Assert
+        var exception = Assert.Throws<InvalidOperationException>(
+            () => new KeycloakAdminService(options, _loggerMock.Object));
+        Assert.Contains("realm", exception.Message);
+    }
+
+    [Fact]
+    public void Constructor_WithMissingAdminUsername_ShouldThrowInvalidOperationException()
+    {
+        // Arrange
+        var options = Options.Create(new KeycloakAdminOptions
+        {
+            Url = "http://localhost:8080",
+            Realm = "test",
+            AdminUsername = "",
+            AdminPassword = "password"
+        });
+
+        // Act & Assert
+        var exception = Assert.Throws<InvalidOperationException>(
+            () => new KeycloakAdminService(options, _loggerMock.Object));
+        Assert.Contains("username", exception.Message);
+    }
+
+    [Fact]
+    public void Constructor_WithMissingAdminPassword_ShouldThrowInvalidOperationException()
+    {
+        // Arrange
+        var options = Options.Create(new KeycloakAdminOptions
+        {
+            Url = "http://localhost:8080",
+            Realm = "test",
+            AdminUsername = "admin",
+            AdminPassword = ""
+        });
+
+        // Act & Assert
+        var exception = Assert.Throws<InvalidOperationException>(
+            () => new KeycloakAdminService(options, _loggerMock.Object));
+        Assert.Contains("password", exception.Message);
+    }
+
+    [Fact]
+    public void Constructor_WithValidConfiguration_ShouldNotThrow()
+    {
+        // Arrange
+        var options = Options.Create(new KeycloakAdminOptions
+        {
+            Url = "http://localhost:8080",
+            Realm = "test",
+            AdminUsername = "admin",
+            AdminPassword = "password"
+        });
+
+        // Act & Assert
+        var service = new KeycloakAdminService(options, _loggerMock.Object);
+        Assert.NotNull(service);
+    }
+
+    [Fact]
+    public void ApiClientPrefix_DefaultValue_ShouldBeApiIntegration()
+    {
+        // Arrange & Act
+        var options = new KeycloakAdminOptions();
+
+        // Assert
+        Assert.Equal("api-integration-", options.ApiClientPrefix);
+    }
+
+    [Fact]
+    public void KeycloakAdminOptions_DefaultRealm_ShouldBeEmpty()
+    {
+        // Arrange & Act
+        var options = new KeycloakAdminOptions();
+
+        // Assert
+        Assert.Equal(string.Empty, options.Realm);
+    }
+}
