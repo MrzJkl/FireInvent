@@ -15,6 +15,9 @@ namespace FireInvent.Shared.Services;
 /// </summary>
 public class KeycloakAdminService : IKeycloakAdminService
 {
+    private const int TokenExpiryBufferSeconds = 30;
+    private const int DefaultTokenExpirySeconds = 300;
+
     private readonly HttpClient _httpClient;
     private readonly KeycloakAdminOptions _options;
     private readonly ILogger<KeycloakAdminService> _logger;
@@ -72,8 +75,9 @@ public class KeycloakAdminService : IKeycloakAdminService
         _accessToken = tokenResponse?.AccessToken 
             ?? throw new InvalidOperationException("Failed to obtain access token from Keycloak.");
 
-        // Set token expiry with a 30-second buffer
-        _tokenExpiry = DateTime.UtcNow.AddSeconds((tokenResponse.ExpiresIn ?? 300) - 30);
+        // Set token expiry with a buffer to avoid race conditions
+        _tokenExpiry = DateTime.UtcNow.AddSeconds(
+            (tokenResponse.ExpiresIn ?? DefaultTokenExpirySeconds) - TokenExpiryBufferSeconds);
 
         _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", _accessToken);
     }

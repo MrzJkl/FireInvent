@@ -12,7 +12,7 @@ namespace FireInvent.Test.Shared.Services;
 /// These tests validate configuration validation and input sanitization logic.
 /// Note: Full integration testing with Keycloak requires a running Keycloak instance.
 /// </summary>
-public class KeycloakAdminServiceTests
+public class KeycloakAdminServiceTests : IDisposable
 {
     private readonly Mock<ILogger<KeycloakAdminService>> _loggerMock;
     private readonly HttpClient _httpClient;
@@ -21,6 +21,12 @@ public class KeycloakAdminServiceTests
     {
         _loggerMock = new Mock<ILogger<KeycloakAdminService>>();
         _httpClient = new HttpClient();
+    }
+
+    public void Dispose()
+    {
+        _httpClient.Dispose();
+        GC.SuppressFinalize(this);
     }
 
     [Fact]
