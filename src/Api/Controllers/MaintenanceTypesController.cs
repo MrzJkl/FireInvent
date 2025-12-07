@@ -8,7 +8,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace FireInvent.Api.Controllers;
 
 [ApiController]
-[Route("maintenanceTypes")]
+[Route("maintenance-types")]
 public class MaintenanceTypesController(IMaintenanceTypeService maintenanceTypeService) : ControllerBase
 {
     [HttpGet]
