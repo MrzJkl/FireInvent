@@ -112,7 +112,28 @@ public class KeycloakAdminService : IKeycloakAdminService
             DirectAccessGrantsEnabled = false,
             Attributes = new Dictionary<string, string>
             {
-                ["description"] = description ?? string.Empty
+                ["description"] = description ?? string.Empty,
+                // Set access token lifespan to 1 hour (3600 seconds)
+                ["access.token.lifespan"] = "3600"
+            },
+            ProtocolMappers = new List<ProtocolMapper>
+            {
+                // Add protocol mapper to include realm roles in the token
+                new ProtocolMapper
+                {
+                    Name = "realm roles",
+                    Protocol = "openid-connect",
+                    ProtocolMapperType = "oidc-usermodel-realm-role-mapper",
+                    Config = new Dictionary<string, string>
+                    {
+                        ["claim.name"] = "roles",
+                        ["jsonType.label"] = "String",
+                        ["multivalued"] = "true",
+                        ["userinfo.token.claim"] = "true",
+                        ["id.token.claim"] = "true",
+                        ["access.token.claim"] = "true"
+                    }
+                }
             }
         };
 
@@ -135,6 +156,9 @@ public class KeycloakAdminService : IKeycloakAdminService
             var createdClients = await GetClientsByClientIdAsync(clientId);
             var createdClient = createdClients.FirstOrDefault()
                 ?? throw new InvalidOperationException("Failed to retrieve the created client.");
+
+            // Assign the integration role to the service account
+            await AssignIntegrationRoleToServiceAccountAsync(createdClient.Id!);
 
             // Get the client secret
             var secretResponse = await _httpClient.GetAsync(
@@ -256,6 +280,45 @@ public class KeycloakAdminService : IKeycloakAdminService
         }
     }
 
+    private async Task AssignIntegrationRoleToServiceAccountAsync(string clientUuid)
+    {
+        try
+        {
+            // Get the service account user ID for this client
+            var serviceAccountResponse = await _httpClient.GetAsync(
+                $"admin/realms/{_options.Realm}/clients/{clientUuid}/service-account-user");
+            serviceAccountResponse.EnsureSuccessStatusCode();
+
+            var serviceAccountUser = await serviceAccountResponse.Content.ReadFromJsonAsync<ServiceAccountUser>(_jsonOptions);
+            var serviceAccountUserId = serviceAccountUser?.Id
+                ?? throw new InvalidOperationException("Failed to retrieve service account user ID.");
+
+            // Get the integration role
+            var rolesResponse = await _httpClient.GetAsync(
+                $"admin/realms/{_options.Realm}/roles/integration");
+            rolesResponse.EnsureSuccessStatusCode();
+
+            var integrationRole = await rolesResponse.Content.ReadFromJsonAsync<KeycloakRole>(_jsonOptions);
+            if (integrationRole == null)
+                throw new InvalidOperationException("Integration role not found in Keycloak.");
+
+            // Assign the integration role to the service account user
+            var roleMapping = new List<KeycloakRole> { integrationRole };
+            var assignRoleResponse = await _httpClient.PostAsJsonAsync(
+                $"admin/realms/{_options.Realm}/users/{serviceAccountUserId}/role-mappings/realm",
+                roleMapping,
+                _jsonOptions);
+            assignRoleResponse.EnsureSuccessStatusCode();
+
+            _logger.LogInformation("Assigned integration role to service account for client: {ClientUuid}", clientUuid);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to assign integration role to service account for client: {ClientUuid}", clientUuid);
+            throw new InvalidOperationException("Failed to assign integration role to service account.", ex);
+        }
+    }
+
     private async Task<List<KeycloakClient>> GetClientsByClientIdAsync(string clientId)
     {
         var response = await _httpClient.GetAsync(
@@ -340,11 +403,50 @@ public class KeycloakAdminService : IKeycloakAdminService
 
         [JsonPropertyName("attributes")]
         public Dictionary<string, string>? Attributes { get; set; }
+
+        [JsonPropertyName("protocolMappers")]
+        public List<ProtocolMapper>? ProtocolMappers { get; set; }
+    }
+
+    private class ProtocolMapper
+    {
+        [JsonPropertyName("name")]
+        public string? Name { get; set; }
+
+        [JsonPropertyName("protocol")]
+        public string? Protocol { get; set; }
+
+        [JsonPropertyName("protocolMapper")]
+        public string? ProtocolMapperType { get; set; }
+
+        [JsonPropertyName("config")]
+        public Dictionary<string, string>? Config { get; set; }
     }
 
     private class ClientSecretResponse
     {
         [JsonPropertyName("value")]
         public string? Value { get; set; }
+    }
+
+    private class ServiceAccountUser
+    {
+        [JsonPropertyName("id")]
+        public string? Id { get; set; }
+
+        [JsonPropertyName("username")]
+        public string? Username { get; set; }
+    }
+
+    private class KeycloakRole
+    {
+        [JsonPropertyName("id")]
+        public string? Id { get; set; }
+
+        [JsonPropertyName("name")]
+        public string? Name { get; set; }
+
+        [JsonPropertyName("description")]
+        public string? Description { get; set; }
     }
 }

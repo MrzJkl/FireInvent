@@ -36,6 +36,8 @@ roles:
     description: Inventory and order management
   - name: maintenance
     description: Maintenance management
+  - name: integration
+    description: API integration access for service accounts
 
 clients:
 - clientId: fireinvent-spa
