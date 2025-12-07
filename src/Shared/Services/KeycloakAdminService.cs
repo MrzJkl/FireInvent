@@ -200,9 +200,8 @@ public class KeycloakAdminService : IKeycloakAdminService
             .Select(c => char.IsLetterOrDigit(c) ? c : '-')
             .ToArray());
 
-        // Remove consecutive hyphens and trim
-        while (sanitized.Contains("--"))
-            sanitized = sanitized.Replace("--", "-");
+        // Remove consecutive hyphens using regex
+        sanitized = System.Text.RegularExpressions.Regex.Replace(sanitized, "-+", "-");
 
         return sanitized.Trim('-');
     }

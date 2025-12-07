@@ -32,11 +32,6 @@ public class ApiIntegrationsController(IKeycloakAdminService keycloakAdminServic
     public async Task<ActionResult<ApiIntegrationCredentials>> CreateApiIntegration(
         [FromBody] CreateApiIntegrationRequest request)
     {
-        if (string.IsNullOrWhiteSpace(request.Name))
-        {
-            return BadRequest(new { error = "Name is required." });
-        }
-
         try
         {
             var credentials = await keycloakAdminService.CreateApiIntegrationAsync(
@@ -88,7 +83,7 @@ public class ApiIntegrationsController(IKeycloakAdminService keycloakAdminServic
     /// </summary>
     /// <param name="clientId">The client ID of the integration to delete.</param>
     /// <returns>No content on success.</returns>
-    [HttpDelete("{clientId}")]
+    [HttpDelete("{clientId:minlength(1)}")]
     [EndpointSummary("Delete API integration")]
     [EndpointDescription("Deletes an API integration and revokes all access. This action cannot be undone.")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
@@ -96,11 +91,6 @@ public class ApiIntegrationsController(IKeycloakAdminService keycloakAdminServic
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<ActionResult> DeleteApiIntegration(string clientId)
     {
-        if (string.IsNullOrWhiteSpace(clientId))
-        {
-            return BadRequest(new { error = "Client ID is required." });
-        }
-
         try
         {
             await keycloakAdminService.DeleteApiIntegrationAsync(clientId);

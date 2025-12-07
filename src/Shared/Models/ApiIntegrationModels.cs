@@ -1,3 +1,5 @@
+using System.ComponentModel.DataAnnotations;
+
 namespace FireInvent.Shared.Models;
 
 /// <summary>
@@ -8,11 +10,15 @@ public class CreateApiIntegrationRequest
     /// <summary>
     /// User-defined name for the API integration. This will be used to identify the integration.
     /// </summary>
+    [Required(ErrorMessage = "Name is required.")]
+    [MinLength(1, ErrorMessage = "Name cannot be empty.")]
+    [MaxLength(100, ErrorMessage = "Name cannot exceed 100 characters.")]
     public required string Name { get; set; }
 
     /// <summary>
     /// Optional description of the integration's purpose.
     /// </summary>
+    [MaxLength(500, ErrorMessage = "Description cannot exceed 500 characters.")]
     public string? Description { get; set; }
 }
 
