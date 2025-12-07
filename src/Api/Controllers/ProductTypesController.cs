@@ -8,7 +8,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace FireInvent.Api.Controllers;
 
 [ApiController]
-[Route("productTypes")]
+[Route("product-types")]
 public class ProductTypesController(IProductTypeService productTypeService) : ControllerBase
 {
     [HttpGet]

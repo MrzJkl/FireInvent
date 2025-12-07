@@ -80,7 +80,7 @@ public class KeycloakAdminService : IKeycloakAdminService
         _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", _accessToken);
     }
 
-    public async Task<ApiIntegrationCredentials> CreateApiIntegrationAsync(string name, string? description = null)
+    public async Task<ApiIntegrationCredentialsModel> CreateApiIntegrationAsync(string name, string? description = null)
     {
         if (string.IsNullOrWhiteSpace(name))
             throw new ArgumentException("Name cannot be empty.", nameof(name));
@@ -164,12 +164,11 @@ public class KeycloakAdminService : IKeycloakAdminService
 
             _logger.LogInformation("Successfully created API integration: {ClientId}", clientId);
 
-            return new ApiIntegrationCredentials
+            return new ApiIntegrationCredentialsModel
             {
                 ClientId = clientId,
                 ClientSecret = clientSecret,
                 Name = name,
-                CreatedAt = DateTime.UtcNow
             };
         }
         catch (Exception ex) when (ex is not ConflictException)
@@ -179,7 +178,7 @@ public class KeycloakAdminService : IKeycloakAdminService
         }
     }
 
-    public async Task<List<ApiIntegrationListItem>> GetApiIntegrationsAsync()
+    public async Task<List<ApiIntegrationModel>> GetApiIntegrationsAsync()
     {
         try
         {
@@ -195,7 +194,7 @@ public class KeycloakAdminService : IKeycloakAdminService
 
             var apiIntegrations = clients
                 .Where(c => c.ClientId?.StartsWith(_options.ApiClientPrefix) == true)
-                .Select(c => new ApiIntegrationListItem
+                .Select(c => new ApiIntegrationModel
                 {
                     ClientId = c.ClientId!,
                     Name = c.Name ?? ExtractNameFromClientId(c.ClientId!),
@@ -203,7 +202,6 @@ public class KeycloakAdminService : IKeycloakAdminService
                         ? c.Attributes["description"] 
                         : null,
                     Enabled = c.Enabled ?? false,
-                    CreatedAt = null
                 })
                 .OrderBy(i => i.Name)
                 .ToList();

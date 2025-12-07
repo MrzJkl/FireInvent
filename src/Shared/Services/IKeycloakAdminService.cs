@@ -13,13 +13,13 @@ public interface IKeycloakAdminService
     /// <param name="name">The user-defined name for the integration.</param>
     /// <param name="description">Optional description of the integration.</param>
     /// <returns>The credentials for the newly created integration.</returns>
-    Task<ApiIntegrationCredentials> CreateApiIntegrationAsync(string name, string? description = null);
+    Task<ApiIntegrationCredentialsModel> CreateApiIntegrationAsync(string name, string? description = null);
 
     /// <summary>
     /// Lists all API integrations (confidential clients with the configured prefix).
     /// </summary>
     /// <returns>A list of API integrations.</returns>
-    Task<List<ApiIntegrationListItem>> GetApiIntegrationsAsync();
+    Task<List<ApiIntegrationModel>> GetApiIntegrationsAsync();
 
     /// <summary>
     /// Deletes an API integration by its client ID.

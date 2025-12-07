@@ -8,7 +8,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace FireInvent.Api.Controllers;
 
 [ApiController]
-[Route("storageLocations")]
+[Route("storage-locations")]
 public class StorageLocationsController(IStorageLocationService locationService, IItemService itemService) : ControllerBase
 {
     [HttpGet]
