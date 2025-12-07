@@ -15,10 +15,12 @@ namespace FireInvent.Test.Shared.Services;
 public class KeycloakAdminServiceTests
 {
     private readonly Mock<ILogger<KeycloakAdminService>> _loggerMock;
+    private readonly HttpClient _httpClient;
 
     public KeycloakAdminServiceTests()
     {
         _loggerMock = new Mock<ILogger<KeycloakAdminService>>();
+        _httpClient = new HttpClient();
     }
 
     [Fact]
@@ -35,7 +37,7 @@ public class KeycloakAdminServiceTests
 
         // Act & Assert
         var exception = Assert.Throws<InvalidOperationException>(
-            () => new KeycloakAdminService(options, _loggerMock.Object));
+            () => new KeycloakAdminService(_httpClient, options, _loggerMock.Object));
         Assert.Contains("URL", exception.Message);
     }
 
@@ -53,7 +55,7 @@ public class KeycloakAdminServiceTests
 
         // Act & Assert
         var exception = Assert.Throws<InvalidOperationException>(
-            () => new KeycloakAdminService(options, _loggerMock.Object));
+            () => new KeycloakAdminService(_httpClient, options, _loggerMock.Object));
         Assert.Contains("realm", exception.Message);
     }
 
@@ -71,7 +73,7 @@ public class KeycloakAdminServiceTests
 
         // Act & Assert
         var exception = Assert.Throws<InvalidOperationException>(
-            () => new KeycloakAdminService(options, _loggerMock.Object));
+            () => new KeycloakAdminService(_httpClient, options, _loggerMock.Object));
         Assert.Contains("username", exception.Message);
     }
 
@@ -89,7 +91,7 @@ public class KeycloakAdminServiceTests
 
         // Act & Assert
         var exception = Assert.Throws<InvalidOperationException>(
-            () => new KeycloakAdminService(options, _loggerMock.Object));
+            () => new KeycloakAdminService(_httpClient, options, _loggerMock.Object));
         Assert.Contains("password", exception.Message);
     }
 
@@ -106,7 +108,7 @@ public class KeycloakAdminServiceTests
         });
 
         // Act & Assert
-        var service = new KeycloakAdminService(options, _loggerMock.Object);
+        var service = new KeycloakAdminService(_httpClient, options, _loggerMock.Object);
         Assert.NotNull(service);
     }
 

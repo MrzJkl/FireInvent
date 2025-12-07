@@ -157,7 +157,7 @@ builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IOrderService, OrderService>();
 builder.Services.AddScoped<IMaintenanceTypeService, MaintenanceTypeService>();
 builder.Services.AddScoped<IProductTypeService, ProductTypeService>();
-builder.Services.AddScoped<IKeycloakAdminService, KeycloakAdminService>();
+builder.Services.AddHttpClient<IKeycloakAdminService, KeycloakAdminService>();
 builder.Services.AddTransient<MailService>();
 
 // Controllers
