@@ -6,10 +6,14 @@ using System.ComponentModel.DataAnnotations.Schema;
 namespace FireInvent.Database.Models;
 
 [Index(nameof(Name), nameof(Manufacturer), IsUnique = true)]
-public record Product
+public record Product : IHasTenant
 {
     [Key]
     public Guid Id { get; set; }
+
+    [Required]
+    [MaxLength(ModelConstants.MaxStringLength)]
+    public string TenantId { get; set; } = string.Empty;
 
     [ForeignKey(nameof(Type))]
     public Guid TypeId { get; set; }

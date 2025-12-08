@@ -63,6 +63,7 @@ builder.Services.AddResponseCompression(options =>
 });
 
 // Database
+builder.Services.AddScoped<TenantProvider>();
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection"),
         x => x.MigrationsAssembly("FireInvent.Database")).UseLazyLoadingProxies());
@@ -199,6 +200,10 @@ app.ConfigureAddScalar();
 logger.LogDebug("Registering authentication and authorization...");
 app.UseAuthentication();
 app.UseAuthorization();
+
+// Register tenant resolution middleware after authentication
+app.UseMiddleware<TenantResolutionMiddleware>();
+
 app.UseResponseCompression();
 
 if (corsOptions.Enabled)

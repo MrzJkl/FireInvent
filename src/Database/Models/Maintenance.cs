@@ -4,10 +4,14 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace FireInvent.Database.Models;
 
-public record Maintenance
+public record Maintenance : IHasTenant
 {
     [Key]
     public Guid Id { get; set; }
+
+    [Required]
+    [MaxLength(ModelConstants.MaxStringLength)]
+    public string TenantId { get; set; } = string.Empty;
 
     [Required]
     [ForeignKey(nameof(Item))]

@@ -8,10 +8,14 @@ namespace FireInvent.Database.Models;
 [Index(nameof(ExternalId), IsUnique = true)]
 [Index(nameof(FirstName))]
 [Index(nameof(LastName))]
-public record Person
+public record Person : IHasTenant
 {
     [Key]
     public Guid Id { get; set; }
+
+    [Required]
+    [MaxLength(ModelConstants.MaxStringLength)]
+    public string TenantId { get; set; } = string.Empty;
 
     [Required]
     [MaxLength(ModelConstants.MaxStringLength)]

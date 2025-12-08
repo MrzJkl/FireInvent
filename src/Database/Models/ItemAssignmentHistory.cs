@@ -1,14 +1,19 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using FireInvent.Contract;
+using Microsoft.EntityFrameworkCore;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace FireInvent.Database.Models;
 
 [Index(nameof(ItemId), nameof(AssignedFrom), IsUnique = true)]
-public record ItemAssignmentHistory
+public record ItemAssignmentHistory : IHasTenant
 {
     [Key]
     public Guid Id { get; set; }
+
+    [Required]
+    [MaxLength(ModelConstants.MaxStringLength)]
+    public string TenantId { get; set; } = string.Empty;
 
     [Required]
     [ForeignKey(nameof(Item))]

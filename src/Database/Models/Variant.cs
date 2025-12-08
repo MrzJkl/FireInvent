@@ -7,10 +7,14 @@ namespace FireInvent.Database.Models;
 
 [Index(nameof(ProductId), nameof(Name), IsUnique = true)]
 [Index(nameof(Name))]
-public record Variant
+public record Variant : IHasTenant
 {
     [Key]
     public Guid Id { get; set; }
+
+    [Required]
+    [MaxLength(ModelConstants.MaxStringLength)]
+    public string TenantId { get; set; } = string.Empty;
 
     [Required]
     [ForeignKey(nameof(Product))]

@@ -5,10 +5,14 @@ using System.ComponentModel.DataAnnotations;
 namespace FireInvent.Database.Models;
 
 [Index(nameof(Name), IsUnique = true)]
-public record Department
+public record Department : IHasTenant
 {
     [Key]
     public Guid Id { get; set; }
+
+    [Required]
+    [MaxLength(ModelConstants.MaxStringLength)]
+    public string TenantId { get; set; } = string.Empty;
 
     [Required]
     [MaxLength(ModelConstants.MaxStringLength)]
