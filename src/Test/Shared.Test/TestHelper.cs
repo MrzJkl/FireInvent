@@ -10,6 +10,13 @@ internal static class TestHelper
         var options = new DbContextOptionsBuilder<AppDbContext>()
             .UseInMemoryDatabase(Guid.NewGuid().ToString())
             .Options;
-        return new AppDbContext(options);
+        
+        // Create a test tenant provider with a default test tenant ID
+        var tenantProvider = new TenantProvider
+        {
+            TenantId = "test-tenant"
+        };
+        
+        return new AppDbContext(options, tenantProvider);
     }
 }
