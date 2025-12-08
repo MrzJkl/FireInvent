@@ -162,6 +162,7 @@ builder.Services.AddScoped<IOrderService, OrderService>();
 builder.Services.AddScoped<IMaintenanceTypeService, MaintenanceTypeService>();
 builder.Services.AddScoped<IProductTypeService, ProductTypeService>();
 builder.Services.AddHttpClient<IKeycloakAdminService, KeycloakAdminService>();
+builder.Services.AddHttpClient<IKeycloakTenantService, KeycloakTenantService>();
 
 // Controllers
 builder.Services.AddControllers(options =>

@@ -8,7 +8,38 @@ FireInvent uses a **SystemAdmin approach** for tenant management. This is the st
 
 ## Architektur / Architecture
 
-### 1. SystemAdmin-Rolle / SystemAdmin Role
+### Zwei getrennte Keycloak-Services / Two Separate Keycloak Services
+
+FireInvent trennt die Keycloak-Integration in zwei separate Services:
+
+FireInvent separates the Keycloak integration into two distinct services:
+
+#### 1. **KeycloakTenantService** (System-Ebene / System Level)
+- **Zweck:** Verwaltung von Keycloak-Realms für Tenant-Bereitstellung
+- **Purpose:** Management of Keycloak realms for tenant provisioning
+- **Operationen / Operations:**
+  - Erstellen neuer Realms für Tenants / Create new realms for tenants
+  - Konfigurieren von Realm-Einstellungen / Configure realm settings
+  - Löschen von Realms / Delete realms
+  - Erstellen von Standard-Rollen (admin, procurement, maintenance, integration)
+- **Verwendung:** Automatisch vom `TenantService` beim Erstellen/Löschen von Tenants
+- **Usage:** Automatically used by `TenantService` when creating/deleting tenants
+
+#### 2. **KeycloakAdminService** (Tenant-Ebene / Tenant Level)
+- **Zweck:** Verwaltung von API-Integrationen innerhalb eines Tenant-Realms
+- **Purpose:** Management of API integrations within a tenant realm
+- **Operationen / Operations:**
+  - Erstellen von confidential clients mit Service-Accounts
+  - Verwalten von API-Integration-Credentials
+  - Löschen von API-Integrationen
+- **Verwendung:** Vom `ApiIntegrationsController` für Tenant-Admins
+- **Usage:** Used by `ApiIntegrationsController` for tenant admins
+
+**Wichtiger Unterschied / Key Difference:**
+- `KeycloakTenantService` arbeitet auf Master-Realm-Ebene (system-admin)
+- `KeycloakAdminService` arbeitet innerhalb eines spezifischen Tenant-Realms (tenant admin)
+
+### SystemAdmin-Rolle / SystemAdmin Role
 
 Eine spezielle Rolle `system-admin` wurde hinzugefügt für Benutzer, die Tenants verwalten sollen.
 
@@ -24,19 +55,23 @@ A special `system-admin` role has been added for users who should manage tenants
 2. Assign this role to users who should manage tenants
 3. These users can then access the `/tenants` endpoints
 
-### 2. TenantService mit IgnoreQueryFilters
+### TenantService Integration
 
-Der `TenantService` verwendet `IgnoreQueryFilters()` bei allen Datenbank-Operationen, um die normale Tenant-Filterung zu umgehen.
+Der `TenantService` integriert optional den `KeycloakTenantService`:
 
-The `TenantService` uses `IgnoreQueryFilters()` for all database operations to bypass normal tenant filtering.
+The `TenantService` optionally integrates with `KeycloakTenantService`:
 
 ```csharp
-// Beispiel: Alle Tenants abrufen (ignoriert Tenant-Filter)
-var tenants = await context.Tenants
-    .IgnoreQueryFilters()
-    .AsNoTracking()
-    .OrderBy(t => t.Name)
-    .ToListAsync();
+// Beim Erstellen eines Tenants wird automatisch ein Keycloak Realm erstellt
+// When creating a tenant, a Keycloak realm is automatically created
+var tenant = await tenantService.CreateTenantAsync(new CreateOrUpdateTenantModel
+{
+    Realm = "fire-dept-example",
+    Name = "Feuerwehr Beispiel",
+    Description = "Test tenant"
+});
+// ✅ Realm "fire-dept-example" wird in Keycloak erstellt
+// ✅ Standard-Rollen werden konfiguriert
 ```
 
 ## API Endpoints
