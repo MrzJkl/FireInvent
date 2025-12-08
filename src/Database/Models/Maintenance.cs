@@ -4,10 +4,14 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace FireInvent.Database.Models;
 
-public record Maintenance
+public record Maintenance : IHasTenant
 {
     [Key]
     public Guid Id { get; set; }
+
+    [Required]
+    [ForeignKey(nameof(Tenant))]
+    public Guid TenantId { get; set; }
 
     [Required]
     [ForeignKey(nameof(Item))]
@@ -33,4 +37,6 @@ public record Maintenance
     public virtual Item Item { get; set; } = null!;
 
     public virtual User? PerformedBy { get; set; } = null!;
+
+    public virtual Tenant Tenant { get; set; } = null!;
 }

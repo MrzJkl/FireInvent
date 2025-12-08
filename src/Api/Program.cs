@@ -2,6 +2,7 @@ using Asp.Versioning;
 using FireInvent.Api.Authentication;
 using FireInvent.Api.Extensions;
 using FireInvent.Api.Middlewares;
+using FireInvent.Contract;
 using FireInvent.Database;
 using FireInvent.Shared.Converter;
 using FireInvent.Shared.Mapper;
@@ -61,6 +62,9 @@ builder.Services.AddResponseCompression(options =>
 {
     options.EnableForHttps = true;
 });
+
+// Multi-Tenancy
+builder.Services.AddScoped<TenantProvider>();
 
 // Database
 builder.Services.AddDbContext<AppDbContext>(options =>
@@ -137,6 +141,7 @@ builder.Services.AddSingleton<OrderMapper>();
 builder.Services.AddSingleton<PersonMapper>();
 builder.Services.AddSingleton<ProductMapper>();
 builder.Services.AddSingleton<StorageLocationMapper>();
+builder.Services.AddSingleton<TenantMapper>();
 builder.Services.AddSingleton<UserMapper>();
 builder.Services.AddSingleton<VariantMapper>();
 builder.Services.AddSingleton<ProductTypeMapper>();
@@ -147,6 +152,7 @@ builder.Services.AddScoped<IDepartmentService, DepartmentService>();
 builder.Services.AddScoped<IStorageLocationService, StorageLocationService>();
 builder.Services.AddScoped<IPersonService, PersonService>();
 builder.Services.AddScoped<IProductService, ProductService>();
+builder.Services.AddScoped<ITenantService, TenantService>();
 builder.Services.AddScoped<IVariantService, VariantService>();
 builder.Services.AddScoped<IItemService, ItemService>();
 builder.Services.AddScoped<IMaintenanceService, MaintenanceService>();
@@ -156,6 +162,7 @@ builder.Services.AddScoped<IOrderService, OrderService>();
 builder.Services.AddScoped<IMaintenanceTypeService, MaintenanceTypeService>();
 builder.Services.AddScoped<IProductTypeService, ProductTypeService>();
 builder.Services.AddHttpClient<IKeycloakAdminService, KeycloakAdminService>();
+builder.Services.AddHttpClient<IKeycloakTenantService, KeycloakTenantService>();
 
 // Controllers
 builder.Services.AddControllers(options =>
@@ -199,6 +206,10 @@ app.ConfigureAddScalar();
 logger.LogDebug("Registering authentication and authorization...");
 app.UseAuthentication();
 app.UseAuthorization();
+
+// Register tenant resolution middleware after authentication
+app.UseMiddleware<TenantResolutionMiddleware>();
+
 app.UseResponseCompression();
 
 if (corsOptions.Enabled)

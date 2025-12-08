@@ -1,12 +1,17 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using FireInvent.Contract;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace FireInvent.Database.Models;
 
-public record OrderItem
+public record OrderItem : IHasTenant
 {
     [Key]
     public Guid Id { get; set; }
+
+    [Required]
+    [ForeignKey(nameof(Tenant))]
+    public Guid TenantId { get; set; }
 
     [Required]
     [ForeignKey(nameof(Order))]
@@ -22,4 +27,6 @@ public record OrderItem
     public virtual Order Order { get; set; } = null!;
 
     public virtual Variant Variant { get; set; } = null!;
+
+    public virtual Tenant Tenant { get; set; } = null!;
 }

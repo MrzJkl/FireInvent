@@ -12,16 +12,38 @@ namespace FireInvent.Database.Migrations
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.CreateTable(
+                name: "Tenants",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    Realm = table.Column<string>(type: "character varying(255)", maxLength: 255, nullable: false),
+                    Name = table.Column<string>(type: "character varying(255)", maxLength: 255, nullable: false),
+                    Description = table.Column<string>(type: "character varying(2000)", maxLength: 2000, nullable: true),
+                    CreatedAt = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Tenants", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Departments",
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    TenantId = table.Column<Guid>(type: "uuid", nullable: false),
                     Name = table.Column<string>(type: "character varying(255)", maxLength: 255, nullable: false),
                     Description = table.Column<string>(type: "character varying(2000)", maxLength: 2000, nullable: true)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Departments", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Departments_Tenants_TenantId",
+                        column: x => x.TenantId,
+                        principalTable: "Tenants",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
@@ -29,12 +51,19 @@ namespace FireInvent.Database.Migrations
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    TenantId = table.Column<Guid>(type: "uuid", nullable: false),
                     Name = table.Column<string>(type: "character varying(255)", maxLength: 255, nullable: false),
                     Description = table.Column<string>(type: "character varying(2000)", maxLength: 2000, nullable: true)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_MaintenanceTypes", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_MaintenanceTypes_Tenants_TenantId",
+                        column: x => x.TenantId,
+                        principalTable: "Tenants",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
@@ -42,6 +71,7 @@ namespace FireInvent.Database.Migrations
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    TenantId = table.Column<Guid>(type: "uuid", nullable: false),
                     OrderIdentifier = table.Column<string>(type: "character varying(255)", maxLength: 255, nullable: true),
                     OrderDate = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
                     Status = table.Column<int>(type: "integer", nullable: false),
@@ -50,6 +80,12 @@ namespace FireInvent.Database.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Orders", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Orders_Tenants_TenantId",
+                        column: x => x.TenantId,
+                        principalTable: "Tenants",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
@@ -57,6 +93,7 @@ namespace FireInvent.Database.Migrations
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    TenantId = table.Column<Guid>(type: "uuid", nullable: false),
                     FirstName = table.Column<string>(type: "character varying(255)", maxLength: 255, nullable: false),
                     LastName = table.Column<string>(type: "character varying(255)", maxLength: 255, nullable: false),
                     Remarks = table.Column<string>(type: "character varying(2000)", maxLength: 2000, nullable: true),
@@ -66,6 +103,12 @@ namespace FireInvent.Database.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Persons", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Persons_Tenants_TenantId",
+                        column: x => x.TenantId,
+                        principalTable: "Tenants",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
@@ -73,12 +116,19 @@ namespace FireInvent.Database.Migrations
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    TenantId = table.Column<Guid>(type: "uuid", nullable: false),
                     Name = table.Column<string>(type: "character varying(255)", maxLength: 255, nullable: false),
                     Description = table.Column<string>(type: "character varying(2000)", maxLength: 2000, nullable: true)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_ProductTypes", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_ProductTypes_Tenants_TenantId",
+                        column: x => x.TenantId,
+                        principalTable: "Tenants",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
@@ -86,12 +136,19 @@ namespace FireInvent.Database.Migrations
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    TenantId = table.Column<Guid>(type: "uuid", nullable: false),
                     Name = table.Column<string>(type: "character varying(255)", maxLength: 255, nullable: false),
                     Remarks = table.Column<string>(type: "text", nullable: true)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_StorageLocations", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_StorageLocations_Tenants_TenantId",
+                        column: x => x.TenantId,
+                        principalTable: "Tenants",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
@@ -99,6 +156,7 @@ namespace FireInvent.Database.Migrations
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    TenantId = table.Column<Guid>(type: "uuid", nullable: false),
                     EMail = table.Column<string>(type: "character varying(255)", maxLength: 255, nullable: false),
                     FirstName = table.Column<string>(type: "character varying(255)", maxLength: 255, nullable: false),
                     LastName = table.Column<string>(type: "character varying(255)", maxLength: 255, nullable: false),
@@ -108,6 +166,12 @@ namespace FireInvent.Database.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Users", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Users_Tenants_TenantId",
+                        column: x => x.TenantId,
+                        principalTable: "Tenants",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
@@ -139,6 +203,7 @@ namespace FireInvent.Database.Migrations
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    TenantId = table.Column<Guid>(type: "uuid", nullable: false),
                     TypeId = table.Column<Guid>(type: "uuid", nullable: false),
                     Name = table.Column<string>(type: "character varying(255)", maxLength: 255, nullable: false),
                     Manufacturer = table.Column<string>(type: "character varying(255)", maxLength: 255, nullable: false),
@@ -153,6 +218,12 @@ namespace FireInvent.Database.Migrations
                         principalTable: "ProductTypes",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_Products_Tenants_TenantId",
+                        column: x => x.TenantId,
+                        principalTable: "Tenants",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
@@ -160,6 +231,7 @@ namespace FireInvent.Database.Migrations
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    TenantId = table.Column<Guid>(type: "uuid", nullable: false),
                     ProductId = table.Column<Guid>(type: "uuid", nullable: false),
                     Name = table.Column<string>(type: "character varying(255)", maxLength: 255, nullable: false),
                     AdditionalSpecs = table.Column<string>(type: "character varying(2000)", maxLength: 2000, nullable: true)
@@ -173,6 +245,12 @@ namespace FireInvent.Database.Migrations
                         principalTable: "Products",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_Variants_Tenants_TenantId",
+                        column: x => x.TenantId,
+                        principalTable: "Tenants",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
@@ -180,6 +258,7 @@ namespace FireInvent.Database.Migrations
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    TenantId = table.Column<Guid>(type: "uuid", nullable: false),
                     VariantId = table.Column<Guid>(type: "uuid", nullable: false),
                     Identifier = table.Column<string>(type: "character varying(255)", maxLength: 255, nullable: true),
                     StorageLocationId = table.Column<Guid>(type: "uuid", nullable: true),
@@ -196,6 +275,12 @@ namespace FireInvent.Database.Migrations
                         principalTable: "StorageLocations",
                         principalColumn: "Id");
                     table.ForeignKey(
+                        name: "FK_Items_Tenants_TenantId",
+                        column: x => x.TenantId,
+                        principalTable: "Tenants",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
                         name: "FK_Items_Variants_VariantId",
                         column: x => x.VariantId,
                         principalTable: "Variants",
@@ -208,6 +293,7 @@ namespace FireInvent.Database.Migrations
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    TenantId = table.Column<Guid>(type: "uuid", nullable: false),
                     OrderId = table.Column<Guid>(type: "uuid", nullable: false),
                     VariantId = table.Column<Guid>(type: "uuid", nullable: false),
                     Quantity = table.Column<int>(type: "integer", nullable: false)
@@ -219,6 +305,12 @@ namespace FireInvent.Database.Migrations
                         name: "FK_OrderItems_Orders_OrderId",
                         column: x => x.OrderId,
                         principalTable: "Orders",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_OrderItems_Tenants_TenantId",
+                        column: x => x.TenantId,
+                        principalTable: "Tenants",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
@@ -234,6 +326,7 @@ namespace FireInvent.Database.Migrations
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    TenantId = table.Column<Guid>(type: "uuid", nullable: false),
                     ItemId = table.Column<Guid>(type: "uuid", nullable: false),
                     PersonId = table.Column<Guid>(type: "uuid", nullable: false),
                     AssignedById = table.Column<Guid>(type: "uuid", nullable: true),
@@ -256,6 +349,12 @@ namespace FireInvent.Database.Migrations
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
+                        name: "FK_ItemAssignmentHistories_Tenants_TenantId",
+                        column: x => x.TenantId,
+                        principalTable: "Tenants",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
                         name: "FK_ItemAssignmentHistories_Users_AssignedById",
                         column: x => x.AssignedById,
                         principalTable: "Users",
@@ -267,6 +366,7 @@ namespace FireInvent.Database.Migrations
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    TenantId = table.Column<Guid>(type: "uuid", nullable: false),
                     ItemId = table.Column<Guid>(type: "uuid", nullable: false),
                     TypeId = table.Column<Guid>(type: "uuid", nullable: false),
                     PerformedAt = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
@@ -289,6 +389,12 @@ namespace FireInvent.Database.Migrations
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
+                        name: "FK_Maintenances_Tenants_TenantId",
+                        column: x => x.TenantId,
+                        principalTable: "Tenants",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
                         name: "FK_Maintenances_Users_PerformedById",
                         column: x => x.PerformedById,
                         principalTable: "Users",
@@ -307,6 +413,11 @@ namespace FireInvent.Database.Migrations
                 unique: true);
 
             migrationBuilder.CreateIndex(
+                name: "IX_Departments_TenantId",
+                table: "Departments",
+                column: "TenantId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_ItemAssignmentHistories_AssignedById",
                 table: "ItemAssignmentHistories",
                 column: "AssignedById");
@@ -323,6 +434,11 @@ namespace FireInvent.Database.Migrations
                 column: "PersonId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_ItemAssignmentHistories_TenantId",
+                table: "ItemAssignmentHistories",
+                column: "TenantId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Items_Identifier",
                 table: "Items",
                 column: "Identifier",
@@ -332,6 +448,11 @@ namespace FireInvent.Database.Migrations
                 name: "IX_Items_StorageLocationId",
                 table: "Items",
                 column: "StorageLocationId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Items_TenantId",
+                table: "Items",
+                column: "TenantId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Items_VariantId",
@@ -349,6 +470,11 @@ namespace FireInvent.Database.Migrations
                 column: "PerformedById");
 
             migrationBuilder.CreateIndex(
+                name: "IX_Maintenances_TenantId",
+                table: "Maintenances",
+                column: "TenantId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Maintenances_TypeId",
                 table: "Maintenances",
                 column: "TypeId");
@@ -360,14 +486,29 @@ namespace FireInvent.Database.Migrations
                 unique: true);
 
             migrationBuilder.CreateIndex(
+                name: "IX_MaintenanceTypes_TenantId",
+                table: "MaintenanceTypes",
+                column: "TenantId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_OrderItems_OrderId",
                 table: "OrderItems",
                 column: "OrderId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_OrderItems_TenantId",
+                table: "OrderItems",
+                column: "TenantId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_OrderItems_VariantId",
                 table: "OrderItems",
                 column: "VariantId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Orders_TenantId",
+                table: "Orders",
+                column: "TenantId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Persons_ExternalId",
@@ -392,10 +533,20 @@ namespace FireInvent.Database.Migrations
                 column: "LastName");
 
             migrationBuilder.CreateIndex(
+                name: "IX_Persons_TenantId",
+                table: "Persons",
+                column: "TenantId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Products_Name_Manufacturer",
                 table: "Products",
                 columns: new[] { "Name", "Manufacturer" },
                 unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Products_TenantId",
+                table: "Products",
+                column: "TenantId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Products_TypeId",
@@ -409,9 +560,31 @@ namespace FireInvent.Database.Migrations
                 unique: true);
 
             migrationBuilder.CreateIndex(
+                name: "IX_ProductTypes_TenantId",
+                table: "ProductTypes",
+                column: "TenantId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_StorageLocations_Name",
                 table: "StorageLocations",
                 column: "Name",
+                unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_StorageLocations_TenantId",
+                table: "StorageLocations",
+                column: "TenantId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Tenants_Name",
+                table: "Tenants",
+                column: "Name",
+                unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Tenants_Realm",
+                table: "Tenants",
+                column: "Realm",
                 unique: true);
 
             migrationBuilder.CreateIndex(
@@ -419,6 +592,11 @@ namespace FireInvent.Database.Migrations
                 table: "Users",
                 column: "EMail",
                 unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Users_TenantId",
+                table: "Users",
+                column: "TenantId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Variants_Name",
@@ -430,6 +608,11 @@ namespace FireInvent.Database.Migrations
                 table: "Variants",
                 columns: new[] { "ProductId", "Name" },
                 unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Variants_TenantId",
+                table: "Variants",
+                column: "TenantId");
         }
 
         /// <inheritdoc />
@@ -476,6 +659,9 @@ namespace FireInvent.Database.Migrations
 
             migrationBuilder.DropTable(
                 name: "ProductTypes");
+
+            migrationBuilder.DropTable(
+                name: "Tenants");
         }
     }
 }
