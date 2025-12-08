@@ -1,12 +1,10 @@
+using FireInvent.Contract;
 using FireInvent.Database;
 using FireInvent.Database.Models;
 using Microsoft.EntityFrameworkCore;
 
 namespace FireInvent.Test.Shared;
 
-/// <summary>
-/// Integration tests demonstrating multi-tenancy data isolation.
-/// </summary>
 public class MultiTenancyTests
 {
     [Fact]
@@ -17,8 +15,11 @@ public class MultiTenancyTests
             .UseInMemoryDatabase(Guid.NewGuid().ToString())
             .Options;
 
-        var tenant1Provider = new TenantProvider { TenantId = "tenant-1" };
-        var tenant2Provider = new TenantProvider { TenantId = "tenant-2" };
+        var tenant1Id = Guid.NewGuid();
+        var tenant2Id = Guid.NewGuid();
+
+        var tenant1Provider = new TenantProvider { TenantId = tenant1Id };
+        var tenant2Provider = new TenantProvider { TenantId = tenant2Id };
 
         using var context1 = new AppDbContext(options, tenant1Provider);
         using var context2 = new AppDbContext(options, tenant2Provider);
@@ -48,11 +49,11 @@ public class MultiTenancyTests
 
         Assert.Single(tenant1Persons);
         Assert.Equal("Alice", tenant1Persons[0].FirstName);
-        Assert.Equal("tenant-1", tenant1Persons[0].TenantId);
+        Assert.Equal(tenant1Id, tenant1Persons[0].TenantId);
 
         Assert.Single(tenant2Persons);
         Assert.Equal("Bob", tenant2Persons[0].FirstName);
-        Assert.Equal("tenant-2", tenant2Persons[0].TenantId);
+        Assert.Equal(tenant2Id, tenant2Persons[0].TenantId);
     }
 
     [Fact]
@@ -63,7 +64,9 @@ public class MultiTenancyTests
             .UseInMemoryDatabase(Guid.NewGuid().ToString())
             .Options;
 
-        var tenantProvider = new TenantProvider { TenantId = "test-tenant-auto" };
+        var tenantId = Guid.NewGuid();
+
+        var tenantProvider = new TenantProvider { TenantId = tenantId };
         using var context = new AppDbContext(options, tenantProvider);
 
         // Act - Create entity without explicitly setting TenantId
@@ -71,14 +74,14 @@ public class MultiTenancyTests
         {
             Id = Guid.NewGuid(),
             Name = "Test Department",
-            TenantId = "" // Empty, should be auto-assigned
+            TenantId = Guid.Empty // Empty, should be auto-assigned
         };
         context.Departments.Add(department);
         await context.SaveChangesAsync();
 
         // Assert - TenantId was automatically assigned
         var saved = await context.Departments.FirstAsync();
-        Assert.Equal("test-tenant-auto", saved.TenantId);
+        Assert.Equal(tenantId, saved.TenantId);
     }
 
     [Fact]
@@ -89,8 +92,11 @@ public class MultiTenancyTests
             .UseInMemoryDatabase(Guid.NewGuid().ToString())
             .Options;
 
-        var tenant1Provider = new TenantProvider { TenantId = "tenant-1" };
-        var tenant2Provider = new TenantProvider { TenantId = "tenant-2" };
+        var tenant1Id = Guid.NewGuid();
+        var tenant2Id = Guid.NewGuid();
+
+        var tenant1Provider = new TenantProvider { TenantId = tenant1Id };
+        var tenant2Provider = new TenantProvider { TenantId = tenant2Id };
 
         // Create entities in different tenants
         using (var context1 = new AppDbContext(options, tenant1Provider))

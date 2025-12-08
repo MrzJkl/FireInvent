@@ -1,3 +1,4 @@
+using FireInvent.Contract;
 using FireInvent.Database;
 using FireInvent.Database.Models;
 using Microsoft.EntityFrameworkCore;
@@ -31,7 +32,7 @@ public class TenantResolutionMiddleware
         AppDbContext dbContext,
         IMemoryCache cache)
     {
-        // Skip tenant resolution for anonymous endpoints (health checks, etc.)
+        // Skip tenant resolution for anonymous endpoints
         if (!context.User.Identity?.IsAuthenticated ?? true)
         {
             await _next(context);
@@ -41,15 +42,14 @@ public class TenantResolutionMiddleware
         try
         {
             // Extract realm from JWT token claims
-            // The issuer claim typically contains the realm information
             var issuerClaim = context.User.Claims
                 .FirstOrDefault(c => c.Type == JwtRegisteredClaimNames.Iss);
 
             if (issuerClaim == null)
             {
-                _logger.LogWarning("No issuer claim found in JWT token");
+                _logger.LogWarning("No issuer claim found in JWT token. Cannot extract tenant information!");
                 context.Response.StatusCode = StatusCodes.Status401Unauthorized;
-                await context.Response.WriteAsync("Invalid token: missing issuer");
+                await context.Response.WriteAsync("Invalid token: missing issuer.");
                 return;
             }
 
@@ -88,18 +88,15 @@ public class TenantResolutionMiddleware
 
             // Try to get tenant from cache first
             var cacheKey = $"{TenantCachePrefix}{realm}";
-            Tenant? tenant;
 
-            if (!cache.TryGetValue(cacheKey, out tenant))
+            if (!cache.TryGetValue(cacheKey, out Tenant? tenant))
             {
-                // Look up tenant by realm in database
                 tenant = await dbContext.Tenants
                     .AsNoTracking()
                     .FirstOrDefaultAsync(t => t.Realm == realm);
 
                 if (tenant != null)
                 {
-                    // Cache the tenant for future requests
                     cache.Set(cacheKey, tenant, TenantCacheExpiration);
                 }
             }
@@ -112,15 +109,6 @@ public class TenantResolutionMiddleware
                 return;
             }
 
-            if (!tenant.IsActive)
-            {
-                _logger.LogWarning("Tenant {TenantId} is inactive", tenant.Id);
-                context.Response.StatusCode = StatusCodes.Status403Forbidden;
-                await context.Response.WriteAsync("Tenant not found or inactive");
-                return;
-            }
-
-            // Set the tenant in the provider
             tenantProvider.TenantId = tenant.Id;
             
             _logger.LogDebug("Resolved tenant {TenantId} for realm {Realm}", tenant.Id, realm);

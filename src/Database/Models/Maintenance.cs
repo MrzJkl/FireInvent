@@ -10,8 +10,8 @@ public record Maintenance : IHasTenant
     public Guid Id { get; set; }
 
     [Required]
-    [MaxLength(ModelConstants.MaxStringLength)]
-    public string TenantId { get; set; } = string.Empty;
+    [ForeignKey(nameof(Tenant))]
+    public Guid TenantId { get; set; }
 
     [Required]
     [ForeignKey(nameof(Item))]
@@ -37,4 +37,6 @@ public record Maintenance : IHasTenant
     public virtual Item Item { get; set; } = null!;
 
     public virtual User? PerformedBy { get; set; } = null!;
+
+    public virtual Tenant Tenant { get; set; } = null!;
 }

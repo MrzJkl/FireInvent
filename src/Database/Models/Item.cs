@@ -12,8 +12,8 @@ public record Item : IHasTenant
     public Guid Id { get; set; }
 
     [Required]
-    [MaxLength(ModelConstants.MaxStringLength)]
-    public string TenantId { get; set; } = string.Empty;
+    [ForeignKey(nameof(Tenant))]
+    public Guid TenantId { get; set; }
 
     [Required]
     [ForeignKey(nameof(Variant))]
@@ -34,6 +34,8 @@ public record Item : IHasTenant
     public DateTimeOffset? RetirementDate { get; set; }
 
     public virtual Variant Variant { get; set; } = null!;
+
+    public virtual Tenant Tenant { get; set; } = null!;
 
     public virtual StorageLocation? StorageLocation { get; set; }
 

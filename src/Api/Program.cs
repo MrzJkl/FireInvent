@@ -2,6 +2,7 @@ using Asp.Versioning;
 using FireInvent.Api.Authentication;
 using FireInvent.Api.Extensions;
 using FireInvent.Api.Middlewares;
+using FireInvent.Contract;
 using FireInvent.Database;
 using FireInvent.Shared.Converter;
 using FireInvent.Shared.Mapper;
@@ -62,8 +63,10 @@ builder.Services.AddResponseCompression(options =>
     options.EnableForHttps = true;
 });
 
-// Database
+// Multi-Tenancy
 builder.Services.AddScoped<TenantProvider>();
+
+// Database
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection"),
         x => x.MigrationsAssembly("FireInvent.Database")).UseLazyLoadingProxies());

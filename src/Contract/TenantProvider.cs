@@ -1,4 +1,4 @@
-namespace FireInvent.Database;
+namespace FireInvent.Contract;
 
 /// <summary>
 /// Scoped service that holds the current tenant context for the duration of a request.
@@ -11,10 +11,5 @@ public class TenantProvider
     /// The ID of the current tenant for this request.
     /// Null if no tenant has been resolved yet.
     /// </summary>
-    public string? TenantId { get; set; }
-
-    /// <summary>
-    /// Indicates whether a tenant has been resolved for this request.
-    /// </summary>
-    public bool HasTenant => !string.IsNullOrEmpty(TenantId);
+    public Guid? TenantId { get; set; }
 }

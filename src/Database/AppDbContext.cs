@@ -1,4 +1,5 @@
-﻿using FireInvent.Database.Models;
+﻿using FireInvent.Contract;
+using FireInvent.Database.Models;
 using Microsoft.EntityFrameworkCore;
 
 namespace FireInvent.Database;
@@ -22,6 +23,7 @@ public class AppDbContext : DbContext
     {
         _tenantProvider = tenantProvider;
     }
+
     public DbSet<Tenant> Tenants => Set<Tenant>();
 
     public DbSet<Item> Items => Set<Item>();
@@ -59,33 +61,27 @@ public class AppDbContext : DbContext
         {
             if (typeof(IHasTenant).IsAssignableFrom(entityType.ClrType))
             {
-                // Create the filter expression: entity => _tenantProvider == null || _tenantProvider.TenantId == null || entity.TenantId == _tenantProvider.TenantId
-                // This ensures queries work even when TenantProvider is not set (e.g., during migrations)
+                // entity => _tenantProvider == null || !_tenantProvider.TenantId.HasValue || entity.TenantId == _tenantProvider.TenantId.Value
                 var parameter = System.Linq.Expressions.Expression.Parameter(entityType.ClrType, "e");
                 var property = System.Linq.Expressions.Expression.Property(parameter, nameof(IHasTenant.TenantId));
-                
-                // Check if _tenantProvider is null
-                var tenantProviderField = System.Linq.Expressions.Expression.Field(
-                    System.Linq.Expressions.Expression.Constant(this),
-                    "_tenantProvider");
+
+                var thisConstant = System.Linq.Expressions.Expression.Constant(this);
+                var tenantProviderField = System.Linq.Expressions.Expression.Field(thisConstant, "_tenantProvider");
+
                 var tenantProviderIsNull = System.Linq.Expressions.Expression.Equal(
                     tenantProviderField,
                     System.Linq.Expressions.Expression.Constant(null, typeof(TenantProvider)));
 
-                // Check if _tenantProvider.TenantId is null
-                var tenantIdProperty = System.Linq.Expressions.Expression.Property(
-                    tenantProviderField,
-                    nameof(TenantProvider.TenantId));
-                var tenantIdIsNull = System.Linq.Expressions.Expression.Equal(
-                    tenantIdProperty,
-                    System.Linq.Expressions.Expression.Constant(null, typeof(string)));
+                var tenantIdProperty = System.Linq.Expressions.Expression.Property(tenantProviderField, nameof(TenantProvider.TenantId));
+                var tenantIdHasValue = System.Linq.Expressions.Expression.Property(tenantIdProperty, nameof(Nullable<Guid>.HasValue));
+                var tenantIdValue = System.Linq.Expressions.Expression.Property(tenantIdProperty, nameof(Nullable<Guid>.Value));
 
-                // Check if entity.TenantId == _tenantProvider.TenantId
-                var tenantIdEquals = System.Linq.Expressions.Expression.Equal(property, tenantIdProperty);
+                var tenantIdIsNotSet = System.Linq.Expressions.Expression.Not(tenantIdHasValue);
 
-                // Combine: _tenantProvider == null || _tenantProvider.TenantId == null || entity.TenantId == _tenantProvider.TenantId
+                var tenantIdEquals = System.Linq.Expressions.Expression.Equal(property, tenantIdValue);
+
                 var filterExpression = System.Linq.Expressions.Expression.OrElse(
-                    System.Linq.Expressions.Expression.OrElse(tenantProviderIsNull, tenantIdIsNull),
+                    System.Linq.Expressions.Expression.OrElse(tenantProviderIsNull, tenantIdIsNotSet),
                     tenantIdEquals);
 
                 var lambda = System.Linq.Expressions.Expression.Lambda(filterExpression, parameter);
@@ -98,16 +94,16 @@ public class AppDbContext : DbContext
     public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
     {
         // Automatically assign TenantId to new entities that implement IHasTenant
-        if (_tenantProvider?.HasTenant ?? false)
+        if (_tenantProvider is not null && _tenantProvider.TenantId.HasValue && _tenantProvider.TenantId.Value != Guid.Empty)
         {
             var entries = ChangeTracker.Entries<IHasTenant>()
                 .Where(e => e.State == EntityState.Added);
 
             foreach (var entry in entries)
             {
-                if (string.IsNullOrEmpty(entry.Entity.TenantId))
+                if (entry.Entity.TenantId == Guid.Empty)
                 {
-                    entry.Entity.TenantId = _tenantProvider.TenantId ?? throw new InvalidOperationException("TenantId cannot be null");
+                    entry.Entity.TenantId = _tenantProvider.TenantId.Value;
                 }
             }
         }

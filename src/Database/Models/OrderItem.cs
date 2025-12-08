@@ -10,8 +10,8 @@ public record OrderItem : IHasTenant
     public Guid Id { get; set; }
 
     [Required]
-    [MaxLength(ModelConstants.MaxStringLength)]
-    public string TenantId { get; set; } = string.Empty;
+    [ForeignKey(nameof(Tenant))]
+    public Guid TenantId { get; set; }
 
     [Required]
     [ForeignKey(nameof(Order))]
@@ -27,4 +27,6 @@ public record OrderItem : IHasTenant
     public virtual Order Order { get; set; } = null!;
 
     public virtual Variant Variant { get; set; } = null!;
+
+    public virtual Tenant Tenant { get; set; } = null!;
 }

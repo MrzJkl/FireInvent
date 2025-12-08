@@ -13,8 +13,8 @@ public record Variant : IHasTenant
     public Guid Id { get; set; }
 
     [Required]
-    [MaxLength(ModelConstants.MaxStringLength)]
-    public string TenantId { get; set; } = string.Empty;
+    [ForeignKey(nameof(Tenant))]
+    public Guid TenantId { get; set; }
 
     [Required]
     [ForeignKey(nameof(Product))]
@@ -30,4 +30,6 @@ public record Variant : IHasTenant
     public virtual Product Product { get; set; } = null!;
 
     public virtual ICollection<Item> Items { get; set; } = [];
+
+    public virtual Tenant Tenant { get; set; } = null!;
 }

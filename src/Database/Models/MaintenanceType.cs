@@ -1,6 +1,7 @@
 ﻿using FireInvent.Contract;
 using Microsoft.EntityFrameworkCore;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace FireInvent.Database.Models;
 
@@ -11,8 +12,8 @@ public record MaintenanceType : IHasTenant
     public Guid Id { get; set; }
 
     [Required]
-    [MaxLength(ModelConstants.MaxStringLength)]
-    public string TenantId { get; set; } = string.Empty;
+    [ForeignKey(nameof(Tenant))]
+    public Guid TenantId { get; set; }
 
     [MaxLength(ModelConstants.MaxStringLength)]
     [Required]
@@ -20,4 +21,6 @@ public record MaintenanceType : IHasTenant
 
     [MaxLength(ModelConstants.MaxStringLengthLong)]
     public string? Description { get; set; }
+
+    public virtual Tenant Tenant { get; set; } = null!;
 }
