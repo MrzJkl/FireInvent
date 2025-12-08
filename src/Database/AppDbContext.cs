@@ -7,10 +7,17 @@ public class AppDbContext : DbContext
 {
     private readonly TenantProvider? _tenantProvider;
 
+    /// <summary>
+    /// Parameterless constructor for EF Core migrations and tooling.
+    /// Should not be used in application code.
+    /// </summary>
     public AppDbContext(DbContextOptions<AppDbContext> options) : base(options)
     {
     }
 
+    /// <summary>
+    /// Constructor with TenantProvider for runtime usage.
+    /// </summary>
     public AppDbContext(DbContextOptions<AppDbContext> options, TenantProvider tenantProvider) : base(options)
     {
         _tenantProvider = tenantProvider;
@@ -100,7 +107,7 @@ public class AppDbContext : DbContext
             {
                 if (string.IsNullOrEmpty(entry.Entity.TenantId))
                 {
-                    entry.Entity.TenantId = _tenantProvider.TenantId!;
+                    entry.Entity.TenantId = _tenantProvider.TenantId ?? throw new InvalidOperationException("TenantId cannot be null");
                 }
             }
         }

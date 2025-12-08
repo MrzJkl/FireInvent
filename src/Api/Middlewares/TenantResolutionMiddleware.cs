@@ -1,6 +1,7 @@
 using FireInvent.Database;
 using FireInvent.Database.Models;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Caching.Memory;
 using System.IdentityModel.Tokens.Jwt;
 
 namespace FireInvent.Api.Middlewares;
@@ -13,6 +14,8 @@ public class TenantResolutionMiddleware
 {
     private readonly RequestDelegate _next;
     private readonly ILogger<TenantResolutionMiddleware> _logger;
+    private const string TenantCachePrefix = "tenant_by_realm:";
+    private static readonly TimeSpan TenantCacheExpiration = TimeSpan.FromMinutes(15);
 
     public TenantResolutionMiddleware(
         RequestDelegate next,
@@ -25,7 +28,8 @@ public class TenantResolutionMiddleware
     public async Task InvokeAsync(
         HttpContext context,
         TenantProvider tenantProvider,
-        AppDbContext dbContext)
+        AppDbContext dbContext,
+        IMemoryCache cache)
     {
         // Skip tenant resolution for anonymous endpoints (health checks, etc.)
         if (!context.User.Identity?.IsAuthenticated ?? true)
@@ -50,18 +54,28 @@ public class TenantResolutionMiddleware
             }
 
             // Extract realm from issuer URL (e.g., "https://keycloak.example.com/realms/fire-dept-berlin" -> "fire-dept-berlin")
-            var issuerUri = new Uri(issuerClaim.Value);
-            var pathSegments = issuerUri.AbsolutePath.Split('/', StringSplitOptions.RemoveEmptyEntries);
-            
-            // Look for "realms" segment and get the next one
             string? realm = null;
-            for (int i = 0; i < pathSegments.Length - 1; i++)
+            try
             {
-                if (pathSegments[i].Equals("realms", StringComparison.OrdinalIgnoreCase))
+                var issuerUri = new Uri(issuerClaim.Value);
+                var pathSegments = issuerUri.AbsolutePath.Split('/', StringSplitOptions.RemoveEmptyEntries);
+                
+                // Look for "realms" segment and get the next one
+                for (int i = 0; i < pathSegments.Length - 1; i++)
                 {
-                    realm = pathSegments[i + 1];
-                    break;
+                    if (pathSegments[i].Equals("realms", StringComparison.OrdinalIgnoreCase))
+                    {
+                        realm = pathSegments[i + 1];
+                        break;
+                    }
                 }
+            }
+            catch (UriFormatException ex)
+            {
+                _logger.LogWarning(ex, "Invalid URI format in issuer claim: {Issuer}", issuerClaim.Value);
+                context.Response.StatusCode = StatusCodes.Status401Unauthorized;
+                await context.Response.WriteAsync("Invalid token: malformed issuer");
+                return;
             }
 
             if (string.IsNullOrEmpty(realm))
@@ -72,10 +86,23 @@ public class TenantResolutionMiddleware
                 return;
             }
 
-            // Look up tenant by realm
-            var tenant = await dbContext.Tenants
-                .AsNoTracking()
-                .FirstOrDefaultAsync(t => t.Realm == realm);
+            // Try to get tenant from cache first
+            var cacheKey = $"{TenantCachePrefix}{realm}";
+            Tenant? tenant;
+
+            if (!cache.TryGetValue(cacheKey, out tenant))
+            {
+                // Look up tenant by realm in database
+                tenant = await dbContext.Tenants
+                    .AsNoTracking()
+                    .FirstOrDefaultAsync(t => t.Realm == realm);
+
+                if (tenant != null)
+                {
+                    // Cache the tenant for future requests
+                    cache.Set(cacheKey, tenant, TenantCacheExpiration);
+                }
+            }
 
             if (tenant == null)
             {
