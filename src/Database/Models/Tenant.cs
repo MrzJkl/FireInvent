@@ -17,9 +17,8 @@ public record Tenant
     [MaxLength(ModelConstants.MaxStringLength)]
     public string Name { get; set; } = string.Empty;
 
-    [MaxLength(ModelConstants.MaxStringLengthLong)]
-    [Required]
-    public string Description { get; set; }
+    [MaxLength(ModelConstants.MaxStringLength)]
+    public string? Description { get; set; }
 
     [Required]
     public DateTimeOffset CreatedAt { get; set; } = DateTimeOffset.UtcNow;

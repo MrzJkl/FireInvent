@@ -331,6 +331,7 @@ public class KeycloakAdminService : IKeycloakAdminService
     private static string SanitizeClientId(string name)
     {
         var sanitized = new string(name
+            .Trim()
             .ToLowerInvariant()
             .Select(c => char.IsLetterOrDigit(c) ? c : '-')
             .ToArray());

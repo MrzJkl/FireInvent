@@ -1,4 +1,3 @@
-using FireInvent.Contract.Extensions;
 using FireInvent.Shared.Exceptions;
 using FireInvent.Shared.Options;
 using Microsoft.Extensions.Logging;
@@ -92,7 +91,7 @@ public class KeycloakTenantService : IKeycloakTenantService
         if (string.IsNullOrWhiteSpace(description))
             throw new ArgumentException("Description cannot be empty.", nameof(description));
 
-        var alias = name.RemoveNonAsciiCharacters().Trim().ToLowerInvariant();
+        var alias = SanitizeNameForKeycloak(name);
 
         try
         {
@@ -194,7 +193,7 @@ public class KeycloakTenantService : IKeycloakTenantService
         if (string.IsNullOrWhiteSpace(newName))
             throw new ArgumentException("New name cannot be empty.", nameof(newName));
 
-        var alias = newName.RemoveNonAsciiCharacters().Trim().ToLowerInvariant();
+        var alias = SanitizeNameForKeycloak(newName);
 
         try
         {
@@ -226,6 +225,18 @@ public class KeycloakTenantService : IKeycloakTenantService
             _logger.LogError(ex, "Error updating organization name ({Id})", organizationId);
             throw new KeycloakException();
         }
+}
+    private static string SanitizeNameForKeycloak(string name)
+    {
+        var sanitized = new string(name
+            .Trim()
+            .ToLowerInvariant()
+            .Select(c => char.IsLetterOrDigit(c) ? c : '-')
+            .ToArray());
+
+        sanitized = System.Text.RegularExpressions.Regex.Replace(sanitized, "-+", "-");
+
+        return sanitized.Trim('-');
     }
 
     private class TokenResponse

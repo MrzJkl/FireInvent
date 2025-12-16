@@ -35,47 +35,6 @@ public static class AuthenticationExtensions
 
                 options.Events = new JwtBearerEvents
                 {
-                    OnMessageReceived = context =>
-                    {
-                        // Extract raw JWT from Authorization header before validation
-                        var authHeader = context.Request.Headers["Authorization"].ToString();
-                        if (string.IsNullOrWhiteSpace(authHeader) || !authHeader.StartsWith("Bearer ", StringComparison.OrdinalIgnoreCase))
-                            return Task.CompletedTask;
-
-                        var token = authHeader.Substring("Bearer ".Length).Trim();
-                        if (string.IsNullOrWhiteSpace(token))
-                            return Task.CompletedTask;
-
-                        try
-                        {
-                            var handler = new JwtSecurityTokenHandler();
-                            // Read token without validating
-                            var jwt = handler.ReadJwtToken(token);
-
-                            // Prefer the Issuer property; fallback to claim lookup
-                            var issuer = jwt.Issuer;
-                            if (string.IsNullOrWhiteSpace(issuer))
-                            {
-                                issuer = jwt.Claims.FirstOrDefault(c => c.Type == JwtRegisteredClaimNames.Iss)?.Value;
-                            }
-
-                            if (string.IsNullOrWhiteSpace(issuer))
-                                return Task.CompletedTask;
-
-                            var realm = TenantResolutionHelper.ExtractRealmFromIssuer(new System.Security.Claims.Claim(JwtRegisteredClaimNames.Iss, issuer));
-                            if (!string.IsNullOrWhiteSpace(realm))
-                            {
-                                var newAuthority = context.Options.Authority?.Replace("master", realm);
-                                context.Options.Authority = newAuthority;
-                            }
-                        }
-                        catch
-                        {
-                            // Ignore malformed token at this stage; validation will handle errors later
-                        }
-
-                        return Task.CompletedTask;
-                    },
                     OnAuthenticationFailed = context =>
                     {
                         var logger = context.HttpContext.RequestServices

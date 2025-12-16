@@ -42,6 +42,30 @@ public class TenantResolutionMiddleware
 
         try
         {
+            // Early check: allow virtual master selection via header when user is system admin
+            if (context.Request.Headers.TryGetValue(TenantHeaderName, out var headerVals) && headerVals.Count > 0)
+            {
+                if (Guid.TryParse(headerVals[0], out var headerGuid) && headerGuid == Guid.Empty)
+                {
+                    if (context.User.IsInRole(Roles.SystemAdmin))
+                    {
+                        _logger.LogInformation("Selected tenant ID is empty GUID and user has system administrator role. Using virtual master tenant.");
+                        tenantProvider.TenantId = Guid.Empty;
+                        tenantProvider.Name = "VIRTUAL MASTER";
+                        tenantProvider.CreatedAt = DateTimeOffset.MinValue;
+                        await _next(context);
+                        return;
+                    }
+                    else
+                    {
+                        _logger.LogWarning("Empty {Header} provided but user is not system admin.", TenantHeaderName);
+                        context.Response.StatusCode = StatusCodes.Status403Forbidden;
+                        await context.Response.WriteAsync("Forbidden: master tenant requires system administrator role.");
+                        return;
+                    }
+                }
+            }
+
             // Read organizations from claim. Structure: JSON object { OrgName: { id: GUID }, ... }
             var organizationsClaim = context.User.Claims.FirstOrDefault(c => c.Type == OrganizationsClaimName);
             if (organizationsClaim == null || string.IsNullOrWhiteSpace(organizationsClaim.Value))
@@ -115,17 +139,6 @@ public class TenantResolutionMiddleware
                 }
             }
 
-            if (selectedTenantId == Guid.Empty && context.User.IsInRole(Roles.SystemAdmin))
-            {
-                _logger.LogInformation("Selected tenant ID is empty GUID and User has system administrator role. Assuming virtual master tenant.");
-
-                tenantProvider.TenantId = Guid.Empty;
-                tenantProvider.Name = "VIRTUAL MASTER";
-                tenantProvider.CreatedAt = DateTimeOffset.MinValue;
-
-                await _next(context);
-            }
-
             if (!tenantIdsFromToken.Contains(selectedTenantId))
             {
                 _logger.LogWarning("Selected tenant {TenantId} is not part of user's organizations.", selectedTenantId);
@@ -160,7 +173,7 @@ public class TenantResolutionMiddleware
             tenantProvider.Description = tenant.Description;
             tenantProvider.CreatedAt = tenant.CreatedAt;
 
-            _logger.LogDebug("Resolved tenant {TenantId}", tenant.Id);
+            _logger.LogDebug("Resolved tenant {TenantId} ({TenantName})", tenant.Id, tenant.Name);
         }
         catch (Exception ex)
         {
