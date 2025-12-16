@@ -2,11 +2,13 @@
 
 namespace FireInvent.Api.Extensions;
 
+using FireInvent.Api.Helper;
 using FireInvent.Shared.Options;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
+using System.IdentityModel.Tokens.Jwt;
 
 public static class AuthenticationExtensions
 {

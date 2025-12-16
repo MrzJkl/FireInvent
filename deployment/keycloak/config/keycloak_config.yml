@@ -1,0 +1,122 @@
+realm: fireinvent
+displayName: FireInvent
+enabled: true
+registrationEmailAsUsername: true
+organizationsEnabled: true
+userManagedAccessAllowed: true
+defaultDefaultClientScopes:
+- organization:*
+- role_list
+- saml_organization
+- profile
+- email
+- roles
+- web-origins
+- acr
+- basic
+defaultOptionalClientScopes:
+- organization
+- offline_access
+- address
+- phone
+- microprofile-jwt
+internationalizationEnabled: true
+supportedLocales:
+- de
+- en
+defaultLocale: de
+eventsEnabled: true
+eventsExpiration: 604800
+adminEventsEnabled: true
+adminEventsDetailsEnabled: true
+attributes:
+  "adminEventsExpiration": "604800"
+
+smtpServer:
+  host: $(env:SMTP_HOST)
+  port: $(env:SMTP_PORT)
+  from: $(env:SMTP_FROM)
+  fromDisplayName: "FireInvent"
+  ssl: true
+  starttls: true
+  auth: true
+  user: $(env:SMTP_USER)
+  password: $(env:SMTP_PASSWORD)
+
+clientScopes:
+- name: roles
+  protocol: openid-connect
+  protocolMappers:
+  - name: realm roles
+    protocolMapper: oidc-usermodel-realm-role-mapper
+    consentRequired: false
+    config:
+      "claim.name": "roles"
+      "jsonType.label": "String"
+      "multivalued": "true"
+      "userinfo.token.claim": "true"
+      "id.token.claim": "true"
+      "access.token.claim": "true"
+      "access.token.claim": "true"
+  # Necessary for account console
+  - name: client roles
+    protocolMapper: oidc-usermodel-client-role-mapper
+    consentRequired: false
+    config:
+      "claim.name": "resource_access.${client_id}.roles"
+      "user.attribute": "foo"
+      "jsonType.label": "String"
+      "multivalued": "true"
+      "userinfo.token.claim": "true"
+      "id.token.claim": "true"
+      "access.token.claim": "true"
+      "access.token.claim": "true"
+
+# Necessary for multi-organization support. See https://stackoverflow.com/questions/79201134/keycloak-and-new-organization-feature-with-multi-membership-on-a-user-v26
+- name: organization:*
+  protocol: openid-connect
+  description: Necessary for multi-organization support
+  protocolMappers:
+  - name: organization
+    protocol: openid-connect
+    protocolMapper: oidc-organization-membership-mapper
+    consentRequired: false
+    config:
+      "claim.name": "organization"
+      "jsonType.label": "String"
+      "multivalued": "true"
+      "userinfo.token.claim": "true"
+      "id.token.claim": "true"
+      "access.token.claim": "true"
+      "addOrganizationAttributes": "true"
+      "addOrganizationId": true
+
+roles:
+  realm:
+  - name: admin
+    description: Full application administration
+  - name: procurement
+    description: Inventory and order management
+  - name: maintenance
+    description: Maintenance management
+  - name: integration
+    description: API integration access for service accounts
+  - name: system-admin
+    description: SaaS Administration (Tenant Administration). Not for customers!
+
+clients:
+- clientId: fireinvent-spa
+  name: FireInvent Single Page Application (Default UI)
+  protocol: openid-connect
+  publicClient: true
+  standardFlowEnabled: true
+  implicitFlowEnabled: false
+  directAccessGrantsEnabled: false
+  serviceAccountsEnabled: false
+  rootUrl: $(env:FIREINVENT_SPA_URL)
+  redirectUris:
+  - $(env:FIREINVENT_SPA_URL)/*
+  - $(env:FIREINVENT_SPA_URL)
+  webOrigins:
+  - $(env:FIREINVENT_SPA_URL)/*
+  - $(env:FIREINVENT_SPA_URL)

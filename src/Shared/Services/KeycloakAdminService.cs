@@ -1,3 +1,5 @@
+using FireInvent.Contract;
+using FireInvent.Contract.Extensions;
 using FireInvent.Shared.Exceptions;
 using FireInvent.Shared.Models;
 using FireInvent.Shared.Options;
@@ -5,11 +7,15 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
+using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
 namespace FireInvent.Shared.Services;
 
+/// <summary>
+/// Service for managing API Integrations within tenants using Keycloak Organizations.
+/// </summary>
 public class KeycloakAdminService : IKeycloakAdminService
 {
     private const int TokenExpiryBufferSeconds = 30;
@@ -22,27 +28,30 @@ public class KeycloakAdminService : IKeycloakAdminService
     private readonly JsonSerializerOptions _jsonOptions;
     private string? _accessToken;
     private DateTime _tokenExpiry = DateTime.MinValue;
+    private TenantProvider _tenantProvider;
 
     public KeycloakAdminService(
         HttpClient httpClient,
         IOptions<KeycloakAdminOptions> options,
-        ILogger<KeycloakAdminService> logger)
+        ILogger<KeycloakAdminService> logger,
+        TenantProvider tenantProvider)
     {
         _httpClient = httpClient;
         _options = options.Value;
         _logger = logger;
+        _tenantProvider = tenantProvider;
 
         if (string.IsNullOrWhiteSpace(_options.Url))
             throw new InvalidOperationException("Keycloak URL is not configured.");
-
-        if (string.IsNullOrWhiteSpace(_options.Realm))
-            throw new InvalidOperationException("Keycloak realm is not configured.");
 
         if (string.IsNullOrWhiteSpace(_options.AdminUsername))
             throw new InvalidOperationException("Keycloak admin username is not configured.");
 
         if (string.IsNullOrWhiteSpace(_options.AdminPassword))
             throw new InvalidOperationException("Keycloak admin password is not configured.");
+
+        if (string.IsNullOrWhiteSpace(_options.Realm))
+            throw new InvalidOperationException("Keycloak realm is not configured.");
 
         _httpClient.BaseAddress = new Uri(_options.Url.TrimEnd('/') + "/");
 
@@ -85,14 +94,14 @@ public class KeycloakAdminService : IKeycloakAdminService
         if (string.IsNullOrWhiteSpace(name))
             throw new ArgumentException("Name cannot be empty.", nameof(name));
 
-        var clientId = $"{_options.ApiClientPrefix}{SanitizeClientId(name)}";
+        var clientId = $"{_options.ApiClientPrefix}-{_tenantProvider.TenantId}-{SanitizeClientId(name)}";
 
         await EnsureAuthenticatedAsync();
 
         var existingClients = await GetClientsByClientIdAsync(clientId);
         if (existingClients.Any())
         {
-            _logger.LogWarning("Attempted to create API integration with duplicate client ID: {ClientId}", clientId);
+            _logger.LogWarning("Attempted to create API integration with duplicate client ID: {ClientId}", clientId.SanitizeForLogging());
             throw new ConflictException($"An API integration with the name '{name}' already exists.");
         }
 
@@ -135,8 +144,8 @@ public class KeycloakAdminService : IKeycloakAdminService
 
         try
         {
-            _logger.LogInformation("Creating API integration with client ID: {ClientId}", clientId);
-            
+            _logger.LogInformation("Creating API integration in realm {Realm} with client ID: {ClientId}", _options.Realm, clientId.SanitizeForLogging());
+
             var response = await _httpClient.PostAsJsonAsync(
                 $"admin/realms/{_options.Realm}/clients", 
                 client, 
@@ -154,6 +163,16 @@ public class KeycloakAdminService : IKeycloakAdminService
 
             await AssignIntegrationRoleToServiceAccountAsync(createdClient.Id!);
 
+            // Add membership of the service account user to the current organization (tenant)
+            var serviceAccountResponse = await _httpClient.GetAsync(
+                $"admin/realms/{_options.Realm}/clients/{createdClient.Id}/service-account-user");
+            serviceAccountResponse.EnsureSuccessStatusCode();
+            var serviceAccountUser = await serviceAccountResponse.Content.ReadFromJsonAsync<ServiceAccountUser>(_jsonOptions);
+            var serviceAccountUserId = serviceAccountUser?.Id
+                ?? throw new InvalidOperationException("Failed to retrieve service account user ID.");
+
+            await AddUserToOrganizationAsync(_tenantProvider.TenantId.Value, serviceAccountUserId);
+
             var secretResponse = await _httpClient.GetAsync(
                 $"admin/realms/{_options.Realm}/clients/{createdClient.Id}/client-secret");
             secretResponse.EnsureSuccessStatusCode();
@@ -162,7 +181,7 @@ public class KeycloakAdminService : IKeycloakAdminService
             var clientSecret = credentials?.Value
                 ?? throw new InvalidOperationException("Failed to retrieve the client secret.");
 
-            _logger.LogInformation("Successfully created API integration: {ClientId}", clientId);
+            _logger.LogInformation("Successfully created API integration: {ClientId}", clientId.SanitizeForLogging());
 
             return new ApiIntegrationCredentialsModel
             {
@@ -173,7 +192,7 @@ public class KeycloakAdminService : IKeycloakAdminService
         }
         catch (Exception ex) when (ex is not ConflictException)
         {
-            _logger.LogError(ex, "Failed to create API integration with client ID: {ClientId}", clientId);
+            _logger.LogError(ex, "Failed to create API integration with client ID: {ClientId}", clientId.SanitizeForLogging());
             throw new InvalidOperationException($"Failed to create API integration: {ex.Message}", ex);
         }
     }
@@ -192,8 +211,18 @@ public class KeycloakAdminService : IKeycloakAdminService
             var clients = await response.Content.ReadFromJsonAsync<List<KeycloakClient>>(_jsonOptions)
                 ?? new List<KeycloakClient>();
 
-            var apiIntegrations = clients
-                .Where(c => c.ClientId?.StartsWith(_options.ApiClientPrefix) == true)
+            // Filter clients to only those belonging to current tenant organization
+            var filtered = new List<KeycloakClient>();
+            foreach (var c in clients.Where(c => c.ClientId?.StartsWith(_options.ApiClientPrefix) == true))
+            {
+                if (string.IsNullOrEmpty(c.Id)) continue;
+                if (await IsClientServiceAccountMemberOfCurrentOrganizationAsync(c.Id))
+                {
+                    filtered.Add(c);
+                }
+            }
+
+            var apiIntegrations = filtered
                 .Select(c => new ApiIntegrationModel
                 {
                     ClientId = c.ClientId!,
@@ -206,7 +235,7 @@ public class KeycloakAdminService : IKeycloakAdminService
                 .OrderBy(i => i.Name)
                 .ToList();
 
-            _logger.LogInformation("Found {Count} API integrations", apiIntegrations.Count);
+            _logger.LogInformation("Found {Count} API integrations in tenant {TenantId}", apiIntegrations.Count, _tenantProvider.TenantId);
 
             return apiIntegrations;
         }
@@ -235,20 +264,27 @@ public class KeycloakAdminService : IKeycloakAdminService
 
             if (client == null)
             {
-                _logger.LogWarning("Attempted to delete non-existent API integration: {ClientId}", clientId);
+                _logger.LogWarning("Attempted to delete non-existent API integration: {ClientId}", clientId.SanitizeForLogging());
                 throw new NotFoundException($"API integration with client ID '{clientId}' not found.");
             }
 
-            _logger.LogInformation("Deleting API integration: {ClientId} (internal ID: {InternalId})", clientId, client.Id);
+            // Ensure the client belongs to the current tenant organization
+            if (!await IsClientServiceAccountMemberOfCurrentOrganizationAsync(client.Id!))
+            {
+                _logger.LogWarning("Attempted to delete API integration outside of tenant {TenantId}: {ClientId}", _tenantProvider.TenantId, clientId.SanitizeForLogging());
+                throw new InvalidOperationException("Forbidden: client does not belong to current tenant.");
+            }
+
+            _logger.LogInformation("Deleting API integration: {ClientId} (internal ID: {InternalId})", clientId.SanitizeForLogging(), client.Id);
             
             var response = await _httpClient.DeleteAsync($"admin/realms/{_options.Realm}/clients/{client.Id}");
             response.EnsureSuccessStatusCode();
 
-            _logger.LogInformation("Successfully deleted API integration: {ClientId}", clientId);
+            _logger.LogInformation("Successfully deleted API integration: {ClientId}", clientId.SanitizeForLogging());
         }
         catch (Exception ex) when (ex is not NotFoundException)
         {
-            _logger.LogError(ex, "Failed to delete API integration: {ClientId}", clientId);
+            _logger.LogError(ex, "Failed to delete API integration: {ClientId}", clientId.SanitizeForLogging());
             throw new InvalidOperationException($"Failed to delete API integration: {ex.Message}", ex);
         }
     }
@@ -266,7 +302,7 @@ public class KeycloakAdminService : IKeycloakAdminService
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Failed to check if API integration exists: {ClientId}", clientId);
+            _logger.LogError(ex, "Failed to check if API integration exists: {ClientId}", clientId.SanitizeForLogging());
             return false;
         }
     }
@@ -275,7 +311,6 @@ public class KeycloakAdminService : IKeycloakAdminService
     {
         try
         {
-            // Get the service account user ID for this client
             var serviceAccountResponse = await _httpClient.GetAsync(
                 $"admin/realms/{_options.Realm}/clients/{clientUuid}/service-account-user");
             serviceAccountResponse.EnsureSuccessStatusCode();
@@ -284,7 +319,6 @@ public class KeycloakAdminService : IKeycloakAdminService
             var serviceAccountUserId = serviceAccountUser?.Id
                 ?? throw new InvalidOperationException("Failed to retrieve service account user ID.");
 
-            // Get the integration role
             var rolesResponse = await _httpClient.GetAsync(
                 $"admin/realms/{_options.Realm}/roles/integration");
             rolesResponse.EnsureSuccessStatusCode();
@@ -293,7 +327,6 @@ public class KeycloakAdminService : IKeycloakAdminService
             if (integrationRole == null)
                 throw new InvalidOperationException("Integration role not found in Keycloak.");
 
-            // Assign the integration role to the service account user
             var roleMapping = new List<KeycloakRole> { integrationRole };
             var assignRoleResponse = await _httpClient.PostAsJsonAsync(
                 $"admin/realms/{_options.Realm}/users/{serviceAccountUserId}/role-mappings/realm",
@@ -310,6 +343,57 @@ public class KeycloakAdminService : IKeycloakAdminService
         }
     }
 
+    private async Task AddUserToOrganizationAsync(Guid organizationId, string userId)
+    {
+        var url = $"admin/realms/{_options.Realm}/organizations/{organizationId}/members";
+        var json = JsonSerializer.Serialize(userId);
+        using var content = new StringContent(json, Encoding.UTF8, "application/json");
+        var response = await _httpClient.PostAsync(url, content);
+        if (!response.IsSuccessStatusCode)
+        {
+            if (response.StatusCode == System.Net.HttpStatusCode.Conflict)
+            {
+                _logger.LogDebug("User {UserId} is already a member of organization {OrgId}", userId, organizationId);
+                return;
+            }
+            var error = await response.Content.ReadAsStringAsync();
+            _logger.LogError("Failed to add user {UserId} to organization {OrgId}: {Status} - {Error}", userId, organizationId, response.StatusCode, error);
+            throw new InvalidOperationException("Failed to add service account to organization.");
+        }
+        _logger.LogInformation("Added user {UserId} to organization {OrgId}", userId, organizationId);
+    }
+
+    private async Task<bool> IsClientServiceAccountMemberOfCurrentOrganizationAsync(string clientUuid)
+    {
+        var serviceAccountResponse = await _httpClient.GetAsync(
+            $"admin/realms/{_options.Realm}/clients/{clientUuid}/service-account-user");
+        serviceAccountResponse.EnsureSuccessStatusCode();
+        var serviceAccountUser = await serviceAccountResponse.Content.ReadFromJsonAsync<ServiceAccountUser>(_jsonOptions);
+        var userId = serviceAccountUser?.Id;
+        if (string.IsNullOrEmpty(userId)) return false;
+
+        var orgId = _tenantProvider.TenantId;
+        var membersResponse = await _httpClient.GetAsync(
+            $"admin/realms/{_options.Realm}/organizations/{orgId}/members?userId={Uri.EscapeDataString(userId)}");
+        if (!membersResponse.IsSuccessStatusCode)
+        {
+            return false;
+        }
+
+        try
+        {
+            var json = await membersResponse.Content.ReadFromJsonAsync<List<JsonElement>>(_jsonOptions);
+            if (json != null && json.Any(m => m.TryGetProperty("id", out var idProp) && idProp.GetString() == userId))
+                return true;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to check if service account is member of current organization.");
+            return false;
+        }
+        return false;
+    }
+
     private async Task<List<KeycloakClient>> GetClientsByClientIdAsync(string clientId)
     {
         var response = await _httpClient.GetAsync(
@@ -323,6 +407,7 @@ public class KeycloakAdminService : IKeycloakAdminService
     private static string SanitizeClientId(string name)
     {
         var sanitized = new string(name
+            .Trim()
             .ToLowerInvariant()
             .Select(c => char.IsLetterOrDigit(c) ? c : '-')
             .ToArray());

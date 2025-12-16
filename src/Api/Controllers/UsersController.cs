@@ -1,8 +1,6 @@
-﻿using FireInvent.Contract;
-using FireInvent.Shared.Exceptions;
+﻿using FireInvent.Shared.Exceptions;
 using FireInvent.Shared.Models;
 using FireInvent.Shared.Services;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace FireInvent.Api.Controllers;

@@ -1,14 +1,19 @@
 ﻿using FireInvent.Contract;
 using Microsoft.EntityFrameworkCore;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace FireInvent.Database.Models;
 
 [Index(nameof(Name), IsUnique = true)]
-public record ProductType
+public record ProductType : IHasTenant
 {
     [Key]
     public Guid Id { get; set; }
+
+    [Required]
+    [ForeignKey(nameof(Tenant))]
+    public Guid TenantId { get; set; }
 
     [MaxLength(ModelConstants.MaxStringLength)]
     [Required]
@@ -16,4 +21,6 @@ public record ProductType
 
     [MaxLength(ModelConstants.MaxStringLengthLong)]
     public string? Description { get; set; }
+
+    public virtual Tenant Tenant { get; set; } = null!;
 }

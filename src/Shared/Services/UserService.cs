@@ -1,4 +1,5 @@
-﻿using FireInvent.Database;
+﻿using FireInvent.Contract;
+using FireInvent.Database;
 using FireInvent.Database.Models;
 using FireInvent.Shared.Mapper;
 using FireInvent.Shared.Models;
@@ -8,7 +9,7 @@ using System.Security.Claims;
 
 namespace FireInvent.Shared.Services;
 
-public class UserService(AppDbContext context, ILogger<UserService> log, UserMapper mapper) : IUserService
+public class UserService(AppDbContext context, ILogger<UserService> log, UserMapper mapper, TenantProvider tenantProvider) : IUserService
 {
     public async Task<UserModel?> GetUserByIdAsync(Guid id)
     {
@@ -30,8 +31,14 @@ public class UserService(AppDbContext context, ILogger<UserService> log, UserMap
         return mapper.MapUsersToUserModels(users);
     }
 
-    public async Task<UserModel> SyncUserFromClaimsAsync(ClaimsPrincipal principal)
+    public async Task<UserModel?> SyncUserFromClaimsAsync(ClaimsPrincipal principal)
     {
+        if (!tenantProvider.TenantId.HasValue)
+        {
+            log.LogDebug("Tenant ID is not set in TenantProvider. Skipping SyncUserFromClaimsAsync.");
+            return null;
+        }
+
         var (id, firstname, lastname, email) = GetUserDetailsFromClaims(principal);
         var user = await context.Users.FindAsync(id);
 

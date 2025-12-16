@@ -55,10 +55,15 @@ namespace FireInvent.Database.Migrations
                         .HasMaxLength(255)
                         .HasColumnType("character varying(255)");
 
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uuid");
+
                     b.HasKey("Id");
 
                     b.HasIndex("Name")
                         .IsUnique();
+
+                    b.HasIndex("TenantId");
 
                     b.ToTable("Departments");
                 });
@@ -85,6 +90,9 @@ namespace FireInvent.Database.Migrations
                     b.Property<Guid?>("StorageLocationId")
                         .HasColumnType("uuid");
 
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uuid");
+
                     b.Property<Guid>("VariantId")
                         .HasColumnType("uuid");
 
@@ -94,6 +102,8 @@ namespace FireInvent.Database.Migrations
                         .IsUnique();
 
                     b.HasIndex("StorageLocationId");
+
+                    b.HasIndex("TenantId");
 
                     b.HasIndex("VariantId");
 
@@ -121,11 +131,16 @@ namespace FireInvent.Database.Migrations
                     b.Property<Guid>("PersonId")
                         .HasColumnType("uuid");
 
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uuid");
+
                     b.HasKey("Id");
 
                     b.HasIndex("AssignedById");
 
                     b.HasIndex("PersonId");
+
+                    b.HasIndex("TenantId");
 
                     b.HasIndex("ItemId", "AssignedFrom")
                         .IsUnique();
@@ -152,6 +167,9 @@ namespace FireInvent.Database.Migrations
                         .HasMaxLength(2000)
                         .HasColumnType("character varying(2000)");
 
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uuid");
+
                     b.Property<Guid>("TypeId")
                         .HasColumnType("uuid");
 
@@ -160,6 +178,8 @@ namespace FireInvent.Database.Migrations
                     b.HasIndex("ItemId");
 
                     b.HasIndex("PerformedById");
+
+                    b.HasIndex("TenantId");
 
                     b.HasIndex("TypeId");
 
@@ -181,10 +201,15 @@ namespace FireInvent.Database.Migrations
                         .HasMaxLength(255)
                         .HasColumnType("character varying(255)");
 
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uuid");
+
                     b.HasKey("Id");
 
                     b.HasIndex("Name")
                         .IsUnique();
+
+                    b.HasIndex("TenantId");
 
                     b.ToTable("MaintenanceTypes");
                 });
@@ -208,7 +233,12 @@ namespace FireInvent.Database.Migrations
                     b.Property<int>("Status")
                         .HasColumnType("integer");
 
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uuid");
+
                     b.HasKey("Id");
+
+                    b.HasIndex("TenantId");
 
                     b.ToTable("Orders");
                 });
@@ -225,12 +255,17 @@ namespace FireInvent.Database.Migrations
                     b.Property<int>("Quantity")
                         .HasColumnType("integer");
 
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uuid");
+
                     b.Property<Guid>("VariantId")
                         .HasColumnType("uuid");
 
                     b.HasKey("Id");
 
                     b.HasIndex("OrderId");
+
+                    b.HasIndex("TenantId");
 
                     b.HasIndex("VariantId");
 
@@ -265,6 +300,9 @@ namespace FireInvent.Database.Migrations
                         .HasMaxLength(2000)
                         .HasColumnType("character varying(2000)");
 
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uuid");
+
                     b.HasKey("Id");
 
                     b.HasIndex("ExternalId")
@@ -273,6 +311,8 @@ namespace FireInvent.Database.Migrations
                     b.HasIndex("FirstName");
 
                     b.HasIndex("LastName");
+
+                    b.HasIndex("TenantId");
 
                     b.HasIndex("FirstName", "LastName")
                         .IsUnique();
@@ -300,10 +340,15 @@ namespace FireInvent.Database.Migrations
                         .HasMaxLength(255)
                         .HasColumnType("character varying(255)");
 
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uuid");
+
                     b.Property<Guid>("TypeId")
                         .HasColumnType("uuid");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("TenantId");
 
                     b.HasIndex("TypeId");
 
@@ -328,10 +373,15 @@ namespace FireInvent.Database.Migrations
                         .HasMaxLength(255)
                         .HasColumnType("character varying(255)");
 
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uuid");
+
                     b.HasKey("Id");
 
                     b.HasIndex("Name")
                         .IsUnique();
+
+                    b.HasIndex("TenantId");
 
                     b.ToTable("ProductTypes");
                 });
@@ -350,12 +400,43 @@ namespace FireInvent.Database.Migrations
                     b.Property<string>("Remarks")
                         .HasColumnType("text");
 
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uuid");
+
                     b.HasKey("Id");
 
                     b.HasIndex("Name")
                         .IsUnique();
 
+                    b.HasIndex("TenantId");
+
                     b.ToTable("StorageLocations");
+                });
+
+            modelBuilder.Entity("FireInvent.Database.Models.Tenant", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Description")
+                        .HasMaxLength(255)
+                        .HasColumnType("character varying(255)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("character varying(255)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Name")
+                        .IsUnique();
+
+                    b.ToTable("Tenants");
                 });
 
             modelBuilder.Entity("FireInvent.Database.Models.User", b =>
@@ -411,14 +492,34 @@ namespace FireInvent.Database.Migrations
                     b.Property<Guid>("ProductId")
                         .HasColumnType("uuid");
 
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uuid");
+
                     b.HasKey("Id");
 
                     b.HasIndex("Name");
+
+                    b.HasIndex("TenantId");
 
                     b.HasIndex("ProductId", "Name")
                         .IsUnique();
 
                     b.ToTable("Variants");
+                });
+
+            modelBuilder.Entity("TenantUser", b =>
+                {
+                    b.Property<Guid>("TenantsId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("UsersId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("TenantsId", "UsersId");
+
+                    b.HasIndex("UsersId");
+
+                    b.ToTable("TenantUser");
                 });
 
             modelBuilder.Entity("DepartmentPerson", b =>
@@ -436,11 +537,28 @@ namespace FireInvent.Database.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("FireInvent.Database.Models.Department", b =>
+                {
+                    b.HasOne("FireInvent.Database.Models.Tenant", "Tenant")
+                        .WithMany()
+                        .HasForeignKey("TenantId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Tenant");
+                });
+
             modelBuilder.Entity("FireInvent.Database.Models.Item", b =>
                 {
                     b.HasOne("FireInvent.Database.Models.StorageLocation", "StorageLocation")
                         .WithMany("StoredItems")
                         .HasForeignKey("StorageLocationId");
+
+                    b.HasOne("FireInvent.Database.Models.Tenant", "Tenant")
+                        .WithMany()
+                        .HasForeignKey("TenantId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.HasOne("FireInvent.Database.Models.Variant", "Variant")
                         .WithMany("Items")
@@ -449,6 +567,8 @@ namespace FireInvent.Database.Migrations
                         .IsRequired();
 
                     b.Navigation("StorageLocation");
+
+                    b.Navigation("Tenant");
 
                     b.Navigation("Variant");
                 });
@@ -471,11 +591,19 @@ namespace FireInvent.Database.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("FireInvent.Database.Models.Tenant", "Tenant")
+                        .WithMany()
+                        .HasForeignKey("TenantId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.Navigation("AssignedBy");
 
                     b.Navigation("Item");
 
                     b.Navigation("Person");
+
+                    b.Navigation("Tenant");
                 });
 
             modelBuilder.Entity("FireInvent.Database.Models.Maintenance", b =>
@@ -490,6 +618,12 @@ namespace FireInvent.Database.Migrations
                         .WithMany()
                         .HasForeignKey("PerformedById");
 
+                    b.HasOne("FireInvent.Database.Models.Tenant", "Tenant")
+                        .WithMany()
+                        .HasForeignKey("TenantId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.HasOne("FireInvent.Database.Models.MaintenanceType", "Type")
                         .WithMany()
                         .HasForeignKey("TypeId")
@@ -500,7 +634,31 @@ namespace FireInvent.Database.Migrations
 
                     b.Navigation("PerformedBy");
 
+                    b.Navigation("Tenant");
+
                     b.Navigation("Type");
+                });
+
+            modelBuilder.Entity("FireInvent.Database.Models.MaintenanceType", b =>
+                {
+                    b.HasOne("FireInvent.Database.Models.Tenant", "Tenant")
+                        .WithMany()
+                        .HasForeignKey("TenantId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Tenant");
+                });
+
+            modelBuilder.Entity("FireInvent.Database.Models.Order", b =>
+                {
+                    b.HasOne("FireInvent.Database.Models.Tenant", "Tenant")
+                        .WithMany()
+                        .HasForeignKey("TenantId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Tenant");
                 });
 
             modelBuilder.Entity("FireInvent.Database.Models.OrderItem", b =>
@@ -508,6 +666,12 @@ namespace FireInvent.Database.Migrations
                     b.HasOne("FireInvent.Database.Models.Order", "Order")
                         .WithMany("Items")
                         .HasForeignKey("OrderId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("FireInvent.Database.Models.Tenant", "Tenant")
+                        .WithMany()
+                        .HasForeignKey("TenantId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -519,18 +683,61 @@ namespace FireInvent.Database.Migrations
 
                     b.Navigation("Order");
 
+                    b.Navigation("Tenant");
+
                     b.Navigation("Variant");
+                });
+
+            modelBuilder.Entity("FireInvent.Database.Models.Person", b =>
+                {
+                    b.HasOne("FireInvent.Database.Models.Tenant", "Tenant")
+                        .WithMany()
+                        .HasForeignKey("TenantId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Tenant");
                 });
 
             modelBuilder.Entity("FireInvent.Database.Models.Product", b =>
                 {
+                    b.HasOne("FireInvent.Database.Models.Tenant", "Tenant")
+                        .WithMany()
+                        .HasForeignKey("TenantId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.HasOne("FireInvent.Database.Models.ProductType", "Type")
                         .WithMany()
                         .HasForeignKey("TypeId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.Navigation("Tenant");
+
                     b.Navigation("Type");
+                });
+
+            modelBuilder.Entity("FireInvent.Database.Models.ProductType", b =>
+                {
+                    b.HasOne("FireInvent.Database.Models.Tenant", "Tenant")
+                        .WithMany()
+                        .HasForeignKey("TenantId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Tenant");
+                });
+
+            modelBuilder.Entity("FireInvent.Database.Models.StorageLocation", b =>
+                {
+                    b.HasOne("FireInvent.Database.Models.Tenant", "Tenant")
+                        .WithMany()
+                        .HasForeignKey("TenantId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Tenant");
                 });
 
             modelBuilder.Entity("FireInvent.Database.Models.Variant", b =>
@@ -541,7 +748,30 @@ namespace FireInvent.Database.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("FireInvent.Database.Models.Tenant", "Tenant")
+                        .WithMany()
+                        .HasForeignKey("TenantId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.Navigation("Product");
+
+                    b.Navigation("Tenant");
+                });
+
+            modelBuilder.Entity("TenantUser", b =>
+                {
+                    b.HasOne("FireInvent.Database.Models.Tenant", null)
+                        .WithMany()
+                        .HasForeignKey("TenantsId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("FireInvent.Database.Models.User", null)
+                        .WithMany()
+                        .HasForeignKey("UsersId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("FireInvent.Database.Models.Item", b =>
