@@ -132,7 +132,9 @@ public class TenantResolutionMiddleware
             {
                 if (!Guid.TryParse(headerValues[0], out selectedTenantId))
                 {
-                    _logger.LogWarning("Invalid {Header} header value: {Value}", TenantHeaderName, headerValues[0]);
+                    // Sanitize header value before logging to prevent log injection
+                    var sanitizedValue = SanitizeForLogging(headerValues[0]);
+                    _logger.LogWarning("Invalid {Header} header value: {Value}", TenantHeaderName, sanitizedValue);
                     context.Response.StatusCode = StatusCodes.Status400BadRequest;
                     await context.Response.WriteAsync($"Invalid {TenantHeaderName} header.");
                     return;
@@ -184,5 +186,18 @@ public class TenantResolutionMiddleware
         }
 
         await _next(context);
+    }
+
+    /// <summary>
+    /// Sanitizes a string for safe logging by removing newlines and control characters
+    /// to prevent log injection attacks.
+    /// </summary>
+    private static string SanitizeForLogging(string? input)
+    {
+        if (string.IsNullOrEmpty(input))
+            return string.Empty;
+
+        // Remove newlines, carriage returns, and other control characters
+        return System.Text.RegularExpressions.Regex.Replace(input, @"[\r\n\t\x00-\x1F\x7F]", "_");
     }
 }
