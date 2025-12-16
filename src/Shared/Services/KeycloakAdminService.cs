@@ -1,4 +1,5 @@
 using FireInvent.Contract;
+using FireInvent.Contract.Extensions;
 using FireInvent.Shared.Exceptions;
 using FireInvent.Shared.Models;
 using FireInvent.Shared.Options;
@@ -100,7 +101,7 @@ public class KeycloakAdminService : IKeycloakAdminService
         var existingClients = await GetClientsByClientIdAsync(clientId);
         if (existingClients.Any())
         {
-            _logger.LogWarning("Attempted to create API integration with duplicate client ID: {ClientId}", SanitizeForLogging(clientId));
+            _logger.LogWarning("Attempted to create API integration with duplicate client ID: {ClientId}", clientId.SanitizeForLogging());
             throw new ConflictException($"An API integration with the name '{name}' already exists.");
         }
 
@@ -143,7 +144,7 @@ public class KeycloakAdminService : IKeycloakAdminService
 
         try
         {
-            _logger.LogInformation("Creating API integration in realm {Realm} with client ID: {ClientId}", _options.Realm, SanitizeForLogging(clientId));
+            _logger.LogInformation("Creating API integration in realm {Realm} with client ID: {ClientId}", _options.Realm, clientId.SanitizeForLogging());
 
             var response = await _httpClient.PostAsJsonAsync(
                 $"admin/realms/{_options.Realm}/clients", 
@@ -180,7 +181,7 @@ public class KeycloakAdminService : IKeycloakAdminService
             var clientSecret = credentials?.Value
                 ?? throw new InvalidOperationException("Failed to retrieve the client secret.");
 
-            _logger.LogInformation("Successfully created API integration: {ClientId}", SanitizeForLogging(clientId));
+            _logger.LogInformation("Successfully created API integration: {ClientId}", clientId.SanitizeForLogging());
 
             return new ApiIntegrationCredentialsModel
             {
@@ -191,7 +192,7 @@ public class KeycloakAdminService : IKeycloakAdminService
         }
         catch (Exception ex) when (ex is not ConflictException)
         {
-            _logger.LogError(ex, "Failed to create API integration with client ID: {ClientId}", SanitizeForLogging(clientId));
+            _logger.LogError(ex, "Failed to create API integration with client ID: {ClientId}", clientId.SanitizeForLogging());
             throw new InvalidOperationException($"Failed to create API integration: {ex.Message}", ex);
         }
     }
@@ -263,27 +264,27 @@ public class KeycloakAdminService : IKeycloakAdminService
 
             if (client == null)
             {
-                _logger.LogWarning("Attempted to delete non-existent API integration: {ClientId}", SanitizeForLogging(clientId));
+                _logger.LogWarning("Attempted to delete non-existent API integration: {ClientId}", clientId.SanitizeForLogging());
                 throw new NotFoundException($"API integration with client ID '{clientId}' not found.");
             }
 
             // Ensure the client belongs to the current tenant organization
             if (!await IsClientServiceAccountMemberOfCurrentOrganizationAsync(client.Id!))
             {
-                _logger.LogWarning("Attempted to delete API integration outside of tenant {TenantId}: {ClientId}", _tenantProvider.TenantId, SanitizeForLogging(clientId));
+                _logger.LogWarning("Attempted to delete API integration outside of tenant {TenantId}: {ClientId}", _tenantProvider.TenantId, clientId.SanitizeForLogging());
                 throw new InvalidOperationException("Forbidden: client does not belong to current tenant.");
             }
 
-            _logger.LogInformation("Deleting API integration: {ClientId} (internal ID: {InternalId})", SanitizeForLogging(clientId), client.Id);
+            _logger.LogInformation("Deleting API integration: {ClientId} (internal ID: {InternalId})", clientId.SanitizeForLogging(), client.Id);
             
             var response = await _httpClient.DeleteAsync($"admin/realms/{_options.Realm}/clients/{client.Id}");
             response.EnsureSuccessStatusCode();
 
-            _logger.LogInformation("Successfully deleted API integration: {ClientId}", SanitizeForLogging(clientId));
+            _logger.LogInformation("Successfully deleted API integration: {ClientId}", clientId.SanitizeForLogging());
         }
         catch (Exception ex) when (ex is not NotFoundException)
         {
-            _logger.LogError(ex, "Failed to delete API integration: {ClientId}", SanitizeForLogging(clientId));
+            _logger.LogError(ex, "Failed to delete API integration: {ClientId}", clientId.SanitizeForLogging());
             throw new InvalidOperationException($"Failed to delete API integration: {ex.Message}", ex);
         }
     }
@@ -301,7 +302,7 @@ public class KeycloakAdminService : IKeycloakAdminService
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Failed to check if API integration exists: {ClientId}", SanitizeForLogging(clientId));
+            _logger.LogError(ex, "Failed to check if API integration exists: {ClientId}", clientId.SanitizeForLogging());
             return false;
         }
     }
@@ -414,19 +415,6 @@ public class KeycloakAdminService : IKeycloakAdminService
         sanitized = System.Text.RegularExpressions.Regex.Replace(sanitized, "-+", "-");
 
         return sanitized.Trim('-');
-    }
-
-    /// <summary>
-    /// Sanitizes a string for safe logging by removing newlines and control characters
-    /// to prevent log injection attacks.
-    /// </summary>
-    private static string SanitizeForLogging(string? input)
-    {
-        if (string.IsNullOrEmpty(input))
-            return string.Empty;
-
-        // Remove newlines, carriage returns, and other control characters
-        return System.Text.RegularExpressions.Regex.Replace(input, @"[\r\n\t\x00-\x1F\x7F]", "_");
     }
 
     private string ExtractNameFromClientId(string clientId)

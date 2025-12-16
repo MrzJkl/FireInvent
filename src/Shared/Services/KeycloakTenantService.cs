@@ -1,3 +1,4 @@
+using FireInvent.Contract.Extensions;
 using FireInvent.Shared.Exceptions;
 using FireInvent.Shared.Options;
 using Microsoft.Extensions.Logging;
@@ -125,7 +126,7 @@ public class KeycloakTenantService : IKeycloakTenantService
             });
             if (organizationExists)
             {
-                _logger.LogWarning("Organization with name '{Name}' already exists.", name);
+                _logger.LogWarning("Organization with name '{Name}' already exists.", name.SanitizeForLogging());
                 throw new KeycloakException();
             }
 
@@ -143,7 +144,7 @@ public class KeycloakTenantService : IKeycloakTenantService
 
             if (createResponse.IsSuccessStatusCode)
             {
-                _logger.LogInformation("Created organization '{Name}'", name);
+                _logger.LogInformation("Created organization '{Name}'", name.SanitizeForLogging());
 
                 Uri? location = createResponse.Headers.Location;
                 if (location == null)
@@ -176,12 +177,12 @@ public class KeycloakTenantService : IKeycloakTenantService
             }
 
             var createError = await createResponse.Content.ReadAsStringAsync();
-            _logger.LogError("Failed to create organization '{Name}': {StatusCode} - {Error}", name, createResponse.StatusCode, createError);
+            _logger.LogError("Failed to create organization '{Name}': {StatusCode} - {Error}", name.SanitizeForLogging(), createResponse.StatusCode, createError);
             throw new KeycloakException();
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error creating organization {Name}", name);
+            _logger.LogError(ex, "Error creating organization {Name}", name.SanitizeForLogging());
             throw new KeycloakException();
         }
     }
@@ -214,11 +215,11 @@ public class KeycloakTenantService : IKeycloakTenantService
             if (!response.IsSuccessStatusCode)
             {
                 var error = await response.Content.ReadAsStringAsync();
-                _logger.LogError("Failed to update organization name '{Name}' ({Id}): {StatusCode} - {Error}", newName, organizationId, response.StatusCode, error);
+                _logger.LogError("Failed to update organization name '{Name}' ({Id}): {StatusCode} - {Error}", newName.SanitizeForLogging(), organizationId, response.StatusCode, error);
                 throw new KeycloakException();
             }
 
-            _logger.LogInformation("Updated organization ({Id}) name to '{Name}'", organizationId, newName);
+            _logger.LogInformation("Updated organization ({Id}) name to '{Name}'", organizationId, newName.SanitizeForLogging());
         }
         catch (Exception ex)
         {

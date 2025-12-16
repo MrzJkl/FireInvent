@@ -1,3 +1,4 @@
+using FireInvent.Contract.Extensions;
 using FireInvent.Database;
 using FireInvent.Shared.Exceptions;
 using FireInvent.Shared.Mapper;
@@ -36,7 +37,7 @@ public class TenantService : ITenantService
         if (nameExists)
             throw new ConflictException("A tenant with the same name already exists.");
 
-        _logger.LogInformation("Creating Keycloak organization for tenant: {TenantName}", model.Name);
+        _logger.LogInformation("Creating Keycloak organization for tenant: {TenantName}", model.Name.SanitizeForLogging());
             
         var organizationIdFromKeycloak = await _keycloakTenantService.CreateTenantOrganizationAsync(
             model.Name,
