@@ -1,3 +1,4 @@
+using FireInvent.Contract;
 using FireInvent.Shared.Exceptions;
 using FireInvent.Shared.Models;
 using FireInvent.Shared.Options;
@@ -10,6 +11,10 @@ using System.Text.Json.Serialization;
 
 namespace FireInvent.Shared.Services;
 
+/// <summary>
+/// Service for managing API Integrations within tenants.
+/// This service operates at the tenant realm level to create and manage API Integrations.
+/// </summary>
 public class KeycloakAdminService : IKeycloakAdminService
 {
     private const int TokenExpiryBufferSeconds = 30;
@@ -22,27 +27,30 @@ public class KeycloakAdminService : IKeycloakAdminService
     private readonly JsonSerializerOptions _jsonOptions;
     private string? _accessToken;
     private DateTime _tokenExpiry = DateTime.MinValue;
+    private TenantProvider _tenantProvider;
 
     public KeycloakAdminService(
         HttpClient httpClient,
         IOptions<KeycloakAdminOptions> options,
-        ILogger<KeycloakAdminService> logger)
+        ILogger<KeycloakAdminService> logger,
+        TenantProvider tenantProvider)
     {
         _httpClient = httpClient;
         _options = options.Value;
         _logger = logger;
+        _tenantProvider = tenantProvider;
 
         if (string.IsNullOrWhiteSpace(_options.Url))
             throw new InvalidOperationException("Keycloak URL is not configured.");
-
-        if (string.IsNullOrWhiteSpace(_options.Realm))
-            throw new InvalidOperationException("Keycloak realm is not configured.");
 
         if (string.IsNullOrWhiteSpace(_options.AdminUsername))
             throw new InvalidOperationException("Keycloak admin username is not configured.");
 
         if (string.IsNullOrWhiteSpace(_options.AdminPassword))
             throw new InvalidOperationException("Keycloak admin password is not configured.");
+
+        if (string.IsNullOrWhiteSpace(_options.Realm))
+            throw new InvalidOperationException("Keycloak realm is not configured.");
 
         _httpClient.BaseAddress = new Uri(_options.Url.TrimEnd('/') + "/");
 
@@ -85,7 +93,7 @@ public class KeycloakAdminService : IKeycloakAdminService
         if (string.IsNullOrWhiteSpace(name))
             throw new ArgumentException("Name cannot be empty.", nameof(name));
 
-        var clientId = $"{_options.ApiClientPrefix}{SanitizeClientId(name)}";
+        var clientId = $"{_options.ApiClientPrefix}-{_tenantProvider.TenantId}-{SanitizeClientId(name)}";
 
         await EnsureAuthenticatedAsync();
 
@@ -135,8 +143,8 @@ public class KeycloakAdminService : IKeycloakAdminService
 
         try
         {
-            _logger.LogInformation("Creating API integration with client ID: {ClientId}", clientId);
-            
+            _logger.LogInformation("Creating API integration in realm {Realm} with client ID: {ClientId}", _options.Realm, clientId);
+
             var response = await _httpClient.PostAsJsonAsync(
                 $"admin/realms/{_options.Realm}/clients", 
                 client, 

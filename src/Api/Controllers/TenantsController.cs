@@ -7,11 +7,6 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace FireInvent.Api.Controllers;
 
-/// <summary>
-/// System-level controller for managing tenants.
-/// Only accessible to users with the SystemAdmin role.
-/// This controller operates at the master/system level and bypasses normal tenant filtering.
-/// </summary>
 [ApiController]
 [Route("tenants")]
 [Authorize(Roles = Roles.SystemAdmin)]
@@ -63,7 +58,7 @@ public class TenantsController(ITenantService tenantService) : ControllerBase
 
     [HttpDelete("{id:guid}")]
     [EndpointSummary("Delete a tenant (System Admin)")]
-    [EndpointDescription("Deletes a tenant by its unique ID. Will fail if the tenant has associated data. Only accessible to system administrators.")]
+    [EndpointDescription("Deletes a tenant by its unique ID. Only accessible to system administrators.")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status409Conflict)]

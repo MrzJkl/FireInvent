@@ -196,10 +196,6 @@ app.MapHealthChecks("/health");
 
 var logger = app.Services.GetRequiredService<ILogger<Program>>();
 
-// Middlewares & Endpoints
-logger.LogDebug("Registering middlewares...");
-app.UseMiddleware<ApiExceptionMiddleware>();
-
 logger.LogDebug("Registering scalar...");
 app.ConfigureAddScalar();
 
@@ -207,8 +203,10 @@ logger.LogDebug("Registering authentication and authorization...");
 app.UseAuthentication();
 app.UseAuthorization();
 
-// Register tenant resolution middleware after authentication
+// Middlewares & Endpoints
+logger.LogDebug("Registering middlewares...");
 app.UseMiddleware<TenantResolutionMiddleware>();
+app.UseMiddleware<ApiExceptionMiddleware>();
 
 app.UseResponseCompression();
 

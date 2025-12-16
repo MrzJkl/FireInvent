@@ -8,8 +8,22 @@ namespace FireInvent.Contract;
 public class TenantProvider
 {
     /// <summary>
-    /// The ID of the current tenant for this request.
     /// Null if no tenant has been resolved yet.
     /// </summary>
     public Guid? TenantId { get; set; }
+
+    /// <summary>
+    /// Null if no tenant has been resolved yet.
+    /// </summary>
+    public string? Name { get; set; } = string.Empty;
+
+    /// <summary>
+    /// Null if no tenant has been resolved yet.
+    /// </summary>
+    public string? Description { get; set; }
+
+    /// <summary>
+    /// Null if no tenant has been resolved yet.
+    /// </summary>
+    public DateTimeOffset? CreatedAt { get; set; }
 }
