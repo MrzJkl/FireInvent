@@ -6,14 +6,14 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
+using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
 namespace FireInvent.Shared.Services;
 
 /// <summary>
-/// Service for managing API Integrations within tenants.
-/// This service operates at the tenant realm level to create and manage API Integrations.
+/// Service for managing API Integrations within tenants using Keycloak Organizations.
 /// </summary>
 public class KeycloakAdminService : IKeycloakAdminService
 {
@@ -162,6 +162,16 @@ public class KeycloakAdminService : IKeycloakAdminService
 
             await AssignIntegrationRoleToServiceAccountAsync(createdClient.Id!);
 
+            // Add membership of the service account user to the current organization (tenant)
+            var serviceAccountResponse = await _httpClient.GetAsync(
+                $"admin/realms/{_options.Realm}/clients/{createdClient.Id}/service-account-user");
+            serviceAccountResponse.EnsureSuccessStatusCode();
+            var serviceAccountUser = await serviceAccountResponse.Content.ReadFromJsonAsync<ServiceAccountUser>(_jsonOptions);
+            var serviceAccountUserId = serviceAccountUser?.Id
+                ?? throw new InvalidOperationException("Failed to retrieve service account user ID.");
+
+            await AddUserToOrganizationAsync(_tenantProvider.TenantId.Value, serviceAccountUserId);
+
             var secretResponse = await _httpClient.GetAsync(
                 $"admin/realms/{_options.Realm}/clients/{createdClient.Id}/client-secret");
             secretResponse.EnsureSuccessStatusCode();
@@ -200,8 +210,18 @@ public class KeycloakAdminService : IKeycloakAdminService
             var clients = await response.Content.ReadFromJsonAsync<List<KeycloakClient>>(_jsonOptions)
                 ?? new List<KeycloakClient>();
 
-            var apiIntegrations = clients
-                .Where(c => c.ClientId?.StartsWith(_options.ApiClientPrefix) == true)
+            // Filter clients to only those belonging to current tenant organization
+            var filtered = new List<KeycloakClient>();
+            foreach (var c in clients.Where(c => c.ClientId?.StartsWith(_options.ApiClientPrefix) == true))
+            {
+                if (string.IsNullOrEmpty(c.Id)) continue;
+                if (await IsClientServiceAccountMemberOfCurrentOrganizationAsync(c.Id))
+                {
+                    filtered.Add(c);
+                }
+            }
+
+            var apiIntegrations = filtered
                 .Select(c => new ApiIntegrationModel
                 {
                     ClientId = c.ClientId!,
@@ -214,7 +234,7 @@ public class KeycloakAdminService : IKeycloakAdminService
                 .OrderBy(i => i.Name)
                 .ToList();
 
-            _logger.LogInformation("Found {Count} API integrations", apiIntegrations.Count);
+            _logger.LogInformation("Found {Count} API integrations in tenant {TenantId}", apiIntegrations.Count, _tenantProvider.TenantId);
 
             return apiIntegrations;
         }
@@ -245,6 +265,13 @@ public class KeycloakAdminService : IKeycloakAdminService
             {
                 _logger.LogWarning("Attempted to delete non-existent API integration: {ClientId}", clientId);
                 throw new NotFoundException($"API integration with client ID '{clientId}' not found.");
+            }
+
+            // Ensure the client belongs to the current tenant organization
+            if (!await IsClientServiceAccountMemberOfCurrentOrganizationAsync(client.Id!))
+            {
+                _logger.LogWarning("Attempted to delete API integration outside of tenant {TenantId}: {ClientId}", _tenantProvider.TenantId, clientId);
+                throw new InvalidOperationException("Forbidden: client does not belong to current tenant.");
             }
 
             _logger.LogInformation("Deleting API integration: {ClientId} (internal ID: {InternalId})", clientId, client.Id);
@@ -283,7 +310,6 @@ public class KeycloakAdminService : IKeycloakAdminService
     {
         try
         {
-            // Get the service account user ID for this client
             var serviceAccountResponse = await _httpClient.GetAsync(
                 $"admin/realms/{_options.Realm}/clients/{clientUuid}/service-account-user");
             serviceAccountResponse.EnsureSuccessStatusCode();
@@ -292,7 +318,6 @@ public class KeycloakAdminService : IKeycloakAdminService
             var serviceAccountUserId = serviceAccountUser?.Id
                 ?? throw new InvalidOperationException("Failed to retrieve service account user ID.");
 
-            // Get the integration role
             var rolesResponse = await _httpClient.GetAsync(
                 $"admin/realms/{_options.Realm}/roles/integration");
             rolesResponse.EnsureSuccessStatusCode();
@@ -301,7 +326,6 @@ public class KeycloakAdminService : IKeycloakAdminService
             if (integrationRole == null)
                 throw new InvalidOperationException("Integration role not found in Keycloak.");
 
-            // Assign the integration role to the service account user
             var roleMapping = new List<KeycloakRole> { integrationRole };
             var assignRoleResponse = await _httpClient.PostAsJsonAsync(
                 $"admin/realms/{_options.Realm}/users/{serviceAccountUserId}/role-mappings/realm",
@@ -316,6 +340,57 @@ public class KeycloakAdminService : IKeycloakAdminService
             _logger.LogError(ex, "Failed to assign integration role to service account for client: {ClientUuid}", clientUuid);
             throw new InvalidOperationException("Failed to assign integration role to service account.", ex);
         }
+    }
+
+    private async Task AddUserToOrganizationAsync(Guid organizationId, string userId)
+    {
+        var url = $"admin/realms/{_options.Realm}/organizations/{organizationId}/members";
+        var json = JsonSerializer.Serialize(userId);
+        using var content = new StringContent(json, Encoding.UTF8, "application/json");
+        var response = await _httpClient.PostAsync(url, content);
+        if (!response.IsSuccessStatusCode)
+        {
+            if (response.StatusCode == System.Net.HttpStatusCode.Conflict)
+            {
+                _logger.LogDebug("User {UserId} is already a member of organization {OrgId}", userId, organizationId);
+                return;
+            }
+            var error = await response.Content.ReadAsStringAsync();
+            _logger.LogError("Failed to add user {UserId} to organization {OrgId}: {Status} - {Error}", userId, organizationId, response.StatusCode, error);
+            throw new InvalidOperationException("Failed to add service account to organization.");
+        }
+        _logger.LogInformation("Added user {UserId} to organization {OrgId}", userId, organizationId);
+    }
+
+    private async Task<bool> IsClientServiceAccountMemberOfCurrentOrganizationAsync(string clientUuid)
+    {
+        var serviceAccountResponse = await _httpClient.GetAsync(
+            $"admin/realms/{_options.Realm}/clients/{clientUuid}/service-account-user");
+        serviceAccountResponse.EnsureSuccessStatusCode();
+        var serviceAccountUser = await serviceAccountResponse.Content.ReadFromJsonAsync<ServiceAccountUser>(_jsonOptions);
+        var userId = serviceAccountUser?.Id;
+        if (string.IsNullOrEmpty(userId)) return false;
+
+        var orgId = _tenantProvider.TenantId;
+        var membersResponse = await _httpClient.GetAsync(
+            $"admin/realms/{_options.Realm}/organizations/{orgId}/members?userId={Uri.EscapeDataString(userId)}");
+        if (!membersResponse.IsSuccessStatusCode)
+        {
+            return false;
+        }
+
+        try
+        {
+            var json = await membersResponse.Content.ReadFromJsonAsync<List<JsonElement>>(_jsonOptions);
+            if (json != null && json.Any(m => m.TryGetProperty("id", out var idProp) && idProp.GetString() == userId))
+                return true;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to check if service account is member of current organization.");
+            return false;
+        }
+        return false;
     }
 
     private async Task<List<KeycloakClient>> GetClientsByClientIdAsync(string clientId)
