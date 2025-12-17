@@ -1,0 +1,25 @@
+{$CADDY_ACME_EMAIL}
+
+{$API_DOMAIN:api.localhost} {
+  encode gzip
+  
+  reverse_proxy api:8080 {
+    header_up Connection keep-alive
+  }
+}
+
+{$AUTH_DOMAIN:auth.localhost} {
+  encode gzip
+  
+  reverse_proxy keycloak:8080 {
+    header_up Connection keep-alive
+  }
+}
+
+{$UI_DOMAIN:localhost} {
+  encode gzip
+  
+  reverse_proxy ui:80 {
+    header_up Connection keep-alive
+  }
+}
