@@ -23,6 +23,10 @@ services:
       timeout: 5s
       retries: 5
       start_period: 30s
+    env_file:
+     - ./.env
+    networks:
+      - keycloak_net
       
   db_keycloak:
     image: postgres:18.1
@@ -39,6 +43,10 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
+    env_file:
+     - ./.env
+    networks:
+      - keycloak_net
       
   keycloak_config:
     image: adorsys/keycloak-config-cli:latest-26
@@ -62,5 +70,14 @@ services:
       FIREINVENT_SPA_URL: ${FIREINVENT_SPA_URL}
     volumes:
       - ./config:/config:ro
+    env_file:
+     - ./.env
+    networks:
+      - keycloak_net
+     
 volumes:
   db_keycloak_data:
+  
+networks:
+  keycloak_net:
+    driver: bridge

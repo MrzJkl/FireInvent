@@ -8,12 +8,16 @@ services:
       POSTGRES_USER: ${API_DB_USER:-fireinventuser}
       POSTGRES_PASSWORD: ${API_DB_PASSWORD}
     volumes:
-      - db_api_data:/var/lib/postgresql/data
+      - db_api_data:/var/lib/postgresql
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U ${API_DB_USER:-fireinventuser} -d ${API_DB_NAME:-fireinvent}"]
       interval: 10s
       timeout: 5s
       retries: 5
+    env_file:
+     - ./.env
+    networks:
+      - api_net
 
   api:
     image: ghcr.io/mrzjkl/fireinventapi:latest
@@ -40,6 +44,14 @@ services:
       timeout: 5s
       retries: 5
       start_period: 15s
+    env_file:
+     - ./.env
+    networks:
+      - api_net
 
 volumes:
   db_api_data:
+  
+networks:
+  api_net:
+    driver: bridge

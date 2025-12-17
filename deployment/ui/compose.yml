@@ -1,6 +1,6 @@
 services:
   ui:
-    image: ghcr.io/mrzjkl/fireinventui:latest
+    image: ghcr.io/mrzjkl/fireinvent-ui:ghcr.io-mrzjkl-fireinventui-latest 
     container_name: fireinvent_ui
     restart: unless-stopped
     environment:
@@ -8,3 +8,5 @@ services:
       VITE_KEYCLOAK_URL: ${VITE_KEYCLOAK_URL}
       VITE_KEYCLOAK_REALM: ${VITE_KEYCLOAK_REALM:-fireinvent}
       VITE_KEYCLOAK_CLIENT_ID: ${VITE_KEYCLOAK_CLIENT_ID:-fireinvent-spa}
+    env_file:
+     - ./.env

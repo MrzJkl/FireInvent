@@ -1,21 +1,9 @@
 include:
-  - ./api/compose.yml
-  - ./caddy/compose.yml
-  - ./keycloak/compose.prod.yml
-  - ./ui/compose.yml
-  
-services:
-  keycloak:
-    networks:
-      - proxy_net
-  api:
-    networks:
-      - proxy_net
-  ui:
-    networks:
-      - proxy_net
-    
-networks:
-  proxy_net:
-    driver: bridge
+  - path:
+    - ./api/compose.yml
+    #- ./caddy/compose.yml
+    - ./keycloak/compose.prod.yml
+    #- ./ui/compose.yml
+    - override.yml
+ 
   

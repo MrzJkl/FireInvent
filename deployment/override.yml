@@ -1,0 +1,19 @@
+services:
+#  reverse_proxy:
+#    networks:
+#      - proxy_net
+
+  keycloak:
+    networks:
+      - proxy_net
+  api:
+    networks:
+      - proxy_net
+#  ui:
+#    networks:
+#      - proxy_net
+    
+networks:
+  proxy_net:
+    external: true
+    driver: bridge
