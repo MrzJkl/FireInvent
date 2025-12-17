@@ -1,17 +1,25 @@
 services:
   reverse_proxy:
+    volumes:
+      - ./caddy/Caddyfile:/etc/caddy/Caddyfile:ro
     networks:
       - proxy_net
 
   keycloak:
     networks:
       - proxy_net
+
   api:
     networks:
       - proxy_net
+
   ui:
     networks:
       - proxy_net
+  
+  keycloak_config:
+    volumes:
+      - ./keycloak/config:/config:ro
     
 networks:
   proxy_net:
