@@ -3,6 +3,12 @@ services:
     image: caddy:2-alpine
     container_name: fireinvent_reverse_proxy
     restart: unless-stopped
+    environment:
+      CADDY_ACME_EMAIL: ${CADDY_ACME_EMAIL}
+      API_DOMAIN: ${API_DOMAIN}
+      AUTH_DOMAIN: ${AUTH_DOMAIN}
+      UI_DOMAIN: ${UI_DOMAIN}
+
     ports:
       - "80:80"
       - "443:443"
