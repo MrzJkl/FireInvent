@@ -1,7 +1,7 @@
 services:
-#  reverse_proxy:
-#    networks:
-#      - proxy_net
+  reverse_proxy:
+    networks:
+      - proxy_net
 
   keycloak:
     networks:
@@ -9,9 +9,9 @@ services:
   api:
     networks:
       - proxy_net
-#  ui:
-#    networks:
-#      - proxy_net
+  ui:
+    networks:
+      - proxy_net
     
 networks:
   proxy_net:

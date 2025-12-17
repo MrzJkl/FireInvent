@@ -1,9 +1,7 @@
 include:
   - path:
+    - ./caddy/compose.yml
     - ./api/compose.yml
-    #- ./caddy/compose.yml
     - ./keycloak/compose.prod.yml
-    #- ./ui/compose.yml
+    - ./ui/compose.yml
     - override.yml
- 
-  

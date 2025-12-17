@@ -23,8 +23,6 @@ services:
       timeout: 5s
       retries: 5
       start_period: 30s
-    env_file:
-     - ./.env
     networks:
       - keycloak_net
       
@@ -43,8 +41,6 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
-    env_file:
-     - ./.env
     networks:
       - keycloak_net
       
@@ -70,8 +66,6 @@ services:
       FIREINVENT_SPA_URL: ${FIREINVENT_SPA_URL}
     volumes:
       - ./config:/config:ro
-    env_file:
-     - ./.env
     networks:
       - keycloak_net
      
