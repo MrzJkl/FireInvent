@@ -1,6 +1,8 @@
+# Main compose file for production deployment
+# Includes all service definitions and network overrides
 include:
-  - ./caddy/compose.yml
-  - ./api/compose.yml
-  - ./keycloak/compose.prod.yml
-  - ./ui/compose.yml
-  - override.yml
+  - ./caddy/compose.yml           # Reverse proxy (Caddy)
+  - ./api/compose.yml              # FireInvent API and database
+  - ./keycloak/compose.prod.yml    # Keycloak authentication (production mode)
+  - ./ui/compose.yml               # FireInvent UI
+  - override.yml                   # Network configuration and volume mounts
