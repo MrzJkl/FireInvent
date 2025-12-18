@@ -35,7 +35,7 @@ services:
       Authentication__Authority: ${FIREINVENT_AUTHORITY}
       Authentication__RequireHttpsMetadata: ${AUTH_REQUIRE_HTTPS_METADATA:-true}
       # CORS configuration
-      Cors__Enabled: "true"
+      Cors__Enabled: true
       Cors__AllowedOrigins__0: ${CORS_ALLOWED_ORIGINS:-}
       # Keycloak admin API for managing API integrations
       KeycloakAdmin__Url: ${KEYCLOAK_ADMIN_URL:-http://keycloak:8080}
