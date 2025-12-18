@@ -1,0 +1,24 @@
+# Caddy reverse proxy
+# Handles HTTPS/TLS and routes traffic to backend services
+services:
+  reverse_proxy:
+    image: caddy:2-alpine
+    container_name: fireinvent_reverse_proxy
+    restart: unless-stopped
+    environment:
+      # Domain names used in Caddyfile configuration
+      API_DOMAIN: ${API_DOMAIN}
+      AUTH_DOMAIN: ${AUTH_DOMAIN}
+      UI_DOMAIN: ${UI_DOMAIN}
+    ports:
+      - "80:80"        # HTTP
+      - "443:443"      # HTTPS
+      - "443:443/udp"  # HTTP/3 (QUIC)
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data      # TLS certificates
+      - caddy_config:/config  # Caddy configuration cache
+
+volumes:
+  caddy_data:
+  caddy_config:

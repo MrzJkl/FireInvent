@@ -1,0 +1,90 @@
+# Keycloak authentication service (Production mode)
+services:
+  # Keycloak identity and access management
+  keycloak:
+    image: ghcr.io/mrzjkl/fireinventkeycloak:latest
+    container_name: fireinvent_keycloak
+    restart: unless-stopped
+    command: start  # Production mode
+    environment:
+      # Admin credentials
+      KC_BOOTSTRAP_ADMIN_USERNAME: ${KEYCLOAK_ADMIN:-admin}
+      KC_BOOTSTRAP_ADMIN_PASSWORD: ${KEYCLOAK_ADMIN_PASSWORD}
+      # PostgreSQL database configuration
+      KC_DB: postgres
+      KC_DB_URL: jdbc:postgresql://db_keycloak:5432/${KEYCLOAK_DB_NAME}
+      KC_DB_USERNAME: ${KEYCLOAK_DB_USER}
+      KC_DB_PASSWORD: ${KEYCLOAK_DB_PASSWORD}
+      # Hostname configuration
+      KC_HOSTNAME: ${KEYCLOAK_HOSTNAME}
+      # Proxy configuration
+      KC_HTTP_ENABLED: true
+      KC_PROXY_HEADERS: xforwarded
+    depends_on:
+      db_keycloak:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "exec 3<>/dev/tcp/localhost/8080"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    networks:
+      - keycloak_net
+      
+  # PostgreSQL database for Keycloak
+  db_keycloak:
+    image: postgres:18.1
+    container_name: fireinvent_db_keycloak
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${KEYCLOAK_DB_NAME:-keycloak}
+      POSTGRES_USER: ${KEYCLOAK_DB_USER:-keycloakuser}
+      POSTGRES_PASSWORD: ${KEYCLOAK_DB_PASSWORD}
+    volumes:
+      - db_keycloak_data:/var/lib/postgresql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${KEYCLOAK_DB_USER:-keycloakuser} -d ${KEYCLOAK_DB_NAME:-keycloak}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - keycloak_net
+      
+  # Keycloak configuration import
+  # Automatically imports realm configuration on startup
+  keycloak_config:
+    image: adorsys/keycloak-config-cli:latest-26
+    container_name: fireinvent_keycloak_config
+    depends_on:
+      keycloak:
+        condition: service_healthy
+    environment:
+      # Keycloak connection
+      KEYCLOAK_URL: http://keycloak:8080
+      KEYCLOAK_USER: ${KEYCLOAK_ADMIN}
+      KEYCLOAK_PASSWORD: ${KEYCLOAK_ADMIN_PASSWORD}
+      # Import configuration
+      KEYCLOAK_AVAILABILITYCHECK_ENABLED: "true"
+      KEYCLOAK_AVAILABILITYCHECK_TIMEOUT: 120s
+      IMPORT_FILES_LOCATIONS: /config/*
+      IMPORT_VARSUBSTITUTION_ENABLED: true
+      # SMTP configuration for email notifications
+      SMTP_HOST: ${SMTP_HOST}
+      SMTP_PORT: ${SMTP_PORT}
+      SMTP_FROM: ${SMTP_FROM}
+      SMTP_USER: ${SMTP_USER}
+      SMTP_PASSWORD: ${SMTP_PASSWORD}
+      # FireInvent SPA URL for client configuration
+      FIREINVENT_SPA_URL: ${FIREINVENT_SPA_URL}
+    volumes:
+      - ./config:/config:ro
+    networks:
+      - keycloak_net
+     
+volumes:
+  db_keycloak_data:
+  
+networks:
+  keycloak_net:
+    driver: bridge

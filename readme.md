@@ -1,6 +1,6 @@
 # FireInvent
 
-FireInvent is a modern inventory management system designed for organizations that need to track, assign, and maintain clothing and equipment. Built with .NET 9 and C# 13, it provides a robust API for managing inventory, users, departments, and maintenance workflows.
+FireInvent is a modern inventory management system designed for organizations that need to track, assign, and maintain clothing and equipment. Built with .NET 10 and C# 13, it provides a robust API for managing inventory, users, departments, and maintenance workflows.
 
 ## Features
 
@@ -32,11 +32,11 @@ FireInvent is a modern inventory management system designed for organizations th
 
 ### Prerequisites
 
-- [.NET 9 SDK](https://dotnet.microsoft.com/download/dotnet/9.0)
-- [PostgreSQL](https://www.postgresql.org/)
-- Docker (optional, for containerized deployment)
+- [.NET 10 SDK](https://dotnet.microsoft.com/download/dotnet/10.0) (for local development)
+- [PostgreSQL](https://www.postgresql.org/) (for local development)
+- [Docker](https://www.docker.com/) and [Docker Compose](https://docs.docker.com/compose/) (for deployment)
 
-### Setup
+### Local Development Setup
 
 1. **Clone the repository**
 
@@ -55,6 +55,187 @@ FireInvent is a modern inventory management system designed for organizations th
 
 6. **Access Swagger UI**
 - Open [http://localhost:5000/swagger](http://localhost:5000/swagger) in your browser.
+
+## Deployment
+
+FireInvent uses Docker Compose for production deployment with the following services:
+- **Caddy**: Reverse proxy with automatic HTTPS
+- **Keycloak**: Identity and access management
+- **API**: FireInvent backend API
+- **UI**: FireInvent frontend application
+- **PostgreSQL**: Databases for Keycloak and API
+
+### Deployment Prerequisites
+
+- Docker and Docker Compose installed on your server
+- Domain names configured and pointing to your server (or use local development domains)
+- SMTP server for email notifications (optional, but recommended)
+
+### Deployment Steps
+
+1. **Navigate to the deployment directory**
+   ```bash
+   cd deployment
+   ```
+
+2. **Create and configure the environment file**
+   ```bash
+   cp .env.example .env
+   ```
+   
+   Edit the `.env` file and configure the following:
+   
+   **Required Configuration:**
+   - `API_DB_PASSWORD`: Secure password for the API database
+   - `KEYCLOAK_DB_PASSWORD`: Secure password for the Keycloak database
+   - `KEYCLOAK_ADMIN_PASSWORD`: Secure password for Keycloak admin user
+   - `API_DOMAIN`: Your API domain (e.g., `api.example.com`)
+   - `AUTH_DOMAIN`: Your authentication domain (e.g., `auth.example.com`)
+   - `UI_DOMAIN`: Your UI domain (e.g., `example.com`)
+   - `KEYCLOAK_HOSTNAME`: Should match `AUTH_DOMAIN`
+   
+   **Optional Configuration:**
+   - SMTP settings for email notifications
+   - Custom database names and users
+   - CORS origins (if needed)
+
+   **For production HTTPS:**
+   - Update `FIREINVENT_AUTHORITY` to `https://${AUTH_DOMAIN}/realms/fireinvent`
+   - Update `FIREINVENT_SPA_URL` to `https://${UI_DOMAIN}`
+   - Ensure `VITE_API_BASE_URL` and `VITE_KEYCLOAK_URL` use your production domains (without `https://` prefix)
+
+3. **Create the proxy network**
+   ```bash
+   docker network create proxy_net
+   ```
+
+4. **Start the services**
+   ```bash
+   docker compose up -d
+   ```
+
+   This will:
+   - Pull all required Docker images
+   - Start PostgreSQL databases for API and Keycloak
+   - Start Keycloak with automatic realm configuration
+   - Start the FireInvent API
+   - Start the FireInvent UI
+   - Start Caddy reverse proxy with automatic HTTPS
+
+5. **Verify deployment**
+   
+   Check that all services are running:
+   ```bash
+   docker compose ps
+   ```
+   
+   All services should show as "healthy" or "running".
+
+6. **Access the application**
+   
+   - UI: `https://${UI_DOMAIN}` (or `http://localhost` for local testing)
+   - API: `https://${API_DOMAIN}` (or `http://api.localhost` for local testing)
+   - Keycloak: `https://${AUTH_DOMAIN}` (or `http://auth.localhost` for local testing)
+
+7. **First login**
+   
+   - Navigate to the UI
+   - Click on login
+   - Use the Keycloak admin credentials from your `.env` file
+   - After first login, create additional users as needed
+
+### Development Deployment
+
+For local development with a simpler setup, use the development compose file for Keycloak:
+
+1. Edit `deployment/compose.yml` and change:
+   ```yaml
+   - ./keycloak/compose.prod.yml
+   ```
+   to:
+   ```yaml
+   - ./keycloak/compose.dev.yml
+   ```
+
+2. In your `.env` file, use local development URLs:
+   ```bash
+   FIREINVENT_AUTHORITY=http://localhost:8080/realms/fireinvent
+   FIREINVENT_SPA_URL=http://localhost:3000
+   KEYCLOAK_HOSTNAME=localhost
+   ```
+
+3. The development setup exposes Keycloak directly on port 8080 for easier debugging.
+
+### Updating Services
+
+To update to the latest version:
+
+```bash
+cd deployment
+docker compose pull
+docker compose up -d
+```
+
+This will pull the latest images and recreate containers if needed while preserving data.
+
+### Viewing Logs
+
+To view logs for all services:
+```bash
+docker compose logs -f
+```
+
+To view logs for a specific service:
+```bash
+docker compose logs -f api
+docker compose logs -f keycloak
+docker compose logs -f ui
+```
+
+### Stopping Services
+
+To stop all services:
+```bash
+docker compose down
+```
+
+To stop and remove all data (databases, certificates, etc.):
+```bash
+docker compose down -v
+```
+**Warning:** This will delete all data including databases!
+
+### Backup
+
+To backup your data, backup the Docker volumes:
+
+```bash
+# Backup API database
+docker compose exec db_api pg_dump -U ${API_DB_USER} ${API_DB_NAME} > api_backup.sql
+
+# Backup Keycloak database
+docker compose exec db_keycloak pg_dump -U ${KEYCLOAK_DB_USER} ${KEYCLOAK_DB_NAME} > keycloak_backup.sql
+```
+
+### Troubleshooting
+
+**Services not starting:**
+- Check logs with `docker compose logs`
+- Ensure all required environment variables are set in `.env`
+- Verify Docker network exists: `docker network ls | grep proxy_net`
+
+**Cannot access services:**
+- For local testing, ensure your `/etc/hosts` file contains:
+  ```
+  127.0.0.1 localhost api.localhost auth.localhost
+  ```
+- For production, verify DNS records point to your server
+- Check firewall rules allow ports 80 and 443
+
+**Keycloak configuration not applying:**
+- Check `keycloak_config` container logs
+- Verify configuration files exist in `deployment/keycloak/config/`
+- Ensure environment variables are correctly substituted
 
 ## API Overview
 

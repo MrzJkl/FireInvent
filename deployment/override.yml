@@ -1,0 +1,32 @@
+# Network and volume overrides for production deployment
+# Connects all services to a shared proxy network and mounts custom configurations
+services:
+  reverse_proxy:
+    volumes:
+      # Mount custom Caddyfile for reverse proxy configuration
+      - ./caddy/Caddyfile:/etc/caddy/Caddyfile:ro
+    networks:
+      - proxy_net
+
+  keycloak:
+    networks:
+      - proxy_net
+
+  api:
+    networks:
+      - proxy_net
+
+  ui:
+    networks:
+      - proxy_net
+  
+  keycloak_config:
+    volumes:
+      # Mount Keycloak realm configuration
+      - ./keycloak/config:/config:ro
+    
+networks:
+  # Shared network for reverse proxy access
+  proxy_net:
+    external: true
+    driver: bridge

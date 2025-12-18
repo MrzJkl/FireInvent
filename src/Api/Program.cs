@@ -220,7 +220,7 @@ app.MapControllers();
 
 app.MapGet("/", context =>
 {
-    context.Response.Redirect("/scalar");
+    context.Response.Redirect("/docs");
     return Task.CompletedTask;
 });
 
