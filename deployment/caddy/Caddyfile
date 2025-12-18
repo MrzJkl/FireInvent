@@ -1,3 +1,5 @@
+# API reverse proxy
+# Routes API requests to the backend API service
 {$API_DOMAIN:api.localhost} {
   encode gzip
   
@@ -6,6 +8,8 @@
   }
 }
 
+# Keycloak authentication reverse proxy
+# Routes authentication requests to Keycloak
 {$AUTH_DOMAIN:auth.localhost} {
   encode gzip
   
@@ -14,6 +18,8 @@
   }
 }
 
+# UI reverse proxy
+# Routes frontend requests to the UI service
 {$UI_DOMAIN:localhost} {
   encode gzip
   
