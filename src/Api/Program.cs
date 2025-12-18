@@ -55,38 +55,6 @@ builder.Services.Configure<KeycloakAdminOptions>(
 var authOptions = builder.Configuration.GetRequiredSection("Authentication").Get<AuthenticationOptions>()!;
 var corsOptions = builder.Configuration.GetSection("Cors").Get<CorsOptions>() ?? new CorsOptions();
 
-builder.Services.AddCustomAuthentication(AuthScheme, authOptions);
-builder.Services.AddAuthorization();
-builder.Services.AddMemoryCache();
-builder.Services.AddResponseCompression(options =>
-{
-    options.EnableForHttps = true;
-});
-
-// Multi-Tenancy
-builder.Services.AddScoped<TenantProvider>();
-
-// Database
-builder.Services.AddDbContext<AppDbContext>(options =>
-    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection"),
-        x => x.MigrationsAssembly("FireInvent.Database")).UseLazyLoadingProxies());
-
-// Health Checks
-builder.Services.AddHealthChecks()
-    .AddDbContextCheck<AppDbContext>()
-    .AddProcessAllocatedMemoryHealthCheck(2000)
-    .AddCheck("self", () => HealthCheckResult.Healthy());
-
-// Scalar API-Explorer
-builder.Services.AddVersioning();
-
-var versions = new List<ApiVersion>
-{
-    new(1, 0)
-};
-
-builder.Services.AddOpenApi(versions);
-
 // CORS configuration
 if (corsOptions.Enabled)
 {
@@ -128,6 +96,38 @@ if (corsOptions.Enabled)
         });
     });
 }
+
+builder.Services.AddCustomAuthentication(AuthScheme, authOptions);
+builder.Services.AddAuthorization();
+builder.Services.AddMemoryCache();
+builder.Services.AddResponseCompression(options =>
+{
+    options.EnableForHttps = true;
+});
+
+// Multi-Tenancy
+builder.Services.AddScoped<TenantProvider>();
+
+// Database
+builder.Services.AddDbContext<AppDbContext>(options =>
+    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection"),
+        x => x.MigrationsAssembly("FireInvent.Database")).UseLazyLoadingProxies());
+
+// Health Checks
+builder.Services.AddHealthChecks()
+    .AddDbContextCheck<AppDbContext>()
+    .AddProcessAllocatedMemoryHealthCheck(2000)
+    .AddCheck("self", () => HealthCheckResult.Healthy());
+
+// Scalar API-Explorer
+builder.Services.AddVersioning();
+
+var versions = new List<ApiVersion>
+{
+    new(1, 0)
+};
+
+builder.Services.AddOpenApi(versions);
 
 // API Services
 builder.Services.AddScoped<TokenValidatedHandler>();
@@ -179,6 +179,11 @@ builder.Services.AddControllers(options =>
 
 WebApplication app = builder.Build();
 
+if (corsOptions.Enabled)
+{
+    app.UseCors(CorsPolicyName);
+}
+
 app.UseSerilogRequestLogging(options =>
 {
     options.MessageTemplate = "Handled {RequestPath} {RequestMethod} responded {StatusCode} in {Elapsed:0.00} ms";
@@ -209,11 +214,6 @@ app.UseMiddleware<TenantResolutionMiddleware>();
 app.UseMiddleware<ApiExceptionMiddleware>();
 
 app.UseResponseCompression();
-
-if (corsOptions.Enabled)
-{
-    app.UseCors(CorsPolicyName);
-}
 
 logger.LogDebug("Registering controllers end endpoints...");
 app.MapControllers();
