@@ -1,6 +1,6 @@
 # FireInvent
 
-FireInvent is a modern inventory management system designed for organizations that need to track, assign, and maintain clothing and equipment. Built with .NET 9 and C# 13, it provides a robust API for managing inventory, users, departments, and maintenance workflows.
+FireInvent is a modern inventory management system designed for organizations that need to track, assign, and maintain clothing and equipment. Built with .NET 10 and C# 13, it provides a robust API for managing inventory, users, departments, and maintenance workflows.
 
 ## Features
 
@@ -32,7 +32,7 @@ FireInvent is a modern inventory management system designed for organizations th
 
 ### Prerequisites
 
-- [.NET 9 SDK](https://dotnet.microsoft.com/download/dotnet/9.0) (for local development)
+- [.NET 10 SDK](https://dotnet.microsoft.com/download/dotnet/10.0) (for local development)
 - [PostgreSQL](https://www.postgresql.org/) (for local development)
 - [Docker](https://www.docker.com/) and [Docker Compose](https://docs.docker.com/compose/) (for deployment)
 
