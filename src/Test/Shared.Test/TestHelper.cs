@@ -14,6 +14,7 @@ internal static class TestHelper
     {
         var options = new DbContextOptionsBuilder<AppDbContext>()
             .UseInMemoryDatabase(Guid.NewGuid().ToString())
+            .UseLazyLoadingProxies()
             .Options;
         
         var testTenantProvider = new UserContextProvider

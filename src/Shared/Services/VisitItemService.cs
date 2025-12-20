@@ -10,10 +10,6 @@ public class VisitItemService(AppDbContext context, VisitMapper mapper) : IVisit
     public async Task<VisitItemModel?> GetVisitItemByIdAsync(Guid id)
     {
         var visitItem = await context.VisitItems
-            .Include(vi => vi.Product)
-                .ThenInclude(p => p.Type)
-            .Include(vi => vi.Product)
-                .ThenInclude(p => p.Manufacturer)
             .AsNoTracking()
             .FirstOrDefaultAsync(vi => vi.Id == id);
 
@@ -23,10 +19,6 @@ public class VisitItemService(AppDbContext context, VisitMapper mapper) : IVisit
     public async Task<List<VisitItemModel>> GetAllVisitItemsAsync()
     {
         var visitItems = await context.VisitItems
-            .Include(vi => vi.Product)
-                .ThenInclude(p => p.Type)
-            .Include(vi => vi.Product)
-                .ThenInclude(p => p.Manufacturer)
             .AsNoTracking()
             .ToListAsync();
 
@@ -36,10 +28,6 @@ public class VisitItemService(AppDbContext context, VisitMapper mapper) : IVisit
     public async Task<List<VisitItemModel>> GetVisitItemsByVisitIdAsync(Guid visitId)
     {
         var visitItems = await context.VisitItems
-            .Include(vi => vi.Product)
-                .ThenInclude(p => p.Type)
-            .Include(vi => vi.Product)
-                .ThenInclude(p => p.Manufacturer)
             .AsNoTracking()
             .Where(vi => vi.VisitId == visitId)
             .ToListAsync();
@@ -55,10 +43,6 @@ public class VisitItemService(AppDbContext context, VisitMapper mapper) : IVisit
         await context.SaveChangesAsync();
 
         visitItem = await context.VisitItems
-            .Include(vi => vi.Product)
-                .ThenInclude(p => p.Type)
-            .Include(vi => vi.Product)
-                .ThenInclude(p => p.Manufacturer)
             .AsNoTracking()
             .FirstAsync(vi => vi.Id == visitItem.Id);
 

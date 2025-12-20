@@ -11,8 +11,6 @@ public class VisitService(AppDbContext context, VisitMapper mapper) : IVisitServ
     public async Task<VisitModel?> GetVisitByIdAsync(Guid id)
     {
         var visit = await context.Visits
-            .Include(v => v.Appointment)
-            .Include(v => v.Person)
             .AsNoTracking()
             .FirstOrDefaultAsync(v => v.Id == id);
 
@@ -22,8 +20,6 @@ public class VisitService(AppDbContext context, VisitMapper mapper) : IVisitServ
     public async Task<List<VisitModel>> GetAllVisitsAsync()
     {
         var visits = await context.Visits
-            .Include(v => v.Appointment)
-            .Include(v => v.Person)
             .AsNoTracking()
             .ToListAsync();
 
@@ -53,8 +49,6 @@ public class VisitService(AppDbContext context, VisitMapper mapper) : IVisitServ
         await context.SaveChangesAsync();
 
         visit = await context.Visits
-            .Include(v => v.Appointment)
-            .Include(v => v.Person)
             .AsNoTracking()
             .FirstAsync(v => v.Id == visit.Id);
 

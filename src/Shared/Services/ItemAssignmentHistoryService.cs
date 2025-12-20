@@ -35,7 +35,6 @@ public class ItemAssignmentHistoryService(AppDbContext context, ItemAssignmentHi
         await context.SaveChangesAsync();
 
         assignment = await context.ItemAssignmentHistories
-            .Include(a => a.Person)
             .AsNoTracking()
             .SingleAsync(a => a.Id == assignment.Id);
 
