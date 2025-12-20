@@ -22,6 +22,4 @@ public record Tenant
 
     [Required]
     public DateTimeOffset CreatedAt { get; set; } = DateTimeOffset.UtcNow;
-
-    public virtual ICollection<User> Users { get; set; } = [];
 }

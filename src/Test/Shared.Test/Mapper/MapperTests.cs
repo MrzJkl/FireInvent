@@ -210,23 +210,6 @@ public class MapperTests
     }
 
     [Fact]
-    public void UserMapper_MapUserToUserModel_ShouldMapAllProperties()
-    {
-        // Arrange
-        var mapper = new UserMapper();
-        var user = TestDataFactory.CreateUser(email: "test@test.com", firstName: "Test", lastName: "User");
-
-        // Act
-        var result = mapper.MapUserToUserModel(user);
-
-        // Assert
-        Assert.Equal(user.Id, result.Id);
-        Assert.Equal(user.EMail, result.EMail);
-        Assert.Equal(user.FirstName, result.FirstName);
-        Assert.Equal(user.LastName, result.LastName);
-    }
-
-    [Fact]
     public void OrderMapper_MapCreateOrUpdateOrderModelToOrder_ShouldMapAllProperties()
     {
         // Arrange

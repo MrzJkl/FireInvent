@@ -2,7 +2,6 @@ using FireInvent.Shared.Exceptions;
 using FireInvent.Shared.Mapper;
 using FireInvent.Shared.Models;
 using FireInvent.Shared.Services;
-using Moq;
 
 namespace FireInvent.Test.Shared.Services;
 
@@ -14,7 +13,14 @@ public class MaintenanceServiceTests
 {
     private readonly MaintenanceMapper _mapper = new();
 
-    private async Task<(Guid ItemId, Guid MaintenanceTypeId, Guid UserId)> SetupBasicDataAsync(Database.AppDbContext context)
+    private MockUserService CreateMockUserService()
+    {
+        var mockUserService = new MockUserService();
+        mockUserService.AddUser(TestDataFactory.DefaultTestUserId);
+        return mockUserService;
+    }
+
+    private async Task<(Guid ItemId, Guid MaintenanceTypeId)> SetupBasicDataAsync(Database.AppDbContext context)
     {
         var productType = TestDataFactory.CreateProductType(name: "Helmet");
         var manufacturer = TestDataFactory.CreateManufacturer(name: "Test Manufacturer");
@@ -25,7 +31,6 @@ public class MaintenanceServiceTests
         var item = TestDataFactory.CreateItem(variant.Id);
         item.Variant = variant;
         var maintenanceType = TestDataFactory.CreateMaintenanceType(name: "Inspection");
-        var user = TestDataFactory.CreateUser(email: "user@test.com", firstName: "Test", lastName: "User");
 
         context.ProductTypes.Add(productType);
         context.Manufacturers.Add(manufacturer);
@@ -33,10 +38,9 @@ public class MaintenanceServiceTests
         context.Variants.Add(variant);
         context.Items.Add(item);
         context.MaintenanceTypes.Add(maintenanceType);
-        context.Users.Add(user);
         await context.SaveChangesAsync();
 
-        return (item.Id, maintenanceType.Id, user.Id);
+        return (item.Id, maintenanceType.Id);
     }
 
     [Fact]
@@ -44,8 +48,8 @@ public class MaintenanceServiceTests
     {
         // Arrange
         using var context = TestHelper.GetTestDbContext();
-        var mockUserService = new Mock<IUserService>();
-        var service = new MaintenanceService(context, mockUserService.Object, _mapper);
+        var mockUserService = CreateMockUserService();
+        var service = new MaintenanceService(context, mockUserService, _mapper);
 
         var maintenanceType = TestDataFactory.CreateMaintenanceType(name: "Inspection");
         context.MaintenanceTypes.Add(maintenanceType);
@@ -62,9 +66,9 @@ public class MaintenanceServiceTests
     {
         // Arrange
         using var context = TestHelper.GetTestDbContext();
-        var mockUserService = new Mock<IUserService>();
-        var service = new MaintenanceService(context, mockUserService.Object, _mapper);
-        var (itemId, _, _) = await SetupBasicDataAsync(context);
+        var mockUserService = CreateMockUserService();
+        var service = new MaintenanceService(context, mockUserService, _mapper);
+        var (itemId, _) = await SetupBasicDataAsync(context);
 
         var model = TestDataFactory.CreateMaintenanceModel(itemId, Guid.NewGuid());
 
@@ -77,15 +81,37 @@ public class MaintenanceServiceTests
     {
         // Arrange
         using var context = TestHelper.GetTestDbContext();
-        var mockUserService = new Mock<IUserService>();
-        mockUserService.Setup(x => x.GetUserByIdAsync(It.IsAny<Guid>())).ReturnsAsync((UserModel?)null);
-        var service = new MaintenanceService(context, mockUserService.Object, _mapper);
-        var (itemId, maintenanceTypeId, _) = await SetupBasicDataAsync(context);
+        var mockUserService = CreateMockUserService();
+        var service = new MaintenanceService(context, mockUserService, _mapper);
+        var (itemId, maintenanceTypeId) = await SetupBasicDataAsync(context);
 
-        var model = TestDataFactory.CreateMaintenanceModel(itemId, maintenanceTypeId, performedById: Guid.NewGuid());
+        var nonExistingUserId = Guid.NewGuid();
+        var model = TestDataFactory.CreateMaintenanceModel(itemId, maintenanceTypeId, performedById: nonExistingUserId);
 
         // Act & Assert
         await Assert.ThrowsAsync<BadRequestException>(() => service.CreateMaintenanceAsync(model));
+    }
+
+    [Fact]
+    public async Task CreateMaintenanceAsync_WithValidModel_ShouldCreateMaintenance()
+    {
+        // Arrange
+        using var context = TestHelper.GetTestDbContext();
+        var mockUserService = CreateMockUserService();
+        var service = new MaintenanceService(context, mockUserService, _mapper);
+        var (itemId, maintenanceTypeId) = await SetupBasicDataAsync(context);
+
+        var model = TestDataFactory.CreateMaintenanceModel(itemId, maintenanceTypeId, remarks: "Test maintenance");
+
+        // Act
+        var result = await service.CreateMaintenanceAsync(model);
+
+        // Assert
+        Assert.NotEqual(Guid.Empty, result.Id);
+        Assert.Equal(itemId, result.ItemId);
+        Assert.Equal(maintenanceTypeId, result.TypeId);
+        Assert.Equal("Test maintenance", result.Remarks);
+        Assert.Equal(TestDataFactory.DefaultTestUserId, result.PerformedById);
     }
 
     [Fact]
@@ -93,8 +119,8 @@ public class MaintenanceServiceTests
     {
         // Arrange
         using var context = TestHelper.GetTestDbContext();
-        var mockUserService = new Mock<IUserService>();
-        var service = new MaintenanceService(context, mockUserService.Object, _mapper);
+        var mockUserService = CreateMockUserService();
+        var service = new MaintenanceService(context, mockUserService, _mapper);
 
         // Act
         var result = await service.GetAllMaintenancesAsync();
@@ -108,8 +134,8 @@ public class MaintenanceServiceTests
     {
         // Arrange
         using var context = TestHelper.GetTestDbContext();
-        var mockUserService = new Mock<IUserService>();
-        var service = new MaintenanceService(context, mockUserService.Object, _mapper);
+        var mockUserService = CreateMockUserService();
+        var service = new MaintenanceService(context, mockUserService, _mapper);
 
         // Act
         var result = await service.GetMaintenanceByIdAsync(Guid.NewGuid());
@@ -123,9 +149,9 @@ public class MaintenanceServiceTests
     {
         // Arrange
         using var context = TestHelper.GetTestDbContext();
-        var mockUserService = new Mock<IUserService>();
-        var service = new MaintenanceService(context, mockUserService.Object, _mapper);
-        var (itemId, maintenanceTypeId, _) = await SetupBasicDataAsync(context);
+        var mockUserService = CreateMockUserService();
+        var service = new MaintenanceService(context, mockUserService, _mapper);
+        var (itemId, maintenanceTypeId) = await SetupBasicDataAsync(context);
 
         var updateModel = TestDataFactory.CreateMaintenanceModel(itemId, maintenanceTypeId);
 
@@ -141,9 +167,9 @@ public class MaintenanceServiceTests
     {
         // Arrange
         using var context = TestHelper.GetTestDbContext();
-        var mockUserService = new Mock<IUserService>();
-        var service = new MaintenanceService(context, mockUserService.Object, _mapper);
-        var (itemId, maintenanceTypeId, _) = await SetupBasicDataAsync(context);
+        var mockUserService = CreateMockUserService();
+        var service = new MaintenanceService(context, mockUserService, _mapper);
+        var (itemId, maintenanceTypeId) = await SetupBasicDataAsync(context);
 
         var maintenance = TestDataFactory.CreateMaintenance(itemId, maintenanceTypeId);
         context.Maintenances.Add(maintenance);
@@ -160,9 +186,9 @@ public class MaintenanceServiceTests
     {
         // Arrange
         using var context = TestHelper.GetTestDbContext();
-        var mockUserService = new Mock<IUserService>();
-        var service = new MaintenanceService(context, mockUserService.Object, _mapper);
-        var (itemId, maintenanceTypeId, _) = await SetupBasicDataAsync(context);
+        var mockUserService = CreateMockUserService();
+        var service = new MaintenanceService(context, mockUserService, _mapper);
+        var (itemId, maintenanceTypeId) = await SetupBasicDataAsync(context);
 
         var maintenance = TestDataFactory.CreateMaintenance(itemId, maintenanceTypeId);
         context.Maintenances.Add(maintenance);
@@ -175,13 +201,33 @@ public class MaintenanceServiceTests
     }
 
     [Fact]
+    public async Task UpdateMaintenanceAsync_WithNonExistingPerformedByUser_ShouldThrowBadRequestException()
+    {
+        // Arrange
+        using var context = TestHelper.GetTestDbContext();
+        var mockUserService = CreateMockUserService();
+        var service = new MaintenanceService(context, mockUserService, _mapper);
+        var (itemId, maintenanceTypeId) = await SetupBasicDataAsync(context);
+
+        var maintenance = TestDataFactory.CreateMaintenance(itemId, maintenanceTypeId);
+        context.Maintenances.Add(maintenance);
+        await context.SaveChangesAsync();
+
+        var nonExistingUserId = Guid.NewGuid();
+        var updateModel = TestDataFactory.CreateMaintenanceModel(itemId, maintenanceTypeId, performedById: nonExistingUserId);
+
+        // Act & Assert
+        await Assert.ThrowsAsync<BadRequestException>(() => service.UpdateMaintenanceAsync(maintenance.Id, updateModel));
+    }
+
+    [Fact]
     public async Task UpdateMaintenanceAsync_WithValidModel_ShouldUpdateMaintenance()
     {
         // Arrange
         using var context = TestHelper.GetTestDbContext();
-        var mockUserService = new Mock<IUserService>();
-        var service = new MaintenanceService(context, mockUserService.Object, _mapper);
-        var (itemId, maintenanceTypeId, _) = await SetupBasicDataAsync(context);
+        var mockUserService = CreateMockUserService();
+        var service = new MaintenanceService(context, mockUserService, _mapper);
+        var (itemId, maintenanceTypeId) = await SetupBasicDataAsync(context);
 
         var maintenance = TestDataFactory.CreateMaintenance(itemId, maintenanceTypeId);
         context.Maintenances.Add(maintenance);
@@ -204,9 +250,9 @@ public class MaintenanceServiceTests
     {
         // Arrange
         using var context = TestHelper.GetTestDbContext();
-        var mockUserService = new Mock<IUserService>();
-        var service = new MaintenanceService(context, mockUserService.Object, _mapper);
-        var (itemId, maintenanceTypeId, _) = await SetupBasicDataAsync(context);
+        var mockUserService = CreateMockUserService();
+        var service = new MaintenanceService(context, mockUserService, _mapper);
+        var (itemId, maintenanceTypeId) = await SetupBasicDataAsync(context);
 
         var maintenance = TestDataFactory.CreateMaintenance(itemId, maintenanceTypeId);
         context.Maintenances.Add(maintenance);
@@ -225,8 +271,8 @@ public class MaintenanceServiceTests
     {
         // Arrange
         using var context = TestHelper.GetTestDbContext();
-        var mockUserService = new Mock<IUserService>();
-        var service = new MaintenanceService(context, mockUserService.Object, _mapper);
+        var mockUserService = CreateMockUserService();
+        var service = new MaintenanceService(context, mockUserService, _mapper);
 
         // Act
         var result = await service.DeleteMaintenanceAsync(Guid.NewGuid());
@@ -240,8 +286,8 @@ public class MaintenanceServiceTests
     {
         // Arrange
         using var context = TestHelper.GetTestDbContext();
-        var mockUserService = new Mock<IUserService>();
-        var service = new MaintenanceService(context, mockUserService.Object, _mapper);
+        var mockUserService = CreateMockUserService();
+        var service = new MaintenanceService(context, mockUserService, _mapper);
 
         // Act & Assert
         await Assert.ThrowsAsync<NotFoundException>(() => service.GetMaintenancesForItemAsync(Guid.NewGuid()));
@@ -252,9 +298,9 @@ public class MaintenanceServiceTests
     {
         // Arrange
         using var context = TestHelper.GetTestDbContext();
-        var mockUserService = new Mock<IUserService>();
-        var service = new MaintenanceService(context, mockUserService.Object, _mapper);
-        var (itemId, _, _) = await SetupBasicDataAsync(context);
+        var mockUserService = CreateMockUserService();
+        var service = new MaintenanceService(context, mockUserService, _mapper);
+        var (itemId, _) = await SetupBasicDataAsync(context);
 
         // Act
         var result = await service.GetMaintenancesForItemAsync(itemId);

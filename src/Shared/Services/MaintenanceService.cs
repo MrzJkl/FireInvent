@@ -1,4 +1,5 @@
-﻿using FireInvent.Database;
+﻿using FireInvent.Contract;
+using FireInvent.Database;
 using FireInvent.Shared.Exceptions;
 using FireInvent.Shared.Mapper;
 using FireInvent.Shared.Models;
@@ -12,11 +13,7 @@ public class MaintenanceService(AppDbContext context, IUserService userService, 
     {
         _ = await context.Items.FindAsync(model.ItemId) ?? throw new BadRequestException($"Item with ID '{model.ItemId}' does not exist.");
         _ = await context.MaintenanceTypes.FindAsync(model.TypeId) ?? throw new BadRequestException($"MaintenanceType with ID '{model.TypeId}' does not exist.");
-
-        if (model.PerformedById.HasValue)
-        {
-            _ = await userService.GetUserByIdAsync(model.PerformedById.Value) ?? throw new BadRequestException($"User with ID '{model.PerformedById}' does not exist.");
-        }
+        _ = await userService.GetUserByIdAsync(model.PerformedById) ?? throw new BadRequestException($"User with ID '{model.PerformedById}' does not exist.");
 
         var maintenance = mapper.MapCreateOrUpdateMaintenanceModelToMaintenance(model);
 
@@ -57,11 +54,7 @@ public class MaintenanceService(AppDbContext context, IUserService userService, 
 
         _ = await context.Items.FindAsync(model.ItemId) ?? throw new BadRequestException($"Item with ID '{model.TypeId}' does not exist.");
         _ = await context.MaintenanceTypes.FindAsync(model.TypeId) ?? throw new BadRequestException($"MaintenanceType with ID '{model.TypeId}' does not exist.");
-
-        if (model.PerformedById.HasValue)
-        {
-            _ = await userService.GetUserByIdAsync(model.PerformedById.Value) ?? throw new BadRequestException($"User with ID '{model.PerformedById}' does not exist.");
-        }
+        _ = await userService.GetUserByIdAsync(model.PerformedById) ?? throw new BadRequestException($"User with ID '{model.PerformedById}' does not exist.");
 
         mapper.MapCreateOrUpdateMaintenanceModelToMaintenance(model, entity);
 

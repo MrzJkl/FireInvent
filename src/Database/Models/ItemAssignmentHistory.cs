@@ -22,8 +22,11 @@ public record ItemAssignmentHistory : IHasTenant
     [ForeignKey(nameof(Person))]
     public Guid PersonId { get; set; }
 
-    [ForeignKey(nameof(AssignedBy))]
-    public Guid? AssignedById { get; set; }
+    /// <summary>
+    /// User ID from Keycloak who assigned the item.
+    /// </summary>
+    [Required]
+    public Guid AssignedById { get; set; }
 
     [Required]
     public DateTimeOffset AssignedFrom { get; set; }
@@ -35,8 +38,6 @@ public record ItemAssignmentHistory : IHasTenant
 
     [Required]
     public virtual Person Person { get; set; } = null!;
-
-    public virtual User? AssignedBy { get; set; } = null!;
 
     [Required]
     public virtual Tenant Tenant { get; set; } = null!;

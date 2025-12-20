@@ -17,5 +17,9 @@ public record CreateOrUpdateMaintenanceModel
     [MaxLength(ModelConstants.MaxStringLengthLong)]
     public string? Remarks { get; init; }
 
-    public Guid? PerformedById { get; init; }
+    /// <summary>
+    /// User ID from Keycloak who performed the maintenance.
+    /// </summary>
+    [Required]
+    public Guid PerformedById { get; init; }
 }

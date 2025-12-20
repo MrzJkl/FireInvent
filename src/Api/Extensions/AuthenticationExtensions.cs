@@ -1,6 +1,4 @@
-﻿using FireInvent.Api.Authentication;
-
-namespace FireInvent.Api.Extensions;
+﻿namespace FireInvent.Api.Extensions;
 
 using FireInvent.Shared.Options;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -42,25 +40,6 @@ public static class AuthenticationExtensions
                         logger.LogWarning(context.Exception, "Authentication failed.");
                         return Task.CompletedTask;
                     },
-                    OnTokenValidated = async context =>
-                    {
-                        var scopeFactory = context.HttpContext.RequestServices.GetRequiredService<IServiceScopeFactory>();
-                        using var scope = scopeFactory.CreateScope();
-
-                        try
-                        {
-                            var handler = scope.ServiceProvider.GetRequiredService<TokenValidatedHandler>();
-
-                            await handler.HandleAsync(context);
-                        }
-                        catch (Exception ex)
-                        {
-                            var logger = scope.ServiceProvider
-                                .GetRequiredService<ILogger<TokenValidatedHandler>>();
-
-                            logger.LogError(ex, "Error during synchronization of user from token claims.");
-                        }
-                    }
                 };
             });
 

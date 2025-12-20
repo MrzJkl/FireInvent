@@ -1,5 +1,4 @@
 using Asp.Versioning;
-using FireInvent.Api.Authentication;
 using FireInvent.Api.Extensions;
 using FireInvent.Api.Middlewares;
 using FireInvent.Contract;
@@ -100,13 +99,17 @@ if (corsOptions.Enabled)
 builder.Services.AddCustomAuthentication(AuthScheme, authOptions);
 builder.Services.AddAuthorization();
 builder.Services.AddMemoryCache();
+
+// Keycloak HTTP Client (central for all Keycloak services)
+builder.Services.AddHttpClient<FireInvent.Shared.Services.Keycloak.KeycloakHttpClient>();
+
 builder.Services.AddResponseCompression(options =>
 {
     options.EnableForHttps = true;
 });
 
 // Multi-Tenancy
-builder.Services.AddScoped<TenantProvider>();
+builder.Services.AddScoped<UserContextProvider>();
 
 // Database
 builder.Services.AddDbContext<AppDbContext>(options =>
@@ -130,7 +133,6 @@ var versions = new List<ApiVersion>
 builder.Services.AddOpenApi(versions);
 
 // API Services
-builder.Services.AddScoped<TokenValidatedHandler>();
 
 // Mappers
 builder.Services.AddSingleton<DepartmentMapper>();
@@ -142,7 +144,6 @@ builder.Services.AddSingleton<PersonMapper>();
 builder.Services.AddSingleton<ProductMapper>();
 builder.Services.AddSingleton<StorageLocationMapper>();
 builder.Services.AddSingleton<TenantMapper>();
-builder.Services.AddSingleton<UserMapper>();
 builder.Services.AddSingleton<VariantMapper>();
 builder.Services.AddSingleton<ProductTypeMapper>();
 builder.Services.AddSingleton<MaintenanceTypeMapper>();
@@ -158,14 +159,13 @@ builder.Services.AddScoped<IVariantService, VariantService>();
 builder.Services.AddScoped<IItemService, ItemService>();
 builder.Services.AddScoped<IMaintenanceService, MaintenanceService>();
 builder.Services.AddScoped<IItemAssignmentHistoryService, ItemAssignmentHistoryService>();
-builder.Services.AddScoped<IUserService, UserService>();
+builder.Services.AddScoped<IUserService, KeycloakUserService>();
 builder.Services.AddScoped<IOrderService, OrderService>();
 builder.Services.AddScoped<IMaintenanceTypeService, MaintenanceTypeService>();
 builder.Services.AddScoped<IProductTypeService, ProductTypeService>();
 builder.Services.AddScoped<IManufacturerService, ManufacturerService>();
-
-builder.Services.AddHttpClient<IKeycloakAdminService, KeycloakAdminService>();
-builder.Services.AddHttpClient<IKeycloakTenantService, KeycloakTenantService>();
+builder.Services.AddScoped<IKeycloakAdminService, KeycloakApiIntegrationService>();
+builder.Services.AddScoped<IKeycloakTenantService, KeycloakTenantService>();
 
 // Controllers
 builder.Services.AddControllers(options =>
@@ -213,7 +213,7 @@ app.UseAuthorization();
 
 // Middlewares & Endpoints
 logger.LogDebug("Registering middlewares...");
-app.UseMiddleware<TenantResolutionMiddleware>();
+app.UseMiddleware<UserContextResolutionMiddleware>();
 app.UseMiddleware<ApiExceptionMiddleware>();
 
 app.UseResponseCompression();
