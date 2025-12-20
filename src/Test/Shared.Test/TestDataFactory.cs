@@ -100,18 +100,41 @@ internal static class TestDataFactory
             ExternalId = externalId
         };
 
+    // Manufacturer helpers
+    internal static CreateOrUpdateManufacturerModel CreateManufacturerModel(
+        string name = "Test Manufacturer",
+        string? description = null)
+        => new()
+        {
+            Name = name,
+            Description = description
+        };
+
+    internal static Manufacturer CreateManufacturer(
+        Guid? id = null,
+        string name = "Test Manufacturer",
+        string? description = null)
+        => new()
+        {
+            Id = id ?? Guid.NewGuid(),
+            Name = name,
+            Description = description
+        };
+
     // Product helpers
     internal static CreateOrUpdateProductModel CreateProductModel(
         Guid typeId,
         Guid manufacturerId,
         string name = "Test Product",
-        string? description = null)
+        string? description = null,
+        string? externalIdentifier = null)
         => new()
         {
             TypeId = typeId,
             Name = name,
             ManufacturerId = manufacturerId,
-            Description = description
+            Description = description,
+            ExternalIdentifier = externalIdentifier
         };
 
     internal static Product CreateProduct(
@@ -119,40 +142,45 @@ internal static class TestDataFactory
         Guid manufacturerId,
         Guid? id = null,
         string name = "Test Product",
-        string manufacturer = "Test Manufacturer",
-        string? description = null)
+        string? description = null,
+        string? externalIdentifier = null)
         => new()
         {
             Id = id ?? Guid.NewGuid(),
             TypeId = typeId,
             Name = name,
             ManufacturerId = manufacturerId,
-            Description = description
+            Description = description,
+            ExternalIdentifier = externalIdentifier
         };
 
     // Variant helpers
     internal static CreateOrUpdateVariantModel CreateVariantModel(
         Guid productId,
         string name = "Test Variant",
-        string? additionalSpecs = null)
+        string? additionalSpecs = null,
+        string? externalIdentifier = null)
         => new()
         {
             ProductId = productId,
             Name = name,
-            AdditionalSpecs = additionalSpecs
+            AdditionalSpecs = additionalSpecs,
+            ExternalIdentifier = externalIdentifier
         };
 
     internal static Variant CreateVariant(
         Guid productId,
         Guid? id = null,
         string name = "Test Variant",
-        string? additionalSpecs = null)
+        string? additionalSpecs = null,
+        string? externalIdentifier = null)
         => new()
         {
             Id = id ?? Guid.NewGuid(),
             ProductId = productId,
             Name = name,
-            AdditionalSpecs = additionalSpecs
+            AdditionalSpecs = additionalSpecs,
+            ExternalIdentifier = externalIdentifier
         };
 
     // Item helpers
@@ -295,5 +323,34 @@ internal static class TestDataFactory
             OrderDate = orderDate ?? DateTimeOffset.UtcNow,
             Status = status,
             OrderIdentifier = orderIdentifier
+        };
+
+    // OrderItem helpers
+    internal static CreateOrUpdateOrderItemModel CreateOrderItemModel(
+        Guid orderId,
+        Guid variantId,
+        int quantity = 1,
+        Guid? personId = null)
+        => new()
+        {
+            OrderId = orderId,
+            VariantId = variantId,
+            Quantity = quantity,
+            PersonId = personId
+        };
+
+    internal static OrderItem CreateOrderItem(
+        Guid orderId,
+        Guid variantId,
+        Guid? id = null,
+        int quantity = 1,
+        Guid? personId = null)
+        => new()
+        {
+            Id = id ?? Guid.NewGuid(),
+            OrderId = orderId,
+            VariantId = variantId,
+            Quantity = quantity,
+            PersonId = personId
         };
 }

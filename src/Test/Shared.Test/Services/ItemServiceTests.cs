@@ -20,13 +20,15 @@ public class ItemServiceTests
     private async Task<(ProductType ProductType, Product Product, Variant Variant, StorageLocation StorageLocation)> SetupBasicDataAsync(Database.AppDbContext context)
     {
         var productType = TestDataFactory.CreateProductType(name: "Helmet");
-        var product = TestDataFactory.CreateProduct(productType.Id, name: "Safety Helmet");
+        var manufacturer = TestDataFactory.CreateManufacturer(name: "Test Manufacturer");
+        var product = TestDataFactory.CreateProduct(productType.Id, manufacturer.Id, name: "Safety Helmet");
         product.Type = productType;
         var variant = TestDataFactory.CreateVariant(product.Id, name: "Size L");
         variant.Product = product;
         var storageLocation = TestDataFactory.CreateStorageLocation(name: "Warehouse A");
 
         context.ProductTypes.Add(productType);
+        context.Manufacturers.Add(manufacturer);
         context.Products.Add(product);
         context.Variants.Add(variant);
         context.StorageLocations.Add(storageLocation);
