@@ -5,7 +5,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace FireInvent.Database.Models;
 
-[Index(nameof(Identifier), IsUnique = true)]
+[Index(nameof(Identifier), nameof(TenantId), IsUnique = true)]
 public record Item : IHasTenant
 {
     [Key]
@@ -33,8 +33,10 @@ public record Item : IHasTenant
 
     public DateTimeOffset? RetirementDate { get; set; }
 
+    [Required]
     public virtual Variant Variant { get; set; } = null!;
 
+    [Required]
     public virtual Tenant Tenant { get; set; } = null!;
 
     public virtual StorageLocation? StorageLocation { get; set; }

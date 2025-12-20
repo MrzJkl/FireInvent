@@ -103,19 +103,20 @@ internal static class TestDataFactory
     // Product helpers
     internal static CreateOrUpdateProductModel CreateProductModel(
         Guid typeId,
+        Guid manufacturerId,
         string name = "Test Product",
-        string manufacturer = "Test Manufacturer",
         string? description = null)
         => new()
         {
             TypeId = typeId,
             Name = name,
-            Manufacturer = manufacturer,
+            ManufacturerId = manufacturerId,
             Description = description
         };
 
     internal static Product CreateProduct(
         Guid typeId,
+        Guid manufacturerId,
         Guid? id = null,
         string name = "Test Product",
         string manufacturer = "Test Manufacturer",
@@ -125,7 +126,7 @@ internal static class TestDataFactory
             Id = id ?? Guid.NewGuid(),
             TypeId = typeId,
             Name = name,
-            Manufacturer = manufacturer,
+            ManufacturerId = manufacturerId,
             Description = description
         };
 
@@ -266,7 +267,7 @@ internal static class TestDataFactory
             FirstName = firstName,
             LastName = lastName,
             CreatedAt = DateTimeOffset.UtcNow,
-            LastLogin = DateTimeOffset.UtcNow
+            LastSync = DateTimeOffset.UtcNow
         };
 
     // Order helpers

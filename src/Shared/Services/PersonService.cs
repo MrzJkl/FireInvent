@@ -19,7 +19,7 @@ public class PersonService(AppDbContext context, PersonMapper mapper) : IPersonS
 
         var person = mapper.MapCreateOrUpdatePersonModelToPerson(model);
 
-        context.Persons.Add(person);
+        await context.Persons.AddAsync(person);
         await context.SaveChangesAsync();
 
         return mapper.MapPersonToPersonModel(person);

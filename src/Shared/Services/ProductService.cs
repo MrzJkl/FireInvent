@@ -11,16 +11,25 @@ public class ProductService(AppDbContext context, ProductMapper mapper) : IProdu
     public async Task<ProductModel> CreateProductAsync(CreateOrUpdateProductModel model)
     {
         _ = await context.ProductTypes.FindAsync(model.TypeId) ?? throw new BadRequestException($"ProductType with ID '{model.TypeId}' does not exist.");
+        _ = await context.Manufacturers.FindAsync(model.ManufacturerId) ?? throw new BadRequestException($"Manufacturer with ID '{model.ManufacturerId}' does not exist.");
 
-        var exists = await context.Products.AnyAsync(p =>
-            p.Name == model.Name && p.Manufacturer == model.Manufacturer);
+        var nameExists = await context.Products.AnyAsync(p =>
+            p.Name == model.Name && p.ManufacturerId == model.ManufacturerId);
 
-        if (exists)
+        if (nameExists)
             throw new ConflictException("A product with the same name and manufacturer already exists.");
+
+        if (!string.IsNullOrEmpty(model.ExternalIdentifier))
+        {
+            var externalIdDuplicate = await context.Products.AnyAsync(p =>
+                p.ExternalIdentifier == model.ExternalIdentifier && p.ManufacturerId == model.ManufacturerId);
+            if (externalIdDuplicate)
+                throw new ConflictException("A product with the same external identifier and manufacturer already exists.");
+        }
 
         var product = mapper.MapCreateOrUpdateProductModelToProduct(model);
 
-        context.Products.Add(product);
+        await context.Products.AddAsync(product);
         await context.SaveChangesAsync();
 
         product = await context.Products
@@ -52,18 +61,27 @@ public class ProductService(AppDbContext context, ProductMapper mapper) : IProdu
     public async Task<bool> UpdateProductAsync(Guid id, CreateOrUpdateProductModel model)
     {
         _ = await context.ProductTypes.FindAsync(model.TypeId) ?? throw new BadRequestException($"ProductType with ID '{model.TypeId}' does not exist.");
+        _ = await context.Manufacturers.FindAsync(model.ManufacturerId) ?? throw new BadRequestException($"Manufacturer with ID '{model.ManufacturerId}' does not exist.");
 
         var product = await context.Products.FindAsync(id);
         if (product is null)
             return false;
 
-        var duplicate = await context.Products.AnyAsync(p =>
+        var nameDuplicate = await context.Products.AnyAsync(p =>
             p.Id != id &&
             p.Name == model.Name &&
-            p.Manufacturer == model.Manufacturer);
+            p.ManufacturerId == model.ManufacturerId);
 
-        if (duplicate)
+        if (nameDuplicate)
             throw new ConflictException("A product with the same name and manufacturer already exists.");
+
+        if (!string.IsNullOrEmpty(model.ExternalIdentifier))
+        {
+            var externalIdDuplicate = await context.Products.AnyAsync(p =>
+                p.ExternalIdentifier == model.ExternalIdentifier && p.ManufacturerId == model.ManufacturerId && p.Id != id);
+            if (externalIdDuplicate)
+                throw new ConflictException("A product with the same external identifier and manufacturer already exists.");
+        }
 
         mapper.MapCreateOrUpdateProductModelToProduct(model, product);
 
@@ -80,5 +98,20 @@ public class ProductService(AppDbContext context, ProductMapper mapper) : IProdu
         context.Products.Remove(product);
         await context.SaveChangesAsync();
         return true;
+    }
+
+    public async Task<List<ProductModel>> GetProductsForManufacturer(Guid manufacturerId)
+    {
+        var manufacturerExists = await context.Manufacturers.AnyAsync(v => v.Id == manufacturerId);
+        if (!manufacturerExists)
+            throw new NotFoundException($"Manufacturer with ID {manufacturerId} not found.");
+
+        var items = await context.Products
+            .Where(p => p.ManufacturerId == manufacturerId)
+            .OrderBy(v => v.Name)
+            .AsNoTracking()
+            .ToListAsync();
+
+        return mapper.MapProductsToProductModels(items);
     }
 }

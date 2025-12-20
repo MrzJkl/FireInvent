@@ -52,6 +52,8 @@ public class AppDbContext : DbContext
 
     public DbSet<MaintenanceType> MaintenanceTypes => Set<MaintenanceType>();
 
+    public DbSet<Manufacturer> Manufacturers => Set<Manufacturer>();
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);

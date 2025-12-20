@@ -18,7 +18,7 @@ public class StorageLocationService(AppDbContext context, StorageLocationMapper 
 
         var location = mapper.MapCreateOrUpdateStorageLocationModelToStorageLocation(model);
 
-        context.StorageLocations.Add(location);
+        await context.StorageLocations.AddAsync(location);
         await context.SaveChangesAsync();
 
         return mapper.MapStorageLocationToStorageLocationModel(location);

@@ -38,5 +38,6 @@ public record Maintenance : IHasTenant
 
     public virtual User? PerformedBy { get; set; } = null!;
 
+    [Required]
     public virtual Tenant Tenant { get; set; } = null!;
 }

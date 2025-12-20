@@ -5,8 +5,9 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace FireInvent.Database.Models;
 
-[Index(nameof(ProductId), nameof(Name), IsUnique = true)]
+[Index(nameof(ProductId), nameof(Name), nameof(TenantId), IsUnique = true)]
 [Index(nameof(Name))]
+[Index(nameof(ExternalIdentifier), nameof(ProductId), nameof(TenantId), IsUnique = true)]
 public record Variant : IHasTenant
 {
     [Key]
@@ -27,9 +28,14 @@ public record Variant : IHasTenant
     [MaxLength(ModelConstants.MaxStringLengthLong)]
     public string? AdditionalSpecs { get; set; }
 
+    [MaxLength(ModelConstants.MaxStringLength)]
+    public string? ExternalIdentifier { get; set; }
+
+    [Required]
     public virtual Product Product { get; set; } = null!;
 
     public virtual ICollection<Item> Items { get; set; } = [];
 
+    [Required]
     public virtual Tenant Tenant { get; set; } = null!;
 }

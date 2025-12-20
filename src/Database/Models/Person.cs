@@ -5,8 +5,8 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace FireInvent.Database.Models;
 
-[Index(nameof(FirstName), nameof(LastName), IsUnique = true)]
-[Index(nameof(ExternalId), IsUnique = true)]
+[Index(nameof(FirstName), nameof(LastName), nameof(TenantId), IsUnique = true)]
+[Index(nameof(ExternalId), nameof(TenantId), IsUnique = true)]
 [Index(nameof(FirstName))]
 [Index(nameof(LastName))]
 public record Person : IHasTenant
@@ -39,5 +39,6 @@ public record Person : IHasTenant
 
     public virtual ICollection<Department> Departments { get; set; } = [];
 
+    [Required]
     public virtual Tenant Tenant { get; set; } = null!;
 }

@@ -10,11 +10,13 @@ public record CreateOrUpdateProductModel
     public string Name { get; init; } = string.Empty;
 
     [Required]
-    [MaxLength(ModelConstants.MaxStringLength)]
-    public string Manufacturer { get; init; } = string.Empty;
+    public Guid ManufacturerId { get; init; }
 
     [MaxLength(ModelConstants.MaxStringLengthLong)]
     public string? Description { get; init; }
+
+    [MaxLength(ModelConstants.MaxStringLength)]
+    public string? ExternalIdentifier { get; set; }
 
     [Required]
     public Guid TypeId { get; init; }

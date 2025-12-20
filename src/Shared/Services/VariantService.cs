@@ -10,20 +10,26 @@ public class VariantService(AppDbContext context, VariantMapper mapper) : IVaria
 {
     public async Task<VariantModel> CreateVariantAsync(CreateOrUpdateVariantModel model)
     {
-        var duplicate = await context.Variants.AnyAsync(v =>
+        _ = await context.Products.FindAsync(model.ProductId) ?? throw new BadRequestException($"Product with ID '{model.ProductId}' does not exist.");
+        
+        var nameDuplicate = await context.Variants.AnyAsync(v =>
             v.ProductId == model.ProductId &&
             v.Name == model.Name);
 
-        if (duplicate)
+        if (nameDuplicate)
             throw new ConflictException("A Variant with this name already exists for this product.");
 
-        var productExists = await context.Products.AnyAsync(p => p.Id == model.ProductId);
-        if (!productExists)
-            throw new BadRequestException("Referenced product does not exist.");
+        if (!string.IsNullOrEmpty(model.ExternalIdentifier))
+        {
+            var externalIdDuplicate = await context.Variants.AnyAsync(v =>
+                v.ExternalIdentifier == model.ExternalIdentifier && v.ProductId == model.ProductId);
+            if (externalIdDuplicate)
+                throw new ConflictException("A variant with the same external identifier and product already exists.");
+        }
 
         var variant = mapper.MapCreateOrUpdateVariantModelToVariant(model);
 
-        context.Variants.Add(variant);
+        await context.Variants.AddAsync(variant);
         await context.SaveChangesAsync();
 
         variant = await context.Variants
@@ -60,13 +66,22 @@ public class VariantService(AppDbContext context, VariantMapper mapper) : IVaria
 
         _ = await context.Products.FindAsync(model.ProductId) ?? throw new BadRequestException($"Product with ID '{model.ProductId}' does not exist.");
 
-        var duplicate = await context.Variants.AnyAsync(v =>
+        var nameDuplicate = await context.Variants.AnyAsync(v =>
             v.Id != id &&
             v.ProductId == model.ProductId &&
             v.Name == model.Name);
 
-        if (duplicate)
+        if (nameDuplicate)
             throw new ConflictException("Another variant with the same name already exists for this product.");
+
+        if (!string.IsNullOrEmpty(model.ExternalIdentifier))
+        {
+            var externalIdDuplicate = await context.Variants.AnyAsync(v =>
+                v.ExternalIdentifier == model.ExternalIdentifier && v.ProductId == model.ProductId && v.Id != id);
+            
+            if (externalIdDuplicate)
+                throw new ConflictException("A variant with the same external identifier and product already exists.");
+        }
 
         mapper.MapCreateOrUpdateVariantModelToVariant(model, variant);
 

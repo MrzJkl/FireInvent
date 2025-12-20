@@ -26,5 +26,6 @@ public record Order : IHasTenant
 
     public virtual ICollection<OrderItem> Items { get; set; } = [];
 
+    [Required]
     public virtual Tenant Tenant { get; set; } = null!;
 }

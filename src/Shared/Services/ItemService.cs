@@ -28,7 +28,7 @@ public class ItemService(AppDbContext context, ItemMapper mapper) : IItemService
 
         var item = mapper.MapCreateOrUpdateItemModelToItem(model);
 
-        context.Items.Add(item);
+        await context.Items.AddAsync(item);
         await context.SaveChangesAsync();
 
         item = await context.Items

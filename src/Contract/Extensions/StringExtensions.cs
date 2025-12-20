@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace FireInvent.Contract.Extensions
+﻿namespace FireInvent.Contract.Extensions
 {
     public static class StringExtensions
     {
