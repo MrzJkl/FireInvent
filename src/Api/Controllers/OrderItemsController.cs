@@ -1,6 +1,8 @@
+using FireInvent.Contract;
 using FireInvent.Shared.Exceptions;
 using FireInvent.Shared.Models;
 using FireInvent.Shared.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace FireInvent.Api.Controllers;
@@ -44,6 +46,7 @@ public class OrderItemsController(IOrderItemService orderItemService) : Controll
     [EndpointSummary("Create a new order item")]
     [EndpointDescription("Creates a new order item.")]
     [ProducesResponseType<OrderItemModel>(StatusCodes.Status201Created)]
+    [Authorize(Roles = Roles.Admin + "," + Roles.Procurement)]
     public async Task<ActionResult<OrderItemModel>> Create(CreateOrUpdateOrderItemModel model)
     {
         var created = await orderItemService.CreateOrderItemAsync(model);
@@ -55,6 +58,7 @@ public class OrderItemsController(IOrderItemService orderItemService) : Controll
     [EndpointDescription("Updates an existing order item.")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [Authorize(Roles = Roles.Admin + "," + Roles.Procurement)]
     public async Task<IActionResult> Update(Guid id, CreateOrUpdateOrderItemModel model)
     {
         var success = await orderItemService.UpdateOrderItemAsync(id, model);
@@ -66,6 +70,7 @@ public class OrderItemsController(IOrderItemService orderItemService) : Controll
     [EndpointDescription("Deletes an order item by its unique ID.")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [Authorize(Roles = Roles.Admin + "," + Roles.Procurement)]
     public async Task<IActionResult> Delete(Guid id)
     {
         var success = await orderItemService.DeleteOrderItemAsync(id);

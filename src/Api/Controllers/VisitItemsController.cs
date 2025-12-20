@@ -1,6 +1,8 @@
+using FireInvent.Contract;
 using FireInvent.Shared.Exceptions;
 using FireInvent.Shared.Models;
 using FireInvent.Shared.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace FireInvent.Api.Controllers;
@@ -44,6 +46,7 @@ public class VisitItemsController(IVisitItemService visitItemService) : Controll
     [EndpointSummary("Create a new visit item")]
     [EndpointDescription("Creates a new visit item.")]
     [ProducesResponseType<VisitItemModel>(StatusCodes.Status201Created)]
+    [Authorize(Roles = Roles.Admin + "," + Roles.Procurement)]
     public async Task<ActionResult<VisitItemModel>> Create(CreateOrUpdateVisitItemModel model)
     {
         var created = await visitItemService.CreateVisitItemAsync(model);
@@ -55,6 +58,7 @@ public class VisitItemsController(IVisitItemService visitItemService) : Controll
     [EndpointDescription("Updates an existing visit item.")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [Authorize(Roles = Roles.Admin + "," + Roles.Procurement)]
     public async Task<IActionResult> Update(Guid id, CreateOrUpdateVisitItemModel model)
     {
         var success = await visitItemService.UpdateVisitItemAsync(id, model);
@@ -66,6 +70,7 @@ public class VisitItemsController(IVisitItemService visitItemService) : Controll
     [EndpointDescription("Deletes a visit item by its unique ID.")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [Authorize(Roles = Roles.Admin + "," + Roles.Procurement)]
     public async Task<IActionResult> Delete(Guid id)
     {
         var success = await visitItemService.DeleteVisitItemAsync(id);

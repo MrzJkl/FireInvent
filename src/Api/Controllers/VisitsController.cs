@@ -1,53 +1,84 @@
+using FireInvent.Contract;
+using FireInvent.Shared.Exceptions;
 using FireInvent.Shared.Models;
 using FireInvent.Shared.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using FireInvent.Shared.Exceptions;
 
 namespace FireInvent.Api.Controllers;
 
 [ApiController]
 [Route("visits")]
-public class VisitsController : ControllerBase
+public class VisitsController(IVisitService visitService, IVisitItemService visitItemService) : ControllerBase
 {
-    private readonly IVisitService _visits;
-
-    public VisitsController(IVisitService visits)
-    {
-        _visits = visits;
-    }
-
     [HttpGet]
+    [EndpointSummary("List all visits")]
+    [EndpointDescription("Returns a list of all visits.")]
+    [ProducesResponseType<List<VisitModel>>(StatusCodes.Status200OK)]
     public async Task<ActionResult<List<VisitModel>>> GetAll()
     {
-        var list = await _visits.GetAllVisitsAsync();
-        return Ok(list);
+        var visits = await visitService.GetAllVisitsAsync();
+        return Ok(visits);
     }
 
     [HttpGet("{id:guid}")]
+    [EndpointSummary("Get visit by ID")]
+    [EndpointDescription("Returns a visit by its unique ID.")]
+    [ProducesResponseType<VisitModel>(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<ActionResult<VisitModel>> GetById(Guid id)
     {
-        var model = await _visits.GetVisitByIdAsync(id);
-        return model is null ? throw new NotFoundException() : Ok(model);
+        var visit = await visitService.GetVisitByIdAsync(id);
+        return visit is null ? throw new NotFoundException() : Ok(visit);
+    }
+
+    [HttpGet("{id:guid}/items")]
+    [EndpointSummary("List all items for a visit")]
+    [EndpointDescription("Returns all items associated with a specific visit.")]
+    [ProducesResponseType<List<VisitItemModel>>(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<ActionResult<List<VisitItemModel>>> GetVisitItems(Guid id)
+    {
+        var visitItems = await visitItemService.GetVisitItemsByVisitIdAsync(id);
+        return Ok(visitItems);
     }
 
     [HttpPost]
-    public async Task<ActionResult<VisitModel>> Create([FromBody] CreateOrUpdateVisitModel model)
+    [EndpointSummary("Create a new visit")]
+    [EndpointDescription("Creates a new visit. A person can only have one visit per appointment.")]
+    [ProducesResponseType<VisitModel>(StatusCodes.Status201Created)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status409Conflict)]
+    [Authorize(Roles = Roles.Admin + "," + Roles.Procurement)]
+    public async Task<ActionResult<VisitModel>> Create(CreateOrUpdateVisitModel model)
     {
-        var created = await _visits.CreateVisitAsync(model);
+        var created = await visitService.CreateVisitAsync(model);
         return CreatedAtAction(nameof(GetById), new { id = created.Id }, created);
     }
 
     [HttpPut("{id:guid}")]
+    [EndpointSummary("Update a visit")]
+    [EndpointDescription("Updates an existing visit. The combination of appointment and person must remain unique.")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status409Conflict)]
+    [Authorize(Roles = Roles.Admin + "," + Roles.Procurement)]
     public async Task<IActionResult> Update(Guid id, CreateOrUpdateVisitModel model)
     {
-        var success = await _visits.UpdateVisitAsync(id, model);
+        var success = await visitService.UpdateVisitAsync(id, model);
         return success ? NoContent() : throw new NotFoundException();
     }
 
     [HttpDelete("{id:guid}")]
+    [EndpointSummary("Delete a visit")]
+    [EndpointDescription("Deletes a visit by its unique ID. This will also delete all associated visit items.")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [Authorize(Roles = Roles.Admin + "," + Roles.Procurement)]
     public async Task<IActionResult> Delete(Guid id)
     {
-        var success = await _visits.DeleteVisitAsync(id);
+        var success = await visitService.DeleteVisitAsync(id);
         return success ? NoContent() : throw new NotFoundException();
     }
 }
