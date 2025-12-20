@@ -14,4 +14,7 @@ public record CreateOrUpdateVariantModel
 
     [MaxLength(ModelConstants.MaxStringLengthLong)]
     public string? AdditionalSpecs { get; init; }
+
+    [MaxLength(ModelConstants.MaxStringLength)]
+    public string? ExternalIdentifier { get; set; }
 }

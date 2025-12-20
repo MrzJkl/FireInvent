@@ -20,12 +20,20 @@ public record OrderItem : IHasTenant
     [ForeignKey(nameof(Variant))]
     public Guid VariantId { get; set; }
 
+    [ForeignKey(nameof(Person))]
+    public Guid? PersonId { get; set; }
+
     [Required]
     public int Quantity { get; set; }
 
+    [Required]
     public virtual Order Order { get; set; } = null!;
 
+    [Required]
     public virtual Variant Variant { get; set; } = null!;
 
+    [Required]
     public virtual Tenant Tenant { get; set; } = null!;
+
+    public virtual Person? Person { get; set; }
 }

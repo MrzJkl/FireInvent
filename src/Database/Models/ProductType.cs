@@ -5,7 +5,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace FireInvent.Database.Models;
 
-[Index(nameof(Name), IsUnique = true)]
+[Index(nameof(Name), nameof(TenantId), IsUnique = true)]
 public record ProductType : IHasTenant
 {
     [Key]
@@ -22,5 +22,6 @@ public record ProductType : IHasTenant
     [MaxLength(ModelConstants.MaxStringLengthLong)]
     public string? Description { get; set; }
 
+    [Required]
     public virtual Tenant Tenant { get; set; } = null!;
 }

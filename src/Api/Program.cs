@@ -146,6 +146,7 @@ builder.Services.AddSingleton<UserMapper>();
 builder.Services.AddSingleton<VariantMapper>();
 builder.Services.AddSingleton<ProductTypeMapper>();
 builder.Services.AddSingleton<MaintenanceTypeMapper>();
+builder.Services.AddSingleton<ManufacturerMapper>();
 
 // Shared Services
 builder.Services.AddScoped<IDepartmentService, DepartmentService>();
@@ -161,6 +162,8 @@ builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IOrderService, OrderService>();
 builder.Services.AddScoped<IMaintenanceTypeService, MaintenanceTypeService>();
 builder.Services.AddScoped<IProductTypeService, ProductTypeService>();
+builder.Services.AddScoped<IManufacturerService, ManufacturerService>();
+
 builder.Services.AddHttpClient<IKeycloakAdminService, KeycloakAdminService>();
 builder.Services.AddHttpClient<IKeycloakTenantService, KeycloakTenantService>();
 
@@ -224,6 +227,7 @@ app.MapGet("/", context =>
     return Task.CompletedTask;
 });
 
+logger.LogDebug("Checking for database migrations...");
 using (var scope = app.Services.CreateScope())
 {
     var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();

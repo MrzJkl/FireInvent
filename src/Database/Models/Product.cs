@@ -5,7 +5,8 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace FireInvent.Database.Models;
 
-[Index(nameof(Name), nameof(Manufacturer), IsUnique = true)]
+[Index(nameof(Name), nameof(ManufacturerId), nameof(TenantId), IsUnique = true)]
+[Index(nameof(ExternalIdentifier), nameof(ManufacturerId), nameof(TenantId), IsUnique = true)]
 public record Product : IHasTenant
 {
     [Key]
@@ -16,23 +17,31 @@ public record Product : IHasTenant
     public Guid TenantId { get; set; }
 
     [ForeignKey(nameof(Type))]
+    [Required]
     public Guid TypeId { get; set; }
+
+    [Required]
+    [ForeignKey(nameof(Manufacturer))]
+    public Guid ManufacturerId { get; set; }
 
     [Required]
     [MaxLength(ModelConstants.MaxStringLength)]
     public string Name { get; set; } = string.Empty;
 
-    [Required]
-    [MaxLength(ModelConstants.MaxStringLength)]
-    public string Manufacturer { get; set; } = string.Empty;
-
     [MaxLength(ModelConstants.MaxStringLengthLong)]
     public string? Description { get; set; }
+
+    [MaxLength(ModelConstants.MaxStringLength)]
+    public string? ExternalIdentifier { get; set; }
 
     [Required]
     public virtual ProductType Type { get; set; } = null!;
 
+    [Required]
+    public virtual Manufacturer Manufacturer { get; set; } = null!;
+
     public virtual ICollection<Variant> Variants { get; set; } = [];
 
+    [Required]
     public virtual Tenant Tenant { get; set; } = null!;
 }

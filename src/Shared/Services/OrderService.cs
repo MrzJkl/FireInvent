@@ -28,12 +28,16 @@ public class OrderService(AppDbContext context, OrderMapper mapper) : IOrderServ
 
     public async Task<OrderModel> CreateOrderAsync(CreateOrUpdateOrderModel model)
     {
-        var entity = mapper.MapCreateOrUpdateOrderModelToOrder(model);
+        var order = mapper.MapCreateOrUpdateOrderModelToOrder(model);
 
-        context.Orders.Add(entity);
+        await context.Orders.AddAsync(order);
         await context.SaveChangesAsync();
 
-        return mapper.MapOrderToOrderModel(entity);
+        order = await context.Orders
+            .AsNoTracking()
+            .FirstAsync(o => o.Id == order.Id);
+
+        return mapper.MapOrderToOrderModel(order);
     }
 
     public async Task<bool> UpdateOrderAsync(Guid id, CreateOrUpdateOrderModel model)

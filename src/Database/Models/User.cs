@@ -28,7 +28,7 @@ public record User
     [Required]
     public DateTimeOffset CreatedAt { get; set; } = DateTime.UtcNow;
 
-    public DateTimeOffset? LastLogin { get; set; }
+    public DateTimeOffset? LastSync { get; set; }
 
     public virtual ICollection<Tenant> Tenants { get; set; } = [];
 }

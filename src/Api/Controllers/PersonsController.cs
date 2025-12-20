@@ -73,7 +73,7 @@ public class PersonsController(IPersonService personService, IItemService itemSe
     [EndpointDescription("Returns all items assigned to a specific person.")]
     [ProducesResponseType<List<ItemModel>>(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<ActionResult<List<ItemModel>>> GetVariantsForProduct(Guid id)
+    public async Task<ActionResult<List<ItemModel>>> GetAssignedItemsForPerson(Guid id)
     {
         var items = await itemService.GetItemsAssignedToPersonAsync(id);
         return Ok(items);

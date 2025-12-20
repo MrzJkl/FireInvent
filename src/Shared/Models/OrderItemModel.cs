@@ -9,4 +9,6 @@ public record OrderItemModel : CreateOrUpdateOrderItemModel
 
     [Required]
     public VariantModel Variant { get; init; } = new();
+
+    public PersonModel? Person { get; init; }
 }

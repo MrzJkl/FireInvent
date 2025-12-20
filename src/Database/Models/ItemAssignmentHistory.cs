@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace FireInvent.Database.Models;
 
-[Index(nameof(ItemId), nameof(AssignedFrom), IsUnique = true)]
+[Index(nameof(ItemId), nameof(AssignedFrom), nameof(TenantId), IsUnique = true)]
 public record ItemAssignmentHistory : IHasTenant
 {
     [Key]
@@ -30,11 +30,14 @@ public record ItemAssignmentHistory : IHasTenant
 
     public DateTimeOffset? AssignedUntil { get; set; }
 
+    [Required]
     public virtual Item Item { get; set; } = null!;
 
+    [Required]
     public virtual Person Person { get; set; } = null!;
 
     public virtual User? AssignedBy { get; set; } = null!;
 
+    [Required]
     public virtual Tenant Tenant { get; set; } = null!;
 }

@@ -196,7 +196,7 @@ public class MapperTests
         // Arrange
         var mapper = new ProductMapper();
         var typeId = Guid.NewGuid();
-        var model = TestDataFactory.CreateProductModel(typeId, "Safety Helmet", "BrandA", "High quality helmet");
+        var model = TestDataFactory.CreateProductModel(typeId, Guid.NewGuid(), "BrandA", "High quality helmet");
 
         // Act
         var result = mapper.MapCreateOrUpdateProductModelToProduct(model);
@@ -205,7 +205,7 @@ public class MapperTests
         Assert.NotEqual(Guid.Empty, result.Id);
         Assert.Equal(model.TypeId, result.TypeId);
         Assert.Equal(model.Name, result.Name);
-        Assert.Equal(model.Manufacturer, result.Manufacturer);
+        Assert.Equal(model.ManufacturerId, result.ManufacturerId);
         Assert.Equal(model.Description, result.Description);
     }
 

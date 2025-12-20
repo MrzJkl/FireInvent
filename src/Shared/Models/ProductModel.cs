@@ -9,4 +9,7 @@ public record ProductModel : CreateOrUpdateProductModel
 
     [Required]
     public ProductTypeModel Type { get; init; } = null!;
+
+    [Required]
+    public ManufacturerModel Manufacturer { get; init; } = null!;
 }

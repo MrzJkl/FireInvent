@@ -5,7 +5,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace FireInvent.Database.Models;
 
-[Index(nameof(Name), IsUnique = true)]
+[Index(nameof(Name), nameof(TenantId), IsUnique = true)]
 public record StorageLocation : IHasTenant
 {
     [Key]
@@ -23,5 +23,6 @@ public record StorageLocation : IHasTenant
 
     public virtual ICollection<Item> StoredItems { get; set; } = [];
 
+    [Required]
     public virtual Tenant Tenant { get; set; } = null!;
 }

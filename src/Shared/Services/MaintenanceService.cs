@@ -20,7 +20,7 @@ public class MaintenanceService(AppDbContext context, IUserService userService, 
 
         var maintenance = mapper.MapCreateOrUpdateMaintenanceModelToMaintenance(model);
 
-        context.Maintenances.Add(maintenance);
+        await context.Maintenances.AddAsync(maintenance);
         await context.SaveChangesAsync();
 
         maintenance = await context.Maintenances

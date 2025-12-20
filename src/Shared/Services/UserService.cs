@@ -51,10 +51,10 @@ public class UserService(AppDbContext context, ILogger<UserService> log, UserMap
                 LastName = lastname,
                 EMail = email,
                 CreatedAt = DateTimeOffset.UtcNow,
-                LastLogin = DateTimeOffset.UtcNow,
+                LastSync = DateTimeOffset.UtcNow,
             };
 
-            context.Users.Add(user);
+            await context.Users.AddAsync(user);
 
             log.LogInformation("Creating new user with ID {UserId} from claims.", id);
         }
@@ -63,7 +63,7 @@ public class UserService(AppDbContext context, ILogger<UserService> log, UserMap
             user.FirstName = firstname;
             user.LastName = lastname;
             user.EMail = email;
-            user.LastLogin = DateTimeOffset.UtcNow;
+            user.LastSync = DateTimeOffset.UtcNow;
 
             log.LogInformation("Updating existing user with ID {UserId} from claims.", id);
         }
