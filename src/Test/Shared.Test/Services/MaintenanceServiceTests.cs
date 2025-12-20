@@ -17,7 +17,8 @@ public class MaintenanceServiceTests
     private async Task<(Guid ItemId, Guid MaintenanceTypeId, Guid UserId)> SetupBasicDataAsync(Database.AppDbContext context)
     {
         var productType = TestDataFactory.CreateProductType(name: "Helmet");
-        var product = TestDataFactory.CreateProduct(productType.Id, name: "Safety Helmet");
+        var manufacturer = TestDataFactory.CreateManufacturer(name: "Test Manufacturer");
+        var product = TestDataFactory.CreateProduct(productType.Id, manufacturer.Id, name: "Safety Helmet");
         product.Type = productType;
         var variant = TestDataFactory.CreateVariant(product.Id, name: "Size L");
         variant.Product = product;
@@ -27,6 +28,7 @@ public class MaintenanceServiceTests
         var user = TestDataFactory.CreateUser(email: "user@test.com", firstName: "Test", lastName: "User");
 
         context.ProductTypes.Add(productType);
+        context.Manufacturers.Add(manufacturer);
         context.Products.Add(product);
         context.Variants.Add(variant);
         context.Items.Add(item);
