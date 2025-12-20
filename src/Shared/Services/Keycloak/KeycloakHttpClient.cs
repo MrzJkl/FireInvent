@@ -20,7 +20,7 @@ public class KeycloakHttpClient
     private readonly JsonSerializerOptions _jsonOptions;
     private string? _accessToken;
     private DateTime _tokenExpiry = DateTime.MinValue;
-    private readonly object _tokenLock = new();
+    private readonly SemaphoreSlim _tokenSemaphore = new(1, 1);
 
     public KeycloakHttpClient(
         HttpClient httpClient,
@@ -65,50 +65,52 @@ public class KeycloakHttpClient
         if (_accessToken != null && DateTime.UtcNow < _tokenExpiry)
             return;
 
-        lock (_tokenLock)
+        await _tokenSemaphore.WaitAsync();
+        try
         {
             if (_accessToken != null && DateTime.UtcNow < _tokenExpiry)
                 return;
-        }
 
-        var tokenRequest = new FormUrlEncodedContent(new Dictionary<string, string>
-        {
-            ["grant_type"] = "password",
-            ["client_id"] = "admin-cli",
-            ["username"] = _options.AdminUsername!,
-            ["password"] = _options.AdminPassword!
-        });
-
-        var stopwatch = Stopwatch.StartNew();
-        var endpoint = "realms/master/protocol/openid-connect/token";
-
-        try
-        {
-            var response = await _httpClient.PostAsync(endpoint, tokenRequest);
-            stopwatch.Stop();
-
-            LogRequest("POST", endpoint, response.StatusCode, stopwatch.ElapsedMilliseconds);
-
-            response.EnsureSuccessStatusCode();
-
-            var tokenResponse = await response.Content.ReadFromJsonAsync<KeycloakTokenResponse>(_jsonOptions);
-            _accessToken = tokenResponse?.AccessToken
-                ?? throw new InvalidOperationException("Failed to obtain access token from Keycloak.");
-
-            lock (_tokenLock)
+            var tokenRequest = new FormUrlEncodedContent(new Dictionary<string, string>
             {
+                ["grant_type"] = "password",
+                ["client_id"] = "admin-cli",
+                ["username"] = _options.AdminUsername!,
+                ["password"] = _options.AdminPassword!
+            });
+
+            var stopwatch = Stopwatch.StartNew();
+            var endpoint = "realms/master/protocol/openid-connect/token";
+
+            try
+            {
+                var response = await _httpClient.PostAsync(endpoint, tokenRequest);
+                stopwatch.Stop();
+
+                LogRequest("POST", endpoint, response.StatusCode, stopwatch.ElapsedMilliseconds);
+
+                response.EnsureSuccessStatusCode();
+
+                var tokenResponse = await response.Content.ReadFromJsonAsync<KeycloakTokenResponse>(_jsonOptions);
+                _accessToken = tokenResponse?.AccessToken
+                    ?? throw new InvalidOperationException("Failed to obtain access token from Keycloak.");
+
                 _tokenExpiry = DateTime.UtcNow.AddSeconds(
                     (tokenResponse.ExpiresIn ?? DefaultTokenExpirySeconds) - TokenExpiryBufferSeconds);
                 _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", _accessToken);
-            }
 
-            _logger.LogDebug("Successfully authenticated with Keycloak. Token expires at {TokenExpiry}", _tokenExpiry);
+                _logger.LogDebug("Successfully authenticated with Keycloak. Token expires at {TokenExpiry}", _tokenExpiry);
+            }
+            catch (Exception ex)
+            {
+                stopwatch.Stop();
+                _logger.LogError(ex, "Failed to authenticate with Keycloak after {ElapsedMs}ms", stopwatch.ElapsedMilliseconds);
+                throw;
+            }
         }
-        catch (Exception ex)
+        finally
         {
-            stopwatch.Stop();
-            _logger.LogError(ex, "Failed to authenticate with Keycloak after {ElapsedMs}ms", stopwatch.ElapsedMilliseconds);
-            throw;
+            _tokenSemaphore.Release();
         }
     }
 
