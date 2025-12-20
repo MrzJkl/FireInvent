@@ -111,6 +111,7 @@ public class MaintenanceServiceTests
         Assert.Equal(itemId, result.ItemId);
         Assert.Equal(maintenanceTypeId, result.TypeId);
         Assert.Equal("Test maintenance", result.Remarks);
+        Assert.Equal(TestDataFactory.DefaultTestUserId, result.PerformedById);
     }
 
     [Fact]

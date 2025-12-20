@@ -145,6 +145,7 @@ public class ItemAssignmentHistoryServiceTests
         var countAfter = await context.ItemAssignmentHistories.CountAsync();
         Assert.Equal(countBefore + 1, countAfter);
         Assert.NotEqual(Guid.Empty, result.Id);
+        Assert.Equal(TestDataFactory.DefaultTestUserId, result.AssignedById);
     }
 
     [Fact]
