@@ -9,7 +9,7 @@ using System.Text.Json.Serialization;
 
 namespace FireInvent.Shared.Services.Keycloak;
 
-public class KeycloakHttpClient
+public class KeycloakHttpClient : IDisposable
 {
     private const int TokenExpiryBufferSeconds = 30;
     private const int DefaultTokenExpirySeconds = 300;
@@ -71,7 +71,7 @@ public class KeycloakHttpClient
             if (_accessToken != null && DateTime.UtcNow < _tokenExpiry)
                 return;
 
-            var tokenRequest = new FormUrlEncodedContent(new Dictionary<string, string>
+            using var tokenRequest = new FormUrlEncodedContent(new Dictionary<string, string>
             {
                 ["grant_type"] = "password",
                 ["client_id"] = "admin-cli",
@@ -234,5 +234,10 @@ public class KeycloakHttpClient
         _logger.Log(logLevel,
             "Keycloak API: {Method} {Endpoint} => {StatusCode} ({StatusCodeValue}) in {ElapsedMs}ms",
             method, endpoint, statusCode, statusCodeValue, elapsedMilliseconds);
+    }
+
+    public void Dispose()
+    {
+        _tokenSemaphore.Dispose();
     }
 }
