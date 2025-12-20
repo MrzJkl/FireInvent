@@ -95,6 +95,8 @@ public class KeycloakTenantService(
                     throw new KeycloakException();
                 }
 
+                // Keycloak is expected to return a Location header pointing to the created organization resource,
+                // e.g. ".../organizations/{id}". The organization ID is taken from the last path segment.
                 var lastSegment = location.Segments.LastOrDefault()?.Trim('/');
                 if (!string.IsNullOrWhiteSpace(lastSegment) && Guid.TryParse(lastSegment, out var idFromLocation))
                 {
