@@ -28,18 +28,18 @@ public class KeycloakAdminService : IKeycloakAdminService
     private readonly JsonSerializerOptions _jsonOptions;
     private string? _accessToken;
     private DateTime _tokenExpiry = DateTime.MinValue;
-    private TenantProvider _tenantProvider;
+    private UserContextProvider _tenantProvider;
 
     public KeycloakAdminService(
         HttpClient httpClient,
         IOptions<KeycloakAdminOptions> options,
         ILogger<KeycloakAdminService> logger,
-        TenantProvider tenantProvider)
+        UserContextProvider userContextProvider)
     {
         _httpClient = httpClient;
         _options = options.Value;
         _logger = logger;
-        _tenantProvider = tenantProvider;
+        _tenantProvider = userContextProvider;
 
         if (string.IsNullOrWhiteSpace(_options.Url))
             throw new InvalidOperationException("Keycloak URL is not configured.");

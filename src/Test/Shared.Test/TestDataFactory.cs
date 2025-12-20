@@ -9,6 +9,9 @@ namespace FireInvent.Test.Shared;
 /// </summary>
 internal static class TestDataFactory
 {
+    // Default test user ID for assignment operations
+    internal static readonly Guid DefaultTestUserId = Guid.Parse("00000000-0000-0000-0000-000000000100");
+
     // Department helpers
     internal static CreateOrUpdateDepartmentModel CreateDepartmentModel(string name = "Test Department", string? description = null)
         => new()
@@ -229,7 +232,7 @@ internal static class TestDataFactory
             PersonId = personId,
             AssignedFrom = assignedFrom ?? DateTimeOffset.UtcNow,
             AssignedUntil = assignedUntil,
-            AssignedById = assignedById
+            AssignedById = assignedById ?? DefaultTestUserId
         };
 
     internal static ItemAssignmentHistory CreateAssignment(
@@ -246,7 +249,7 @@ internal static class TestDataFactory
             PersonId = personId,
             AssignedFrom = assignedFrom ?? DateTimeOffset.UtcNow,
             AssignedUntil = assignedUntil,
-            AssignedById = assignedById
+            AssignedById = assignedById ?? DefaultTestUserId
         };
 
     // Maintenance helpers
@@ -261,7 +264,7 @@ internal static class TestDataFactory
             ItemId = itemId,
             TypeId = typeId,
             PerformedAt = performedAt ?? DateTimeOffset.UtcNow,
-            PerformedById = performedById,
+            PerformedById = performedById.HasValue ? performedById.Value : DefaultTestUserId,
             Remarks = remarks
         };
 
@@ -278,24 +281,8 @@ internal static class TestDataFactory
             ItemId = itemId,
             TypeId = typeId,
             PerformedAt = performedAt ?? DateTimeOffset.UtcNow,
-            PerformedById = performedById,
+            PerformedById = performedById.HasValue ? performedById.Value : DefaultTestUserId,
             Remarks = remarks
-        };
-
-    // User helpers
-    internal static User CreateUser(
-        Guid? id = null,
-        string email = "test@example.com",
-        string firstName = "Test",
-        string lastName = "User")
-        => new()
-        {
-            Id = id ?? Guid.NewGuid(),
-            EMail = email,
-            FirstName = firstName,
-            LastName = lastName,
-            CreatedAt = DateTimeOffset.UtcNow,
-            LastSync = DateTimeOffset.UtcNow
         };
 
     // Order helpers
@@ -354,3 +341,4 @@ internal static class TestDataFactory
             PersonId = personId
         };
 }
+

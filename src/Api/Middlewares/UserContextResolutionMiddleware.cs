@@ -3,45 +3,53 @@ using FireInvent.Database;
 using FireInvent.Database.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
+using System.Security.Claims;
 using System.Text.Json;
 
 namespace FireInvent.Api.Middlewares;
 
 /// <summary>
-/// Middleware that resolves the active tenant per request based on Keycloak Organizations.
+/// Middleware that resolves the active tenant and user per request based on Keycloak Organizations.
 /// The JWT contains a list of organizations the user belongs to; the client must specify the active tenant via header.
 /// </summary>
-public class TenantResolutionMiddleware
+public class UserContextResolutionMiddleware(
+    RequestDelegate next,
+    ILogger<UserContextResolutionMiddleware> logger)
 {
-    private readonly RequestDelegate _next;
-    private readonly ILogger<TenantResolutionMiddleware> _logger;
+    private readonly ILogger<UserContextResolutionMiddleware> _logger = logger;
     private const string TenantCachePrefix = "tenant_by_id";
     private static readonly TimeSpan TenantCacheExpiration = TimeSpan.FromMinutes(15);
     private const string TenantHeaderName = "X-Tenant-Id";
     private const string OrganizationsClaimName = "organization"; // per provided token
 
-    public TenantResolutionMiddleware(
-        RequestDelegate next,
-        ILogger<TenantResolutionMiddleware> logger)
-    {
-        _next = next;
-        _logger = logger;
-    }
-
     public async Task InvokeAsync(
         HttpContext context,
-        TenantProvider tenantProvider,
+        UserContextProvider userContextProvider,
         AppDbContext dbContext,
         IMemoryCache cache)
     {
         if (!context.User.Identity?.IsAuthenticated ?? true)
         {
-            await _next(context);
+            await next(context);
             return;
         }
 
         try
         {
+            // Extract UserId from the JWT token (sub claim)
+            var userIdClaim = context.User.FindFirst(ClaimTypes.NameIdentifier) 
+                ?? context.User.FindFirst("sub");
+            
+            if (userIdClaim != null && Guid.TryParse(userIdClaim.Value, out var userId))
+            {
+                userContextProvider.UserId = userId;
+                _logger.LogDebug("Resolved user ID {UserId}", userId);
+            }
+            else
+            {
+                _logger.LogWarning("Unable to extract user ID from token claims.");
+            }
+
             // Early check: allow virtual master selection via header when user is system admin
             if (context.Request.Headers.TryGetValue(TenantHeaderName, out var headerVals) && headerVals.Count > 0)
             {
@@ -50,10 +58,11 @@ public class TenantResolutionMiddleware
                     if (context.User.IsInRole(Roles.SystemAdmin))
                     {
                         _logger.LogInformation("Selected tenant ID is empty GUID and user has system administrator role. Using virtual master tenant.");
-                        tenantProvider.TenantId = Guid.Empty;
-                        tenantProvider.Name = "VIRTUAL MASTER";
-                        tenantProvider.CreatedAt = DateTimeOffset.MinValue;
-                        await _next(context);
+                        userContextProvider.TenantId = Guid.Empty;
+                        userContextProvider.Name = "VIRTUAL MASTER";
+                        userContextProvider.CreatedAt = DateTimeOffset.MinValue;
+                        context.Response.Headers["X-Resolved-Tenant-Id"] = Guid.Empty.ToString();
+                        await next(context);
                         return;
                     }
                     else
@@ -170,10 +179,12 @@ public class TenantResolutionMiddleware
                 return;
             }
 
-            tenantProvider.TenantId = tenant.Id;
-            tenantProvider.Name = tenant.Name;
-            tenantProvider.Description = tenant.Description;
-            tenantProvider.CreatedAt = tenant.CreatedAt;
+            userContextProvider.TenantId = tenant.Id;
+            userContextProvider.Name = tenant.Name;
+            userContextProvider.Description = tenant.Description;
+            userContextProvider.CreatedAt = tenant.CreatedAt;
+
+            context.Response.Headers["X-Resolved-Tenant-Id"] = tenant.Id.ToString();
 
             _logger.LogDebug("Resolved tenant {TenantId} ({TenantName})", tenant.Id, tenant.Name);
         }
@@ -185,7 +196,7 @@ public class TenantResolutionMiddleware
             return;
         }
 
-        await _next(context);
+        await next(context);
     }
 
     /// <summary>

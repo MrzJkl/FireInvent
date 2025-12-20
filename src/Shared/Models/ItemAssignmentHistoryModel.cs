@@ -9,6 +9,4 @@ public record ItemAssignmentHistoryModel : CreateOrUpdateItemAssignmentHistoryMo
 
     [Required]
     public PersonModel Person { get; init; } = null!;
-
-    public UserModel? AssignedBy { get; init; }
 }

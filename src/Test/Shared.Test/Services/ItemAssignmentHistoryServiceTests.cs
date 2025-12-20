@@ -13,6 +13,13 @@ public class ItemAssignmentHistoryServiceTests
 {
     private readonly ItemAssignmentHistoryMapper _mapper = new();
 
+    private MockUserService CreateMockUserService()
+    {
+        var mockUserService = new MockUserService();
+        mockUserService.AddUser(TestDataFactory.DefaultTestUserId);
+        return mockUserService;
+    }
+
     private async Task<(Guid VariantId, Guid ItemId, Guid PersonId)> SetupBasicDataAsync(Database.AppDbContext context)
     {
         var productType = TestDataFactory.CreateProductType(name: "Helmet");
@@ -41,7 +48,8 @@ public class ItemAssignmentHistoryServiceTests
     {
         // Arrange
         using var context = TestHelper.GetTestDbContext();
-        var service = new ItemAssignmentHistoryService(context, _mapper);
+        var mockUserService = CreateMockUserService();
+        var service = new ItemAssignmentHistoryService(context, _mapper, mockUserService);
         var person = TestDataFactory.CreatePerson(firstName: "John", lastName: "Doe");
         context.Persons.Add(person);
         await context.SaveChangesAsync();
@@ -57,10 +65,27 @@ public class ItemAssignmentHistoryServiceTests
     {
         // Arrange
         using var context = TestHelper.GetTestDbContext();
-        var service = new ItemAssignmentHistoryService(context, _mapper);
+        var mockUserService = CreateMockUserService();
+        var service = new ItemAssignmentHistoryService(context, _mapper, mockUserService);
         var (_, itemId, _) = await SetupBasicDataAsync(context);
 
         var model = TestDataFactory.CreateAssignmentModel(itemId, Guid.NewGuid());
+
+        // Act & Assert
+        await Assert.ThrowsAsync<BadRequestException>(() => service.CreateAssignmentAsync(model));
+    }
+
+    [Fact]
+    public async Task CreateAssignmentAsync_WithNonExistingUser_ShouldThrowBadRequestException()
+    {
+        // Arrange
+        using var context = TestHelper.GetTestDbContext();
+        var mockUserService = CreateMockUserService();
+        var service = new ItemAssignmentHistoryService(context, _mapper, mockUserService);
+        var (_, itemId, personId) = await SetupBasicDataAsync(context);
+
+        var nonExistingUserId = Guid.NewGuid();
+        var model = TestDataFactory.CreateAssignmentModel(itemId, personId, assignedById: nonExistingUserId);
 
         // Act & Assert
         await Assert.ThrowsAsync<BadRequestException>(() => service.CreateAssignmentAsync(model));
@@ -71,7 +96,8 @@ public class ItemAssignmentHistoryServiceTests
     {
         // Arrange
         using var context = TestHelper.GetTestDbContext();
-        var service = new ItemAssignmentHistoryService(context, _mapper);
+        var mockUserService = CreateMockUserService();
+        var service = new ItemAssignmentHistoryService(context, _mapper, mockUserService);
         var (_, itemId, personId) = await SetupBasicDataAsync(context);
 
         var existingAssignment = TestDataFactory.CreateAssignment(
@@ -95,7 +121,8 @@ public class ItemAssignmentHistoryServiceTests
     {
         // Arrange
         using var context = TestHelper.GetTestDbContext();
-        var service = new ItemAssignmentHistoryService(context, _mapper);
+        var mockUserService = CreateMockUserService();
+        var service = new ItemAssignmentHistoryService(context, _mapper, mockUserService);
         var (_, itemId, personId) = await SetupBasicDataAsync(context);
 
         var existingAssignment = TestDataFactory.CreateAssignment(
@@ -110,18 +137,14 @@ public class ItemAssignmentHistoryServiceTests
             itemId, personId,
             assignedFrom: DateTimeOffset.UtcNow);
 
-        // Act - verify the count increases
+        // Act
         var countBefore = await context.ItemAssignmentHistories.CountAsync();
-        
-        // This will throw due to mapper but let's verify business logic first
-        // by directly testing the persistence scenario
-        var newAssignment = _mapper.MapCreateOrUpdateItemAssignmentHistoryModelToItemAssignmentHistory(model);
-        context.ItemAssignmentHistories.Add(newAssignment);
-        await context.SaveChangesAsync();
+        var result = await service.CreateAssignmentAsync(model);
 
         // Assert
         var countAfter = await context.ItemAssignmentHistories.CountAsync();
         Assert.Equal(countBefore + 1, countAfter);
+        Assert.NotEqual(Guid.Empty, result.Id);
     }
 
     [Fact]
@@ -129,7 +152,8 @@ public class ItemAssignmentHistoryServiceTests
     {
         // Arrange
         using var context = TestHelper.GetTestDbContext();
-        var service = new ItemAssignmentHistoryService(context, _mapper);
+        var mockUserService = CreateMockUserService();
+        var service = new ItemAssignmentHistoryService(context, _mapper, mockUserService);
 
         // Act & Assert
         await Assert.ThrowsAsync<NotFoundException>(() => service.GetAssignmentsForItemAsync(Guid.NewGuid()));
@@ -140,7 +164,8 @@ public class ItemAssignmentHistoryServiceTests
     {
         // Arrange
         using var context = TestHelper.GetTestDbContext();
-        var service = new ItemAssignmentHistoryService(context, _mapper);
+        var mockUserService = CreateMockUserService();
+        var service = new ItemAssignmentHistoryService(context, _mapper, mockUserService);
         var (_, itemId, _) = await SetupBasicDataAsync(context);
 
         // Act
@@ -155,7 +180,8 @@ public class ItemAssignmentHistoryServiceTests
     {
         // Arrange
         using var context = TestHelper.GetTestDbContext();
-        var service = new ItemAssignmentHistoryService(context, _mapper);
+        var mockUserService = CreateMockUserService();
+        var service = new ItemAssignmentHistoryService(context, _mapper, mockUserService);
 
         // Act
         var result = await service.GetAllAssignmentsAsync();
@@ -169,7 +195,8 @@ public class ItemAssignmentHistoryServiceTests
     {
         // Arrange
         using var context = TestHelper.GetTestDbContext();
-        var service = new ItemAssignmentHistoryService(context, _mapper);
+        var mockUserService = CreateMockUserService();
+        var service = new ItemAssignmentHistoryService(context, _mapper, mockUserService);
 
         // Act
         var result = await service.GetAssignmentByIdAsync(Guid.NewGuid());
@@ -183,7 +210,8 @@ public class ItemAssignmentHistoryServiceTests
     {
         // Arrange
         using var context = TestHelper.GetTestDbContext();
-        var service = new ItemAssignmentHistoryService(context, _mapper);
+        var mockUserService = CreateMockUserService();
+        var service = new ItemAssignmentHistoryService(context, _mapper, mockUserService);
         var (_, itemId, personId) = await SetupBasicDataAsync(context);
 
         var updateModel = TestDataFactory.CreateAssignmentModel(itemId, personId);
@@ -200,7 +228,8 @@ public class ItemAssignmentHistoryServiceTests
     {
         // Arrange
         using var context = TestHelper.GetTestDbContext();
-        var service = new ItemAssignmentHistoryService(context, _mapper);
+        var mockUserService = CreateMockUserService();
+        var service = new ItemAssignmentHistoryService(context, _mapper, mockUserService);
         var (_, itemId, personId) = await SetupBasicDataAsync(context);
 
         var assignment = TestDataFactory.CreateAssignment(itemId, personId);
@@ -218,7 +247,8 @@ public class ItemAssignmentHistoryServiceTests
     {
         // Arrange
         using var context = TestHelper.GetTestDbContext();
-        var service = new ItemAssignmentHistoryService(context, _mapper);
+        var mockUserService = CreateMockUserService();
+        var service = new ItemAssignmentHistoryService(context, _mapper, mockUserService);
         var (_, itemId, personId) = await SetupBasicDataAsync(context);
 
         var assignment = TestDataFactory.CreateAssignment(itemId, personId);
@@ -232,11 +262,32 @@ public class ItemAssignmentHistoryServiceTests
     }
 
     [Fact]
+    public async Task UpdateAssignmentAsync_WithNonExistingUser_ShouldThrowBadRequestException()
+    {
+        // Arrange
+        using var context = TestHelper.GetTestDbContext();
+        var mockUserService = CreateMockUserService();
+        var service = new ItemAssignmentHistoryService(context, _mapper, mockUserService);
+        var (_, itemId, personId) = await SetupBasicDataAsync(context);
+
+        var assignment = TestDataFactory.CreateAssignment(itemId, personId);
+        context.ItemAssignmentHistories.Add(assignment);
+        await context.SaveChangesAsync();
+
+        var nonExistingUserId = Guid.NewGuid();
+        var updateModel = TestDataFactory.CreateAssignmentModel(itemId, personId, assignedById: nonExistingUserId);
+
+        // Act & Assert
+        await Assert.ThrowsAsync<BadRequestException>(() => service.UpdateAssignmentAsync(assignment.Id, updateModel));
+    }
+
+    [Fact]
     public async Task UpdateAssignmentAsync_WithOverlappingAssignment_ShouldThrowConflictException()
     {
         // Arrange
         using var context = TestHelper.GetTestDbContext();
-        var service = new ItemAssignmentHistoryService(context, _mapper);
+        var mockUserService = CreateMockUserService();
+        var service = new ItemAssignmentHistoryService(context, _mapper, mockUserService);
         var (_, itemId, personId) = await SetupBasicDataAsync(context);
 
         var existingAssignment = TestDataFactory.CreateAssignment(
@@ -265,7 +316,8 @@ public class ItemAssignmentHistoryServiceTests
     {
         // Arrange
         using var context = TestHelper.GetTestDbContext();
-        var service = new ItemAssignmentHistoryService(context, _mapper);
+        var mockUserService = CreateMockUserService();
+        var service = new ItemAssignmentHistoryService(context, _mapper, mockUserService);
         var (_, itemId, personId) = await SetupBasicDataAsync(context);
 
         var assignment = TestDataFactory.CreateAssignment(
@@ -296,7 +348,8 @@ public class ItemAssignmentHistoryServiceTests
     {
         // Arrange
         using var context = TestHelper.GetTestDbContext();
-        var service = new ItemAssignmentHistoryService(context, _mapper);
+        var mockUserService = CreateMockUserService();
+        var service = new ItemAssignmentHistoryService(context, _mapper, mockUserService);
         var (_, itemId, personId) = await SetupBasicDataAsync(context);
 
         var assignment = TestDataFactory.CreateAssignment(itemId, personId);
@@ -316,7 +369,8 @@ public class ItemAssignmentHistoryServiceTests
     {
         // Arrange
         using var context = TestHelper.GetTestDbContext();
-        var service = new ItemAssignmentHistoryService(context, _mapper);
+        var mockUserService = CreateMockUserService();
+        var service = new ItemAssignmentHistoryService(context, _mapper, mockUserService);
 
         // Act
         var result = await service.DeleteAssignmentAsync(Guid.NewGuid());

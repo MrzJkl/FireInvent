@@ -1,4 +1,5 @@
-﻿using FireInvent.Database;
+﻿using FireInvent.Contract;
+using FireInvent.Database;
 using FireInvent.Shared.Exceptions;
 using FireInvent.Shared.Mapper;
 using FireInvent.Shared.Models;
@@ -6,7 +7,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace FireInvent.Shared.Services;
 
-public class ItemAssignmentHistoryService(AppDbContext context, ItemAssignmentHistoryMapper mapper) : IItemAssignmentHistoryService
+public class ItemAssignmentHistoryService(AppDbContext context, ItemAssignmentHistoryMapper mapper, IUserService userService) : IItemAssignmentHistoryService
 {
     public async Task<ItemAssignmentHistoryModel> CreateAssignmentAsync(CreateOrUpdateItemAssignmentHistoryModel model)
     {
@@ -15,6 +16,8 @@ public class ItemAssignmentHistoryService(AppDbContext context, ItemAssignmentHi
 
         if (!await context.Persons.AnyAsync(p => p.Id == model.PersonId))
             throw new BadRequestException($"Person with ID '{model.PersonId}' does not exist.");
+
+        _ = await userService.GetUserByIdAsync(model.AssignedById) ?? throw new BadRequestException($"User with ID '{model.AssignedById}' does not exist.");
 
         bool overlapExists = await context.ItemAssignmentHistories
             .AnyAsync(a =>
@@ -85,6 +88,8 @@ public class ItemAssignmentHistoryService(AppDbContext context, ItemAssignmentHi
 
         if (!await context.Persons.AnyAsync(p => p.Id == model.PersonId))
             throw new BadRequestException($"Person with ID '{model.PersonId}' does not exist.");
+
+        _ = await userService.GetUserByIdAsync(model.AssignedById) ?? throw new BadRequestException($"User with ID '{model.AssignedById}' does not exist.");
 
         bool overlapExists = await context.ItemAssignmentHistories
             .AnyAsync(a =>

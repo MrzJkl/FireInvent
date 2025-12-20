@@ -24,8 +24,11 @@ public record Maintenance : IHasTenant
     [Required]
     public DateTimeOffset PerformedAt { get; set; }
 
-    [ForeignKey(nameof(PerformedBy))]
-    public Guid? PerformedById { get; set; }
+    /// <summary>
+    /// User ID from Keycloak who performed the maintenance.
+    /// </summary>
+    [Required]
+    public Guid PerformedById { get; set; }
 
     [MaxLength(ModelConstants.MaxStringLengthLong)]
     public string? Remarks { get; set; }
@@ -35,8 +38,6 @@ public record Maintenance : IHasTenant
 
     [Required]
     public virtual Item Item { get; set; } = null!;
-
-    public virtual User? PerformedBy { get; set; } = null!;
 
     [Required]
     public virtual Tenant Tenant { get; set; } = null!;
