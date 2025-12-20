@@ -1,3 +1,4 @@
+using FireInvent.Contract.Exceptions;
 using FireInvent.Database;
 using FireInvent.Shared.Mapper;
 using FireInvent.Shared.Models;
@@ -37,6 +38,17 @@ public class OrderItemService(AppDbContext context, OrderMapper mapper) : IOrder
 
     public async Task<OrderItemModel> CreateOrderItemAsync(CreateOrUpdateOrderItemModel model)
     {
+        _ = await context.Orders.FindAsync(model.OrderId)
+            ?? throw new BadRequestException($"Order with ID '{model.OrderId}' does not exist.");
+        _ = await context.Variants.FindAsync(model.VariantId)
+            ?? throw new BadRequestException($"Variant with ID '{model.VariantId}' does not exist.");
+
+        if (model.PersonId.HasValue)
+        {
+            _ = await context.Persons.FindAsync(model.PersonId.Value)
+                ?? throw new BadRequestException($"Person with ID '{model.PersonId.Value}' does not exist.");
+        }
+
         var orderItem = mapper.MapCreateOrUpdateOrderItemModelToOrderItem(model);
 
         await context.OrderItems.AddAsync(orderItem);
@@ -51,6 +63,21 @@ public class OrderItemService(AppDbContext context, OrderMapper mapper) : IOrder
 
     public async Task<bool> UpdateOrderItemAsync(Guid id, CreateOrUpdateOrderItemModel model)
     {
+        // Validate that Order exists
+        _ = await context.Orders.FindAsync(model.OrderId)
+            ?? throw new BadRequestException($"Order with ID '{model.OrderId}' does not exist.");
+
+        // Validate that Variant exists
+        _ = await context.Variants.FindAsync(model.VariantId)
+            ?? throw new BadRequestException($"Variant with ID '{model.VariantId}' does not exist.");
+
+        // Validate that Person exists (if PersonId is provided)
+        if (model.PersonId.HasValue)
+        {
+            _ = await context.Persons.FindAsync(model.PersonId.Value)
+                ?? throw new BadRequestException($"Person with ID '{model.PersonId.Value}' does not exist.");
+        }
+
         var entity = await context.OrderItems
             .FirstOrDefaultAsync(oi => oi.Id == id);
 

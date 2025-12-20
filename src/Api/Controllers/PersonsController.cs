@@ -1,5 +1,5 @@
 ﻿using FireInvent.Contract;
-using FireInvent.Shared.Exceptions;
+using FireInvent.Contract.Exceptions;
 using FireInvent.Shared.Models;
 using FireInvent.Shared.Services;
 using Microsoft.AspNetCore.Authorization;

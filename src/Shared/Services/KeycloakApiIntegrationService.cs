@@ -1,6 +1,6 @@
 using FireInvent.Contract;
 using FireInvent.Contract.Extensions;
-using FireInvent.Shared.Exceptions;
+using FireInvent.Contract.Exceptions;
 using FireInvent.Shared.Models;
 using FireInvent.Shared.Options;
 using FireInvent.Shared.Services.Keycloak;

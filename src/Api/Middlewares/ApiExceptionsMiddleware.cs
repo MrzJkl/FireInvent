@@ -1,4 +1,4 @@
-﻿using FireInvent.Shared.Exceptions;
+﻿using FireInvent.Contract.Exceptions;
 using System.Net;
 using System.Text.Json;
 

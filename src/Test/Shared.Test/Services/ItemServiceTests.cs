@@ -1,6 +1,6 @@
 using FireInvent.Contract;
 using FireInvent.Database.Models;
-using FireInvent.Shared.Exceptions;
+using FireInvent.Contract.Exceptions;
 using FireInvent.Shared.Mapper;
 using FireInvent.Shared.Services;
 using Microsoft.EntityFrameworkCore;
