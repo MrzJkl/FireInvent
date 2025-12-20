@@ -71,7 +71,7 @@ public class KeycloakHttpClient
                 return;
         }
 
-        var tokenRequest = new FormUrlEncodedContent(new Dictionary<string, string>
+        using var tokenRequest = new FormUrlEncodedContent(new Dictionary<string, string>
         {
             ["grant_type"] = "password",
             ["client_id"] = "admin-cli",
