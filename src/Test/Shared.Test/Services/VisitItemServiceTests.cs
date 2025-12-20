@@ -178,12 +178,13 @@ public class VisitItemServiceTests
         var service = new VisitItemService(context, _mapper);
         
         var person = TestDataFactory.CreatePerson();
-        var appointment = TestDataFactory.CreateAppointment();
+        var appointment1 = TestDataFactory.CreateAppointment();
+        var appointment2 = TestDataFactory.CreateAppointment();
         var visit1 = TestDataFactory.CreateVisit(
-            appointmentId: appointment.Id,
+            appointmentId: appointment1.Id,
             personId: person.Id);
         var visit2 = TestDataFactory.CreateVisit(
-            appointmentId: appointment.Id,
+            appointmentId: appointment2.Id,
             personId: person.Id);
         var manufacturer = TestDataFactory.CreateManufacturer();
         var productType = TestDataFactory.CreateProductType();
@@ -201,7 +202,7 @@ public class VisitItemServiceTests
             productId: product.Id);
         
         context.Persons.Add(person);
-        context.Appointments.Add(appointment);
+        context.Appointments.AddRange(appointment1, appointment2);
         context.Visits.AddRange(visit1, visit2);
         context.Manufacturers.Add(manufacturer);
         context.ProductTypes.Add(productType);
