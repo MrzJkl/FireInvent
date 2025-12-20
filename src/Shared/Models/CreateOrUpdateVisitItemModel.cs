@@ -5,13 +5,13 @@ namespace FireInvent.Shared.Models
     public record CreateOrUpdateVisitItemModel
     {
         [Required]
-        public Guid VisitId { get; set; }
+        public Guid VisitId { get; init; }
 
         [Required]
-        public Guid ProductId { get; set; }
+        public Guid ProductId { get; init; }
 
         [Required]
         [Range(1, int.MaxValue)]
-        public int Quantity { get; set; }
+        public int Quantity { get; init; }
     }
 }
