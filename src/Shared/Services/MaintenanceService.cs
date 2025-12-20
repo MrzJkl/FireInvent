@@ -7,7 +7,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace FireInvent.Shared.Services;
 
-public class MaintenanceService(AppDbContext context, IUserService userService, MaintenanceMapper mapper) : IMaintenanceService
+public class MaintenanceService(AppDbContext context, IKeycloakUserService userService, MaintenanceMapper mapper) : IMaintenanceService
 {
     public async Task<MaintenanceModel> CreateMaintenanceAsync(CreateOrUpdateMaintenanceModel model)
     {

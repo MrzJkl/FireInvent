@@ -7,7 +7,7 @@ namespace FireInvent.Api.Controllers;
 
 [ApiController]
 [Route("/users")]
-public class UsersController(IUserService userService) : ControllerBase
+public class UsersController(IKeycloakUserService userService) : ControllerBase
 {
     [HttpGet]
     [EndpointSummary("List all users")]

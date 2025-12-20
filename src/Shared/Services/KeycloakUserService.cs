@@ -9,7 +9,7 @@ namespace FireInvent.Shared.Services;
 public class KeycloakUserService(
     KeycloakHttpClient keycloakClient,
     ILogger<KeycloakUserService> logger,
-    UserContextProvider userContextProvider) : IUserService
+    UserContextProvider userContextProvider) : IKeycloakUserService
 {
     public async Task<UserModel?> GetUserByIdAsync(Guid id)
     {

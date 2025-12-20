@@ -28,7 +28,7 @@ internal static class TestHelper
 /// <summary>
 /// Mock implementation of IUserService for testing purposes.
 /// </summary>
-internal class MockUserService : IUserService
+internal class MockUserService : IKeycloakUserService
 {
     private readonly Dictionary<Guid, UserModel> _users = new();
 

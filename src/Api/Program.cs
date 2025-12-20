@@ -159,12 +159,12 @@ builder.Services.AddScoped<IVariantService, VariantService>();
 builder.Services.AddScoped<IItemService, ItemService>();
 builder.Services.AddScoped<IMaintenanceService, MaintenanceService>();
 builder.Services.AddScoped<IItemAssignmentHistoryService, ItemAssignmentHistoryService>();
-builder.Services.AddScoped<IUserService, KeycloakUserService>();
+builder.Services.AddScoped<IKeycloakUserService, KeycloakUserService>();
 builder.Services.AddScoped<IOrderService, OrderService>();
 builder.Services.AddScoped<IMaintenanceTypeService, MaintenanceTypeService>();
 builder.Services.AddScoped<IProductTypeService, ProductTypeService>();
 builder.Services.AddScoped<IManufacturerService, ManufacturerService>();
-builder.Services.AddScoped<IKeycloakAdminService, KeycloakApiIntegrationService>();
+builder.Services.AddScoped<IKeycloakApiIntegrationService, KeycloakApiIntegrationService>();
 builder.Services.AddScoped<IKeycloakTenantService, KeycloakTenantService>();
 
 // Controllers
