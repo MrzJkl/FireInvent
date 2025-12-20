@@ -1,5 +1,5 @@
 using FireInvent.Contract.Extensions;
-using FireInvent.Shared.Exceptions;
+using FireInvent.Contract.Exceptions;
 using FireInvent.Shared.Services.Keycloak;
 using Microsoft.Extensions.Logging;
 using System.Net.Http.Json;
