@@ -5,9 +5,9 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace FireInvent.Database.Models;
 
-[Index(nameof(ProductId), nameof(Name), nameof(TenantId), IsUnique = true)]
+[Index(nameof(ProductId), nameof(Name), IsUnique = true)]
 [Index(nameof(Name))]
-[Index(nameof(ExternalIdentifier), nameof(ProductId), nameof(TenantId), IsUnique = true)]
+[Index(nameof(ExternalIdentifier), nameof(ProductId), IsUnique = true)]
 public record Variant : IHasTenant
 {
     [Key]

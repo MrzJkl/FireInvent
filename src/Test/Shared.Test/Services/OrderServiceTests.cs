@@ -188,8 +188,7 @@ public class OrderServiceTests
         var model = TestDataFactory.CreateOrderModel(
             orderDate: DateTimeOffset.UtcNow,
             status: OrderStatus.Draft,
-            orderIdentifier: "ORD-002",
-            items: orderItems);
+            orderIdentifier: "ORD-002");
 
         // Act
         var result = await service.CreateOrderAsync(model);

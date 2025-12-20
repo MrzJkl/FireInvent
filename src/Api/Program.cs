@@ -148,6 +148,8 @@ builder.Services.AddSingleton<VariantMapper>();
 builder.Services.AddSingleton<ProductTypeMapper>();
 builder.Services.AddSingleton<MaintenanceTypeMapper>();
 builder.Services.AddSingleton<ManufacturerMapper>();
+builder.Services.AddSingleton<AppointmentMapper>();
+builder.Services.AddSingleton<VisitMapper>();
 
 // Shared Services
 builder.Services.AddScoped<IDepartmentService, DepartmentService>();
@@ -166,6 +168,10 @@ builder.Services.AddScoped<IProductTypeService, ProductTypeService>();
 builder.Services.AddScoped<IManufacturerService, ManufacturerService>();
 builder.Services.AddScoped<IKeycloakApiIntegrationService, KeycloakApiIntegrationService>();
 builder.Services.AddScoped<IKeycloakTenantService, KeycloakTenantService>();
+builder.Services.AddScoped<IAppointmentService, AppointmentService>();
+builder.Services.AddScoped<IVisitService, VisitService>();
+builder.Services.AddScoped<IOrderItemService, OrderItemService>();
+builder.Services.AddScoped<IVisitItemService, VisitItemService>();
 
 // Controllers
 builder.Services.AddControllers(options =>

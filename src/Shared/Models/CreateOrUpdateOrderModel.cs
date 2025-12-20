@@ -14,8 +14,5 @@ public record CreateOrUpdateOrderModel
     [Required]
     public OrderStatus Status { get; init; }
 
-    [Required]
-    public List<CreateOrUpdateOrderItemModel> Items { get; init; } = [];
-
     public DateTimeOffset? DeliveryDate { get; init; }
 }

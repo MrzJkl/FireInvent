@@ -52,6 +52,12 @@ public class AppDbContext : DbContext
 
     public DbSet<Manufacturer> Manufacturers => Set<Manufacturer>();
 
+    public DbSet<Appointment> Appointments => Set<Appointment>();
+
+    public DbSet<Visit> Visits => Set<Visit>();
+
+    public DbSet<VisitItem> VisitItems => Set<VisitItem>();
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);

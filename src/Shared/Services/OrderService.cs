@@ -62,7 +62,6 @@ public class OrderService(AppDbContext context, OrderMapper mapper) : IOrderServ
         if (entity is null)
             return false;
 
-        context.OrderItems.RemoveRange(entity.Items);
         context.Orders.Remove(entity);
         await context.SaveChangesAsync();
         return true;
