@@ -140,9 +140,10 @@ public class KeycloakApiIntegrationService(
                 ?? new List<KeycloakClient>();
 
             var filtered = new List<KeycloakClient>();
-            foreach (var c in clients.Where(c => c.ClientId?.StartsWith(_options.ApiClientPrefix) == true))
+            foreach (var c in clients
+                .Where(c => c.ClientId?.StartsWith(_options.ApiClientPrefix) == true)
+                .Where(c => !string.IsNullOrEmpty(c.Id)))
             {
-                if (string.IsNullOrEmpty(c.Id)) continue;
                 if (await IsClientServiceAccountMemberOfCurrentOrganizationAsync(c.Id))
                 {
                     filtered.Add(c);
