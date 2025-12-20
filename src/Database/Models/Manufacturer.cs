@@ -20,7 +20,7 @@ namespace FireInvent.Database.Models
         public string Name { get; set; } = string.Empty;
 
         [MaxLength(ModelConstants.MaxStringLengthLong)]
-        public string? Description { get; set; } = string.Empty;
+        public string? Description { get; set; }
 
         [MaxLength(ModelConstants.MaxStringLength)]
         public string? Street { get; set; }
