@@ -99,6 +99,10 @@ if (corsOptions.Enabled)
 builder.Services.AddCustomAuthentication(AuthScheme, authOptions);
 builder.Services.AddAuthorization();
 builder.Services.AddMemoryCache();
+
+// Keycloak HTTP Client (central for all Keycloak services)
+builder.Services.AddHttpClient<FireInvent.Shared.Services.Keycloak.KeycloakHttpClient>();
+
 builder.Services.AddResponseCompression(options =>
 {
     options.EnableForHttps = true;
@@ -155,14 +159,13 @@ builder.Services.AddScoped<IVariantService, VariantService>();
 builder.Services.AddScoped<IItemService, ItemService>();
 builder.Services.AddScoped<IMaintenanceService, MaintenanceService>();
 builder.Services.AddScoped<IItemAssignmentHistoryService, ItemAssignmentHistoryService>();
-builder.Services.AddHttpClient<IUserService, UserService>();
+builder.Services.AddScoped<IUserService, KeycloakUserService>();
 builder.Services.AddScoped<IOrderService, OrderService>();
 builder.Services.AddScoped<IMaintenanceTypeService, MaintenanceTypeService>();
 builder.Services.AddScoped<IProductTypeService, ProductTypeService>();
 builder.Services.AddScoped<IManufacturerService, ManufacturerService>();
-
-builder.Services.AddHttpClient<IKeycloakAdminService, KeycloakAdminService>();
-builder.Services.AddHttpClient<IKeycloakTenantService, KeycloakTenantService>();
+builder.Services.AddScoped<IKeycloakAdminService, KeycloakApiIntegrationService>();
+builder.Services.AddScoped<IKeycloakTenantService, KeycloakTenantService>();
 
 // Controllers
 builder.Services.AddControllers(options =>
