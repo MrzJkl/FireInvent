@@ -272,6 +272,3 @@ logger.LogInformation("Starting FireInvent API...");
 app.Run();
 
 logger.LogInformation("FireInvent API shutting down...");
-
-
-
