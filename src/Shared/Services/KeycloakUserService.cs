@@ -113,11 +113,13 @@ public class KeycloakUserService(
 
     private static UserModel MapKeycloakUserToUserModel(KeycloakUser keycloakUser)
     {
+        var useBothNamesFromUsername = keycloakUser.FirstName is null && keycloakUser.LastName is null;
+        
         return new UserModel
         {
             Id = Guid.Parse(keycloakUser.Id ?? throw new InvalidOperationException("User ID is missing.")),
-            FirstName = (keycloakUser.FirstName is null && keycloakUser.LastName is null) ?  keycloakUser.Username : keycloakUser.FirstName ?? string.Empty,
-            LastName = (keycloakUser.FirstName is null && keycloakUser.LastName is null) ? keycloakUser.Username : keycloakUser.LastName ?? string.Empty,
+            FirstName = useBothNamesFromUsername ? keycloakUser.Username : keycloakUser.FirstName ?? string.Empty,
+            LastName = useBothNamesFromUsername ? keycloakUser.Username : keycloakUser.LastName ?? string.Empty,
             EMail = keycloakUser.Email ?? string.Empty,
         };
     }
