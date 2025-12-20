@@ -19,7 +19,7 @@ public class KeycloakApiIntegrationService(
     KeycloakHttpClient keycloakClient,
     IOptions<KeycloakAdminOptions> options,
     ILogger<KeycloakApiIntegrationService> logger,
-    UserContextProvider userContextProvider) : IKeycloakAdminService
+    UserContextProvider userContextProvider) : IKeycloakApiIntegrationService
 {
     private const int IntegrationTokenLifespanSeconds = 3600;
     private readonly KeycloakAdminOptions _options = options.Value;

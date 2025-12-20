@@ -1,5 +1,4 @@
-﻿using FireInvent.Contract;
-using FireInvent.Database;
+﻿using FireInvent.Database;
 using FireInvent.Shared.Exceptions;
 using FireInvent.Shared.Mapper;
 using FireInvent.Shared.Models;
@@ -7,7 +6,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace FireInvent.Shared.Services;
 
-public class ItemAssignmentHistoryService(AppDbContext context, ItemAssignmentHistoryMapper mapper, IUserService userService) : IItemAssignmentHistoryService
+public class ItemAssignmentHistoryService(AppDbContext context, ItemAssignmentHistoryMapper mapper, IKeycloakUserService userService) : IItemAssignmentHistoryService
 {
     public async Task<ItemAssignmentHistoryModel> CreateAssignmentAsync(CreateOrUpdateItemAssignmentHistoryModel model)
     {
@@ -36,7 +35,6 @@ public class ItemAssignmentHistoryService(AppDbContext context, ItemAssignmentHi
         await context.SaveChangesAsync();
 
         assignment = await context.ItemAssignmentHistories
-            .Include(a => a.Person)
             .AsNoTracking()
             .SingleAsync(a => a.Id == assignment.Id);
 

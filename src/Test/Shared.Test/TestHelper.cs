@@ -14,6 +14,7 @@ internal static class TestHelper
     {
         var options = new DbContextOptionsBuilder<AppDbContext>()
             .UseInMemoryDatabase(Guid.NewGuid().ToString())
+            .UseLazyLoadingProxies()
             .Options;
         
         var testTenantProvider = new UserContextProvider
@@ -28,7 +29,7 @@ internal static class TestHelper
 /// <summary>
 /// Mock implementation of IUserService for testing purposes.
 /// </summary>
-internal class MockUserService : IUserService
+internal class MockUserService : IKeycloakUserService
 {
     private readonly Dictionary<Guid, UserModel> _users = new();
 

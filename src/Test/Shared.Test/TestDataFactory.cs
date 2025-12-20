@@ -7,7 +7,7 @@ namespace FireInvent.Test.Shared;
 /// <summary>
 /// Factory class for creating test data instances.
 /// </summary>
-internal static class TestDataFactory
+internal static partial class TestDataFactory
 {
     // Default test user ID for assignment operations
     internal static readonly Guid DefaultTestUserId = Guid.Parse("00000000-0000-0000-0000-000000000100");
@@ -289,16 +289,13 @@ internal static class TestDataFactory
     internal static CreateOrUpdateOrderModel CreateOrderModel(
         DateTimeOffset? orderDate = null,
         OrderStatus status = OrderStatus.Draft,
-        string? orderIdentifier = null,
-        List<CreateOrUpdateOrderItemModel>? items = null)
+        string? orderIdentifier = null)
         => new()
         {
             OrderDate = orderDate ?? DateTimeOffset.UtcNow,
             Status = status,
-            OrderIdentifier = orderIdentifier,
-            Items = items ?? []
+            OrderIdentifier = orderIdentifier
         };
-
     internal static Order CreateOrder(
         Guid? id = null,
         DateTimeOffset? orderDate = null,

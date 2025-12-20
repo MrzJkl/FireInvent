@@ -9,7 +9,7 @@ namespace FireInvent.Api.Controllers;
 [ApiController]
 [Route("/api-integrations")]
 [Authorize(Roles = Roles.Admin)]
-public class ApiIntegrationsController(IKeycloakAdminService keycloakAdminService) : ControllerBase
+public class ApiIntegrationsController(IKeycloakApiIntegrationService keycloakAdminService) : ControllerBase
 {
     [HttpPost]
     [EndpointSummary("Create API integration")]

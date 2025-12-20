@@ -1,6 +1,5 @@
 using FireInvent.Shared.Exceptions;
 using FireInvent.Shared.Mapper;
-using FireInvent.Shared.Models;
 using FireInvent.Shared.Services;
 
 namespace FireInvent.Test.Shared.Services;
