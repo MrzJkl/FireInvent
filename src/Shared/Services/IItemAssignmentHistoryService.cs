@@ -9,5 +9,6 @@ public interface IItemAssignmentHistoryService
     Task<List<ItemAssignmentHistoryModel>> GetAllAssignmentsAsync();
     Task<ItemAssignmentHistoryModel?> GetAssignmentByIdAsync(Guid id);
     Task<List<ItemAssignmentHistoryModel>> GetAssignmentsForItemAsync(Guid itemId);
+    Task<List<ItemAssignmentHistoryModel>> GetAssignmentsForPersonAsync(Guid personId);
     Task<bool> UpdateAssignmentAsync(Guid id, CreateOrUpdateItemAssignmentHistoryModel model);
 }

@@ -9,4 +9,7 @@ public record ItemAssignmentHistoryModel : CreateOrUpdateItemAssignmentHistoryMo
 
     [Required]
     public PersonModel Person { get; init; } = null!;
+
+    [Required]
+    public ItemModel Item { get; init; } = null!;
 }

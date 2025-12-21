@@ -8,5 +8,6 @@ public interface IVisitService
     Task<bool> DeleteVisitAsync(Guid id);
     Task<List<VisitModel>> GetAllVisitsAsync();
     Task<VisitModel?> GetVisitByIdAsync(Guid id);
+    Task<List<VisitModel>> GetVisitsForAppointmentAsync(Guid appointmentId);
     Task<bool> UpdateVisitAsync(Guid id, CreateOrUpdateVisitModel model);
 }

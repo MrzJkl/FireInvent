@@ -9,7 +9,7 @@ namespace FireInvent.Api.Controllers;
 
 [ApiController]
 [Route("appointments")]
-public class AppointmentsController(IAppointmentService appointmentService) : ControllerBase
+public class AppointmentsController(IAppointmentService appointmentService, IVisitService visitService) : ControllerBase
 {
     [HttpGet]
     [EndpointSummary("List all appointments")]
@@ -65,5 +65,16 @@ public class AppointmentsController(IAppointmentService appointmentService) : Co
     {
         var success = await appointmentService.DeleteAppointmentAsync(id);
         return success ? NoContent() : throw new NotFoundException();
+    }
+
+    [HttpGet("{id:guid}/visits")]
+    [EndpointSummary("List all visits for an appointment")]
+    [EndpointDescription("Returns all visits for a specific appointment.")]
+    [ProducesResponseType<List<VisitModel>>(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<ActionResult<List<VisitModel>>> GetVisitsForAppointment(Guid id)
+    {
+        var visits = await visitService.GetVisitsForAppointmentAsync(id);
+        return Ok(visits);
     }
 }

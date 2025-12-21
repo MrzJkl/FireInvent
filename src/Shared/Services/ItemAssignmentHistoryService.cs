@@ -56,6 +56,21 @@ public class ItemAssignmentHistoryService(AppDbContext context, ItemAssignmentHi
         return mapper.MapItemAssignmentHistorysToItemAssignmentHistoryModels(entities);
     }
 
+    public async Task<List<ItemAssignmentHistoryModel>> GetAssignmentsForPersonAsync(Guid personId)
+    {
+        var personExists = await context.Persons.AnyAsync(p => p.Id == personId);
+        if (!personExists)
+            throw new NotFoundException($"Person with ID {personId} not found.");
+
+        var entities = await context.ItemAssignmentHistories
+            .Where(a => a.PersonId == personId)
+            .OrderByDescending(a => a.AssignedFrom)
+            .AsNoTracking()
+            .ToListAsync();
+
+        return mapper.MapItemAssignmentHistorysToItemAssignmentHistoryModels(entities);
+    }
+        
     public async Task<List<ItemAssignmentHistoryModel>> GetAllAssignmentsAsync()
     {
         var entities = await context.ItemAssignmentHistories

@@ -9,4 +9,6 @@ public record ItemModel : CreateOrUpdateItemModel
 
     [Required]
     public VariantModel Variant { get; init; } = null!;
+
+    public StorageLocationModel? StorageLocation { get; init; }
 }
