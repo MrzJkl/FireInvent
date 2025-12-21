@@ -9,7 +9,7 @@ namespace FireInvent.Api.Controllers;
 
 [ApiController]
 [Route("persons")]
-public class PersonsController(IPersonService personService, IItemService itemService) : ControllerBase
+public class PersonsController(IPersonService personService, IItemAssignmentHistoryService itemAssignmentHistoryService) : ControllerBase
 {
     [HttpGet]
     [EndpointSummary("List all persons")]
@@ -68,14 +68,14 @@ public class PersonsController(IPersonService personService, IItemService itemSe
         return success ? NoContent() : throw new NotFoundException();
     }
 
-    [HttpGet("{id:guid}/items")]
-    [EndpointSummary("List all items assigned to a person")]
-    [EndpointDescription("Returns all items assigned to a specific person.")]
-    [ProducesResponseType<List<ItemModel>>(StatusCodes.Status200OK)]
+    [HttpGet("{id:guid}/assignments")]
+    [EndpointSummary("List all assignments for a person")]
+    [EndpointDescription("Returns all assignments for a specific person.")]
+    [ProducesResponseType<List<ItemAssignmentHistoryModel>>(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<ActionResult<List<ItemModel>>> GetAssignedItemsForPerson(Guid id)
+    public async Task<ActionResult<List<ItemAssignmentHistoryModel>>> GetAssignmentsForPerson(Guid id)
     {
-        var items = await itemService.GetItemsAssignedToPersonAsync(id);
-        return Ok(items);
+        var assignments = await itemAssignmentHistoryService.GetAssignmentsForPersonAsync(id);
+        return Ok(assignments);
     }
 }

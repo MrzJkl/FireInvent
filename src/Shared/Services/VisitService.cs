@@ -98,4 +98,18 @@ public class VisitService(AppDbContext context, VisitMapper mapper) : IVisitServ
         await context.SaveChangesAsync();
         return true;
     }
+
+    public async Task<List<VisitModel>> GetVisitsForAppointmentAsync(Guid appointmentId)
+    {
+        var appointmentExists = await context.Appointments.AnyAsync(a => a.Id == appointmentId);
+        if (!appointmentExists)
+            throw new NotFoundException($"Appointment with ID {appointmentId} not found.");
+
+        var visits = await context.Visits
+            .Where(v => v.AppointmentId == appointmentId)
+            .AsNoTracking()
+            .ToListAsync();
+
+        return mapper.MapVisitsToVisitModels(visits);
+    }
 }
