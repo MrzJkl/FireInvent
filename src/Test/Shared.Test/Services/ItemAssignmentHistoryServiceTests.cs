@@ -177,6 +177,68 @@ public class ItemAssignmentHistoryServiceTests
     }
 
     [Fact]
+    public async Task GetAssignmentsForPersonAsync_WithNonExistingPerson_ShouldThrowNotFoundException()
+    {
+        // Arrange
+        using var context = TestHelper.GetTestDbContext();
+        var mockUserService = CreateMockUserService();
+        var service = new ItemAssignmentHistoryService(context, _mapper, mockUserService);
+
+        // Act & Assert
+        await Assert.ThrowsAsync<NotFoundException>(() => service.GetAssignmentsForPersonAsync(Guid.NewGuid()));
+    }
+
+    [Fact]
+    public async Task GetAssignmentsForPersonAsync_WithNoAssignments_ShouldReturnEmptyList()
+    {
+        // Arrange
+        using var context = TestHelper.GetTestDbContext();
+        var mockUserService = CreateMockUserService();
+        var service = new ItemAssignmentHistoryService(context, _mapper, mockUserService);
+        var (_, _, personId) = await SetupBasicDataAsync(context);
+
+        // Act
+        var result = await service.GetAssignmentsForPersonAsync(personId);
+
+        // Assert
+        Assert.Empty(result);
+    }
+
+    [Fact]
+    public async Task GetAssignmentsForPersonAsync_WithMultipleAssignments_ShouldReturnOrderedByAssignedFromDescending()
+    {
+        // Arrange
+        using var context = TestHelper.GetTestDbContext();
+        var mockUserService = CreateMockUserService();
+        var service = new ItemAssignmentHistoryService(context, _mapper, mockUserService);
+        var (_, itemId, personId) = await SetupBasicDataAsync(context);
+
+        var assignment1 = TestDataFactory.CreateAssignment(
+            itemId, personId,
+            assignedFrom: DateTimeOffset.UtcNow.AddDays(-20),
+            assignedUntil: DateTimeOffset.UtcNow.AddDays(-15));
+        var assignment2 = TestDataFactory.CreateAssignment(
+            itemId, personId,
+            assignedFrom: DateTimeOffset.UtcNow.AddDays(-10),
+            assignedUntil: DateTimeOffset.UtcNow.AddDays(-5));
+        var assignment3 = TestDataFactory.CreateAssignment(
+            itemId, personId,
+            assignedFrom: DateTimeOffset.UtcNow);
+
+        context.ItemAssignmentHistories.AddRange(assignment1, assignment2, assignment3);
+        await context.SaveChangesAsync();
+
+        // Act
+        var result = await service.GetAssignmentsForPersonAsync(personId);
+
+        // Assert
+        Assert.Equal(3, result.Count);
+        Assert.Equal(assignment3.Id, result[0].Id);
+        Assert.Equal(assignment2.Id, result[1].Id);
+        Assert.Equal(assignment1.Id, result[2].Id);
+    }
+
+    [Fact]
     public async Task GetAllAssignmentsAsync_WithEmptyDatabase_ShouldReturnEmptyList()
     {
         // Arrange

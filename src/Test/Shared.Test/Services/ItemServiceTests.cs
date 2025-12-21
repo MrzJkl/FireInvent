@@ -252,33 +252,4 @@ public class ItemServiceTests
         // Act & Assert
         await Assert.ThrowsAsync<NotFoundException>(() => service.GetItemsForStorageLocationAsync(Guid.NewGuid()));
     }
-
-    [Fact]
-    public async Task GetItemsAssignedToPersonAsync_WithNonExistingPerson_ShouldThrowNotFoundException()
-    {
-        // Arrange
-        using var context = TestHelper.GetTestDbContext();
-        var service = new ItemService(context, _mapper);
-
-        // Act & Assert
-        await Assert.ThrowsAsync<NotFoundException>(() => service.GetItemsAssignedToPersonAsync(Guid.NewGuid()));
-    }
-
-    [Fact]
-    public async Task GetItemsAssignedToPersonAsync_WithNoAssignments_ShouldReturnEmptyList()
-    {
-        // Arrange
-        using var context = TestHelper.GetTestDbContext();
-        var service = new ItemService(context, _mapper);
-
-        var person = TestDataFactory.CreatePerson(firstName: "John", lastName: "Doe");
-        context.Persons.Add(person);
-        await context.SaveChangesAsync();
-
-        // Act
-        var result = await service.GetItemsAssignedToPersonAsync(person.Id);
-
-        // Assert
-        Assert.Empty(result);
-    }
 }
