@@ -1,6 +1,5 @@
 using FireInvent.Contract;
 using FireInvent.Shared.Mapper;
-using FireInvent.Shared.Models;
 using FireInvent.Shared.Services;
 using Microsoft.EntityFrameworkCore;
 
@@ -49,7 +48,7 @@ public class OrderServiceTests
         using var context = TestHelper.GetTestDbContext();
         var service = new OrderService(context, _mapper);
         var model = TestDataFactory.CreateOrderModel(
-            orderDate: DateTimeOffset.UtcNow,
+            orderDate: DateOnly.FromDateTime(DateTime.UtcNow),
             status: OrderStatus.Draft,
             orderIdentifier: "ORD-001");
 

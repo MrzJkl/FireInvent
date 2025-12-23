@@ -27,6 +27,15 @@ namespace FireInvent.Api.Extensions
                             Description = description?.IsDeprecated == true ? "This API version is deprecated." : null
                         };
 
+                        document.Components ??= new OpenApiComponents();
+                        document.Components.Headers ??= new Dictionary<string, IOpenApiHeader>();
+                        document.Components.Headers.Add("X-Resolved-Tenant-ID", new OpenApiHeader()
+                        {
+                            Description = "The resolved Tenant-ID from JWT. Clarifies the Tenant-Context of the response.",
+                            Required = true,
+                            AllowEmptyValue = false,
+                        });
+
                         var securitySchemes = new Dictionary<string, IOpenApiSecurityScheme>
                         {
                             ["Bearer"] = new OpenApiSecurityScheme
@@ -45,6 +54,15 @@ namespace FireInvent.Api.Extensions
                             operation.Value.Security.Add(new OpenApiSecurityRequirement
                             {
                                 [new OpenApiSecuritySchemeReference("Bearer", document)] = []
+                            });
+
+                            operation.Value.Parameters ??= [];
+                            operation.Value.Parameters.Add(new OpenApiParameter
+                            {
+                                Description = "Tenant-ID (Required if multiple organzations included in JWT). To be able to use Tenant-Admin-API set Guid.Empty as Tenant-ID.",
+                                Name = "X-Tenant-ID",
+                                Required = false,
+                                In = ParameterLocation.Header,
                             });
                         }
                         document.Components ??= new OpenApiComponents();

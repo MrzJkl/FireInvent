@@ -1,5 +1,4 @@
-﻿using System;
-using Microsoft.EntityFrameworkCore.Migrations;
+﻿using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
@@ -120,9 +119,9 @@ namespace FireInvent.Database.Migrations
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
                     TenantId = table.Column<Guid>(type: "uuid", nullable: false),
                     OrderIdentifier = table.Column<string>(type: "character varying(255)", maxLength: 255, nullable: true),
-                    OrderDate = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
+                    OrderDate = table.Column<DateOnly>(type: "date", nullable: false),
                     Status = table.Column<int>(type: "integer", nullable: false),
-                    DeliveryDate = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: true)
+                    DeliveryDate = table.Column<DateOnly>(type: "date", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -144,7 +143,7 @@ namespace FireInvent.Database.Migrations
                     FirstName = table.Column<string>(type: "character varying(255)", maxLength: 255, nullable: false),
                     LastName = table.Column<string>(type: "character varying(255)", maxLength: 255, nullable: false),
                     Remarks = table.Column<string>(type: "character varying(2000)", maxLength: 2000, nullable: true),
-                    ContactInfo = table.Column<string>(type: "character varying(2000)", maxLength: 2000, nullable: true),
+                    EMail = table.Column<string>(type: "character varying(255)", maxLength: 255, nullable: true),
                     ExternalId = table.Column<string>(type: "character varying(255)", maxLength: 255, nullable: true)
                 },
                 constraints: table =>
@@ -360,8 +359,8 @@ namespace FireInvent.Database.Migrations
                     Identifier = table.Column<string>(type: "character varying(255)", maxLength: 255, nullable: true),
                     StorageLocationId = table.Column<Guid>(type: "uuid", nullable: true),
                     Condition = table.Column<int>(type: "integer", nullable: false),
-                    PurchaseDate = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
-                    RetirementDate = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: true)
+                    PurchaseDate = table.Column<DateOnly>(type: "date", nullable: false),
+                    RetirementDate = table.Column<DateOnly>(type: "date", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -433,8 +432,8 @@ namespace FireInvent.Database.Migrations
                     ItemId = table.Column<Guid>(type: "uuid", nullable: false),
                     PersonId = table.Column<Guid>(type: "uuid", nullable: false),
                     AssignedById = table.Column<Guid>(type: "uuid", nullable: false),
-                    AssignedFrom = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
-                    AssignedUntil = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: true)
+                    AssignedFrom = table.Column<DateOnly>(type: "date", nullable: false),
+                    AssignedUntil = table.Column<DateOnly>(type: "date", nullable: true)
                 },
                 constraints: table =>
                 {

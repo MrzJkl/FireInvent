@@ -102,7 +102,7 @@ public class ItemAssignmentHistoryServiceTests
 
         var existingAssignment = TestDataFactory.CreateAssignment(
             itemId, personId,
-            assignedFrom: DateTimeOffset.UtcNow.AddDays(-5),
+            assignedFrom: DateOnly.FromDateTime(DateTime.UtcNow.AddDays(-5)),
             assignedUntil: null);
         context.ItemAssignmentHistories.Add(existingAssignment);
         await context.SaveChangesAsync();
@@ -110,7 +110,7 @@ public class ItemAssignmentHistoryServiceTests
         // Attempting to create an overlapping assignment
         var model = TestDataFactory.CreateAssignmentModel(
             itemId, personId,
-            assignedFrom: DateTimeOffset.UtcNow);
+            assignedFrom: DateOnly.FromDateTime(DateTime.UtcNow));
 
         // Act & Assert
         await Assert.ThrowsAsync<ConflictException>(() => service.CreateAssignmentAsync(model));
@@ -127,15 +127,15 @@ public class ItemAssignmentHistoryServiceTests
 
         var existingAssignment = TestDataFactory.CreateAssignment(
             itemId, personId,
-            assignedFrom: DateTimeOffset.UtcNow.AddDays(-10),
-            assignedUntil: DateTimeOffset.UtcNow.AddDays(-5));
+            assignedFrom: DateOnly.FromDateTime(DateTime.UtcNow.AddDays(-10)),
+            assignedUntil: DateOnly.FromDateTime(DateTime.UtcNow.AddDays(-5)));
         context.ItemAssignmentHistories.Add(existingAssignment);
         await context.SaveChangesAsync();
 
         // Non-overlapping assignment
         var model = TestDataFactory.CreateAssignmentModel(
             itemId, personId,
-            assignedFrom: DateTimeOffset.UtcNow);
+            assignedFrom: DateOnly.FromDateTime(DateTime.UtcNow));
 
         // Act
         var countBefore = await context.ItemAssignmentHistories.CountAsync();
@@ -215,15 +215,15 @@ public class ItemAssignmentHistoryServiceTests
 
         var assignment1 = TestDataFactory.CreateAssignment(
             itemId, personId,
-            assignedFrom: DateTimeOffset.UtcNow.AddDays(-20),
-            assignedUntil: DateTimeOffset.UtcNow.AddDays(-15));
+            assignedFrom: DateOnly.FromDateTime(DateTime.UtcNow.AddDays(-20)),
+            assignedUntil: DateOnly.FromDateTime(DateTime.UtcNow.AddDays(-15)));
         var assignment2 = TestDataFactory.CreateAssignment(
             itemId, personId,
-            assignedFrom: DateTimeOffset.UtcNow.AddDays(-10),
-            assignedUntil: DateTimeOffset.UtcNow.AddDays(-5));
+            assignedFrom: DateOnly.FromDateTime(DateTime.UtcNow.AddDays(-10)),
+            assignedUntil: DateOnly.FromDateTime(DateTime.UtcNow.AddDays(-5)));
         var assignment3 = TestDataFactory.CreateAssignment(
             itemId, personId,
-            assignedFrom: DateTimeOffset.UtcNow);
+            assignedFrom: DateOnly.FromDateTime(DateTime.UtcNow));
 
         context.ItemAssignmentHistories.AddRange(assignment1, assignment2, assignment3);
         await context.SaveChangesAsync();
@@ -355,19 +355,19 @@ public class ItemAssignmentHistoryServiceTests
 
         var existingAssignment = TestDataFactory.CreateAssignment(
             itemId, personId,
-            assignedFrom: DateTimeOffset.UtcNow.AddDays(-10),
+            assignedFrom: DateOnly.FromDateTime(DateTime.UtcNow.AddDays(-10)),
             assignedUntil: null);
         var assignmentToUpdate = TestDataFactory.CreateAssignment(
             itemId, personId,
-            assignedFrom: DateTimeOffset.UtcNow.AddDays(-20),
-            assignedUntil: DateTimeOffset.UtcNow.AddDays(-15));
+            assignedFrom: DateOnly.FromDateTime(DateTime.UtcNow.AddDays(-20)),
+            assignedUntil: DateOnly.FromDateTime(DateTime.UtcNow.AddDays(-15)));
         context.ItemAssignmentHistories.AddRange(existingAssignment, assignmentToUpdate);
         await context.SaveChangesAsync();
 
         // Try to update to an overlapping date range
         var updateModel = TestDataFactory.CreateAssignmentModel(
             itemId, personId,
-            assignedFrom: DateTimeOffset.UtcNow.AddDays(-5),
+            assignedFrom: DateOnly.FromDateTime(DateTime.UtcNow.AddDays(-5)),
             assignedUntil: null);
 
         // Act & Assert
@@ -385,12 +385,12 @@ public class ItemAssignmentHistoryServiceTests
 
         var assignment = TestDataFactory.CreateAssignment(
             itemId, personId,
-            assignedFrom: DateTimeOffset.UtcNow.AddDays(-10),
+            assignedFrom: DateOnly.FromDateTime(DateTime.UtcNow.AddDays(-10)),
             assignedUntil: null);
         context.ItemAssignmentHistories.Add(assignment);
         await context.SaveChangesAsync();
 
-        var newEndDate = DateTimeOffset.UtcNow;
+        var newEndDate = DateOnly.FromDateTime(DateTime.UtcNow);
         var updateModel = TestDataFactory.CreateAssignmentModel(
             itemId, personId,
             assignedFrom: assignment.AssignedFrom,

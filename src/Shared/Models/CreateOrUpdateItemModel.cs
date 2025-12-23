@@ -17,7 +17,7 @@ public record CreateOrUpdateItemModel
     public ItemCondition Condition { get; init; }
 
     [Required]
-    public DateTimeOffset PurchaseDate { get; init; }
+    public DateOnly PurchaseDate { get; init; }
 
-    public DateTimeOffset? RetirementDate { get; init; }
+    public DateOnly? RetirementDate { get; init; }
 }

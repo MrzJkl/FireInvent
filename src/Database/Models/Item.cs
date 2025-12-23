@@ -29,9 +29,9 @@ public record Item : IHasTenant
     public ItemCondition Condition { get; set; }
 
     [Required]
-    public DateTimeOffset PurchaseDate { get; set; }
+    public DateOnly PurchaseDate { get; set; }
 
-    public DateTimeOffset? RetirementDate { get; set; }
+    public DateOnly? RetirementDate { get; set; }
 
     [Required]
     public virtual Variant Variant { get; set; } = null!;

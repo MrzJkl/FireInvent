@@ -17,7 +17,7 @@ public record CreateOrUpdateItemAssignmentHistoryModel
     public Guid AssignedById { get; init; }
 
     [Required]
-    public DateTimeOffset AssignedFrom { get; init; }
+    public DateOnly AssignedFrom { get; init; }
 
-    public DateTimeOffset? AssignedUntil { get; init; }
+    public DateOnly? AssignedUntil { get; init; }
 }

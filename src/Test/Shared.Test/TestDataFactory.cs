@@ -190,14 +190,14 @@ internal static partial class TestDataFactory
     internal static CreateOrUpdateItemModel CreateItemModel(
         Guid variantId,
         ItemCondition condition = ItemCondition.New,
-        DateTimeOffset? purchaseDate = null,
+        DateOnly? purchaseDate = null,
         string? identifier = null,
         Guid? storageLocationId = null)
         => new()
         {
             VariantId = variantId,
             Condition = condition,
-            PurchaseDate = purchaseDate ?? DateTimeOffset.UtcNow,
+            PurchaseDate = purchaseDate ?? DateOnly.FromDateTime(DateTime.UtcNow),
             Identifier = identifier,
             StorageLocationId = storageLocationId
         };
@@ -206,7 +206,7 @@ internal static partial class TestDataFactory
         Guid variantId,
         Guid? id = null,
         ItemCondition condition = ItemCondition.New,
-        DateTimeOffset? purchaseDate = null,
+        DateOnly? purchaseDate = null,
         string? identifier = null,
         Guid? storageLocationId = null)
         => new()
@@ -214,7 +214,7 @@ internal static partial class TestDataFactory
             Id = id ?? Guid.NewGuid(),
             VariantId = variantId,
             Condition = condition,
-            PurchaseDate = purchaseDate ?? DateTimeOffset.UtcNow,
+            PurchaseDate = purchaseDate ?? DateOnly.FromDateTime(DateTime.UtcNow),
             Identifier = identifier,
             StorageLocationId = storageLocationId
         };
@@ -223,14 +223,14 @@ internal static partial class TestDataFactory
     internal static CreateOrUpdateItemAssignmentHistoryModel CreateAssignmentModel(
         Guid itemId,
         Guid personId,
-        DateTimeOffset? assignedFrom = null,
-        DateTimeOffset? assignedUntil = null,
+        DateOnly? assignedFrom = null,
+        DateOnly? assignedUntil = null,
         Guid? assignedById = null)
         => new()
         {
             ItemId = itemId,
             PersonId = personId,
-            AssignedFrom = assignedFrom ?? DateTimeOffset.UtcNow,
+            AssignedFrom = assignedFrom ?? DateOnly.FromDateTime(DateTime.UtcNow),
             AssignedUntil = assignedUntil,
             AssignedById = assignedById ?? DefaultTestUserId
         };
@@ -239,15 +239,15 @@ internal static partial class TestDataFactory
         Guid itemId,
         Guid personId,
         Guid? id = null,
-        DateTimeOffset? assignedFrom = null,
-        DateTimeOffset? assignedUntil = null,
+        DateOnly? assignedFrom = null,
+        DateOnly? assignedUntil = null,
         Guid? assignedById = null)
         => new()
         {
             Id = id ?? Guid.NewGuid(),
             ItemId = itemId,
             PersonId = personId,
-            AssignedFrom = assignedFrom ?? DateTimeOffset.UtcNow,
+            AssignedFrom = assignedFrom ?? DateOnly.FromDateTime(DateTime.UtcNow),
             AssignedUntil = assignedUntil,
             AssignedById = assignedById ?? DefaultTestUserId
         };
@@ -287,24 +287,24 @@ internal static partial class TestDataFactory
 
     // Order helpers
     internal static CreateOrUpdateOrderModel CreateOrderModel(
-        DateTimeOffset? orderDate = null,
+        DateOnly? orderDate = null,
         OrderStatus status = OrderStatus.Draft,
         string? orderIdentifier = null)
         => new()
         {
-            OrderDate = orderDate ?? DateTimeOffset.UtcNow,
+            OrderDate = orderDate ?? DateOnly.FromDateTime(DateTime.UtcNow),
             Status = status,
             OrderIdentifier = orderIdentifier
         };
     internal static Order CreateOrder(
         Guid? id = null,
-        DateTimeOffset? orderDate = null,
+        DateOnly? orderDate = null,
         OrderStatus status = OrderStatus.Draft,
         string? orderIdentifier = null)
         => new()
         {
             Id = id ?? Guid.NewGuid(),
-            OrderDate = orderDate ?? DateTimeOffset.UtcNow,
+            OrderDate = orderDate ?? DateOnly.FromDateTime(DateTime.UtcNow),
             Status = status,
             OrderIdentifier = orderIdentifier
         };

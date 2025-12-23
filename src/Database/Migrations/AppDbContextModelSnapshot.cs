@@ -104,11 +104,11 @@ namespace FireInvent.Database.Migrations
                         .HasMaxLength(255)
                         .HasColumnType("character varying(255)");
 
-                    b.Property<DateTimeOffset>("PurchaseDate")
-                        .HasColumnType("timestamp with time zone");
+                    b.Property<DateOnly>("PurchaseDate")
+                        .HasColumnType("date");
 
-                    b.Property<DateTimeOffset?>("RetirementDate")
-                        .HasColumnType("timestamp with time zone");
+                    b.Property<DateOnly?>("RetirementDate")
+                        .HasColumnType("date");
 
                     b.Property<Guid?>("StorageLocationId")
                         .HasColumnType("uuid");
@@ -142,11 +142,11 @@ namespace FireInvent.Database.Migrations
                     b.Property<Guid>("AssignedById")
                         .HasColumnType("uuid");
 
-                    b.Property<DateTimeOffset>("AssignedFrom")
-                        .HasColumnType("timestamp with time zone");
+                    b.Property<DateOnly>("AssignedFrom")
+                        .HasColumnType("date");
 
-                    b.Property<DateTimeOffset?>("AssignedUntil")
-                        .HasColumnType("timestamp with time zone");
+                    b.Property<DateOnly?>("AssignedUntil")
+                        .HasColumnType("date");
 
                     b.Property<Guid>("ItemId")
                         .HasColumnType("uuid");
@@ -299,11 +299,11 @@ namespace FireInvent.Database.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
-                    b.Property<DateTimeOffset?>("DeliveryDate")
-                        .HasColumnType("timestamp with time zone");
+                    b.Property<DateOnly?>("DeliveryDate")
+                        .HasColumnType("date");
 
-                    b.Property<DateTimeOffset>("OrderDate")
-                        .HasColumnType("timestamp with time zone");
+                    b.Property<DateOnly>("OrderDate")
+                        .HasColumnType("date");
 
                     b.Property<string>("OrderIdentifier")
                         .HasMaxLength(255)
@@ -362,9 +362,9 @@ namespace FireInvent.Database.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
-                    b.Property<string>("ContactInfo")
-                        .HasMaxLength(2000)
-                        .HasColumnType("character varying(2000)");
+                    b.Property<string>("EMail")
+                        .HasMaxLength(255)
+                        .HasColumnType("character varying(255)");
 
                     b.Property<string>("ExternalId")
                         .HasMaxLength(255)

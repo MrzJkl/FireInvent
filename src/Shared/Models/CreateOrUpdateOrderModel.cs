@@ -9,10 +9,10 @@ public record CreateOrUpdateOrderModel
     public string? OrderIdentifier { get; init; }
 
     [Required]
-    public DateTimeOffset OrderDate { get; init; }
+    public DateOnly OrderDate { get; init; }
 
     [Required]
     public OrderStatus Status { get; init; }
 
-    public DateTimeOffset? DeliveryDate { get; init; }
+    public DateOnly? DeliveryDate { get; init; }
 }

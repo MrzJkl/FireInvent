@@ -37,7 +37,7 @@ public class ItemServiceTests
         return (productType, product, variant, storageLocation);
     }
 
-    private static Item CreateItemWithVariant(Variant variant, ItemCondition condition = ItemCondition.New, DateTimeOffset? purchaseDate = null, string? identifier = null, StorageLocation? storageLocation = null)
+    private static Item CreateItemWithVariant(Variant variant, ItemCondition condition = ItemCondition.New, DateOnly? purchaseDate = null, string? identifier = null, StorageLocation? storageLocation = null)
     {
         var item = TestDataFactory.CreateItem(variant.Id, condition: condition, purchaseDate: purchaseDate, identifier: identifier, storageLocationId: storageLocation?.Id);
         item.Variant = variant;

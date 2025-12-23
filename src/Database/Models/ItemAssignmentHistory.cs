@@ -29,9 +29,9 @@ public record ItemAssignmentHistory : IHasTenant
     public Guid AssignedById { get; set; }
 
     [Required]
-    public DateTimeOffset AssignedFrom { get; set; }
+    public DateOnly AssignedFrom { get; set; }
 
-    public DateTimeOffset? AssignedUntil { get; set; }
+    public DateOnly? AssignedUntil { get; set; }
 
     [Required]
     public virtual Item Item { get; set; } = null!;

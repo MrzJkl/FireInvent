@@ -17,12 +17,12 @@ public record Order : IHasTenant
     public string? OrderIdentifier { get; set; }
 
     [Required]
-    public DateTimeOffset OrderDate { get; set; }
+    public DateOnly OrderDate { get; set; }
 
     [Required]
     public OrderStatus Status { get; set; } = OrderStatus.Draft;
 
-    public DateTimeOffset? DeliveryDate { get; set; }
+    public DateOnly? DeliveryDate { get; set; }
 
     public virtual ICollection<OrderItem> Items { get; set; } = [];
 

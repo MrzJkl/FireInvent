@@ -120,7 +120,7 @@ public class MapperTests
         var mapper = new PersonMapper();
         var person = TestDataFactory.CreatePerson(firstName: "John", lastName: "Doe", externalId: "EXT001");
         person.Remarks = "Test remarks";
-        person.ContactInfo = "Contact info";
+        person.EMail = "test@example.com";
 
         // Act
         var result = mapper.MapPersonToPersonModel(person);
@@ -131,7 +131,7 @@ public class MapperTests
         Assert.Equal(person.LastName, result.LastName);
         Assert.Equal(person.ExternalId, result.ExternalId);
         Assert.Equal(person.Remarks, result.Remarks);
-        Assert.Equal(person.ContactInfo, result.ContactInfo);
+        Assert.Equal(person.EMail, result.EMail);
     }
 
     [Fact]
@@ -157,7 +157,7 @@ public class MapperTests
         var mapper = new ItemMapper();
         var variantId = Guid.NewGuid();
         var storageLocationId = Guid.NewGuid();
-        var purchaseDate = DateTimeOffset.UtcNow;
+        var purchaseDate = DateOnly.FromDateTime(DateTime.UtcNow);
         var model = TestDataFactory.CreateItemModel(variantId, ItemCondition.New, purchaseDate, "ITEM-001", storageLocationId);
 
         // Act
@@ -214,7 +214,7 @@ public class MapperTests
     {
         // Arrange
         var mapper = new OrderMapper();
-        var orderDate = DateTimeOffset.UtcNow;
+        var orderDate = DateOnly.FromDateTime(DateTime.UtcNow);
         var model = TestDataFactory.CreateOrderModel(orderDate, OrderStatus.Draft, "ORD-001");
 
         // Act
@@ -255,8 +255,8 @@ public class MapperTests
         var mapper = new ItemAssignmentHistoryMapper();
         var itemId = Guid.NewGuid();
         var personId = Guid.NewGuid();
-        var assignedFrom = DateTimeOffset.UtcNow.AddDays(-5);
-        var assignedUntil = DateTimeOffset.UtcNow;
+        var assignedFrom = DateOnly.FromDateTime(DateTime.UtcNow.AddDays(-5));
+        var assignedUntil = DateOnly.FromDateTime(DateTime.UtcNow);
         var model = TestDataFactory.CreateAssignmentModel(itemId, personId, assignedFrom, assignedUntil);
 
         // Act

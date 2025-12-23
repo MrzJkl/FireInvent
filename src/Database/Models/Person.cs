@@ -29,8 +29,9 @@ public record Person : IHasTenant
     [MaxLength(ModelConstants.MaxStringLengthLong)]
     public string? Remarks { get; set; }
 
-    [MaxLength(ModelConstants.MaxStringLengthLong)]
-    public string? ContactInfo { get; set; }
+    [MaxLength(ModelConstants.MaxStringLength)]
+    [DataType(DataType.EmailAddress)]
+    public string? EMail { get; set; }
 
     [MaxLength(ModelConstants.MaxStringLength)]
     public string? ExternalId { get; set; }
