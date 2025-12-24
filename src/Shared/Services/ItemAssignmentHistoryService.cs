@@ -70,7 +70,22 @@ public class ItemAssignmentHistoryService(AppDbContext context, ItemAssignmentHi
 
         return mapper.MapItemAssignmentHistorysToItemAssignmentHistoryModels(entities);
     }
-        
+
+    public async Task<List<ItemAssignmentHistoryModel>> GetAssignmentsForStorageLocationAsync(Guid storageLocationId)
+    {
+        var locationExists = await context.StorageLocations.AnyAsync(s => s.Id == storageLocationId);
+        if (!locationExists)
+            throw new NotFoundException($"StorageLocation with ID {storageLocationId} not found.");
+
+        var entities = await context.ItemAssignmentHistories
+            .Where(a => a.StorageLocationId == storageLocationId)
+            .OrderByDescending(a => a.AssignedFrom)
+            .AsNoTracking()
+            .ToListAsync();
+
+        return mapper.MapItemAssignmentHistorysToItemAssignmentHistoryModels(entities);
+    }
+
     public async Task<List<ItemAssignmentHistoryModel>> GetAllAssignmentsAsync()
     {
         var entities = await context.ItemAssignmentHistories

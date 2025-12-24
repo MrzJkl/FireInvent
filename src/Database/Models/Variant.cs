@@ -8,7 +8,7 @@ namespace FireInvent.Database.Models;
 [Index(nameof(ProductId), nameof(Name), IsUnique = true)]
 [Index(nameof(Name))]
 [Index(nameof(ExternalIdentifier), nameof(ProductId), IsUnique = true)]
-public record Variant : IHasTenant
+public record Variant : IHasTenant, IAuditable
 {
     [Key]
     public Guid Id { get; set; }
@@ -30,6 +30,16 @@ public record Variant : IHasTenant
 
     [MaxLength(ModelConstants.MaxStringLength)]
     public string? ExternalIdentifier { get; set; }
+
+    [Required]
+    public DateTimeOffset CreatedAt { get; set; }
+
+    [Required]
+    public Guid CreatedById { get; set; }
+
+    public DateTimeOffset? ModifiedAt { get; set; }
+
+    public Guid? ModifiedById { get; set; }
 
     [Required]
     public virtual Product Product { get; set; } = null!;

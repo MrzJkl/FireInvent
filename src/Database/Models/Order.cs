@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace FireInvent.Database.Models;
 
-public record Order : IHasTenant
+public record Order : IHasTenant, IAuditable
 {
     [Key]
     public Guid Id { get; set; }
@@ -23,6 +23,16 @@ public record Order : IHasTenant
     public OrderStatus Status { get; set; } = OrderStatus.Draft;
 
     public DateOnly? DeliveryDate { get; set; }
+
+    [Required]
+    public DateTimeOffset CreatedAt { get; set; }
+
+    [Required]
+    public Guid CreatedById { get; set; }
+
+    public DateTimeOffset? ModifiedAt { get; set; }
+
+    public Guid? ModifiedById { get; set; }
 
     public virtual ICollection<OrderItem> Items { get; set; } = [];
 

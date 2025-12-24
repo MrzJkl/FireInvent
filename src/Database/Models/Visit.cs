@@ -1,3 +1,4 @@
+using FireInvent.Contract;
 using Microsoft.EntityFrameworkCore;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -5,7 +6,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 namespace FireInvent.Database.Models;
 
 [Index(nameof(AppointmentId), nameof(PersonId), IsUnique = true)]
-public record Visit : IHasTenant
+public record Visit : IHasTenant, IAuditable
 {
     [Key]
     public Guid Id { get; set; }
@@ -21,6 +22,16 @@ public record Visit : IHasTenant
     [Required]
     [ForeignKey(nameof(Person))]
     public Guid PersonId { get; set; }
+
+    [Required]
+    public DateTimeOffset CreatedAt { get; set; }
+
+    [Required]
+    public Guid CreatedById { get; set; }
+
+    public DateTimeOffset? ModifiedAt { get; set; }
+
+    public Guid? ModifiedById { get; set; }
 
     [Required]
     public virtual Appointment Appointment { get; set; } = null!;

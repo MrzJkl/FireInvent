@@ -11,13 +11,14 @@ public record CreateOrUpdateItemModel
     [MaxLength(ModelConstants.MaxStringLength)]
     public string? Identifier { get; init; }
 
-    public Guid? StorageLocationId { get; init; }
-
     [Required]
     public ItemCondition Condition { get; init; }
 
     [Required]
     public DateOnly PurchaseDate { get; init; }
+
+    [Required]
+    public bool IsDemoItem { get; init; }
 
     public DateOnly? RetirementDate { get; init; }
 }

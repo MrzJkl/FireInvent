@@ -99,17 +99,30 @@ public class AppDbContext : DbContext
 
     public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
     {
-        // Automatically assign TenantId to new entities that implement IHasTenant
-        if (_tenantProvider is not null && _tenantProvider.TenantId.HasValue && _tenantProvider.TenantId.Value != Guid.Empty)
+        if (_tenantProvider is not null && _tenantProvider.TenantId.HasValue && _tenantProvider.TenantId.Value != Guid.Empty && _tenantProvider.UserId.HasValue && _tenantProvider.UserId.Value != Guid.Empty)
         {
-            var entries = ChangeTracker.Entries<IHasTenant>()
-                .Where(e => e.State == EntityState.Added);
-
-            foreach (var entry in entries)
+            // Automatically assign TenantId to new entities that implement IHasTenant
+            foreach (var entry in ChangeTracker.Entries<IHasTenant>()
+                .Where(e => e.State == EntityState.Added))
             {
                 if (entry.Entity.TenantId == Guid.Empty)
                 {
                     entry.Entity.TenantId = _tenantProvider.TenantId.Value;
+                }
+            }
+
+            // Automatically assign Audit-Fields to entities that implement IAuditable
+            foreach (var entry in ChangeTracker.Entries<IAuditable>())
+            {
+                if (entry.State == EntityState.Added)
+                {
+                    entry.Property(x => x.CreatedAt).CurrentValue = DateTimeOffset.UtcNow;
+                    entry.Property(x => x.CreatedById).CurrentValue = _tenantProvider.UserId.Value;
+                }
+                else if (entry.State == EntityState.Modified)
+                {
+                    entry.Property(x => x.ModifiedAt).CurrentValue = DateTimeOffset.UtcNow;
+                    entry.Property(x => x.ModifiedById).CurrentValue = _tenantProvider.UserId.Value;
                 }
             }
         }

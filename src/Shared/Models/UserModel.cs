@@ -8,6 +8,7 @@ public record UserModel
     public Guid Id { get; init; }
 
     [Required]
+    [DataType(DataType.EmailAddress)]
     public string EMail { get; set; } = string.Empty;
 
     public string? FirstName { get; set; }

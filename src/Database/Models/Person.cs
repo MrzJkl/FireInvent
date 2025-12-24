@@ -9,7 +9,7 @@ namespace FireInvent.Database.Models;
 [Index(nameof(ExternalId), nameof(TenantId), IsUnique = true)]
 [Index(nameof(FirstName))]
 [Index(nameof(LastName))]
-public record Person : IHasTenant
+public record Person : IHasTenant, IAuditable
 {
     [Key]
     public Guid Id { get; set; }
@@ -35,6 +35,16 @@ public record Person : IHasTenant
 
     [MaxLength(ModelConstants.MaxStringLength)]
     public string? ExternalId { get; set; }
+
+    [Required]
+    public DateTimeOffset CreatedAt { get; set; }
+
+    [Required]
+    public Guid CreatedById { get; set; }
+
+    public DateTimeOffset? ModifiedAt { get; set; }
+
+    public Guid? ModifiedById { get; set; }
 
     public virtual ICollection<ItemAssignmentHistory> AssignedItems { get; set; } = [];
 

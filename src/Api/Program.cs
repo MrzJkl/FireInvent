@@ -217,7 +217,7 @@ logger.LogDebug("Registering authentication and authorization...");
 app.UseAuthentication();
 app.UseAuthorization();
 
-// Middlewares & Endpoints
+// Middlewares & Endpoints / Order is important!
 logger.LogDebug("Registering middlewares...");
 app.UseMiddleware<UserContextResolutionMiddleware>();
 app.UseMiddleware<ApiExceptionMiddleware>();

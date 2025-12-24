@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace FireInvent.Database.Models;
 
-public record Maintenance : IHasTenant
+public record Maintenance : IHasTenant, IAuditable
 {
     [Key]
     public Guid Id { get; set; }
@@ -32,6 +32,16 @@ public record Maintenance : IHasTenant
 
     [MaxLength(ModelConstants.MaxStringLengthLong)]
     public string? Remarks { get; set; }
+
+    [Required]
+    public DateTimeOffset CreatedAt { get; set; }
+
+    [Required]
+    public Guid CreatedById { get; set; }
+
+    public DateTimeOffset? ModifiedAt { get; set; }
+
+    public Guid? ModifiedById { get; set; }
 
     [Required]
     public virtual MaintenanceType Type { get; set; } = null!;

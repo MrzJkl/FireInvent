@@ -6,7 +6,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 namespace FireInvent.Database.Models
 {
     [Index(nameof(Name), nameof(TenantId), IsUnique = true)]
-    public record Manufacturer : IHasTenant
+    public record Manufacturer : IHasTenant, IAuditable
     {
         [Required]
         [ForeignKey(nameof(Tenant))]
@@ -49,6 +49,16 @@ namespace FireInvent.Database.Models
         [MaxLength(ModelConstants.MaxStringLength)]
         [DataType(DataType.EmailAddress)]
         public string? Email { get; set; }
+
+        [Required]
+        public DateTimeOffset CreatedAt { get; set; }
+
+        [Required]
+        public Guid CreatedById { get; set; }
+
+        public DateTimeOffset? ModifiedAt { get; set; }
+
+        public Guid? ModifiedById { get; set; }
 
         public virtual ICollection<Product> Products { get; set; } = [];
 

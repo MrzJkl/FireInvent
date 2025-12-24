@@ -9,7 +9,7 @@ namespace FireInvent.Api.Controllers;
 
 [ApiController]
 [Route("storage-locations")]
-public class StorageLocationsController(IStorageLocationService locationService, IItemService itemService) : ControllerBase
+public class StorageLocationsController(IStorageLocationService locationService, IItemAssignmentHistoryService itemAssignmentHistoryService) : ControllerBase
 {
     [HttpGet]
     [EndpointSummary("List all storage locations")]
@@ -69,14 +69,14 @@ public class StorageLocationsController(IStorageLocationService locationService,
         return success ? NoContent() : throw new NotFoundException();
     }
 
-    [HttpGet("{id:guid}/items")]
-    [EndpointSummary("List all items for a storage location")]
-    [EndpointDescription("Returns all items assigned to a storage location.")]
-    [ProducesResponseType<List<ItemModel>>(StatusCodes.Status200OK)]
+    [HttpGet("{id:guid}/assignments")]
+    [EndpointSummary("List all assignments for a storage location")]
+    [EndpointDescription("Returns all assignments for a specific storage location.")]
+    [ProducesResponseType<List<ItemAssignmentHistoryModel>>(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<ActionResult<List<ItemModel>>> GetItemsForLocation(Guid id)
+    public async Task<ActionResult<List<ItemAssignmentHistoryModel>>> GetAssignmentsForLocation(Guid id)
     {
-        var items = await itemService.GetItemsForStorageLocationAsync(id);
-        return Ok(items);
+        var assignments = await itemAssignmentHistoryService.GetAssignmentsForStorageLocationAsync(id);
+        return Ok(assignments);
     }
 }

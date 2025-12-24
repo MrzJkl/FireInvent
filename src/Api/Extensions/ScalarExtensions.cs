@@ -78,16 +78,17 @@ namespace FireInvent.Api.Extensions
 
         internal static IApplicationBuilder ConfigureAddScalar(this WebApplication app)
         {
-            app.MapOpenApi();
+            app.MapOpenApi().CacheOutput();
 
             app.MapScalarApiReference("/docs", (options, context) =>
             {
                 options
                     .ExpandAllTags()
                     .ExpandAllModelSections()
-                    .WithDefaultHttpClient(ScalarTarget.CSharp, ScalarClient.HttpClient)
+                    .WithDefaultHttpClient(ScalarTarget.JavaScript, ScalarClient.Axios)
+                    .DisableTelemetry()
                     .AddPreferredSecuritySchemes("OAuth2", "Bearer");
-            });
+            }).CacheOutput();
 
             return app;
         }
