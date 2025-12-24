@@ -103,12 +103,9 @@ public class AppDbContext : DbContext
         {
             // Automatically assign TenantId to new entities that implement IHasTenant
             foreach (var entry in ChangeTracker.Entries<IHasTenant>()
-                .Where(e => e.State == EntityState.Added))
+                .Where(e => e.State == EntityState.Added && e.Entity.TenantId == Guid.Empty))
             {
-                if (entry.Entity.TenantId == Guid.Empty)
-                {
-                    entry.Entity.TenantId = _tenantProvider.TenantId.Value;
-                }
+                entry.Entity.TenantId = _tenantProvider.TenantId.Value;
             }
 
             // Automatically assign Audit-Fields to entities that implement IAuditable
