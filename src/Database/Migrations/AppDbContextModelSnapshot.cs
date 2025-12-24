@@ -202,10 +202,10 @@ namespace FireInvent.Database.Migrations
                     b.Property<Guid?>("ModifiedById")
                         .HasColumnType("uuid");
 
-                    b.Property<Guid>("PersonId")
+                    b.Property<Guid?>("PersonId")
                         .HasColumnType("uuid");
 
-                    b.Property<Guid>("StorageLocationId")
+                    b.Property<Guid?>("StorageLocationId")
                         .HasColumnType("uuid");
 
                     b.Property<Guid>("TenantId")
@@ -905,15 +905,11 @@ namespace FireInvent.Database.Migrations
 
                     b.HasOne("FireInvent.Database.Models.Person", "Person")
                         .WithMany("AssignedItems")
-                        .HasForeignKey("PersonId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("PersonId");
 
                     b.HasOne("FireInvent.Database.Models.StorageLocation", "StorageLocation")
                         .WithMany()
-                        .HasForeignKey("StorageLocationId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("StorageLocationId");
 
                     b.HasOne("FireInvent.Database.Models.Tenant", "Tenant")
                         .WithMany()

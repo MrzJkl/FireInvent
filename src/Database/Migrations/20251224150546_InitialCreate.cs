@@ -491,8 +491,8 @@ namespace FireInvent.Database.Migrations
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
                     TenantId = table.Column<Guid>(type: "uuid", nullable: false),
                     ItemId = table.Column<Guid>(type: "uuid", nullable: false),
-                    PersonId = table.Column<Guid>(type: "uuid", nullable: false),
-                    StorageLocationId = table.Column<Guid>(type: "uuid", nullable: false),
+                    PersonId = table.Column<Guid>(type: "uuid", nullable: true),
+                    StorageLocationId = table.Column<Guid>(type: "uuid", nullable: true),
                     AssignedById = table.Column<Guid>(type: "uuid", nullable: false),
                     AssignedFrom = table.Column<DateOnly>(type: "date", nullable: false),
                     AssignedUntil = table.Column<DateOnly>(type: "date", nullable: true),
@@ -514,14 +514,12 @@ namespace FireInvent.Database.Migrations
                         name: "FK_ItemAssignmentHistories_Persons_PersonId",
                         column: x => x.PersonId,
                         principalTable: "Persons",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        principalColumn: "Id");
                     table.ForeignKey(
                         name: "FK_ItemAssignmentHistories_StorageLocations_StorageLocationId",
                         column: x => x.StorageLocationId,
                         principalTable: "StorageLocations",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        principalColumn: "Id");
                     table.ForeignKey(
                         name: "FK_ItemAssignmentHistories_Tenants_TenantId",
                         column: x => x.TenantId,

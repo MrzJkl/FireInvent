@@ -9,10 +9,10 @@ public record ItemAssignmentHistoryModel : CreateOrUpdateItemAssignmentHistoryMo
     public Guid Id { get; init; }
 
     [Description("Items can be assigned to either a person or a storage location. Only one of these must be set.")]
-    public PersonModel? Person { get; init; } = null!;
+    public PersonModel? Person { get; init; }
 
     [Description("Items can be assigned to either a person or a storage location. Only one of these must be set.")]
-    public StorageLocationModel? StorageLocation { get; init; } = null!;
+    public StorageLocationModel? StorageLocation { get; init; }
 
     [Required]
     public ItemModel Item { get; init; } = null!;

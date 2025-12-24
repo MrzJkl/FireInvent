@@ -11,7 +11,7 @@ namespace FireInvent.Api.Extensions
         {
             foreach (var version in apiVersions)
             {
-                services.Configure<ScalarOptions>(options => options.AddDocument($"v{version.MajorVersion}", $"v{version.MajorVersion}"));
+                services.Configure<ScalarOptions>(options => options.AddDocument($"v{version.MajorVersion}_{version.MinorVersion}", $"v{version.MajorVersion}.{version.MinorVersion}"));
                 services.AddOpenApi($"v{version.MajorVersion}", options =>
                 {
                     options.OpenApiVersion = OpenApiSpecVersion.OpenApi3_1;
@@ -59,7 +59,7 @@ namespace FireInvent.Api.Extensions
                             operation.Value.Parameters ??= [];
                             operation.Value.Parameters.Add(new OpenApiParameter
                             {
-                                Description = "Tenant-ID (Required if multiple organzations included in JWT). To be able to use Tenant-Admin-API set Guid.Empty as Tenant-ID.",
+                                Description = "Tenant-ID (Required if multiple organizations included in JWT). To be able to use Tenant-Admin-API set Guid.Empty as Tenant-ID.",
                                 Name = "X-Tenant-ID",
                                 Required = false,
                                 In = ParameterLocation.Header,

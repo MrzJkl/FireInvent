@@ -22,14 +22,12 @@ public record ItemAssignmentHistory : IHasTenant, IAuditable
     /// <summary>
     /// Items can be assigned to either a person or a storage location. Only one of these must be set.
     /// </summary>
-    [Required]
     [ForeignKey(nameof(Person))]
     public Guid? PersonId { get; set; }
 
     /// <summary>
     /// Items can be assigned to either a person or a storage location. Only one of these must be set.
     /// </summary>
-    [Required]
     [ForeignKey(nameof(StorageLocation))]
     public Guid? StorageLocationId { get; set; }
 
@@ -60,12 +58,12 @@ public record ItemAssignmentHistory : IHasTenant, IAuditable
     /// <summary>
     /// Items can be assigned to either a person or a storage location. Only one of these must be set.
     /// </summary>
-    public virtual Person? Person { get; set; } = null!;
+    public virtual Person? Person { get; set; }
 
     /// <summary>
     /// Items can be assigned to either a person or a storage location. Only one of these must be set.
     /// </summary>
-    public virtual StorageLocation? StorageLocation { get; set; } = null!;
+    public virtual StorageLocation? StorageLocation { get; set; }
 
     [Required]
     public virtual Tenant Tenant { get; set; } = null!;
