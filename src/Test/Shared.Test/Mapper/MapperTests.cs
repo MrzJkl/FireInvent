@@ -156,9 +156,8 @@ public class MapperTests
         // Arrange
         var mapper = new ItemMapper();
         var variantId = Guid.NewGuid();
-        var storageLocationId = Guid.NewGuid();
         var purchaseDate = DateOnly.FromDateTime(DateTime.UtcNow);
-        var model = TestDataFactory.CreateItemModel(variantId, ItemCondition.New, purchaseDate, "ITEM-001", storageLocationId);
+        var model = TestDataFactory.CreateItemModel(variantId, ItemCondition.New, purchaseDate, "ITEM-001");
 
         // Act
         var result = mapper.MapCreateOrUpdateItemModelToItem(model);
@@ -168,7 +167,6 @@ public class MapperTests
         Assert.Equal(model.VariantId, result.VariantId);
         Assert.Equal(model.Condition, result.Condition);
         Assert.Equal(model.Identifier, result.Identifier);
-        Assert.Equal(model.StorageLocationId, result.StorageLocationId);
         Assert.Equal(model.PurchaseDate, result.PurchaseDate);
     }
 
