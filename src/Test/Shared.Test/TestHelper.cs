@@ -19,7 +19,8 @@ internal static class TestHelper
         
         var testTenantProvider = new UserContextProvider
         {
-            TenantId = TestTenantId
+            TenantId = TestTenantId,
+            UserId = TestDataFactory.DefaultTestUserId
         };
         
         return new AppDbContext(options, testTenantProvider);

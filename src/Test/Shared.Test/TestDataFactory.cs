@@ -191,15 +191,13 @@ internal static partial class TestDataFactory
         Guid variantId,
         ItemCondition condition = ItemCondition.New,
         DateOnly? purchaseDate = null,
-        string? identifier = null,
-        Guid? storageLocationId = null)
+        string? identifier = null)
         => new()
         {
             VariantId = variantId,
             Condition = condition,
             PurchaseDate = purchaseDate ?? DateOnly.FromDateTime(DateTime.UtcNow),
-            Identifier = identifier,
-            StorageLocationId = storageLocationId
+            Identifier = identifier
         };
 
     internal static Item CreateItem(
@@ -207,16 +205,14 @@ internal static partial class TestDataFactory
         Guid? id = null,
         ItemCondition condition = ItemCondition.New,
         DateOnly? purchaseDate = null,
-        string? identifier = null,
-        Guid? storageLocationId = null)
+        string? identifier = null)
         => new()
         {
             Id = id ?? Guid.NewGuid(),
             VariantId = variantId,
             Condition = condition,
             PurchaseDate = purchaseDate ?? DateOnly.FromDateTime(DateTime.UtcNow),
-            Identifier = identifier,
-            StorageLocationId = storageLocationId
+            Identifier = identifier
         };
 
     // ItemAssignmentHistory helpers

@@ -37,11 +37,10 @@ public class ItemServiceTests
         return (productType, product, variant, storageLocation);
     }
 
-    private static Item CreateItemWithVariant(Variant variant, ItemCondition condition = ItemCondition.New, DateOnly? purchaseDate = null, string? identifier = null, StorageLocation? storageLocation = null)
+    private static Item CreateItemWithVariant(Variant variant, ItemCondition condition = ItemCondition.New, DateOnly? purchaseDate = null, string? identifier = null)
     {
-        var item = TestDataFactory.CreateItem(variant.Id, condition: condition, purchaseDate: purchaseDate, identifier: identifier, storageLocationId: storageLocation?.Id);
+        var item = TestDataFactory.CreateItem(variant.Id, condition: condition, purchaseDate: purchaseDate, identifier: identifier);
         item.Variant = variant;
-        item.StorageLocation = storageLocation;
         return item;
     }
 
@@ -52,20 +51,6 @@ public class ItemServiceTests
         using var context = TestHelper.GetTestDbContext();
         var service = new ItemService(context, _mapper);
         var model = TestDataFactory.CreateItemModel(Guid.NewGuid());
-
-        // Act & Assert
-        await Assert.ThrowsAsync<BadRequestException>(() => service.CreateItemAsync(model));
-    }
-
-    [Fact]
-    public async Task CreateItemAsync_WithNonExistingStorageLocation_ShouldThrowBadRequestException()
-    {
-        // Arrange
-        using var context = TestHelper.GetTestDbContext();
-        var service = new ItemService(context, _mapper);
-        var (_, _, variant, _) = await SetupBasicDataAsync(context);
-
-        var model = TestDataFactory.CreateItemModel(variant.Id, storageLocationId: Guid.NewGuid());
 
         // Act & Assert
         await Assert.ThrowsAsync<BadRequestException>(() => service.CreateItemAsync(model));
@@ -123,13 +108,13 @@ public class ItemServiceTests
         // Arrange
         using var context = TestHelper.GetTestDbContext();
         var service = new ItemService(context, _mapper);
-        var (_, _, variant, storageLocation) = await SetupBasicDataAsync(context);
+        var (_, _, variant, _) = await SetupBasicDataAsync(context);
 
         var item = CreateItemWithVariant(variant, condition: ItemCondition.New, identifier: "ITEM-001");
         context.Items.Add(item);
         await context.SaveChangesAsync();
 
-        var updateModel = TestDataFactory.CreateItemModel(variant.Id, ItemCondition.Used, identifier: "ITEM-001-UPDATED", storageLocationId: storageLocation.Id);
+        var updateModel = TestDataFactory.CreateItemModel(variant.Id, ItemCondition.Used, identifier: "ITEM-001-UPDATED");
 
         // Act
         var result = await service.UpdateItemAsync(item.Id, updateModel);
@@ -140,7 +125,6 @@ public class ItemServiceTests
         Assert.NotNull(updated);
         Assert.Equal(ItemCondition.Used, updated.Condition);
         Assert.Equal("ITEM-001-UPDATED", updated.Identifier);
-        Assert.Equal(storageLocation.Id, updated.StorageLocationId);
     }
 
     [Fact]
@@ -240,16 +224,5 @@ public class ItemServiceTests
 
         // Act & Assert
         await Assert.ThrowsAsync<NotFoundException>(() => service.GetItemsForVariantAsync(Guid.NewGuid()));
-    }
-
-    [Fact]
-    public async Task GetItemsForStorageLocationAsync_WithNonExistingStorageLocation_ShouldThrowNotFoundException()
-    {
-        // Arrange
-        using var context = TestHelper.GetTestDbContext();
-        var service = new ItemService(context, _mapper);
-
-        // Act & Assert
-        await Assert.ThrowsAsync<NotFoundException>(() => service.GetItemsForStorageLocationAsync(Guid.NewGuid()));
     }
 }
