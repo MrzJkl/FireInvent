@@ -1,0 +1,55 @@
+services:
+  influxdb:
+    image: influxdb:1.8
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      - INFLUXDB_DB=${INFLUXDB_DB:-k6}
+    ports:
+      - '8086:8086'
+    volumes:
+      - influxdb-data:/var/lib/influxdb
+
+  grafana:
+    image: grafana/grafana:latest
+    restart: unless-stopped
+    depends_on:
+      - influxdb
+    env_file:
+      - .env
+    environment:
+      - GF_SECURITY_ADMIN_USER=${GF_SECURITY_ADMIN_USER:-admin}
+      - GF_SECURITY_ADMIN_PASSWORD=${GF_SECURITY_ADMIN_PASSWORD:-admin}
+      - GF_USERS_ALLOW_SIGN_UP=${GF_USERS_ALLOW_SIGN_UP:-false}
+    volumes:
+      - ./grafana/provisioning:/etc/grafana/provisioning
+      - ./grafana/dashboards:/var/lib/grafana/dashboards
+    ports:
+      - '3000:3000'
+
+  k6:
+    image: grafana/k6:latest
+    depends_on:
+      - influxdb
+    env_file:
+      - .env
+    environment:
+      - K6_OUT=${K6_OUT:-influxdb=http://influxdb:8086/k6}
+      - K6_BASE_URL
+      - K6_OAUTH_TOKEN_URL
+      - K6_CLIENT_ID
+      - K6_CLIENT_SECRET
+      - K6_SCOPE
+      - K6_RATE
+      - K6_DURATION
+      - K6_PREALLOCATED_VUS
+      - K6_MAX_VUS
+      - K6_TOKEN
+    entrypoint: ["/bin/sh", "-c"]
+    command: ["k6 run /scripts/k6-load-test.js"]
+    volumes:
+      - ./scripts:/scripts
+
+volumes:
+  influxdb-data:

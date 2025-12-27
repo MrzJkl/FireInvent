@@ -1,0 +1,246 @@
+{
+  "id": null,
+  "uid": "k6-overview",
+  "title": "k6 Overview",
+  "timezone": "browser",
+  "schemaVersion": 38,
+  "version": 1,
+  "refresh": "10s",
+  "tags": ["k6", "loadtest"],
+  "panels": [
+    {
+      "id": 1,
+      "type": "graph",
+      "title": "Requests per second",
+      "datasource": "k6-influxdb",
+      "gridPos": {"h": 8, "w": 12, "x": 0, "y": 0},
+      "lines": true,
+      "fill": 3,
+      "targets": [
+        {
+          "measurement": "http_reqs",
+          "resultFormat": "time_series",
+          "groupBy": [
+            {"type": "time", "params": ["$__interval"]},
+            {"type": "fill", "params": ["null"]}
+          ],
+          "select": [
+            [
+              {"type": "field", "params": ["value"]},
+              {"type": "sum", "params": []}
+            ]
+          ],
+          "tags": []
+        }
+      ],
+      "tooltip": {"shared": true}
+    },
+    {
+      "id": 2,
+      "type": "graph",
+      "title": "http_req_duration p95 (ms)",
+      "datasource": "k6-influxdb",
+      "gridPos": {"h": 8, "w": 12, "x": 12, "y": 0},
+      "lines": true,
+      "fill": 3,
+      "targets": [
+        {
+          "measurement": "http_req_duration",
+          "resultFormat": "time_series",
+          "groupBy": [
+            {"type": "time", "params": ["$__interval"]},
+            {"type": "fill", "params": ["null"]}
+          ],
+          "select": [
+            [
+              {"type": "field", "params": ["value"]},
+              {"type": "percentile", "params": [95]}
+            ]
+          ],
+          "tags": []
+        }
+      ],
+      "tooltip": {"shared": true},
+      "yaxes": [
+        {"format": "ms", "logBase": 1},
+        {"format": "short", "logBase": 1}
+      ]
+    },
+    {
+      "id": 3,
+      "type": "stat",
+      "title": "Error rate",
+      "datasource": "k6-influxdb",
+      "gridPos": {"h": 4, "w": 6, "x": 0, "y": 8},
+      "targets": [
+        {
+          "measurement": "http_req_failed",
+          "resultFormat": "time_series",
+          "groupBy": [
+            {"type": "time", "params": ["$__interval"]},
+            {"type": "fill", "params": ["null"]}
+          ],
+          "select": [
+            [
+              {"type": "field", "params": ["value"]},
+              {"type": "sum", "params": []}
+            ]
+          ],
+          "tags": []
+        }
+      ],
+      "options": {
+        "reduceOptions": {
+          "calcs": ["lastNotNull"],
+          "fields": "",
+          "values": false
+        },
+        "orientation": "horizontal"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "decimals": 2
+        },
+        "overrides": []
+      }
+    },
+    {
+      "id": 4,
+      "type": "graph",
+      "title": "Active VUs",
+      "datasource": "k6-influxdb",
+      "gridPos": {"h": 8, "w": 12, "x": 6, "y": 8},
+      "lines": true,
+      "fill": 3,
+      "targets": [
+        {
+          "measurement": "vus",
+          "resultFormat": "time_series",
+          "groupBy": [
+            {"type": "time", "params": ["$__interval"]},
+            {"type": "fill", "params": ["null"]}
+          ],
+          "select": [
+            [
+              {"type": "field", "params": ["value"]},
+              {"type": "max", "params": []}
+            ]
+          ],
+          "tags": []
+        }
+      ],
+      "tooltip": {"shared": true}
+    },
+    {
+      "id": 5,
+      "type": "table",
+      "title": "Failed Checks",
+      "datasource": "k6-influxdb",
+      "gridPos": {"h": 8, "w": 12, "x": 0, "y": 16},
+      "targets": [
+        {
+          "measurement": "checks",
+          "resultFormat": "table",
+          "groupBy": [
+            {"type": "tag", "params": ["check"]},
+            {"type": "tag", "params": ["group"]}
+          ],
+          "select": [
+            [
+              {"type": "field", "params": ["value"]},
+              {"type": "sum", "params": []}
+            ]
+          ],
+          "tags": [
+            {
+              "key": "value",
+              "operator": "=",
+              "value": "0"
+            }
+          ]
+        }
+      ],
+      "transformations": [
+        {
+          "id": "organize",
+          "options": {
+            "excludeByName": {},
+            "indexByName": {},
+            "renameByName": {
+              "check": "Check Name",
+              "group": "Group",
+              "sum": "Failed Count"
+            }
+          }
+        }
+      ],
+      "options": {
+        "showHeader": true,
+        "sortBy": [
+          {
+            "displayName": "Failed Count",
+            "desc": true
+          }
+        ]
+      }
+    },
+    {
+      "id": 6,
+      "type": "table",
+      "title": "Failed Requests by Endpoint",
+      "datasource": "k6-influxdb",
+      "gridPos": {"h": 8, "w": 12, "x": 12, "y": 16},
+      "targets": [
+        {
+          "measurement": "http_req_failed",
+          "resultFormat": "table",
+          "groupBy": [
+            {"type": "tag", "params": ["name"]},
+            {"type": "tag", "params": ["method"]},
+            {"type": "tag", "params": ["status"]}
+          ],
+          "select": [
+            [
+              {"type": "field", "params": ["value"]},
+              {"type": "sum", "params": []}
+            ]
+          ],
+          "tags": [
+            {
+              "key": "value",
+              "operator": "=",
+              "value": "1"
+            }
+          ]
+        }
+      ],
+      "transformations": [
+        {
+          "id": "organize",
+          "options": {
+            "excludeByName": {},
+            "indexByName": {},
+            "renameByName": {
+              "name": "Endpoint",
+              "method": "Method",
+              "status": "Status Code",
+              "sum": "Failed Count"
+            }
+          }
+        }
+      ],
+      "options": {
+        "showHeader": true,
+        "sortBy": [
+          {
+            "displayName": "Failed Count",
+            "desc": true
+          }
+        ]
+      }
+    }
+  ],
+  "templating": {"list": []},
+  "annotations": {"list": []}
+}
