@@ -11,7 +11,7 @@ namespace FireInvent.Api.Extensions
         {
             foreach (var version in apiVersions)
             {
-                services.Configure<ScalarOptions>(options => options.AddDocument($"v{version.MajorVersion}_{version.MinorVersion}", $"v{version.MajorVersion}.{version.MinorVersion}"));
+                services.Configure<ScalarOptions>(options => options.AddDocument($"v{version.MajorVersion}", $"v{version.MajorVersion}"));
                 services.AddOpenApi($"v{version.MajorVersion}", options =>
                 {
                     options.OpenApiVersion = OpenApiSpecVersion.OpenApi3_1;

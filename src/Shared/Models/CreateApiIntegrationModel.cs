@@ -1,14 +1,14 @@
+using FireInvent.Contract;
 using System.ComponentModel.DataAnnotations;
 
 namespace FireInvent.Shared.Models;
 
-public class CreateApiIntegrationModel
+public record CreateApiIntegrationModel
 {
     [Required]
-    [MinLength(1)]
-    [MaxLength(100)]
-    public required string Name { get; set; }
+    [MaxLength(ModelConstants.MaxStringLength)]
+    public string Name { get; init; } = string.Empty;
 
-    [MaxLength(500)]
-    public string? Description { get; set; }
+    [MaxLength(ModelConstants.MaxStringLength)]
+    public string? Description { get; init; }
 }

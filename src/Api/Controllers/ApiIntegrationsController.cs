@@ -40,14 +40,14 @@ public class ApiIntegrationsController(IKeycloakApiIntegrationService keycloakAd
         return Ok(integrations);
     }
 
-    [HttpDelete("{clientId:minlength(1)}")]
+    [HttpDelete("{id:guid}")]
     [EndpointSummary("Delete API integration")]
     [EndpointDescription("Deletes an API integration and revokes all access. This action cannot be undone.")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<ActionResult> DeleteApiIntegration(string clientId)
+    public async Task<ActionResult> DeleteApiIntegration(Guid id)
     {
-        await keycloakAdminService.DeleteApiIntegrationAsync(clientId);
+        await keycloakAdminService.DeleteApiIntegrationAsync(id);
         return NoContent();
     }
 }
