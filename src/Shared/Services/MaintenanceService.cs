@@ -3,6 +3,7 @@ using FireInvent.Contract.Exceptions;
 using FireInvent.Shared.Mapper;
 using FireInvent.Shared.Models;
 using Microsoft.EntityFrameworkCore;
+using FireInvent.Shared.Services.Keycloak;
 
 namespace FireInvent.Shared.Services;
 

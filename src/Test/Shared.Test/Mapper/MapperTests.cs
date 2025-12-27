@@ -255,7 +255,7 @@ public class MapperTests
         var personId = Guid.NewGuid();
         var assignedFrom = DateOnly.FromDateTime(DateTime.UtcNow.AddDays(-5));
         var assignedUntil = DateOnly.FromDateTime(DateTime.UtcNow);
-        var model = TestDataFactory.CreateAssignmentModel(itemId, personId, assignedFrom, assignedUntil);
+        var model = TestDataFactory.CreateAssignmentModel(itemId, personId: personId, assignedFrom: assignedFrom, assignedUntil: assignedUntil);
 
         // Act
         var result = mapper.MapCreateOrUpdateItemAssignmentHistoryModelToItemAssignmentHistory(model);

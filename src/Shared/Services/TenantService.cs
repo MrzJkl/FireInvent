@@ -5,6 +5,7 @@ using FireInvent.Shared.Mapper;
 using FireInvent.Shared.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using FireInvent.Shared.Services.Keycloak;
 
 namespace FireInvent.Shared.Services;
 

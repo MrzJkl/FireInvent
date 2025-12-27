@@ -1,4 +1,4 @@
-namespace FireInvent.Shared.Services;
+namespace FireInvent.Shared.Services.Keycloak;
 
 /// <summary>
 /// Service for managing Keycloak realms for tenant provisioning.

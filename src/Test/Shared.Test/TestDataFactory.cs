@@ -218,7 +218,8 @@ internal static partial class TestDataFactory
     // ItemAssignmentHistory helpers
     internal static CreateOrUpdateItemAssignmentHistoryModel CreateAssignmentModel(
         Guid itemId,
-        Guid personId,
+        Guid? personId = null,
+        Guid? storageLocationId = null,
         DateOnly? assignedFrom = null,
         DateOnly? assignedUntil = null,
         Guid? assignedById = null)
@@ -226,6 +227,7 @@ internal static partial class TestDataFactory
         {
             ItemId = itemId,
             PersonId = personId,
+            StorageLocationId = storageLocationId,
             AssignedFrom = assignedFrom ?? DateOnly.FromDateTime(DateTime.UtcNow),
             AssignedUntil = assignedUntil,
             AssignedById = assignedById ?? DefaultTestUserId
@@ -233,7 +235,8 @@ internal static partial class TestDataFactory
 
     internal static ItemAssignmentHistory CreateAssignment(
         Guid itemId,
-        Guid personId,
+        Guid? personId = null,
+        Guid? storageLocationId = null,
         Guid? id = null,
         DateOnly? assignedFrom = null,
         DateOnly? assignedUntil = null,
@@ -243,6 +246,7 @@ internal static partial class TestDataFactory
             Id = id ?? Guid.NewGuid(),
             ItemId = itemId,
             PersonId = personId,
+            StorageLocationId = storageLocationId,
             AssignedFrom = assignedFrom ?? DateOnly.FromDateTime(DateTime.UtcNow),
             AssignedUntil = assignedUntil,
             AssignedById = assignedById ?? DefaultTestUserId

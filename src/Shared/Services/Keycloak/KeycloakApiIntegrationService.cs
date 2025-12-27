@@ -3,14 +3,13 @@ using FireInvent.Contract.Extensions;
 using FireInvent.Contract.Exceptions;
 using FireInvent.Shared.Models;
 using FireInvent.Shared.Options;
-using FireInvent.Shared.Services.Keycloak;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using System.Net.Http.Json;
 using System.Text;
 using System.Text.Json;
 
-namespace FireInvent.Shared.Services;
+namespace FireInvent.Shared.Services.Keycloak;
 
 /// <summary>
 /// Service for managing API Integrations within tenants using Keycloak Organizations.

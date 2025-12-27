@@ -1,6 +1,6 @@
 using FireInvent.Shared.Models;
 
-namespace FireInvent.Shared.Services;
+namespace FireInvent.Shared.Services.Keycloak;
 
 public interface IKeycloakApiIntegrationService
 {

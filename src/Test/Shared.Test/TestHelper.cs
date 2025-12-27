@@ -1,7 +1,7 @@
 ﻿using FireInvent.Contract;
 using FireInvent.Database;
 using FireInvent.Shared.Models;
-using FireInvent.Shared.Services;
+using FireInvent.Shared.Services.Keycloak;
 using Microsoft.EntityFrameworkCore;
 
 namespace FireInvent.Test.Shared;

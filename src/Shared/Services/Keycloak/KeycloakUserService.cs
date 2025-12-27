@@ -1,10 +1,9 @@
 ﻿using FireInvent.Contract;
 using FireInvent.Shared.Models;
-using FireInvent.Shared.Services.Keycloak;
 using Microsoft.Extensions.Logging;
 using System.Net.Http.Json;
 
-namespace FireInvent.Shared.Services;
+namespace FireInvent.Shared.Services.Keycloak;
 
 public class KeycloakUserService(
     KeycloakHttpClient keycloakClient,

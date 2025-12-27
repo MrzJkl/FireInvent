@@ -1,6 +1,6 @@
 using FireInvent.Contract;
 using FireInvent.Shared.Models;
-using FireInvent.Shared.Services;
+using FireInvent.Shared.Services.Keycloak;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 

@@ -7,6 +7,7 @@ using FireInvent.Shared.Converter;
 using FireInvent.Shared.Mapper;
 using FireInvent.Shared.Options;
 using FireInvent.Shared.Services;
+using FireInvent.Shared.Services.Keycloak;
 using Microsoft.AspNetCore.Mvc.Authorization;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
