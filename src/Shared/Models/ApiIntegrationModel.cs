@@ -1,12 +1,16 @@
+using FireInvent.Contract;
+using System.ComponentModel.DataAnnotations;
+
 namespace FireInvent.Shared.Models;
 
-public class ApiIntegrationModel
+public record ApiIntegrationModel : CreateApiIntegrationModel
 {
-    public required string ClientId { get; set; }
+    [Required]
+    public Guid Id { get; init; }
 
-    public required string Name { get; set; }
+    [Required]
+    [MaxLength(ModelConstants.MaxStringLength)]
+    public string ClientId { get; init; } = string.Empty;
 
-    public string? Description { get; set; }
-
-    public bool Enabled { get; set; }
+    public bool Enabled { get; init; }
 }

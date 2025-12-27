@@ -110,10 +110,11 @@ public class KeycloakApiIntegrationService(
             var clientSecret = credentials?.Value
                 ?? throw new InvalidOperationException("Failed to retrieve the client secret.");
 
-            logger.LogInformation("Successfully created API integration: {ClientId}", clientId.SanitizeForLogging());
+            logger.LogInformation("Successfully created API integration: {ClientId} with ID: {Id}", clientId.SanitizeForLogging(), createdClient.Id);
 
             return new ApiIntegrationCredentialsModel
             {
+                Id = Guid.Parse(createdClient.Id),
                 ClientId = clientId,
                 ClientSecret = clientSecret,
                 Name = name,
@@ -152,6 +153,7 @@ public class KeycloakApiIntegrationService(
             var apiIntegrations = filtered
                 .Select(c => new ApiIntegrationModel
                 {
+                    Id = Guid.Parse(c.Id!),
                     ClientId = c.ClientId!,
                     Name = c.Name ?? ExtractNameFromClientId(c.ClientId!),
                     Description = c.Attributes?.ContainsKey("description") == true 
@@ -173,58 +175,69 @@ public class KeycloakApiIntegrationService(
         }
     }
 
-    public async Task DeleteApiIntegrationAsync(string clientId)
+    public async Task DeleteApiIntegrationAsync(Guid id)
     {
-        if (string.IsNullOrWhiteSpace(clientId))
-            throw new ArgumentException("Client ID cannot be empty.", nameof(clientId));
-
-        if (!clientId.StartsWith(_options.ApiClientPrefix))
-            throw new ArgumentException($"Client ID must start with '{_options.ApiClientPrefix}'.", nameof(clientId));
+        var clientUuid = id.ToString();
 
         try
         {
-            var clients = await GetClientsByClientIdAsync(clientId);
-            var client = clients.FirstOrDefault();
+            var response = await keycloakClient.GetAsync(
+                $"admin/realms/{keycloakClient.Realm}/clients/{clientUuid}");
 
-            if (client == null)
+            if (!response.IsSuccessStatusCode)
             {
-                logger.LogWarning("Attempted to delete non-existent API integration: {ClientId}", clientId.SanitizeForLogging());
-                throw new NotFoundException($"API integration with client ID '{clientId}' not found.");
+                logger.LogWarning("Attempted to delete non-existent API integration with ID: {Id}", id);
+                throw new NotFoundException($"API integration with ID '{id}' not found.");
             }
 
-            if (!await IsClientServiceAccountMemberOfCurrentOrganizationAsync(client.Id!))
+            var client = await response.Content.ReadFromJsonAsync<KeycloakClient>(keycloakClient.JsonOptions);
+
+            if (client == null || !client.ClientId.StartsWith(_options.ApiClientPrefix))
             {
-                logger.LogWarning("Attempted to delete API integration outside of tenant {TenantId}: {ClientId}", userContextProvider.TenantId, clientId.SanitizeForLogging());
+                logger.LogWarning("Attempted to delete client that is not an API integration: {Id}", id);
+                throw new InvalidOperationException("Client is not an API integration.");
+            }
+
+            if (!await IsClientServiceAccountMemberOfCurrentOrganizationAsync(clientUuid))
+            {
+                logger.LogWarning("Attempted to delete API integration outside of tenant {TenantId}: {Id}", userContextProvider.TenantId, id);
                 throw new InvalidOperationException("Forbidden: client does not belong to current tenant.");
             }
 
-            logger.LogInformation("Deleting API integration: {ClientId} (internal ID: {InternalId})", clientId.SanitizeForLogging(), client.Id);
+            logger.LogInformation("Deleting API integration: {ClientId} (ID: {Id})", client.ClientId.SanitizeForLogging(), id);
             
-            var response = await keycloakClient.DeleteAsync($"admin/realms/{keycloakClient.Realm}/clients/{client.Id}");
-            response.EnsureSuccessStatusCode();
+            var deleteResponse = await keycloakClient.DeleteAsync($"admin/realms/{keycloakClient.Realm}/clients/{clientUuid}");
+            deleteResponse.EnsureSuccessStatusCode();
 
-            logger.LogInformation("Successfully deleted API integration: {ClientId}", clientId.SanitizeForLogging());
+            logger.LogInformation("Successfully deleted API integration: {ClientId} (ID: {Id})", client.ClientId.SanitizeForLogging(), id);
         }
         catch (Exception ex) when (ex is not NotFoundException)
         {
-            logger.LogError(ex, "Failed to delete API integration: {ClientId}", clientId.SanitizeForLogging());
+            logger.LogError(ex, "Failed to delete API integration with ID: {Id}", id);
             throw new InvalidOperationException($"Failed to delete API integration: {ex.Message}", ex);
         }
     }
 
-    public async Task<bool> ApiIntegrationExistsAsync(string clientId)
+    public async Task<bool> ApiIntegrationExistsAsync(Guid id)
     {
-        if (string.IsNullOrWhiteSpace(clientId))
-            return false;
-
         try
         {
-            var clients = await GetClientsByClientIdAsync(clientId);
-            return clients.Any(c => c.ClientId == clientId && c.ClientId.StartsWith(_options.ApiClientPrefix));
+            var clientUuid = id.ToString();
+            var response = await keycloakClient.GetAsync(
+                $"admin/realms/{keycloakClient.Realm}/clients/{clientUuid}");
+
+            if (!response.IsSuccessStatusCode)
+                return false;
+
+            var client = await response.Content.ReadFromJsonAsync<KeycloakClient>(keycloakClient.JsonOptions);
+
+            return client != null 
+                && client.ClientId.StartsWith(_options.ApiClientPrefix)
+                && await IsClientServiceAccountMemberOfCurrentOrganizationAsync(clientUuid);
         }
         catch (Exception ex)
         {
-            logger.LogError(ex, "Failed to check if API integration exists: {ClientId}", clientId.SanitizeForLogging());
+            logger.LogError(ex, "Failed to check if API integration exists with ID: {Id}", id);
             return false;
         }
     }

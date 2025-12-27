@@ -8,7 +8,7 @@ public interface IKeycloakApiIntegrationService
 
     Task<List<ApiIntegrationModel>> GetApiIntegrationsAsync();
 
-    Task DeleteApiIntegrationAsync(string clientId);
+    Task DeleteApiIntegrationAsync(Guid id);
 
-    Task<bool> ApiIntegrationExistsAsync(string clientId);
+    Task<bool> ApiIntegrationExistsAsync(Guid id);
 }

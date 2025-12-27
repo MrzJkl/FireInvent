@@ -1,10 +1,18 @@
+using System.ComponentModel.DataAnnotations;
+
 namespace FireInvent.Shared.Models;
 
-public class ApiIntegrationCredentialsModel
+public record ApiIntegrationCredentialsModel
 {
-    public required string ClientId { get; set; }
+    [Required]
+    public Guid Id { get; init; }
 
-    public required string ClientSecret { get; set; }
+    [Required]
+    public string ClientId { get; init; } = string.Empty;
 
-    public required string Name { get; set; }
+    [Required]
+    public string ClientSecret { get; init; } = string.Empty;
+
+    [Required]
+    public string Name { get; init; } = string.Empty;
 }
