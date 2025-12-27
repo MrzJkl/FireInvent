@@ -1,6 +1,6 @@
 ﻿using FireInvent.Contract.Exceptions;
 using FireInvent.Shared.Models;
-using FireInvent.Shared.Services;
+using FireInvent.Shared.Services.Keycloak;
 using Microsoft.AspNetCore.Mvc;
 
 namespace FireInvent.Api.Controllers;

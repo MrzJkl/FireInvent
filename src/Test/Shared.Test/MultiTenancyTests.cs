@@ -18,8 +18,8 @@ public class MultiTenancyTests
         var tenant1Id = Guid.NewGuid();
         var tenant2Id = Guid.NewGuid();
 
-        var tenant1Provider = new UserContextProvider { TenantId = tenant1Id };
-        var tenant2Provider = new UserContextProvider { TenantId = tenant2Id };
+        var tenant1Provider = new UserContextProvider { TenantId = tenant1Id, UserId = TestDataFactory.DefaultTestUserId };
+        var tenant2Provider = new UserContextProvider { TenantId = tenant2Id, UserId = TestDataFactory.DefaultTestUserId };
 
         using var context1 = new AppDbContext(options, tenant1Provider);
         using var context2 = new AppDbContext(options, tenant2Provider);
@@ -66,7 +66,7 @@ public class MultiTenancyTests
 
         var tenantId = Guid.NewGuid();
 
-        var userContextProvider = new UserContextProvider { TenantId = tenantId };
+        var userContextProvider = new UserContextProvider { TenantId = tenantId, UserId = TestDataFactory.DefaultTestUserId };
         using var context = new AppDbContext(options, userContextProvider);
 
         // Act - Create entity without explicitly setting TenantId
@@ -95,8 +95,8 @@ public class MultiTenancyTests
         var tenant1Id = Guid.NewGuid();
         var tenant2Id = Guid.NewGuid();
 
-        var tenant1Provider = new UserContextProvider { TenantId = tenant1Id };
-        var tenant2Provider = new UserContextProvider { TenantId = tenant2Id };
+        var tenant1Provider = new UserContextProvider { TenantId = tenant1Id, UserId = TestDataFactory.DefaultTestUserId };
+        var tenant2Provider = new UserContextProvider { TenantId = tenant2Id, UserId = TestDataFactory.DefaultTestUserId };
 
         // Create entities in different tenants
         using (var context1 = new AppDbContext(options, tenant1Provider))

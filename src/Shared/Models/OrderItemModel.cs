@@ -11,4 +11,14 @@ public record OrderItemModel : CreateOrUpdateOrderItemModel
     public VariantModel Variant { get; init; } = new();
 
     public PersonModel? Person { get; init; }
+
+    [Required]
+    public DateTimeOffset CreatedAt { get; init; }
+
+    [Required]
+    public Guid CreatedById { get; init; }
+
+    public DateTimeOffset? ModifiedAt { get; init; }
+
+    public Guid? ModifiedById { get; init; }
 }

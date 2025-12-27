@@ -16,8 +16,9 @@ public record CreateOrUpdatePersonModel
     [MaxLength(ModelConstants.MaxStringLengthLong)]
     public string? Remarks { get; init; }
 
-    [MaxLength(ModelConstants.MaxStringLengthLong)]
-    public string? ContactInfo { get; init; }
+    [MaxLength(ModelConstants.MaxStringLength)]
+    [DataType(DataType.EmailAddress)]
+    public string? EMail { get; init; }
 
     [MaxLength(ModelConstants.MaxStringLength)]
     public string? ExternalId { get; init; }

@@ -1,9 +1,10 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using FireInvent.Contract;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace FireInvent.Database.Models;
 
-public record OrderItem : IHasTenant
+public record OrderItem : IHasTenant, IAuditable
 {
     [Key]
     public Guid Id { get; set; }
@@ -26,6 +27,16 @@ public record OrderItem : IHasTenant
     [Required]
     [Range(1, int.MaxValue)]
     public int Quantity { get; set; }
+
+    [Required]
+    public DateTimeOffset CreatedAt { get; set; }
+
+    [Required]
+    public Guid CreatedById { get; set; }
+
+    public DateTimeOffset? ModifiedAt { get; set; }
+
+    public Guid? ModifiedById { get; set; }
 
     [Required]
     public virtual Order Order { get; set; } = null!;

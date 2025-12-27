@@ -13,10 +13,6 @@ public class ItemService(AppDbContext context, ItemMapper mapper) : IItemService
         if (!await context.Variants.AnyAsync(v => v.Id == model.VariantId))
             throw new BadRequestException("Variant not found.");
 
-        if (model.StorageLocationId.HasValue &&
-            !await context.StorageLocations.AnyAsync(s => s.Id == model.StorageLocationId))
-            throw new BadRequestException("StorageLocation not found.");
-
         if (!string.IsNullOrWhiteSpace(model.Identifier))
         {
             var exists = await context.Items
@@ -66,10 +62,6 @@ public class ItemService(AppDbContext context, ItemMapper mapper) : IItemService
         if (!await context.Variants.AnyAsync(v => v.Id == model.VariantId))
             throw new BadRequestException("Variant not found.");
 
-        if (model.StorageLocationId.HasValue &&
-            !await context.StorageLocations.AnyAsync(s => s.Id == model.StorageLocationId))
-            throw new BadRequestException("StorageLocation not found.");
-
         if (!string.IsNullOrWhiteSpace(model.Identifier))
         {
             var exists = await context.Items
@@ -104,21 +96,6 @@ public class ItemService(AppDbContext context, ItemMapper mapper) : IItemService
 
         var items = await context.Items
             .Where(i => i.VariantId == variantId)
-            .OrderBy(i => i.PurchaseDate)
-            .AsNoTracking()
-            .ToListAsync();
-
-        return mapper.MapItemsToItemModels(items);
-    }
-
-    public async Task<List<ItemModel>> GetItemsForStorageLocationAsync(Guid storageLocationId)
-    {
-        var locationExists = await context.StorageLocations.AnyAsync(s => s.Id == storageLocationId);
-        if (!locationExists)
-            throw new NotFoundException($"StorageLocation with ID {storageLocationId} not found.");
-
-        var items = await context.Items
-            .Where(i => i.StorageLocationId == storageLocationId)
             .OrderBy(i => i.PurchaseDate)
             .AsNoTracking()
             .ToListAsync();

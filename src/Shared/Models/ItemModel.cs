@@ -10,5 +10,13 @@ public record ItemModel : CreateOrUpdateItemModel
     [Required]
     public VariantModel Variant { get; init; } = null!;
 
-    public StorageLocationModel? StorageLocation { get; init; }
+    [Required]
+    public DateTimeOffset CreatedAt { get; init; }
+
+    [Required]
+    public Guid CreatedById { get; init; }
+
+    public DateTimeOffset? ModifiedAt { get; init; }
+
+    public Guid? ModifiedById { get; init; }
 }

@@ -1,4 +1,4 @@
-namespace FireInvent.Database.Models;
+namespace FireInvent.Contract;
 
 public interface IHasTenant
 {

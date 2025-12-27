@@ -1,7 +1,7 @@
 ﻿using FireInvent.Contract;
 using FireInvent.Database;
 using FireInvent.Shared.Models;
-using FireInvent.Shared.Services;
+using FireInvent.Shared.Services.Keycloak;
 using Microsoft.EntityFrameworkCore;
 
 namespace FireInvent.Test.Shared;
@@ -19,7 +19,8 @@ internal static class TestHelper
         
         var testTenantProvider = new UserContextProvider
         {
-            TenantId = TestTenantId
+            TenantId = TestTenantId,
+            UserId = TestDataFactory.DefaultTestUserId
         };
         
         return new AppDbContext(options, testTenantProvider);

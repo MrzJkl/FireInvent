@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace FireInvent.Database.Models;
 
-public record Appointment : IHasTenant
+public record Appointment : IHasTenant, IAuditable
 {
     [Key]
     public Guid Id { get; set; }
@@ -18,6 +18,16 @@ public record Appointment : IHasTenant
 
     [MaxLength(ModelConstants.MaxStringLengthLong)]
     public string? Description { get; set; }
+
+    [Required]
+    public DateTimeOffset CreatedAt { get; set; }
+
+    [Required]
+    public Guid CreatedById { get; set; }
+
+    public DateTimeOffset? ModifiedAt { get; set; }
+
+    public Guid? ModifiedById { get; set; }
 
     [Required]
     public virtual ICollection<Visit> Visits { get; set; } = [];

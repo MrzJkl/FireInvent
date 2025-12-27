@@ -3,6 +3,7 @@ using FireInvent.Contract.Exceptions;
 using FireInvent.Shared.Mapper;
 using FireInvent.Shared.Models;
 using Microsoft.EntityFrameworkCore;
+using FireInvent.Shared.Services.Keycloak;
 
 namespace FireInvent.Shared.Services;
 
@@ -10,11 +11,16 @@ public class ItemAssignmentHistoryService(AppDbContext context, ItemAssignmentHi
 {
     public async Task<ItemAssignmentHistoryModel> CreateAssignmentAsync(CreateOrUpdateItemAssignmentHistoryModel model)
     {
+        ValidateAssignmentTarget(model);
+
         if (!await context.Items.AnyAsync(i => i.Id == model.ItemId))
             throw new BadRequestException($"Item with ID '{model.ItemId}' does not exist.");
 
-        if (!await context.Persons.AnyAsync(p => p.Id == model.PersonId))
+        if (model.PersonId.HasValue && !await context.Persons.AnyAsync(p => p.Id == model.PersonId))
             throw new BadRequestException($"Person with ID '{model.PersonId}' does not exist.");
+
+        if (model.StorageLocationId.HasValue && !await context.StorageLocations.AnyAsync(s => s.Id == model.StorageLocationId))
+            throw new BadRequestException($"StorageLocation with ID '{model.StorageLocationId}' does not exist.");
 
         _ = await userService.GetUserByIdAsync(model.AssignedById) ?? throw new BadRequestException($"User with ID '{model.AssignedById}' does not exist.");
 
@@ -70,7 +76,22 @@ public class ItemAssignmentHistoryService(AppDbContext context, ItemAssignmentHi
 
         return mapper.MapItemAssignmentHistorysToItemAssignmentHistoryModels(entities);
     }
-        
+
+    public async Task<List<ItemAssignmentHistoryModel>> GetAssignmentsForStorageLocationAsync(Guid storageLocationId)
+    {
+        var locationExists = await context.StorageLocations.AnyAsync(s => s.Id == storageLocationId);
+        if (!locationExists)
+            throw new NotFoundException($"StorageLocation with ID {storageLocationId} not found.");
+
+        var entities = await context.ItemAssignmentHistories
+            .Where(a => a.StorageLocationId == storageLocationId)
+            .OrderByDescending(a => a.AssignedFrom)
+            .AsNoTracking()
+            .ToListAsync();
+
+        return mapper.MapItemAssignmentHistorysToItemAssignmentHistoryModels(entities);
+    }
+
     public async Task<List<ItemAssignmentHistoryModel>> GetAllAssignmentsAsync()
     {
         var entities = await context.ItemAssignmentHistories
@@ -97,11 +118,16 @@ public class ItemAssignmentHistoryService(AppDbContext context, ItemAssignmentHi
         if (entity is null)
             return false;
 
+        ValidateAssignmentTarget(model);
+
         if (!await context.Items.AnyAsync(i => i.Id == model.ItemId))
             throw new BadRequestException($"Item with ID '{model.ItemId}' does not exist.");
 
-        if (!await context.Persons.AnyAsync(p => p.Id == model.PersonId))
+        if (model.PersonId.HasValue && !await context.Persons.AnyAsync(p => p.Id == model.PersonId))
             throw new BadRequestException($"Person with ID '{model.PersonId}' does not exist.");
+
+        if (model.StorageLocationId.HasValue && !await context.StorageLocations.AnyAsync(s => s.Id == model.StorageLocationId))
+            throw new BadRequestException($"StorageLocation with ID '{model.StorageLocationId}' does not exist.");
 
         _ = await userService.GetUserByIdAsync(model.AssignedById) ?? throw new BadRequestException($"User with ID '{model.AssignedById}' does not exist.");
 
@@ -132,5 +158,17 @@ public class ItemAssignmentHistoryService(AppDbContext context, ItemAssignmentHi
         context.ItemAssignmentHistories.Remove(entity);
         await context.SaveChangesAsync();
         return true;
+    }
+
+    private static void ValidateAssignmentTarget(CreateOrUpdateItemAssignmentHistoryModel model)
+    {
+        bool hasPersonId = model.PersonId.HasValue;
+        bool hasStorageLocationId = model.StorageLocationId.HasValue;
+
+        if (!hasPersonId && !hasStorageLocationId)
+            throw new BadRequestException("Either PersonId or StorageLocationId must be set.");
+
+        if (hasPersonId && hasStorageLocationId)
+            throw new BadRequestException("An item can only be assigned to either a Person or a StorageLocation, not both.");
     }
 }

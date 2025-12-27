@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel;
+using System.ComponentModel.DataAnnotations;
 
 namespace FireInvent.Shared.Models;
 
@@ -7,8 +8,11 @@ public record CreateOrUpdateItemAssignmentHistoryModel
     [Required]
     public Guid ItemId { get; init; }
 
-    [Required]
-    public Guid PersonId { get; init; }
+    [Description("Items can be assigned to either a person or a storage location. Only one of these must be set.")]
+    public Guid? PersonId { get; init; }
+
+    [Description("Items can be assigned to either a person or a storage location. Only one of these must be set.")]
+    public Guid? StorageLocationId { get; init; }
 
     /// <summary>
     /// User ID from Keycloak who assigned the item.
@@ -17,7 +21,7 @@ public record CreateOrUpdateItemAssignmentHistoryModel
     public Guid AssignedById { get; init; }
 
     [Required]
-    public DateTimeOffset AssignedFrom { get; init; }
+    public DateOnly AssignedFrom { get; init; }
 
-    public DateTimeOffset? AssignedUntil { get; init; }
+    public DateOnly? AssignedUntil { get; init; }
 }

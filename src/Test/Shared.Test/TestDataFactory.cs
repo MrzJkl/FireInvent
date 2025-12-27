@@ -190,64 +190,64 @@ internal static partial class TestDataFactory
     internal static CreateOrUpdateItemModel CreateItemModel(
         Guid variantId,
         ItemCondition condition = ItemCondition.New,
-        DateTimeOffset? purchaseDate = null,
-        string? identifier = null,
-        Guid? storageLocationId = null)
+        DateOnly? purchaseDate = null,
+        string? identifier = null)
         => new()
         {
             VariantId = variantId,
             Condition = condition,
-            PurchaseDate = purchaseDate ?? DateTimeOffset.UtcNow,
-            Identifier = identifier,
-            StorageLocationId = storageLocationId
+            PurchaseDate = purchaseDate ?? DateOnly.FromDateTime(DateTime.UtcNow),
+            Identifier = identifier
         };
 
     internal static Item CreateItem(
         Guid variantId,
         Guid? id = null,
         ItemCondition condition = ItemCondition.New,
-        DateTimeOffset? purchaseDate = null,
-        string? identifier = null,
-        Guid? storageLocationId = null)
+        DateOnly? purchaseDate = null,
+        string? identifier = null)
         => new()
         {
             Id = id ?? Guid.NewGuid(),
             VariantId = variantId,
             Condition = condition,
-            PurchaseDate = purchaseDate ?? DateTimeOffset.UtcNow,
-            Identifier = identifier,
-            StorageLocationId = storageLocationId
+            PurchaseDate = purchaseDate ?? DateOnly.FromDateTime(DateTime.UtcNow),
+            Identifier = identifier
         };
 
     // ItemAssignmentHistory helpers
     internal static CreateOrUpdateItemAssignmentHistoryModel CreateAssignmentModel(
         Guid itemId,
-        Guid personId,
-        DateTimeOffset? assignedFrom = null,
-        DateTimeOffset? assignedUntil = null,
+        Guid? personId = null,
+        Guid? storageLocationId = null,
+        DateOnly? assignedFrom = null,
+        DateOnly? assignedUntil = null,
         Guid? assignedById = null)
         => new()
         {
             ItemId = itemId,
             PersonId = personId,
-            AssignedFrom = assignedFrom ?? DateTimeOffset.UtcNow,
+            StorageLocationId = storageLocationId,
+            AssignedFrom = assignedFrom ?? DateOnly.FromDateTime(DateTime.UtcNow),
             AssignedUntil = assignedUntil,
             AssignedById = assignedById ?? DefaultTestUserId
         };
 
     internal static ItemAssignmentHistory CreateAssignment(
         Guid itemId,
-        Guid personId,
+        Guid? personId = null,
+        Guid? storageLocationId = null,
         Guid? id = null,
-        DateTimeOffset? assignedFrom = null,
-        DateTimeOffset? assignedUntil = null,
+        DateOnly? assignedFrom = null,
+        DateOnly? assignedUntil = null,
         Guid? assignedById = null)
         => new()
         {
             Id = id ?? Guid.NewGuid(),
             ItemId = itemId,
             PersonId = personId,
-            AssignedFrom = assignedFrom ?? DateTimeOffset.UtcNow,
+            StorageLocationId = storageLocationId,
+            AssignedFrom = assignedFrom ?? DateOnly.FromDateTime(DateTime.UtcNow),
             AssignedUntil = assignedUntil,
             AssignedById = assignedById ?? DefaultTestUserId
         };
@@ -287,24 +287,24 @@ internal static partial class TestDataFactory
 
     // Order helpers
     internal static CreateOrUpdateOrderModel CreateOrderModel(
-        DateTimeOffset? orderDate = null,
+        DateOnly? orderDate = null,
         OrderStatus status = OrderStatus.Draft,
         string? orderIdentifier = null)
         => new()
         {
-            OrderDate = orderDate ?? DateTimeOffset.UtcNow,
+            OrderDate = orderDate ?? DateOnly.FromDateTime(DateTime.UtcNow),
             Status = status,
             OrderIdentifier = orderIdentifier
         };
     internal static Order CreateOrder(
         Guid? id = null,
-        DateTimeOffset? orderDate = null,
+        DateOnly? orderDate = null,
         OrderStatus status = OrderStatus.Draft,
         string? orderIdentifier = null)
         => new()
         {
             Id = id ?? Guid.NewGuid(),
-            OrderDate = orderDate ?? DateTimeOffset.UtcNow,
+            OrderDate = orderDate ?? DateOnly.FromDateTime(DateTime.UtcNow),
             Status = status,
             OrderIdentifier = orderIdentifier
         };
