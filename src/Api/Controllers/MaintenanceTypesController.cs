@@ -36,7 +36,7 @@ public class MaintenanceTypesController(IMaintenanceTypeService maintenanceTypeS
     [EndpointSummary("Create a new maintenanceType")]
     [EndpointDescription("Creates a new maintenanceType.")]
     [ProducesResponseType<MaintenanceTypeModel>(StatusCodes.Status201Created)]
-    [Authorize(Roles = Roles.Admin)]
+    [Authorize(Roles = Roles.Admin + "," + Roles.Integration)]
     public async Task<ActionResult<MaintenanceTypeModel>> Create(CreateOrUpdateMaintenanceTypeModel model)
     {
         var created = await maintenanceTypeService.CreateMaintenanceTypeAsync(model);
@@ -48,7 +48,7 @@ public class MaintenanceTypesController(IMaintenanceTypeService maintenanceTypeS
     [EndpointDescription("Updates an existing maintenanceType.")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    [Authorize(Roles = Roles.Admin)]
+    [Authorize(Roles = Roles.Admin + "," + Roles.Integration)]
     public async Task<IActionResult> Update(Guid id, CreateOrUpdateMaintenanceTypeModel model)
     {
         var success = await maintenanceTypeService.UpdateMaintenanceTypeAsync(id, model);
@@ -60,7 +60,7 @@ public class MaintenanceTypesController(IMaintenanceTypeService maintenanceTypeS
     [EndpointDescription("Deletes a maintenanceType by its unique ID.")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    [Authorize(Roles = Roles.Admin)]
+    [Authorize(Roles = Roles.Admin + "," + Roles.Integration)]
     public async Task<IActionResult> Delete(Guid id)
     {
         var success = await maintenanceTypeService.DeleteMaintenanceTypeAsync(id);

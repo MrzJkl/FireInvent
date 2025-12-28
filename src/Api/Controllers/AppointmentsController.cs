@@ -36,7 +36,7 @@ public class AppointmentsController(IAppointmentService appointmentService, IVis
     [EndpointSummary("Create a new appointment")]
     [EndpointDescription("Creates a new appointment.")]
     [ProducesResponseType<AppointmentModel>(StatusCodes.Status201Created)]
-    [Authorize(Roles = Roles.Admin + "," + Roles.Procurement)]
+    [Authorize(Roles = Roles.Admin + "," + Roles.Procurement + "," + Roles.Integration)]
     public async Task<ActionResult<AppointmentModel>> Create(CreateOrUpdateAppointmentModel model)
     {
         var created = await appointmentService.CreateAppointmentAsync(model);
@@ -48,7 +48,7 @@ public class AppointmentsController(IAppointmentService appointmentService, IVis
     [EndpointDescription("Updates an existing appointment.")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    [Authorize(Roles = Roles.Admin + "," + Roles.Procurement)]
+    [Authorize(Roles = Roles.Admin + "," + Roles.Procurement + "," + Roles.Integration)]
     public async Task<IActionResult> Update(Guid id, CreateOrUpdateAppointmentModel model)
     {
         var success = await appointmentService.UpdateAppointmentAsync(id, model);
@@ -60,7 +60,7 @@ public class AppointmentsController(IAppointmentService appointmentService, IVis
     [EndpointDescription("Deletes an appointment by its unique ID. This will also delete all associated visits and visit items.")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    [Authorize(Roles = Roles.Admin + "," + Roles.Procurement)]
+    [Authorize(Roles = Roles.Admin + "," + Roles.Procurement + "," + Roles.Integration)]
     public async Task<IActionResult> Delete(Guid id)
     {
         var success = await appointmentService.DeleteAppointmentAsync(id);

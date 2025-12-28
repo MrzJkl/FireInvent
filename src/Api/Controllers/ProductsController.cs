@@ -37,7 +37,7 @@ public class ProductsController(IProductService productService, IVariantService 
     [EndpointDescription("Creates a new product.")]
     [ProducesResponseType<ProductModel>(StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status409Conflict)]
-    [Authorize(Roles = Roles.Admin + "," + Roles.Procurement)]
+    [Authorize(Roles = Roles.Admin + "," + Roles.Procurement + "," + Roles.Integration)]
     public async Task<ActionResult<ProductModel>> Create(CreateOrUpdateProductModel model)
     {
         var created = await productService.CreateProductAsync(model);
@@ -50,7 +50,7 @@ public class ProductsController(IProductService productService, IVariantService 
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status409Conflict)]
-    [Authorize(Roles = Roles.Admin + "," + Roles.Procurement)]
+    [Authorize(Roles = Roles.Admin + "," + Roles.Procurement + "," + Roles.Integration)]
     public async Task<IActionResult> Update(Guid id, CreateOrUpdateProductModel model)
     {
         var success = await productService.UpdateProductAsync(id, model);
@@ -62,7 +62,7 @@ public class ProductsController(IProductService productService, IVariantService 
     [EndpointDescription("Deletes a product by its unique ID.")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    [Authorize(Roles = Roles.Admin + "," + Roles.Procurement)]
+    [Authorize(Roles = Roles.Admin + "," + Roles.Procurement + "," + Roles.Integration)]
     public async Task<IActionResult> Delete(Guid id)
     {
         var success = await productService.DeleteProductAsync(id);

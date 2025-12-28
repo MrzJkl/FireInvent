@@ -36,7 +36,7 @@ public class DepartmentsController(IDepartmentService departmentService, IPerson
     [EndpointSummary("Create a new department")]
     [EndpointDescription("Creates a new department.")]
     [ProducesResponseType<DepartmentModel>(StatusCodes.Status201Created)]
-    [Authorize(Roles = Roles.Admin + "," + Roles.Procurement)]
+    [Authorize(Roles = Roles.Admin + "," + Roles.Procurement + "," + Roles.Integration)]
     public async Task<ActionResult<DepartmentModel>> Create(CreateOrUpdateDepartmentModel model)
     {
         var created = await departmentService.CreateDepartmentAsync(model);
@@ -48,7 +48,7 @@ public class DepartmentsController(IDepartmentService departmentService, IPerson
     [EndpointDescription("Updates an existing department.")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    [Authorize(Roles = Roles.Admin + "," + Roles.Procurement)]
+    [Authorize(Roles = Roles.Admin + "," + Roles.Procurement + "," + Roles.Integration)]
     public async Task<IActionResult> Update(Guid id, CreateOrUpdateDepartmentModel model)
     {
         var success = await departmentService.UpdateDepartmentAsync(id, model);
@@ -60,7 +60,7 @@ public class DepartmentsController(IDepartmentService departmentService, IPerson
     [EndpointDescription("Deletes a department by its unique ID.")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    [Authorize(Roles = Roles.Admin + "," + Roles.Procurement)]
+    [Authorize(Roles = Roles.Admin + "," + Roles.Procurement + "," + Roles.Integration)]
     public async Task<IActionResult> Delete(Guid id)
     {
         var success = await departmentService.DeleteDepartmentAsync(id);

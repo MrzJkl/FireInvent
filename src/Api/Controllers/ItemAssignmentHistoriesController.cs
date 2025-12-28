@@ -38,7 +38,7 @@ public class ItemAssignmentHistoriesController(IItemAssignmentHistoryService ser
     [ProducesResponseType<ItemAssignmentHistoryModel>(StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status409Conflict)]
-    [Authorize(Roles = Roles.Admin + "," + Roles.Procurement)]
+    [Authorize(Roles = Roles.Admin + "," + Roles.Procurement + "," + Roles.Integration)]
     public async Task<ActionResult<ItemAssignmentHistoryModel>> Create(CreateOrUpdateItemAssignmentHistoryModel model)
     {
         var created = await service.CreateAssignmentAsync(model);
@@ -52,7 +52,7 @@ public class ItemAssignmentHistoriesController(IItemAssignmentHistoryService ser
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status409Conflict)]
-    [Authorize(Roles = Roles.Admin + "," + Roles.Procurement)]
+    [Authorize(Roles = Roles.Admin + "," + Roles.Procurement + "," + Roles.Integration)]
     public async Task<IActionResult> Update(Guid id, CreateOrUpdateItemAssignmentHistoryModel model)
     {
         var success = await service.UpdateAssignmentAsync(id, model);
@@ -64,7 +64,7 @@ public class ItemAssignmentHistoriesController(IItemAssignmentHistoryService ser
     [EndpointDescription("Deletes a item assignment history by its unique ID.")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    [Authorize(Roles = Roles.Admin + "," + Roles.Procurement)]
+    [Authorize(Roles = Roles.Admin + "," + Roles.Procurement + "," + Roles.Integration)]
     public async Task<IActionResult> Delete(Guid id)
     {
         var success = await service.DeleteAssignmentAsync(id);

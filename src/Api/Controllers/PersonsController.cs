@@ -37,7 +37,7 @@ public class PersonsController(IPersonService personService, IItemAssignmentHist
     [EndpointDescription("Creates a new person entry.")]
     [ProducesResponseType<PersonModel>(StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status409Conflict)]
-    [Authorize(Roles = Roles.Admin + "," + Roles.Procurement)]
+    [Authorize(Roles = Roles.Admin + "," + Roles.Procurement + "," + Roles.Integration)]
     public async Task<ActionResult<PersonModel>> Create(CreateOrUpdatePersonModel model)
     {
         var created = await personService.CreatePersonAsync(model);
@@ -49,7 +49,7 @@ public class PersonsController(IPersonService personService, IItemAssignmentHist
     [EndpointDescription("Updates an existing person.")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    [Authorize(Roles = Roles.Admin + "," + Roles.Procurement)]
+    [Authorize(Roles = Roles.Admin + "," + Roles.Procurement + "," + Roles.Integration)]
     public async Task<IActionResult> Update(Guid id, CreateOrUpdatePersonModel model)
     {
         var success = await personService.UpdatePersonAsync(id, model);
@@ -61,7 +61,7 @@ public class PersonsController(IPersonService personService, IItemAssignmentHist
     [EndpointDescription("Deletes a person by ID.")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    [Authorize(Roles = Roles.Admin + "," + Roles.Procurement)]
+    [Authorize(Roles = Roles.Admin + "," + Roles.Procurement + "," + Roles.Integration)]
     public async Task<IActionResult> Delete(Guid id)
     {
         var success = await personService.DeletePersonAsync(id);

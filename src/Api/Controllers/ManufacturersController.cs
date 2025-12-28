@@ -36,7 +36,7 @@ public class ManufacturersController(IManufacturerService manufacturerService, I
     [EndpointSummary("Create a new manufacturer")]
     [EndpointDescription("Creates a new manufacturer.")]
     [ProducesResponseType<ManufacturerModel>(StatusCodes.Status201Created)]
-    [Authorize(Roles = Roles.Admin + "," + Roles.Procurement)]
+    [Authorize(Roles = Roles.Admin + "," + Roles.Procurement + "," + Roles.Integration)]
     public async Task<ActionResult<ManufacturerModel>> Create(CreateOrUpdateManufacturerModel model)
     {
         var created = await manufacturerService.CreateManufacturerAsync(model);
@@ -48,7 +48,7 @@ public class ManufacturersController(IManufacturerService manufacturerService, I
     [EndpointDescription("Updates an existing manufacturer.")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    [Authorize(Roles = Roles.Admin + "," + Roles.Procurement)]
+    [Authorize(Roles = Roles.Admin + "," + Roles.Procurement + "," + Roles.Integration)]
     public async Task<IActionResult> Update(Guid id, CreateOrUpdateManufacturerModel model)
     {
         var success = await manufacturerService.UpdateManufacturerAsync(id, model);
@@ -60,7 +60,7 @@ public class ManufacturersController(IManufacturerService manufacturerService, I
     [EndpointDescription("Deletes a manufacturer by its unique ID.")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    [Authorize(Roles = Roles.Admin + "," + Roles.Procurement)]
+    [Authorize(Roles = Roles.Admin + "," + Roles.Procurement + "," + Roles.Integration)]
     public async Task<IActionResult> Delete(Guid id)
     {
         var success = await manufacturerService.DeleteManufacturerAsync(id);

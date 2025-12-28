@@ -36,7 +36,7 @@ public class ProductTypesController(IProductTypeService productTypeService) : Co
     [EndpointSummary("Create a new productType")]
     [EndpointDescription("Creates a new productType.")]
     [ProducesResponseType<ProductTypeModel>(StatusCodes.Status201Created)]
-    [Authorize(Roles = Roles.Admin)]
+    [Authorize(Roles = Roles.Admin + "," + Roles.Integration)]
     public async Task<ActionResult<ProductTypeModel>> Create(CreateOrUpdateProductTypeModel model)
     {
         var created = await productTypeService.CreateProductTypeAsync(model);
@@ -48,7 +48,7 @@ public class ProductTypesController(IProductTypeService productTypeService) : Co
     [EndpointDescription("Updates an existing productType.")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    [Authorize(Roles = Roles.Admin)]
+    [Authorize(Roles = Roles.Admin + "," + Roles.Integration)]
     public async Task<IActionResult> Update(Guid id, CreateOrUpdateProductTypeModel model)
     {
         var success = await productTypeService.UpdateProductTypeAsync(id, model);
@@ -60,7 +60,7 @@ public class ProductTypesController(IProductTypeService productTypeService) : Co
     [EndpointDescription("Deletes a productType by its unique ID.")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    [Authorize(Roles = Roles.Admin)]
+    [Authorize(Roles = Roles.Admin + "," + Roles.Integration)]
     public async Task<IActionResult> Delete(Guid id)
     {
         var success = await productTypeService.DeleteProductTypeAsync(id);

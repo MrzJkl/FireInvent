@@ -37,7 +37,7 @@ public class MaintenancesController(IMaintenanceService service) : ControllerBas
     [EndpointDescription("Creates a new maintenance record.")]
     [ProducesResponseType<MaintenanceModel>(StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    [Authorize(Roles = Roles.Admin + "," + Roles.Maintenance)]
+    [Authorize(Roles = Roles.Admin + "," + Roles.Maintenance + "," + Roles.Integration)]
     public async Task<ActionResult<MaintenanceModel>> Create(CreateOrUpdateMaintenanceModel model)
     {
         var created = await service.CreateMaintenanceAsync(model);
@@ -50,7 +50,7 @@ public class MaintenancesController(IMaintenanceService service) : ControllerBas
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    [Authorize(Roles = Roles.Admin + "," + Roles.Maintenance)]
+    [Authorize(Roles = Roles.Admin + "," + Roles.Maintenance + "," + Roles.Integration)]
     public async Task<IActionResult> Update(Guid id, CreateOrUpdateMaintenanceModel model)
     {
         var success = await service.UpdateMaintenanceAsync(id, model);
@@ -62,7 +62,7 @@ public class MaintenancesController(IMaintenanceService service) : ControllerBas
     [EndpointDescription("Deletes a maintenance record by its unique ID.")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    [Authorize(Roles = Roles.Admin + "," + Roles.Maintenance)]
+    [Authorize(Roles = Roles.Admin + "," + Roles.Maintenance + "," + Roles.Integration)]
     public async Task<IActionResult> Delete(Guid id)
     {
         var success = await service.DeleteMaintenanceAsync(id);

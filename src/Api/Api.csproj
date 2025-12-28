@@ -12,6 +12,7 @@
     <Authors>Moritz Jökel</Authors>
     <Product>FireInvent</Product>
     <UserSecretsId>8b6efe64-bdb1-4dca-9b76-5f64be0e910a</UserSecretsId>
+    <Version>1.0.0</Version>
   </PropertyGroup>
 
   <ItemGroup>

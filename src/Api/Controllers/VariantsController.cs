@@ -39,7 +39,7 @@ public class VariantsController(IVariantService variantService, IItemService ite
     [ProducesResponseType<VariantModel>(StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status409Conflict)]
-    [Authorize(Roles = Roles.Admin + "," + Roles.Procurement)]
+    [Authorize(Roles = Roles.Admin + "," + Roles.Procurement + "," + Roles.Integration)]
     public async Task<ActionResult<VariantModel>> Create(CreateOrUpdateVariantModel model)
     {
         var created = await variantService.CreateVariantAsync(model);
@@ -53,7 +53,7 @@ public class VariantsController(IVariantService variantService, IItemService ite
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status409Conflict)]
-    [Authorize(Roles = Roles.Admin + "," + Roles.Procurement)]
+    [Authorize(Roles = Roles.Admin + "," + Roles.Procurement + "," + Roles.Integration)]
     public async Task<IActionResult> Update(Guid id, CreateOrUpdateVariantModel model)
     {
         var success = await variantService.UpdateVariantAsync(id, model);
@@ -65,7 +65,7 @@ public class VariantsController(IVariantService variantService, IItemService ite
     [EndpointDescription("Deletes a variant by its unique ID.")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    [Authorize(Roles = Roles.Admin + "," + Roles.Procurement)]
+    [Authorize(Roles = Roles.Admin + "," + Roles.Procurement + "," + Roles.Integration)]
     public async Task<IActionResult> Delete(Guid id)
     {
         var success = await variantService.DeleteVariantAsync(id);

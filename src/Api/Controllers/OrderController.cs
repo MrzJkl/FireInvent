@@ -36,7 +36,7 @@ public class OrderController(IOrderService orderService) : ControllerBase
     [EndpointSummary("Create a new order")]
     [EndpointDescription("Creates a new order.")]
     [ProducesResponseType<OrderModel>(StatusCodes.Status201Created)]
-    [Authorize(Roles = Roles.Admin + "," + Roles.Procurement)]
+    [Authorize(Roles = Roles.Admin + "," + Roles.Procurement + "," + Roles.Integration)]
     public async Task<ActionResult<OrderModel>> Create(CreateOrUpdateOrderModel model)
     {
         var created = await orderService.CreateOrderAsync(model);
@@ -49,7 +49,7 @@ public class OrderController(IOrderService orderService) : ControllerBase
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    [Authorize(Roles = Roles.Admin + "," + Roles.Procurement)]
+    [Authorize(Roles = Roles.Admin + "," + Roles.Procurement + "," + Roles.Integration)]
     public async Task<IActionResult> Update(Guid id, CreateOrUpdateOrderModel model)
     {
         var success = await orderService.UpdateOrderAsync(id, model);
@@ -61,7 +61,7 @@ public class OrderController(IOrderService orderService) : ControllerBase
     [EndpointDescription("Deletes an order by its unique ID.")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    [Authorize(Roles = Roles.Admin + "," + Roles.Procurement)]
+    [Authorize(Roles = Roles.Admin + "," + Roles.Procurement + "," + Roles.Integration)]
     public async Task<IActionResult> Delete(Guid id)
     {
         var success = await orderService.DeleteOrderAsync(id);

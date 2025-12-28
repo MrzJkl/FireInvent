@@ -49,7 +49,7 @@ public class VisitsController(IVisitService visitService, IVisitItemService visi
     [ProducesResponseType<VisitModel>(StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status409Conflict)]
-    [Authorize(Roles = Roles.Admin + "," + Roles.Procurement)]
+    [Authorize(Roles = Roles.Admin + "," + Roles.Procurement + "," + Roles.Integration)]
     public async Task<ActionResult<VisitModel>> Create(CreateOrUpdateVisitModel model)
     {
         var created = await visitService.CreateVisitAsync(model);
@@ -63,7 +63,7 @@ public class VisitsController(IVisitService visitService, IVisitItemService visi
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status409Conflict)]
-    [Authorize(Roles = Roles.Admin + "," + Roles.Procurement)]
+    [Authorize(Roles = Roles.Admin + "," + Roles.Procurement + "," + Roles.Integration)]
     public async Task<IActionResult> Update(Guid id, CreateOrUpdateVisitModel model)
     {
         var success = await visitService.UpdateVisitAsync(id, model);
@@ -75,7 +75,7 @@ public class VisitsController(IVisitService visitService, IVisitItemService visi
     [EndpointDescription("Deletes a visit by its unique ID. This will also delete all associated visit items.")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    [Authorize(Roles = Roles.Admin + "," + Roles.Procurement)]
+    [Authorize(Roles = Roles.Admin + "," + Roles.Procurement + "," + Roles.Integration)]
     public async Task<IActionResult> Delete(Guid id)
     {
         var success = await visitService.DeleteVisitAsync(id);
