@@ -240,6 +240,208 @@
         ]
       }
     }
+    ,
+    {
+      "id": 7,
+      "type": "table",
+      "title": "Recent Requests (events)",
+      "datasource": "k6-influxdb",
+      "gridPos": {"h": 10, "w": 24, "x": 0, "y": 24},
+      "targets": [
+        {
+          "measurement": "http_req_duration",
+          "resultFormat": "table",
+          "groupBy": [
+            {"type": "time", "params": ["$__interval"]},
+            {"type": "tag", "params": ["name"]},
+            {"type": "tag", "params": ["method"]},
+            {"type": "tag", "params": ["status"]},
+            {"type": "tag", "params": ["url"]},
+            {"type": "tag", "params": ["scenario"]},
+            {"type": "fill", "params": ["null"]}
+          ],
+          "select": [
+            [
+              {"type": "field", "params": ["value"]},
+              {"type": "last", "params": []}
+            ]
+          ],
+          "tags": []
+        }
+      ],
+      "transformations": [
+        {
+          "id": "organize",
+          "options": {
+            "excludeByName": {},
+            "indexByName": {},
+            "renameByName": {
+              "time": "Time",
+              "name": "Endpoint",
+              "method": "Method",
+              "status": "Status",
+              "url": "URL",
+              "scenario": "Scenario",
+              "last": "Duration (ms)"
+            }
+          }
+        }
+      ],
+      "options": {
+        "showHeader": true,
+        "sortBy": [
+          {"displayName": "Time", "desc": true}
+        ]
+      },
+      "fieldConfig": {
+        "defaults": {"unit": "ms"},
+        "overrides": []
+      }
+    },
+    {
+      "id": 8,
+      "type": "table",
+      "title": "Failed Requests (events)",
+      "datasource": "k6-influxdb",
+      "gridPos": {"h": 8, "w": 12, "x": 0, "y": 34},
+      "targets": [
+        {
+          "measurement": "http_req_failed",
+          "resultFormat": "table",
+          "groupBy": [
+            {"type": "time", "params": ["$__interval"]},
+            {"type": "tag", "params": ["name"]},
+            {"type": "tag", "params": ["method"]},
+            {"type": "tag", "params": ["status"]},
+            {"type": "fill", "params": ["null"]}
+          ],
+          "select": [
+            [
+              {"type": "field", "params": ["value"]},
+              {"type": "last", "params": []}
+            ]
+          ],
+          "tags": [
+            {"key": "value", "operator": "=", "value": "1"}
+          ]
+        }
+      ],
+      "transformations": [
+        {
+          "id": "organize",
+          "options": {
+            "excludeByName": {},
+            "indexByName": {},
+            "renameByName": {
+              "time": "Time",
+              "name": "Endpoint",
+              "method": "Method",
+              "status": "Status",
+              "last": "Failed (1/0)"
+            }
+          }
+        }
+      ],
+      "options": {
+        "showHeader": true,
+        "sortBy": [
+          {"displayName": "Time", "desc": true}
+        ]
+      }
+    },
+    {
+      "id": 9,
+      "type": "table",
+      "title": "Failed Checks (events)",
+      "datasource": "k6-influxdb",
+      "gridPos": {"h": 8, "w": 12, "x": 12, "y": 34},
+      "targets": [
+        {
+          "measurement": "checks",
+          "resultFormat": "table",
+          "groupBy": [
+            {"type": "time", "params": ["$__interval"]},
+            {"type": "tag", "params": ["check"]},
+            {"type": "tag", "params": ["group"]},
+            {"type": "fill", "params": ["null"]}
+          ],
+          "select": [
+            [
+              {"type": "field", "params": ["value"]},
+              {"type": "last", "params": []}
+            ]
+          ],
+          "tags": [
+            {"key": "value", "operator": "=", "value": "0"}
+          ]
+        }
+      ],
+      "transformations": [
+        {
+          "id": "organize",
+          "options": {
+            "excludeByName": {},
+            "indexByName": {},
+            "renameByName": {
+              "time": "Time",
+              "check": "Check Name",
+              "group": "Group",
+              "last": "Status (0=fail)"
+            }
+          }
+        }
+      ],
+      "options": {
+        "showHeader": true,
+        "sortBy": [
+          {"displayName": "Time", "desc": true}
+        ]
+      }
+    },
+    {
+      "id": 10,
+      "type": "table",
+      "title": "Endpoint Coverage",
+      "datasource": "k6-influxdb",
+      "gridPos": {"h": 8, "w": 24, "x": 0, "y": 42},
+      "targets": [
+        {
+          "measurement": "http_reqs",
+          "resultFormat": "table",
+          "groupBy": [
+            {"type": "tag", "params": ["name"]},
+            {"type": "tag", "params": ["method"]}
+          ],
+          "select": [
+            [
+              {"type": "field", "params": ["value"]},
+              {"type": "sum", "params": []}
+            ]
+          ],
+          "tags": []
+        }
+      ],
+      "transformations": [
+        {
+          "id": "organize",
+          "options": {
+            "excludeByName": {},
+            "indexByName": {},
+            "renameByName": {
+              "name": "Endpoint",
+              "method": "Method",
+              "sum": "Calls"
+            }
+          }
+        }
+      ],
+      "options": {
+        "showHeader": true,
+        "sortBy": [
+          {"displayName": "Endpoint", "desc": false}
+        ]
+      }
+    }
   ],
   "templating": {"list": []},
   "annotations": {"list": []}

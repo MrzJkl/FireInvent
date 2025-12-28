@@ -16,18 +16,15 @@ let tokenCache = {
 
 export const options = {
   scenarios: {
-    write_heavy: {
-      executor: 'constant-arrival-rate',
-      rate: Number(__ENV.K6_RATE || 10),
-      timeUnit: '1s',
-      duration: __ENV.K6_DURATION || '5m',
-      preAllocatedVUs: Number(__ENV.K6_PREALLOCATED_VUS || 20),
-      maxVUs: Number(__ENV.K6_MAX_VUS || 200),
+    integration: {
+      executor: 'shared-iterations',
+      vus: 20,
+      iterations: 1,
+      maxDuration: __ENV.K6_MAX_DURATION || '30m',
     },
   },
   thresholds: {
-    http_req_failed: ['rate<0.02'],
-    http_req_duration: ['p(95)<1500'],
+    checks: ['rate>0.95'],
   },
 };
 
@@ -128,6 +125,11 @@ function isoPlusMinutes(mins) {
   return new Date(Date.now() + mins * 60_000).toISOString();
 }
 
+function dateOnly(daysOffset = 0) {
+  const date = new Date(Date.now() + daysOffset * 86400000);
+  return date.toISOString().split('T')[0];
+}
+
 function getUserIdFromToken() {
   const token = getAuthToken();
   if (!token) {
@@ -161,6 +163,7 @@ function getUserIdFromToken() {
 }
 
 export default function () {
+  const INCLUDE_ADMIN = (__ENV.K6_INCLUDE_ADMIN || 'false').toLowerCase() === 'true';
   const suffix = uuidv4();
   const auth = jsonHeaders();
   const createdResources = [];
@@ -195,6 +198,19 @@ export default function () {
   res = http.get(`${BASE_URL}/items`, auth);
   check(res, { 'list items 2xx': (r) => is2xx(r.status) });
   sleep(0.3);
+
+  // Additional listings to cover endpoints
+  res = http.get(`${BASE_URL}/variants`, auth);
+  check(res, { 'list variants 2xx': (r) => is2xx(r.status) });
+  sleep(0.2);
+
+  res = http.get(`${BASE_URL}/order-items`, auth);
+  check(res, { 'list order-items 2xx': (r) => is2xx(r.status) });
+  sleep(0.2);
+
+  res = http.get(`${BASE_URL}/maintenance-types`, auth);
+  check(res, { 'list maintenance-types 2xx': (r) => is2xx(r.status) });
+  sleep(0.2);
 
   // === PHASE 2: Create Master Data (POSTs) ===
   
@@ -301,6 +317,10 @@ export default function () {
     res = http.get(`${BASE_URL}/variants/${variant.id}`, auth);
     check(res, { 'get variant 2xx': (r) => is2xx(r.status) });
     sleep(0.2);
+
+    res = http.get(`${BASE_URL}/variants/${variant.id}/items`, auth);
+    check(res, { 'get variant items 2xx': (r) => is2xx(r.status) });
+    sleep(0.2);
   }
 
   // === PHASE 4: Create Items & Operations (More POSTs) ===
@@ -308,9 +328,8 @@ export default function () {
   const item = postJson('/items', {
     variantId: variant.id,
     condition: 'New',
-    purchaseDate: isoPlusMinutes(-60),
+    purchaseDate: dateOnly(-2),
     storageLocationId: storage.id,
-    identifier: `ITEM-${suffix}`,
   });
   if (item.id) createdResources.push({ type: 'item', id: item.id });
   sleep(0.2);
@@ -323,7 +342,7 @@ export default function () {
 
   // Create order
   const order = postJson('/orders', {
-    orderDate: isoPlusMinutes(-30),
+    orderDate: dateOnly(-1),
     status: 0,
     orderIdentifier: `ORD-${suffix}`,
   });
@@ -368,6 +387,12 @@ export default function () {
   if (person.id) {
     res = http.get(`${BASE_URL}/persons/${person.id}/assignments`, auth);
     check(res, { 'get person assignments 2xx': (r) => is2xx(r.status) });
+    sleep(0.2);
+  }
+
+  if (storage.id) {
+    res = http.get(`${BASE_URL}/storage-locations/${storage.id}/assignments`, auth);
+    check(res, { 'get storage assignments 2xx': (r) => is2xx(r.status) });
     sleep(0.2);
   }
 
@@ -429,6 +454,10 @@ export default function () {
     res = http.get(`${BASE_URL}/visits/${visit.id}/items`, auth);
     check(res, { 'get visit items 2xx': (r) => is2xx(r.status) });
     sleep(0.2);
+
+    res = http.get(`${BASE_URL}/visit-items/by-visit/${visit.id}`, auth);
+    check(res, { 'get visit-items by-visit 2xx': (r) => is2xx(r.status) });
+    sleep(0.2);
   }
 
   if (storage.id) {
@@ -469,8 +498,7 @@ export default function () {
       JSON.stringify({
         variantId: variant.id,
         condition: 'Used',
-        purchaseDate: isoPlusMinutes(-60),
-        storageLocationId: storage.id,
+        purchaseDate: dateOnly(-2),
         identifier: `UPDATED-ITEM-${suffix}`,
       }),
       jsonHeaders()
@@ -483,10 +511,10 @@ export default function () {
     res = http.put(
       `${BASE_URL}/orders/${order.id}`,
       JSON.stringify({
-        orderDate: isoPlusMinutes(-30),
+        orderDate: dateOnly(-1),
         status: 'Delivered',
         orderIdentifier: `ORD-${suffix}`,
-        deliveryDate: isoPlusMinutes(-1),
+        deliveryDate: dateOnly(0),
       }),
       jsonHeaders()
     );
@@ -544,6 +572,25 @@ export default function () {
   res = http.get(`${BASE_URL}/appointments`, auth);
   check(res, { 'list appointments 2xx': (r) => is2xx(r.status) });
   sleep(0.2);
+
+  res = http.get(`${BASE_URL}/visit-items`, auth);
+  check(res, { 'list visit-items 2xx': (r) => is2xx(r.status) });
+  sleep(0.2);
+
+  // Optional admin-only checks
+  if (INCLUDE_ADMIN) {
+    res = http.get(`${BASE_URL}/api-integrations`, auth);
+    check(res, { 'list api-integrations 2xx': (r) => is2xx(r.status) });
+    sleep(0.2);
+
+    res = http.get(`${BASE_URL}/tenants`, auth);
+    check(res, { 'list tenants 2xx': (r) => is2xx(r.status) });
+    sleep(0.2);
+
+    res = http.get(`${BASE_URL}/users`, auth);
+    check(res, { 'list users 2xx': (r) => is2xx(r.status) });
+    sleep(0.2);
+  }
 
   // === PHASE 7: Cleanup (DELETEs) ===
   // Delete in reverse order to respect dependencies
