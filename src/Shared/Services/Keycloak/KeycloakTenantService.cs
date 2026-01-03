@@ -22,8 +22,6 @@ public class KeycloakTenantService(
     {
         if (string.IsNullOrWhiteSpace(name))
             throw new ArgumentException("Organization name cannot be empty.", nameof(name));
-        if (string.IsNullOrWhiteSpace(description))
-            throw new ArgumentException("Description cannot be empty.", nameof(description));
 
         var alias = SanitizeNameForKeycloak(name);
 
