@@ -117,9 +117,9 @@ public class KeycloakUserService(
         return new UserModel
         {
             Id = Guid.Parse(keycloakUser.Id ?? throw new InvalidOperationException("User ID is missing.")),
-            FirstName = useBothNamesFromUsername ? keycloakUser.Username : keycloakUser.FirstName ?? string.Empty,
-            LastName = useBothNamesFromUsername ? keycloakUser.Username : keycloakUser.LastName ?? string.Empty,
-            EMail = keycloakUser.Email ?? string.Empty,
+            FirstName = useBothNamesFromUsername ? keycloakUser.Username : keycloakUser.FirstName,
+            LastName = keycloakUser.LastName,
+            EMail = keycloakUser.Email,
         };
     }
 }
