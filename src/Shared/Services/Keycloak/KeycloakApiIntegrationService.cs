@@ -1,6 +1,6 @@
 using FireInvent.Contract;
-using FireInvent.Contract.Extensions;
 using FireInvent.Contract.Exceptions;
+using FireInvent.Contract.Extensions;
 using FireInvent.Shared.Models;
 using FireInvent.Shared.Options;
 using Microsoft.Extensions.Logging;
@@ -8,6 +8,7 @@ using Microsoft.Extensions.Options;
 using System.Net.Http.Json;
 using System.Text;
 using System.Text.Json;
+using System.Threading;
 
 namespace FireInvent.Shared.Services.Keycloak;
 
@@ -23,14 +24,14 @@ public class KeycloakApiIntegrationService(
     private const int IntegrationTokenLifespanSeconds = 3600;
     private readonly KeycloakAdminOptions _options = options.Value;
 
-    public async Task<ApiIntegrationCredentialsModel> CreateApiIntegrationAsync(string name, string? description = null)
+    public async Task<ApiIntegrationCredentialsModel> CreateApiIntegrationAsync(string name, string? description = null, CancellationToken cancellationToken = default)
     {
         if (string.IsNullOrWhiteSpace(name))
             throw new ArgumentException("Name cannot be empty.", nameof(name));
 
         var clientId = $"{_options.ApiClientPrefix}-{userContextProvider.TenantId}-{SanitizeClientId(name)}";
 
-        var existingClients = await GetClientsByClientIdAsync(clientId);
+        var existingClients = await GetClientsByClientIdAsync(clientId, cancellationToken);
         if (existingClients.Any())
         {
             logger.LogWarning("Client with ID {ClientId} already exists.", clientId.SanitizeForLogging());
@@ -87,11 +88,11 @@ public class KeycloakApiIntegrationService(
                 throw new InvalidOperationException($"Failed to create client: {response.StatusCode} - {errorContent}");
             }
 
-            var createdClients = await GetClientsByClientIdAsync(clientId);
+            var createdClients = await GetClientsByClientIdAsync(clientId, cancellationToken);
             var createdClient = createdClients.FirstOrDefault()
                 ?? throw new InvalidOperationException("Failed to retrieve the created client.");
 
-            await AssignIntegrationRoleToServiceAccountAsync(createdClient.Id!);
+            await AssignIntegrationRoleToServiceAccountAsync(createdClient.Id!, cancellationToken);
 
             var serviceAccountResponse = await keycloakClient.GetAsync(
                 $"admin/realms/{keycloakClient.Realm}/clients/{createdClient.Id}/service-account-user");
@@ -100,7 +101,7 @@ public class KeycloakApiIntegrationService(
             var serviceAccountUserId = serviceAccountUser?.Id
                 ?? throw new InvalidOperationException("Failed to retrieve service account user ID.");
 
-            await AddUserToOrganizationAsync(userContextProvider.TenantId.Value, serviceAccountUserId);
+            await AddUserToOrganizationAsync(userContextProvider.TenantId.Value, serviceAccountUserId, cancellationToken);
 
             var secretResponse = await keycloakClient.GetAsync(
                 $"admin/realms/{keycloakClient.Realm}/clients/{createdClient.Id}/client-secret");
@@ -127,7 +128,7 @@ public class KeycloakApiIntegrationService(
         }
     }
 
-    public async Task<List<ApiIntegrationModel>> GetApiIntegrationsAsync()
+    public async Task<List<ApiIntegrationModel>> GetApiIntegrationsAsync(CancellationToken cancellationToken = default)
     {
         try
         {
@@ -144,7 +145,7 @@ public class KeycloakApiIntegrationService(
                 .Where(c => c.ClientId?.StartsWith(_options.ApiClientPrefix) == true)
                 .Where(c => !string.IsNullOrEmpty(c.Id)))
             {
-                if (await IsClientServiceAccountMemberOfCurrentOrganizationAsync(c.Id))
+                if (await IsClientServiceAccountMemberOfCurrentOrganizationAsync(c.Id, cancellationToken))
                 {
                     filtered.Add(c);
                 }
@@ -175,7 +176,7 @@ public class KeycloakApiIntegrationService(
         }
     }
 
-    public async Task DeleteApiIntegrationAsync(Guid id)
+    public async Task DeleteApiIntegrationAsync(Guid id, CancellationToken cancellationToken = default)
     {
         var clientUuid = id.ToString();
 
@@ -198,7 +199,7 @@ public class KeycloakApiIntegrationService(
                 throw new InvalidOperationException("Client is not an API integration.");
             }
 
-            if (!await IsClientServiceAccountMemberOfCurrentOrganizationAsync(clientUuid))
+            if (!await IsClientServiceAccountMemberOfCurrentOrganizationAsync(clientUuid, cancellationToken))
             {
                 logger.LogWarning("Attempted to delete API integration outside of tenant {TenantId}: {Id}", userContextProvider.TenantId, id);
                 throw new InvalidOperationException("Forbidden: client does not belong to current tenant.");
@@ -218,7 +219,7 @@ public class KeycloakApiIntegrationService(
         }
     }
 
-    public async Task<bool> ApiIntegrationExistsAsync(Guid id)
+    public async Task<bool> ApiIntegrationExistsAsync(Guid id, CancellationToken cancellationToken = default)
     {
         try
         {
@@ -233,7 +234,7 @@ public class KeycloakApiIntegrationService(
 
             return client != null 
                 && client.ClientId.StartsWith(_options.ApiClientPrefix)
-                && await IsClientServiceAccountMemberOfCurrentOrganizationAsync(clientUuid);
+                && await IsClientServiceAccountMemberOfCurrentOrganizationAsync(clientUuid, cancellationToken);
         }
         catch (Exception ex)
         {
@@ -242,7 +243,7 @@ public class KeycloakApiIntegrationService(
         }
     }
 
-    private async Task AssignIntegrationRoleToServiceAccountAsync(string clientUuid)
+    private async Task AssignIntegrationRoleToServiceAccountAsync(string clientUuid, CancellationToken cancellationToken = default)
     {
         try
         {
@@ -277,7 +278,7 @@ public class KeycloakApiIntegrationService(
         }
     }
 
-    private async Task AddUserToOrganizationAsync(Guid organizationId, string userId)
+    private async Task AddUserToOrganizationAsync(Guid organizationId, string userId, CancellationToken cancellationToken = default)
     {
         var url = $"admin/realms/{keycloakClient.Realm}/organizations/{organizationId}/members";
         var json = JsonSerializer.Serialize(userId);
@@ -295,7 +296,7 @@ public class KeycloakApiIntegrationService(
         logger.LogInformation("Added user {UserId} to organization {OrganizationId}", userId, organizationId);
     }
 
-    private async Task<bool> IsClientServiceAccountMemberOfCurrentOrganizationAsync(string clientUuid)
+    private async Task<bool> IsClientServiceAccountMemberOfCurrentOrganizationAsync(string clientUuid, CancellationToken cancellationToken = default)
     {
         if (!userContextProvider.TenantId.HasValue)
             return false;
@@ -303,12 +304,12 @@ public class KeycloakApiIntegrationService(
         try
         {
             var serviceAccountResponse = await keycloakClient.GetAsync(
-                $"admin/realms/{keycloakClient.Realm}/clients/{clientUuid}/service-account-user");
+                $"admin/realms/{keycloakClient.Realm}/clients/{clientUuid}/service-account-user", cancellationToken);
             
             if (!serviceAccountResponse.IsSuccessStatusCode)
                 return false;
 
-            var serviceAccountUser = await serviceAccountResponse.Content.ReadFromJsonAsync<KeycloakServiceAccountUser>(keycloakClient.JsonOptions);
+            var serviceAccountUser = await serviceAccountResponse.Content.ReadFromJsonAsync<KeycloakServiceAccountUser>(keycloakClient.JsonOptions, cancellationToken);
             var userId = serviceAccountUser?.Id;
             if (string.IsNullOrEmpty(userId))
                 return false;
@@ -333,14 +334,14 @@ public class KeycloakApiIntegrationService(
         return false;
     }
 
-    private async Task<List<KeycloakClient>> GetClientsByClientIdAsync(string clientId)
+    private async Task<List<KeycloakClient>> GetClientsByClientIdAsync(string clientId, CancellationToken cancellationToken)
     {
         var response = await keycloakClient.GetAsync(
-            $"admin/realms/{keycloakClient.Realm}/clients?clientId={Uri.EscapeDataString(clientId)}");
+            $"admin/realms/{keycloakClient.Realm}/clients?clientId={Uri.EscapeDataString(clientId)}", cancellationToken);
         response.EnsureSuccessStatusCode();
 
-        return await response.Content.ReadFromJsonAsync<List<KeycloakClient>>(keycloakClient.JsonOptions)
-            ?? new List<KeycloakClient>();
+        return await response.Content.ReadFromJsonAsync<List<KeycloakClient>>(keycloakClient.JsonOptions, cancellationToken)
+            ?? [];
     }
 
     private static string SanitizeClientId(string name)

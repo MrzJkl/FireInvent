@@ -5,9 +5,9 @@ namespace FireInvent.Shared.Services;
 
 public interface IStorageLocationService
 {
-    Task<StorageLocationModel> CreateStorageLocationAsync(CreateOrUpdateStorageLocationModel model);
-    Task<bool> DeleteStorageLocationAsync(Guid id);
+    Task<StorageLocationModel> CreateStorageLocationAsync(CreateOrUpdateStorageLocationModel model, CancellationToken cancellationToken = default);
+    Task<bool> DeleteStorageLocationAsync(Guid id, CancellationToken cancellationToken = default);
     Task<PagedResult<StorageLocationModel>> GetAllStorageLocationsAsync(PagedQuery pagedQuery, CancellationToken cancellationToken);
-    Task<StorageLocationModel?> GetStorageLocationByIdAsync(Guid id);
-    Task<bool> UpdateStorageLocationAsync(Guid id, CreateOrUpdateStorageLocationModel model);
+    Task<StorageLocationModel?> GetStorageLocationByIdAsync(Guid id, CancellationToken cancellationToken = default);
+    Task<bool> UpdateStorageLocationAsync(Guid id, CreateOrUpdateStorageLocationModel model, CancellationToken cancellationToken = default);
 }

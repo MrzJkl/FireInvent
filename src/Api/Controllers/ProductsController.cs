@@ -26,9 +26,9 @@ public class ProductsController(IProductService productService, IVariantService 
     [EndpointDescription("Returns a product by its unique ID.")]
     [ProducesResponseType<ProductModel>(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<ActionResult<ProductModel>> GetById(Guid id)
+    public async Task<ActionResult<ProductModel>> GetById(Guid id, CancellationToken cancellationToken)
     {
-        var product = await productService.GetProductByIdAsync(id);
+        var product = await productService.GetProductByIdAsync(id, cancellationToken);
         return product is null ? throw new NotFoundException() : (ActionResult<ProductModel>)Ok(product);
     }
 
@@ -38,9 +38,9 @@ public class ProductsController(IProductService productService, IVariantService 
     [ProducesResponseType<ProductModel>(StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status409Conflict)]
     [Authorize(Roles = Roles.Admin + "," + Roles.Procurement + "," + Roles.Integration)]
-    public async Task<ActionResult<ProductModel>> Create(CreateOrUpdateProductModel model)
+    public async Task<ActionResult<ProductModel>> Create(CreateOrUpdateProductModel model, CancellationToken cancellationToken)
     {
-        var created = await productService.CreateProductAsync(model);
+        var created = await productService.CreateProductAsync(model, cancellationToken);
         return CreatedAtAction(nameof(GetById), new { id = created.Id }, created);
     }
 
@@ -51,9 +51,9 @@ public class ProductsController(IProductService productService, IVariantService 
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status409Conflict)]
     [Authorize(Roles = Roles.Admin + "," + Roles.Procurement + "," + Roles.Integration)]
-    public async Task<IActionResult> Update(Guid id, CreateOrUpdateProductModel model)
+    public async Task<IActionResult> Update(Guid id, CreateOrUpdateProductModel model, CancellationToken cancellationToken)
     {
-        var success = await productService.UpdateProductAsync(id, model);
+        var success = await productService.UpdateProductAsync(id, model, cancellationToken);
         return success ? NoContent() : throw new NotFoundException();
     }
 
@@ -63,9 +63,9 @@ public class ProductsController(IProductService productService, IVariantService 
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [Authorize(Roles = Roles.Admin + "," + Roles.Procurement + "," + Roles.Integration)]
-    public async Task<IActionResult> Delete(Guid id)
+    public async Task<IActionResult> Delete(Guid id, CancellationToken cancellationToken)
     {
-        var success = await productService.DeleteProductAsync(id);
+        var success = await productService.DeleteProductAsync(id, cancellationToken);
         return success ? NoContent() : throw new NotFoundException();
     }
 

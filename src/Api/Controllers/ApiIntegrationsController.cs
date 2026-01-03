@@ -18,11 +18,13 @@ public class ApiIntegrationsController(IKeycloakApiIntegrationService keycloakAd
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status409Conflict)]
     public async Task<ActionResult<ApiIntegrationCredentialsModel>> CreateApiIntegration(
-        [FromBody] CreateApiIntegrationModel request)
+        [FromBody] CreateApiIntegrationModel request,
+        CancellationToken cancellationToken)
     {
         var credentials = await keycloakAdminService.CreateApiIntegrationAsync(
             request.Name,
-            request.Description);
+            request.Description,
+            cancellationToken);
 
         return CreatedAtAction(
             nameof(GetApiIntegrations),
@@ -34,9 +36,9 @@ public class ApiIntegrationsController(IKeycloakApiIntegrationService keycloakAd
     [EndpointSummary("List API integrations")]
     [EndpointDescription("Returns a list of all API integrations. Client secrets are not included.")]
     [ProducesResponseType<List<ApiIntegrationModel>>(StatusCodes.Status200OK)]
-    public async Task<ActionResult<List<ApiIntegrationModel>>> GetApiIntegrations()
+    public async Task<ActionResult<List<ApiIntegrationModel>>> GetApiIntegrations(CancellationToken cancellationToken)
     {
-        var integrations = await keycloakAdminService.GetApiIntegrationsAsync();
+        var integrations = await keycloakAdminService.GetApiIntegrationsAsync(cancellationToken);
         return Ok(integrations);
     }
 
@@ -45,9 +47,9 @@ public class ApiIntegrationsController(IKeycloakApiIntegrationService keycloakAd
     [EndpointDescription("Deletes an API integration and revokes all access. This action cannot be undone.")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<ActionResult> DeleteApiIntegration(Guid id)
+    public async Task<ActionResult> DeleteApiIntegration(Guid id, CancellationToken cancellationToken)
     {
-        await keycloakAdminService.DeleteApiIntegrationAsync(id);
+        await keycloakAdminService.DeleteApiIntegrationAsync(id, cancellationToken);
         return NoContent();
     }
 }

@@ -26,9 +26,9 @@ public class ManufacturersController(IManufacturerService manufacturerService, I
     [EndpointDescription("Returns a manufacturer by its unique ID.")]
     [ProducesResponseType<ManufacturerModel>(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<ActionResult<ManufacturerModel>> GetById(Guid id)
+    public async Task<ActionResult<ManufacturerModel>> GetById(Guid id, CancellationToken cancellationToken)
     {
-        var manufacturer = await manufacturerService.GetManufacturerByIdAsync(id);
+        var manufacturer = await manufacturerService.GetManufacturerByIdAsync(id, cancellationToken);
         return manufacturer is null ? throw new NotFoundException() : (ActionResult<ManufacturerModel>)Ok(manufacturer);
     }
 
@@ -37,9 +37,9 @@ public class ManufacturersController(IManufacturerService manufacturerService, I
     [EndpointDescription("Creates a new manufacturer.")]
     [ProducesResponseType<ManufacturerModel>(StatusCodes.Status201Created)]
     [Authorize(Roles = Roles.Admin + "," + Roles.Procurement + "," + Roles.Integration)]
-    public async Task<ActionResult<ManufacturerModel>> Create(CreateOrUpdateManufacturerModel model)
+    public async Task<ActionResult<ManufacturerModel>> Create(CreateOrUpdateManufacturerModel model, CancellationToken cancellationToken)
     {
-        var created = await manufacturerService.CreateManufacturerAsync(model);
+        var created = await manufacturerService.CreateManufacturerAsync(model, cancellationToken);
         return CreatedAtAction(nameof(GetById), new { id = created.Id }, created);
     }
 
@@ -49,9 +49,9 @@ public class ManufacturersController(IManufacturerService manufacturerService, I
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [Authorize(Roles = Roles.Admin + "," + Roles.Procurement + "," + Roles.Integration)]
-    public async Task<IActionResult> Update(Guid id, CreateOrUpdateManufacturerModel model)
+    public async Task<IActionResult> Update(Guid id, CreateOrUpdateManufacturerModel model, CancellationToken cancellationToken)
     {
-        var success = await manufacturerService.UpdateManufacturerAsync(id, model);
+        var success = await manufacturerService.UpdateManufacturerAsync(id, model, cancellationToken);
         return success ? NoContent() : throw new NotFoundException();
     }
 
@@ -61,9 +61,9 @@ public class ManufacturersController(IManufacturerService manufacturerService, I
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [Authorize(Roles = Roles.Admin + "," + Roles.Procurement + "," + Roles.Integration)]
-    public async Task<IActionResult> Delete(Guid id)
+    public async Task<IActionResult> Delete(Guid id, CancellationToken cancellationToken)
     {
-        var success = await manufacturerService.DeleteManufacturerAsync(id);
+        var success = await manufacturerService.DeleteManufacturerAsync(id, cancellationToken);
         return success ? NoContent() : throw new NotFoundException();
     }
 

@@ -11,18 +11,18 @@ namespace FireInvent.Shared.Services
 {
     public class MaintenanceTypeService(AppDbContext context, MaintenanceTypeMapper mapper) : IMaintenanceTypeService
     {
-        public async Task<MaintenanceTypeModel> CreateMaintenanceTypeAsync(CreateOrUpdateMaintenanceTypeModel model)
+        public async Task<MaintenanceTypeModel> CreateMaintenanceTypeAsync(CreateOrUpdateMaintenanceTypeModel model, CancellationToken cancellationToken = default)
         {
             var exists = await context.MaintenanceTypes
-                .AnyAsync(p => p.Name == model.Name);
+                .AnyAsync(p => p.Name == model.Name, cancellationToken);
 
             if (exists)
                 throw new ConflictException("A maintenanceType with the same name already exists.");
 
             var maintenanceType = mapper.MapCreateOrUpdateMaintenanceTypeModelToMaintenanceType(model);
 
-            await context.MaintenanceTypes.AddAsync(maintenanceType);
-            await context.SaveChangesAsync();
+            await context.MaintenanceTypes.AddAsync(maintenanceType, cancellationToken);
+            await context.SaveChangesAsync(cancellationToken);
 
             return mapper.MapMaintenanceTypeToMaintenanceTypeModel(maintenanceType);
         }
@@ -43,41 +43,41 @@ namespace FireInvent.Shared.Services
                 cancellationToken);
         }
 
-        public async Task<MaintenanceTypeModel?> GetMaintenanceTypeByIdAsync(Guid id)
+        public async Task<MaintenanceTypeModel?> GetMaintenanceTypeByIdAsync(Guid id, CancellationToken cancellationToken = default)
         {
             var maintenanceType = await context.MaintenanceTypes
                 .AsNoTracking()
-                .FirstOrDefaultAsync(p => p.Id == id);
+                .FirstOrDefaultAsync(p => p.Id == id, cancellationToken);
 
             return maintenanceType is null ? null : mapper.MapMaintenanceTypeToMaintenanceTypeModel(maintenanceType);
         }
 
-        public async Task<bool> UpdateMaintenanceTypeAsync(Guid id, CreateOrUpdateMaintenanceTypeModel model)
+        public async Task<bool> UpdateMaintenanceTypeAsync(Guid id, CreateOrUpdateMaintenanceTypeModel model, CancellationToken cancellationToken = default)
         {
-            var maintenanceType = await context.MaintenanceTypes.FindAsync(id);
+            var maintenanceType = await context.MaintenanceTypes.FindAsync([id], cancellationToken);
             if (maintenanceType is null)
                 return false;
 
             var nameExists = await context.MaintenanceTypes.AnyAsync(p =>
-                p.Id != id && p.Name == model.Name);
+                p.Id != id && p.Name == model.Name, cancellationToken);
 
             if (nameExists)
                 throw new ConflictException("Another maintenanceType with the same name already exists.");
 
             mapper.MapCreateOrUpdateMaintenanceTypeModelToMaintenanceType(model, maintenanceType);
 
-            await context.SaveChangesAsync();
+            await context.SaveChangesAsync(cancellationToken);
             return true;
         }
 
-        public async Task<bool> DeleteMaintenanceTypeAsync(Guid id)
+        public async Task<bool> DeleteMaintenanceTypeAsync(Guid id, CancellationToken cancellationToken = default)
         {
-            var maintenanceType = await context.MaintenanceTypes.FindAsync(id);
+            var maintenanceType = await context.MaintenanceTypes.FindAsync([id], cancellationToken);
             if (maintenanceType is null)
                 return false;
 
             context.MaintenanceTypes.Remove(maintenanceType);
-            await context.SaveChangesAsync();
+            await context.SaveChangesAsync(cancellationToken);
             return true;
         }
     }

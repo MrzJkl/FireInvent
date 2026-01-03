@@ -26,9 +26,9 @@ public class DepartmentsController(IDepartmentService departmentService, IPerson
     [EndpointDescription("Returns a department by its unique ID.")]
     [ProducesResponseType<DepartmentModel>(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<ActionResult<DepartmentModel>> GetById(Guid id)
+    public async Task<ActionResult<DepartmentModel>> GetById(Guid id, CancellationToken cancellationToken)
     {
-        var department = await departmentService.GetDepartmentByIdAsync(id);
+        var department = await departmentService.GetDepartmentByIdAsync(id, cancellationToken);
         return department is null ? throw new NotFoundException() : (ActionResult<DepartmentModel>)Ok(department);
     }
 
@@ -37,9 +37,9 @@ public class DepartmentsController(IDepartmentService departmentService, IPerson
     [EndpointDescription("Creates a new department.")]
     [ProducesResponseType<DepartmentModel>(StatusCodes.Status201Created)]
     [Authorize(Roles = Roles.Admin + "," + Roles.Procurement + "," + Roles.Integration)]
-    public async Task<ActionResult<DepartmentModel>> Create(CreateOrUpdateDepartmentModel model)
+    public async Task<ActionResult<DepartmentModel>> Create(CreateOrUpdateDepartmentModel model, CancellationToken cancellationToken)
     {
-        var created = await departmentService.CreateDepartmentAsync(model);
+        var created = await departmentService.CreateDepartmentAsync(model, cancellationToken);
         return CreatedAtAction(nameof(GetById), new { id = created.Id }, created);
     }
 
@@ -49,9 +49,9 @@ public class DepartmentsController(IDepartmentService departmentService, IPerson
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [Authorize(Roles = Roles.Admin + "," + Roles.Procurement + "," + Roles.Integration)]
-    public async Task<IActionResult> Update(Guid id, CreateOrUpdateDepartmentModel model)
+    public async Task<IActionResult> Update(Guid id, CreateOrUpdateDepartmentModel model, CancellationToken cancellationToken)
     {
-        var success = await departmentService.UpdateDepartmentAsync(id, model);
+        var success = await departmentService.UpdateDepartmentAsync(id, model, cancellationToken);
         return success ? NoContent() : throw new NotFoundException();
     }
 
@@ -61,9 +61,9 @@ public class DepartmentsController(IDepartmentService departmentService, IPerson
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [Authorize(Roles = Roles.Admin + "," + Roles.Procurement + "," + Roles.Integration)]
-    public async Task<IActionResult> Delete(Guid id)
+    public async Task<IActionResult> Delete(Guid id, CancellationToken cancellationToken)
     {
-        var success = await departmentService.DeleteDepartmentAsync(id);
+        var success = await departmentService.DeleteDepartmentAsync(id, cancellationToken);
         return success ? NoContent() : throw new NotFoundException();
     }
 

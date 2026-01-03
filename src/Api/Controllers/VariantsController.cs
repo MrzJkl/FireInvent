@@ -27,9 +27,9 @@ public class VariantsController(IVariantService variantService, IItemService ite
     [EndpointDescription("Returns a variant by its unique ID.")]
     [ProducesResponseType<VariantModel>(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<ActionResult<VariantModel>> GetById(Guid id)
+    public async Task<ActionResult<VariantModel>> GetById(Guid id, CancellationToken cancellationToken)
     {
-        var variant = await variantService.GetVariantByIdAsync(id);
+        var variant = await variantService.GetVariantByIdAsync(id, cancellationToken);
         return variant is null ? throw new NotFoundException() : (ActionResult<VariantModel>)Ok(variant);
     }
 
@@ -40,9 +40,9 @@ public class VariantsController(IVariantService variantService, IItemService ite
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status409Conflict)]
     [Authorize(Roles = Roles.Admin + "," + Roles.Procurement + "," + Roles.Integration)]
-    public async Task<ActionResult<VariantModel>> Create(CreateOrUpdateVariantModel model)
+    public async Task<ActionResult<VariantModel>> Create(CreateOrUpdateVariantModel model, CancellationToken cancellationToken)
     {
-        var created = await variantService.CreateVariantAsync(model);
+        var created = await variantService.CreateVariantAsync(model, cancellationToken);
         return CreatedAtAction(nameof(GetById), new { id = created.Id }, created);
     }
 
@@ -54,9 +54,9 @@ public class VariantsController(IVariantService variantService, IItemService ite
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status409Conflict)]
     [Authorize(Roles = Roles.Admin + "," + Roles.Procurement + "," + Roles.Integration)]
-    public async Task<IActionResult> Update(Guid id, CreateOrUpdateVariantModel model)
+    public async Task<IActionResult> Update(Guid id, CreateOrUpdateVariantModel model, CancellationToken cancellationToken)
     {
-        var success = await variantService.UpdateVariantAsync(id, model);
+        var success = await variantService.UpdateVariantAsync(id, model, cancellationToken);
         return success ? NoContent() : throw new NotFoundException();
     }
 
@@ -66,9 +66,9 @@ public class VariantsController(IVariantService variantService, IItemService ite
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [Authorize(Roles = Roles.Admin + "," + Roles.Procurement + "," + Roles.Integration)]
-    public async Task<IActionResult> Delete(Guid id)
+    public async Task<IActionResult> Delete(Guid id, CancellationToken cancellationToken)
     {
-        var success = await variantService.DeleteVariantAsync(id);
+        var success = await variantService.DeleteVariantAsync(id, cancellationToken);
         return success ? NoContent() : throw new NotFoundException();
     }
 

@@ -36,9 +36,9 @@ public class VisitItemsController(IVisitItemService visitItemService) : Controll
     [EndpointDescription("Returns a visit item by its unique ID.")]
     [ProducesResponseType<VisitItemModel>(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<ActionResult<VisitItemModel>> GetById(Guid id)
+    public async Task<ActionResult<VisitItemModel>> GetById(Guid id, CancellationToken cancellationToken)
     {
-        var visitItem = await visitItemService.GetVisitItemByIdAsync(id);
+        var visitItem = await visitItemService.GetVisitItemByIdAsync(id, cancellationToken);
         return visitItem is null ? throw new NotFoundException() : Ok(visitItem);
     }
 
@@ -47,9 +47,9 @@ public class VisitItemsController(IVisitItemService visitItemService) : Controll
     [EndpointDescription("Creates a new visit item.")]
     [ProducesResponseType<VisitItemModel>(StatusCodes.Status201Created)]
     [Authorize(Roles = Roles.Admin + "," + Roles.Procurement + "," + Roles.Integration)]
-    public async Task<ActionResult<VisitItemModel>> Create(CreateOrUpdateVisitItemModel model)
+    public async Task<ActionResult<VisitItemModel>> Create(CreateOrUpdateVisitItemModel model, CancellationToken cancellationToken)
     {
-        var created = await visitItemService.CreateVisitItemAsync(model);
+        var created = await visitItemService.CreateVisitItemAsync(model, cancellationToken);
         return CreatedAtAction(nameof(GetById), new { id = created.Id }, created);
     }
 
@@ -59,9 +59,9 @@ public class VisitItemsController(IVisitItemService visitItemService) : Controll
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [Authorize(Roles = Roles.Admin + "," + Roles.Procurement + "," + Roles.Integration)]
-    public async Task<IActionResult> Update(Guid id, CreateOrUpdateVisitItemModel model)
+    public async Task<IActionResult> Update(Guid id, CreateOrUpdateVisitItemModel model, CancellationToken cancellationToken)
     {
-        var success = await visitItemService.UpdateVisitItemAsync(id, model);
+        var success = await visitItemService.UpdateVisitItemAsync(id, model, cancellationToken);
         return success ? NoContent() : throw new NotFoundException();
     }
 
@@ -71,9 +71,9 @@ public class VisitItemsController(IVisitItemService visitItemService) : Controll
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [Authorize(Roles = Roles.Admin + "," + Roles.Procurement + "," + Roles.Integration)]
-    public async Task<IActionResult> Delete(Guid id)
+    public async Task<IActionResult> Delete(Guid id, CancellationToken cancellationToken)
     {
-        var success = await visitItemService.DeleteVisitItemAsync(id);
+        var success = await visitItemService.DeleteVisitItemAsync(id, cancellationToken);
         return success ? NoContent() : throw new NotFoundException();
     }
 }

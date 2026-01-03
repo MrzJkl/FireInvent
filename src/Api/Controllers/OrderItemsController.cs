@@ -36,9 +36,9 @@ public class OrderItemsController(IOrderItemService orderItemService) : Controll
     [EndpointDescription("Returns an order item by its unique ID.")]
     [ProducesResponseType<OrderItemModel>(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<ActionResult<OrderItemModel>> GetById(Guid id)
+    public async Task<ActionResult<OrderItemModel>> GetById(Guid id, CancellationToken cancellationToken)
     {
-        var orderItem = await orderItemService.GetOrderItemByIdAsync(id);
+        var orderItem = await orderItemService.GetOrderItemByIdAsync(id, cancellationToken);
         return orderItem is null ? throw new NotFoundException() : Ok(orderItem);
     }
 
@@ -47,9 +47,9 @@ public class OrderItemsController(IOrderItemService orderItemService) : Controll
     [EndpointDescription("Creates a new order item.")]
     [ProducesResponseType<OrderItemModel>(StatusCodes.Status201Created)]
     [Authorize(Roles = Roles.Admin + "," + Roles.Procurement + "," + Roles.Integration)]
-    public async Task<ActionResult<OrderItemModel>> Create(CreateOrUpdateOrderItemModel model)
+    public async Task<ActionResult<OrderItemModel>> Create(CreateOrUpdateOrderItemModel model, CancellationToken cancellationToken)
     {
-        var created = await orderItemService.CreateOrderItemAsync(model);
+        var created = await orderItemService.CreateOrderItemAsync(model, cancellationToken);
         return CreatedAtAction(nameof(GetById), new { id = created.Id }, created);
     }
 
@@ -59,9 +59,9 @@ public class OrderItemsController(IOrderItemService orderItemService) : Controll
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [Authorize(Roles = Roles.Admin + "," + Roles.Procurement + "," + Roles.Integration)]
-    public async Task<IActionResult> Update(Guid id, CreateOrUpdateOrderItemModel model)
+    public async Task<IActionResult> Update(Guid id, CreateOrUpdateOrderItemModel model, CancellationToken cancellationToken)
     {
-        var success = await orderItemService.UpdateOrderItemAsync(id, model);
+        var success = await orderItemService.UpdateOrderItemAsync(id, model, cancellationToken);
         return success ? NoContent() : throw new NotFoundException();
     }
 
@@ -71,9 +71,9 @@ public class OrderItemsController(IOrderItemService orderItemService) : Controll
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [Authorize(Roles = Roles.Admin + "," + Roles.Procurement + "," + Roles.Integration)]
-    public async Task<IActionResult> Delete(Guid id)
+    public async Task<IActionResult> Delete(Guid id, CancellationToken cancellationToken)
     {
-        var success = await orderItemService.DeleteOrderItemAsync(id);
+        var success = await orderItemService.DeleteOrderItemAsync(id, cancellationToken);
         return success ? NoContent() : throw new NotFoundException();
     }
 }

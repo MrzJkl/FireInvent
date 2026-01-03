@@ -6,7 +6,7 @@ namespace FireInvent.Shared.Services.Keycloak;
 /// </summary>
 public interface IKeycloakTenantService
 {
-    Task<Guid> CreateTenantOrganizationAsync(string name, string? description);
+    Task<Guid> CreateTenantOrganizationAsync(string name, string? description, CancellationToken cancellationToken = default);
 
-    Task UpdateTenantOrganizationNameAsync(Guid organizationId, string newName, string? newDescription);
+    Task UpdateTenantOrganizationNameAsync(Guid organizationId, string newName, string? newDescription, CancellationToken cancellationToken = default);
 }

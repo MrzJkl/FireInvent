@@ -26,9 +26,9 @@ public class VisitsController(IVisitService visitService, IVisitItemService visi
     [EndpointDescription("Returns a visit by its unique ID.")]
     [ProducesResponseType<VisitModel>(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<ActionResult<VisitModel>> GetById(Guid id)
+    public async Task<ActionResult<VisitModel>> GetById(Guid id, CancellationToken cancellationToken)
     {
-        var visit = await visitService.GetVisitByIdAsync(id);
+        var visit = await visitService.GetVisitByIdAsync(id, cancellationToken);
         return visit is null ? throw new NotFoundException() : Ok(visit);
     }
 
@@ -50,9 +50,9 @@ public class VisitsController(IVisitService visitService, IVisitItemService visi
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status409Conflict)]
     [Authorize(Roles = Roles.Admin + "," + Roles.Procurement + "," + Roles.Integration)]
-    public async Task<ActionResult<VisitModel>> Create(CreateOrUpdateVisitModel model)
+    public async Task<ActionResult<VisitModel>> Create(CreateOrUpdateVisitModel model, CancellationToken cancellationToken)
     {
-        var created = await visitService.CreateVisitAsync(model);
+        var created = await visitService.CreateVisitAsync(model, cancellationToken);
         return CreatedAtAction(nameof(GetById), new { id = created.Id }, created);
     }
 
@@ -64,9 +64,9 @@ public class VisitsController(IVisitService visitService, IVisitItemService visi
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status409Conflict)]
     [Authorize(Roles = Roles.Admin + "," + Roles.Procurement + "," + Roles.Integration)]
-    public async Task<IActionResult> Update(Guid id, CreateOrUpdateVisitModel model)
+    public async Task<IActionResult> Update(Guid id, CreateOrUpdateVisitModel model, CancellationToken cancellationToken)
     {
-        var success = await visitService.UpdateVisitAsync(id, model);
+        var success = await visitService.UpdateVisitAsync(id, model, cancellationToken);
         return success ? NoContent() : throw new NotFoundException();
     }
 
@@ -76,9 +76,9 @@ public class VisitsController(IVisitService visitService, IVisitItemService visi
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [Authorize(Roles = Roles.Admin + "," + Roles.Procurement + "," + Roles.Integration)]
-    public async Task<IActionResult> Delete(Guid id)
+    public async Task<IActionResult> Delete(Guid id, CancellationToken cancellationToken)
     {
-        var success = await visitService.DeleteVisitAsync(id);
+        var success = await visitService.DeleteVisitAsync(id, cancellationToken);
         return success ? NoContent() : throw new NotFoundException();
     }
 }

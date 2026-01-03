@@ -26,9 +26,9 @@ public class StorageLocationsController(IStorageLocationService locationService,
     [EndpointDescription("Returns a storage location by its unique ID.")]
     [ProducesResponseType<StorageLocationModel>(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<ActionResult<StorageLocationModel>> GetById(Guid id)
+    public async Task<ActionResult<StorageLocationModel>> GetById(Guid id, CancellationToken cancellationToken)
     {
-        var location = await locationService.GetStorageLocationByIdAsync(id);
+        var location = await locationService.GetStorageLocationByIdAsync(id, cancellationToken);
         return location is null ? throw new NotFoundException() : (ActionResult<StorageLocationModel>)Ok(location);
     }
 
@@ -38,9 +38,9 @@ public class StorageLocationsController(IStorageLocationService locationService,
     [ProducesResponseType<StorageLocationModel>(StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status409Conflict)]
     [Authorize(Roles = Roles.Admin + "," + Roles.Procurement + "," + Roles.Integration)]
-    public async Task<ActionResult<StorageLocationModel>> Create(CreateOrUpdateStorageLocationModel model)
+    public async Task<ActionResult<StorageLocationModel>> Create(CreateOrUpdateStorageLocationModel model, CancellationToken cancellationToken)
     {
-        var created = await locationService.CreateStorageLocationAsync(model);
+        var created = await locationService.CreateStorageLocationAsync(model, cancellationToken);
         return CreatedAtAction(nameof(GetById), new { id = created.Id }, created);
     }
 
@@ -51,9 +51,9 @@ public class StorageLocationsController(IStorageLocationService locationService,
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status409Conflict)]
     [Authorize(Roles = Roles.Admin + "," + Roles.Procurement + "," + Roles.Integration)]
-    public async Task<IActionResult> Update(Guid id, CreateOrUpdateStorageLocationModel model)
+    public async Task<IActionResult> Update(Guid id, CreateOrUpdateStorageLocationModel model, CancellationToken cancellationToken)
     {
-        var success = await locationService.UpdateStorageLocationAsync(id, model);
+        var success = await locationService.UpdateStorageLocationAsync(id, model, cancellationToken);
         return success ? NoContent() : throw new NotFoundException();
     }
 
@@ -63,9 +63,9 @@ public class StorageLocationsController(IStorageLocationService locationService,
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [Authorize(Roles = Roles.Admin + "," + Roles.Procurement + "," + Roles.Integration)]
-    public async Task<IActionResult> Delete(Guid id)
+    public async Task<IActionResult> Delete(Guid id, CancellationToken cancellationToken)
     {
-        var success = await locationService.DeleteStorageLocationAsync(id);
+        var success = await locationService.DeleteStorageLocationAsync(id, cancellationToken);
         return success ? NoContent() : throw new NotFoundException();
     }
 

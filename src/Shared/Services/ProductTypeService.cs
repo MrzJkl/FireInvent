@@ -11,18 +11,18 @@ namespace FireInvent.Shared.Services
 {
     public class ProductTypeService(AppDbContext context, ProductTypeMapper mapper) : IProductTypeService
     {
-        public async Task<ProductTypeModel> CreateProductTypeAsync(CreateOrUpdateProductTypeModel model)
+        public async Task<ProductTypeModel> CreateProductTypeAsync(CreateOrUpdateProductTypeModel model, CancellationToken cancellationToken = default)
         {
             var exists = await context.ProductTypes
-                .AnyAsync(p => p.Name == model.Name);
+                .AnyAsync(p => p.Name == model.Name, cancellationToken);
 
             if (exists)
                 throw new ConflictException("A productType with the same name already exists.");
 
             var productType = mapper.MapCreateOrUpdateProductTypeModelToProductType(model);
 
-            await context.ProductTypes.AddAsync(productType);
-            await context.SaveChangesAsync();
+            await context.ProductTypes.AddAsync(productType, cancellationToken);
+            await context.SaveChangesAsync(cancellationToken);
 
             return mapper.MapProductTypeToProductTypeModel(productType);
         }
@@ -43,41 +43,41 @@ namespace FireInvent.Shared.Services
                 cancellationToken);
         }
 
-        public async Task<ProductTypeModel?> GetProductTypeByIdAsync(Guid id)
+        public async Task<ProductTypeModel?> GetProductTypeByIdAsync(Guid id, CancellationToken cancellationToken = default)
         {
             var productType = await context.ProductTypes
                 .AsNoTracking()
-                .FirstOrDefaultAsync(p => p.Id == id);
+                .FirstOrDefaultAsync(p => p.Id == id, cancellationToken);
 
             return productType is null ? null : mapper.MapProductTypeToProductTypeModel(productType);
         }
 
-        public async Task<bool> UpdateProductTypeAsync(Guid id, CreateOrUpdateProductTypeModel model)
+        public async Task<bool> UpdateProductTypeAsync(Guid id, CreateOrUpdateProductTypeModel model, CancellationToken cancellationToken = default)
         {
-            var productType = await context.ProductTypes.FindAsync(id);
+            var productType = await context.ProductTypes.FindAsync([id], cancellationToken);
             if (productType is null)
                 return false;
 
             var nameExists = await context.ProductTypes.AnyAsync(p =>
-                p.Id != id && p.Name == model.Name);
+                p.Id != id && p.Name == model.Name, cancellationToken);
 
             if (nameExists)
                 throw new ConflictException("Another productType with the same name already exists.");
 
             mapper.MapCreateOrUpdateProductTypeModelToProductType(model, productType);
 
-            await context.SaveChangesAsync();
+            await context.SaveChangesAsync(cancellationToken);
             return true;
         }
 
-        public async Task<bool> DeleteProductTypeAsync(Guid id)
+        public async Task<bool> DeleteProductTypeAsync(Guid id, CancellationToken cancellationToken = default)
         {
-            var productType = await context.ProductTypes.FindAsync(id);
+            var productType = await context.ProductTypes.FindAsync([id], cancellationToken);
             if (productType is null)
                 return false;
 
             context.ProductTypes.Remove(productType);
-            await context.SaveChangesAsync();
+            await context.SaveChangesAsync(cancellationToken);
             return true;
         }
     }

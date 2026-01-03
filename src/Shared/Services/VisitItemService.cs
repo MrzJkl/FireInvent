@@ -10,11 +10,11 @@ namespace FireInvent.Shared.Services;
 
 public class VisitItemService(AppDbContext context, VisitMapper mapper) : IVisitItemService
 {
-    public async Task<VisitItemModel?> GetVisitItemByIdAsync(Guid id)
+    public async Task<VisitItemModel?> GetVisitItemByIdAsync(Guid id, CancellationToken cancellationToken = default)
     {
         var visitItem = await context.VisitItems
             .AsNoTracking()
-            .FirstOrDefaultAsync(vi => vi.Id == id);
+            .FirstOrDefaultAsync(vi => vi.Id == id, cancellationToken);
 
         return visitItem is null ? null : mapper.MapVisitItemToVisitItemModel(visitItem);
     }
@@ -52,44 +52,44 @@ public class VisitItemService(AppDbContext context, VisitMapper mapper) : IVisit
             cancellationToken);
     }
 
-    public async Task<VisitItemModel> CreateVisitItemAsync(CreateOrUpdateVisitItemModel model)
+    public async Task<VisitItemModel> CreateVisitItemAsync(CreateOrUpdateVisitItemModel model, CancellationToken cancellationToken = default)
     {
         var visitItem = mapper.MapCreateOrUpdateVisitItemModelToVisitItem(model);
 
-        await context.VisitItems.AddAsync(visitItem);
-        await context.SaveChangesAsync();
+        await context.VisitItems.AddAsync(visitItem, cancellationToken);
+        await context.SaveChangesAsync(cancellationToken);
 
         visitItem = await context.VisitItems
             .AsNoTracking()
-            .FirstAsync(vi => vi.Id == visitItem.Id);
+            .FirstAsync(vi => vi.Id == visitItem.Id, cancellationToken);
 
         return mapper.MapVisitItemToVisitItemModel(visitItem);
     }
 
-    public async Task<bool> UpdateVisitItemAsync(Guid id, CreateOrUpdateVisitItemModel model)
+    public async Task<bool> UpdateVisitItemAsync(Guid id, CreateOrUpdateVisitItemModel model, CancellationToken cancellationToken = default)
     {
         var entity = await context.VisitItems
-            .FirstOrDefaultAsync(vi => vi.Id == id);
+            .FirstOrDefaultAsync(vi => vi.Id == id, cancellationToken);
 
         if (entity is null)
             return false;
 
         mapper.MapCreateOrUpdateVisitItemModelToVisitItem(model, entity);
 
-        await context.SaveChangesAsync();
+        await context.SaveChangesAsync(cancellationToken);
         return true;
     }
 
-    public async Task<bool> DeleteVisitItemAsync(Guid id)
+    public async Task<bool> DeleteVisitItemAsync(Guid id, CancellationToken cancellationToken = default)
     {
         var entity = await context.VisitItems
-            .FirstOrDefaultAsync(vi => vi.Id == id);
+            .FirstOrDefaultAsync(vi => vi.Id == id, cancellationToken);
 
         if (entity is null)
             return false;
 
         context.VisitItems.Remove(entity);
-        await context.SaveChangesAsync();
+        await context.SaveChangesAsync(cancellationToken);
         return true;
     }
 }

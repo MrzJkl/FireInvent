@@ -29,9 +29,9 @@ public class ItemsController(
     [EndpointDescription("Returns a item by its unique ID.")]
     [ProducesResponseType<ItemModel>(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<ActionResult<ItemModel>> GetById(Guid id)
+    public async Task<ActionResult<ItemModel>> GetById(Guid id, CancellationToken cancellationToken)
     {
-        var item = await itemService.GetItemByIdAsync(id);
+        var item = await itemService.GetItemByIdAsync(id, cancellationToken);
         return item is null ? throw new NotFoundException() : Ok(item);
     }
 
@@ -42,9 +42,9 @@ public class ItemsController(
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status409Conflict)]
     [Authorize(Roles = Roles.Admin + "," + Roles.Procurement + "," + Roles.Integration)]
-    public async Task<ActionResult<ItemModel>> Create(CreateOrUpdateItemModel model)
+    public async Task<ActionResult<ItemModel>> Create(CreateOrUpdateItemModel model, CancellationToken cancellationToken)
     {
-        var created = await itemService.CreateItemAsync(model);
+        var created = await itemService.CreateItemAsync(model, cancellationToken);
         return CreatedAtAction(nameof(GetById), new { id = created.Id }, created);
     }
 
@@ -56,9 +56,9 @@ public class ItemsController(
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status409Conflict)]
     [Authorize(Roles = Roles.Admin + "," + Roles.Procurement + "," + Roles.Integration)]
-    public async Task<IActionResult> Update(Guid id, CreateOrUpdateItemModel model)
+    public async Task<IActionResult> Update(Guid id, CreateOrUpdateItemModel model, CancellationToken cancellationToken)
     {
-        var success = await itemService.UpdateItemAsync(id, model);
+        var success = await itemService.UpdateItemAsync(id, model, cancellationToken);
         return success ? NoContent() : throw new NotFoundException();
     }
 
@@ -68,9 +68,9 @@ public class ItemsController(
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [Authorize(Roles = Roles.Admin + "," + Roles.Procurement + "," + Roles.Integration)]
-    public async Task<IActionResult> Delete(Guid id)
+    public async Task<IActionResult> Delete(Guid id, CancellationToken cancellationToken)
     {
-        var success = await itemService.DeleteItemAsync(id);
+        var success = await itemService.DeleteItemAsync(id, cancellationToken);
         return success ? NoContent() : throw new NotFoundException();
     }
 

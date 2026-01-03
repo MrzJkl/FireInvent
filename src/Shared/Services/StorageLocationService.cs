@@ -11,18 +11,18 @@ namespace FireInvent.Shared.Services;
 
 public class StorageLocationService(AppDbContext context, StorageLocationMapper mapper) : IStorageLocationService
 {
-    public async Task<StorageLocationModel> CreateStorageLocationAsync(CreateOrUpdateStorageLocationModel model)
+    public async Task<StorageLocationModel> CreateStorageLocationAsync(CreateOrUpdateStorageLocationModel model, CancellationToken cancellationToken = default)
     {
         var exists = await context.StorageLocations
-            .AnyAsync(s => s.Name == model.Name);
+            .AnyAsync(s => s.Name == model.Name, cancellationToken);
 
         if (exists)
             throw new ConflictException($"A StorageLocation with name '{model.Name}' already exists.");
 
         var location = mapper.MapCreateOrUpdateStorageLocationModelToStorageLocation(model);
 
-        await context.StorageLocations.AddAsync(location);
-        await context.SaveChangesAsync();
+        await context.StorageLocations.AddAsync(location, cancellationToken);
+        await context.SaveChangesAsync(cancellationToken);
 
         return mapper.MapStorageLocationToStorageLocationModel(location);
     }
@@ -43,41 +43,41 @@ public class StorageLocationService(AppDbContext context, StorageLocationMapper 
             cancellationToken);
     }
 
-    public async Task<StorageLocationModel?> GetStorageLocationByIdAsync(Guid id)
+    public async Task<StorageLocationModel?> GetStorageLocationByIdAsync(Guid id, CancellationToken cancellationToken = default)
     {
         var location = await context.StorageLocations
             .AsNoTracking()
-            .FirstOrDefaultAsync(s => s.Id == id);
+            .FirstOrDefaultAsync(s => s.Id == id, cancellationToken);
 
         return location is null ? null : mapper.MapStorageLocationToStorageLocationModel(location);
     }
 
-    public async Task<bool> UpdateStorageLocationAsync(Guid id, CreateOrUpdateStorageLocationModel model)
+    public async Task<bool> UpdateStorageLocationAsync(Guid id, CreateOrUpdateStorageLocationModel model, CancellationToken cancellationToken = default)
     {
-        var location = await context.StorageLocations.FindAsync(id);
+        var location = await context.StorageLocations.FindAsync([id], cancellationToken);
         if (location is null)
             return false;
 
         var nameExists = await context.StorageLocations
-            .AnyAsync(s => s.Name == model.Name && s.Id != id);
+            .AnyAsync(s => s.Name == model.Name && s.Id != id, cancellationToken);
 
         if (nameExists)
             throw new ConflictException($"A StorageLocation with name '{model.Name}' already exists.");
 
         mapper.MapCreateOrUpdateStorageLocationModelToStorageLocation(model, location);
 
-        await context.SaveChangesAsync();
+        await context.SaveChangesAsync(cancellationToken);
         return true;
     }
 
-    public async Task<bool> DeleteStorageLocationAsync(Guid id)
+    public async Task<bool> DeleteStorageLocationAsync(Guid id, CancellationToken cancellationToken = default)
     {
-        var location = await context.StorageLocations.FindAsync(id);
+        var location = await context.StorageLocations.FindAsync([id], cancellationToken);
         if (location is null)
             return false;
 
         context.StorageLocations.Remove(location);
-        await context.SaveChangesAsync();
+        await context.SaveChangesAsync(cancellationToken);
         return true;
     }
 }

@@ -60,7 +60,7 @@ public class KeycloakHttpClient : IDisposable
             throw new InvalidOperationException("Keycloak realm is not configured.");
     }
 
-    private async Task EnsureAuthenticatedAsync()
+    private async Task EnsureAuthenticatedAsync(CancellationToken cancellationToken)
     {
         if (_accessToken != null && DateTime.UtcNow < _tokenExpiry)
             return;
@@ -84,14 +84,14 @@ public class KeycloakHttpClient : IDisposable
 
             try
             {
-                var response = await _httpClient.PostAsync(endpoint, tokenRequest);
+                using var response = await _httpClient.PostAsync(endpoint, tokenRequest, cancellationToken);
                 stopwatch.Stop();
 
                 LogRequest("POST", endpoint, response.StatusCode, stopwatch.ElapsedMilliseconds);
 
                 response.EnsureSuccessStatusCode();
 
-                var tokenResponse = await response.Content.ReadFromJsonAsync<KeycloakTokenResponse>(_jsonOptions);
+                var tokenResponse = await response.Content.ReadFromJsonAsync<KeycloakTokenResponse>(_jsonOptions, cancellationToken);
                 _accessToken = tokenResponse?.AccessToken
                     ?? throw new InvalidOperationException("Failed to obtain access token from Keycloak.");
 
@@ -114,14 +114,14 @@ public class KeycloakHttpClient : IDisposable
         }
     }
 
-    public async Task<HttpResponseMessage> GetAsync(string requestUri)
+    public async Task<HttpResponseMessage> GetAsync(string requestUri, CancellationToken cancellationToken = default)
     {
-        await EnsureAuthenticatedAsync();
+        await EnsureAuthenticatedAsync(cancellationToken);
 
         var stopwatch = Stopwatch.StartNew();
         try
         {
-            var response = await _httpClient.GetAsync(requestUri);
+            using var response = await _httpClient.GetAsync(requestUri, cancellationToken);
             stopwatch.Stop();
 
             LogRequest("GET", requestUri, response.StatusCode, stopwatch.ElapsedMilliseconds);
@@ -136,14 +136,14 @@ public class KeycloakHttpClient : IDisposable
         }
     }
 
-    public async Task<HttpResponseMessage> PostAsync(string requestUri, HttpContent content)
+    public async Task<HttpResponseMessage> PostAsync(string requestUri, HttpContent content, CancellationToken cancellationToken = default)
     {
-        await EnsureAuthenticatedAsync();
+        await EnsureAuthenticatedAsync(cancellationToken);
 
         var stopwatch = Stopwatch.StartNew();
         try
         {
-            var response = await _httpClient.PostAsync(requestUri, content);
+            using var response = await _httpClient.PostAsync(requestUri, content, cancellationToken);
             stopwatch.Stop();
 
             LogRequest("POST", requestUri, response.StatusCode, stopwatch.ElapsedMilliseconds);
@@ -158,14 +158,14 @@ public class KeycloakHttpClient : IDisposable
         }
     }
 
-    public async Task<HttpResponseMessage> PostAsJsonAsync<T>(string requestUri, T value)
+    public async Task<HttpResponseMessage> PostAsJsonAsync<T>(string requestUri, T value, CancellationToken cancellationToken = default)
     {
-        await EnsureAuthenticatedAsync();
+        await EnsureAuthenticatedAsync(cancellationToken);
 
         var stopwatch = Stopwatch.StartNew();
         try
         {
-            var response = await _httpClient.PostAsJsonAsync(requestUri, value, _jsonOptions);
+            using var response = await _httpClient.PostAsJsonAsync(requestUri, value, _jsonOptions, cancellationToken);
             stopwatch.Stop();
 
             LogRequest("POST", requestUri, response.StatusCode, stopwatch.ElapsedMilliseconds);
@@ -180,14 +180,14 @@ public class KeycloakHttpClient : IDisposable
         }
     }
 
-    public async Task<HttpResponseMessage> PutAsJsonAsync<T>(string requestUri, T value)
+    public async Task<HttpResponseMessage> PutAsJsonAsync<T>(string requestUri, T value, CancellationToken cancellationToken = default)
     {
-        await EnsureAuthenticatedAsync();
+        await EnsureAuthenticatedAsync(cancellationToken);
 
         var stopwatch = Stopwatch.StartNew();
         try
         {
-            var response = await _httpClient.PutAsJsonAsync(requestUri, value, _jsonOptions);
+            using var response = await _httpClient.PutAsJsonAsync(requestUri, value, _jsonOptions, cancellationToken);
             stopwatch.Stop();
 
             LogRequest("PUT", requestUri, response.StatusCode, stopwatch.ElapsedMilliseconds);
@@ -202,14 +202,14 @@ public class KeycloakHttpClient : IDisposable
         }
     }
 
-    public async Task<HttpResponseMessage> DeleteAsync(string requestUri)
+    public async Task<HttpResponseMessage> DeleteAsync(string requestUri, CancellationToken cancellationToken = default)
     {
-        await EnsureAuthenticatedAsync();
+        await EnsureAuthenticatedAsync(cancellationToken);
 
         var stopwatch = Stopwatch.StartNew();
         try
         {
-            var response = await _httpClient.DeleteAsync(requestUri);
+            using var response = await _httpClient.DeleteAsync(requestUri, cancellationToken);
             stopwatch.Stop();
 
             LogRequest("DELETE", requestUri, response.StatusCode, stopwatch.ElapsedMilliseconds);
