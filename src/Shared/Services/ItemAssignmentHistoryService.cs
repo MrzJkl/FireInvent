@@ -1,4 +1,4 @@
-﻿using FireInvent.Database;
+using FireInvent.Database;
 using FireInvent.Database.Extensions;
 using FireInvent.Contract;
 using FireInvent.Contract.Exceptions;
@@ -12,20 +12,20 @@ namespace FireInvent.Shared.Services;
 
 public class ItemAssignmentHistoryService(AppDbContext context, ItemAssignmentHistoryMapper mapper, IKeycloakUserService userService) : IItemAssignmentHistoryService
 {
-    public async Task<ItemAssignmentHistoryModel> CreateAssignmentAsync(CreateOrUpdateItemAssignmentHistoryModel model)
+    public async Task<ItemAssignmentHistoryModel> CreateAssignmentAsync(CreateOrUpdateItemAssignmentHistoryModel model, CancellationToken cancellationToken = default)
     {
         ValidateAssignmentTarget(model);
 
-        if (!await context.Items.AnyAsync(i => i.Id == model.ItemId))
+        if (!await context.Items.AnyAsync(i => i.Id == model.ItemId, cancellationToken))
             throw new BadRequestException($"Item with ID '{model.ItemId}' does not exist.");
 
-        if (model.PersonId.HasValue && !await context.Persons.AnyAsync(p => p.Id == model.PersonId))
+        if (model.PersonId.HasValue && !await context.Persons.AnyAsync(p => p.Id == model.PersonId, cancellationToken))
             throw new BadRequestException($"Person with ID '{model.PersonId}' does not exist.");
 
-        if (model.StorageLocationId.HasValue && !await context.StorageLocations.AnyAsync(s => s.Id == model.StorageLocationId))
+        if (model.StorageLocationId.HasValue && !await context.StorageLocations.AnyAsync(s => s.Id == model.StorageLocationId, cancellationToken))
             throw new BadRequestException($"StorageLocation with ID '{model.StorageLocationId}' does not exist.");
 
-        _ = await userService.GetUserByIdAsync(model.AssignedById) ?? throw new BadRequestException($"User with ID '{model.AssignedById}' does not exist.");
+        _ = await userService.GetUserByIdAsync(model.AssignedById, cancellationToken) ?? throw new BadRequestException($"User with ID '{model.AssignedById}' does not exist.");
 
         bool overlapExists = await context.ItemAssignmentHistories
             .AnyAsync(a =>
@@ -33,7 +33,7 @@ public class ItemAssignmentHistoryService(AppDbContext context, ItemAssignmentHi
                 (
                     (model.AssignedUntil == null || a.AssignedFrom <= model.AssignedUntil) &&
                     (a.AssignedUntil == null || a.AssignedUntil >= model.AssignedFrom)
-                ));
+                ), cancellationToken);
 
         if (overlapExists)
             throw new ConflictException("An overlapping assignment already exists for this item.");
@@ -41,11 +41,11 @@ public class ItemAssignmentHistoryService(AppDbContext context, ItemAssignmentHi
         var assignment = mapper.MapCreateOrUpdateItemAssignmentHistoryModelToItemAssignmentHistory(model);
 
         context.ItemAssignmentHistories.Add(assignment);
-        await context.SaveChangesAsync();
+        await context.SaveChangesAsync(cancellationToken);
 
         assignment = await context.ItemAssignmentHistories
             .AsNoTracking()
-            .SingleAsync(a => a.Id == assignment.Id);
+            .SingleAsync(a => a.Id == assignment.Id, cancellationToken);
 
         return mapper.MapItemAssignmentHistoryToItemAssignmentHistoryModel(assignment);
     }
@@ -129,34 +129,34 @@ public class ItemAssignmentHistoryService(AppDbContext context, ItemAssignmentHi
             cancellationToken);
     }
 
-    public async Task<ItemAssignmentHistoryModel?> GetAssignmentByIdAsync(Guid id)
+    public async Task<ItemAssignmentHistoryModel?> GetAssignmentByIdAsync(Guid id, CancellationToken cancellationToken = default)
     {
         var entity = await context.ItemAssignmentHistories
             .AsNoTracking()
-            .FirstOrDefaultAsync(a => a.Id == id);
+            .FirstOrDefaultAsync(a => a.Id == id, cancellationToken);
 
         return entity is null ? null : mapper.MapItemAssignmentHistoryToItemAssignmentHistoryModel(entity);
     }
 
-    public async Task<bool> UpdateAssignmentAsync(Guid id, CreateOrUpdateItemAssignmentHistoryModel model)
+    public async Task<bool> UpdateAssignmentAsync(Guid id, CreateOrUpdateItemAssignmentHistoryModel model, CancellationToken cancellationToken = default)
     {
         var entity = await context.ItemAssignmentHistories
-            .FindAsync(id);
+            .FindAsync(id, cancellationToken);
         if (entity is null)
             return false;
 
         ValidateAssignmentTarget(model);
 
-        if (!await context.Items.AnyAsync(i => i.Id == model.ItemId))
+        if (!await context.Items.AnyAsync(i => i.Id == model.ItemId, cancellationToken))
             throw new BadRequestException($"Item with ID '{model.ItemId}' does not exist.");
 
-        if (model.PersonId.HasValue && !await context.Persons.AnyAsync(p => p.Id == model.PersonId))
+        if (model.PersonId.HasValue && !await context.Persons.AnyAsync(p => p.Id == model.PersonId, cancellationToken))
             throw new BadRequestException($"Person with ID '{model.PersonId}' does not exist.");
 
-        if (model.StorageLocationId.HasValue && !await context.StorageLocations.AnyAsync(s => s.Id == model.StorageLocationId))
+        if (model.StorageLocationId.HasValue && !await context.StorageLocations.AnyAsync(s => s.Id == model.StorageLocationId, cancellationToken))
             throw new BadRequestException($"StorageLocation with ID '{model.StorageLocationId}' does not exist.");
 
-        _ = await userService.GetUserByIdAsync(model.AssignedById) ?? throw new BadRequestException($"User with ID '{model.AssignedById}' does not exist.");
+        _ = await userService.GetUserByIdAsync(model.AssignedById, cancellationToken) ?? throw new BadRequestException($"User with ID '{model.AssignedById}' does not exist.");
 
         bool overlapExists = await context.ItemAssignmentHistories
             .AnyAsync(a =>
@@ -165,25 +165,25 @@ public class ItemAssignmentHistoryService(AppDbContext context, ItemAssignmentHi
                 (
                     (model.AssignedUntil == null || a.AssignedFrom <= model.AssignedUntil) &&
                     (a.AssignedUntil == null || a.AssignedUntil >= model.AssignedFrom)
-                ));
+                ), cancellationToken);
 
         if (overlapExists)
             throw new ConflictException("An overlapping assignment already exists for this item.");
 
         mapper.MapCreateOrUpdateItemAssignmentHistoryModelToItemAssignmentHistory(model, entity);
 
-        await context.SaveChangesAsync();
+        await context.SaveChangesAsync(cancellationToken);
         return true;
     }
 
-    public async Task<bool> DeleteAssignmentAsync(Guid id)
+    public async Task<bool> DeleteAssignmentAsync(Guid id, CancellationToken cancellationToken = default)
     {
-        var entity = await context.ItemAssignmentHistories.FindAsync(id);
+        var entity = await context.ItemAssignmentHistories.FindAsync(id, cancellationToken);
         if (entity is null)
             return false;
 
         context.ItemAssignmentHistories.Remove(entity);
-        await context.SaveChangesAsync();
+        await context.SaveChangesAsync(cancellationToken);
         return true;
     }
 

@@ -1,4 +1,4 @@
-﻿using FireInvent.Database;
+using FireInvent.Database;
 using FireInvent.Database.Extensions;
 using FireInvent.Contract;
 using FireInvent.Contract.Exceptions;
@@ -11,13 +11,13 @@ namespace FireInvent.Shared.Services;
 
 public class VariantService(AppDbContext context, VariantMapper mapper) : IVariantService
 {
-    public async Task<VariantModel> CreateVariantAsync(CreateOrUpdateVariantModel model)
+    public async Task<VariantModel> CreateVariantAsync(CreateOrUpdateVariantModel model, CancellationToken cancellationToken = default)
     {
-        _ = await context.Products.FindAsync(model.ProductId) ?? throw new BadRequestException($"Product with ID '{model.ProductId}' does not exist.");
+        _ = await context.Products.FindAsync(model.ProductId, cancellationToken) ?? throw new BadRequestException($"Product with ID '{model.ProductId}' does not exist.");
         
         var nameDuplicate = await context.Variants.AnyAsync(v =>
             v.ProductId == model.ProductId &&
-            v.Name == model.Name);
+            v.Name == model.Name, cancellationToken);
 
         if (nameDuplicate)
             throw new ConflictException("A Variant with this name already exists for this product.");
@@ -25,19 +25,19 @@ public class VariantService(AppDbContext context, VariantMapper mapper) : IVaria
         if (!string.IsNullOrEmpty(model.ExternalIdentifier))
         {
             var externalIdDuplicate = await context.Variants.AnyAsync(v =>
-                v.ExternalIdentifier == model.ExternalIdentifier && v.ProductId == model.ProductId);
+                v.ExternalIdentifier == model.ExternalIdentifier && v.ProductId == model.ProductId, cancellationToken);
             if (externalIdDuplicate)
                 throw new ConflictException("A variant with the same external identifier and product already exists.");
         }
 
         var variant = mapper.MapCreateOrUpdateVariantModelToVariant(model);
 
-        await context.Variants.AddAsync(variant);
-        await context.SaveChangesAsync();
+        await context.Variants.AddAsync(variant, cancellationToken);
+        await context.SaveChangesAsync(cancellationToken);
 
         variant = await context.Variants
             .AsNoTracking()
-            .SingleAsync(v => v.Id == variant.Id);
+            .SingleAsync(v => v.Id == variant.Id, cancellationToken);
 
         return mapper.MapVariantToVariantModel(variant);
     }
@@ -58,54 +58,53 @@ public class VariantService(AppDbContext context, VariantMapper mapper) : IVaria
             cancellationToken);
     }
 
-    public async Task<VariantModel?> GetVariantByIdAsync(Guid id)
+    public async Task<VariantModel?> GetVariantByIdAsync(Guid id, CancellationToken cancellationToken = default)
     {
         var variant = await context.Variants
             .AsNoTracking()
-            .FirstOrDefaultAsync(v => v.Id == id);
+            .FirstOrDefaultAsync(v => v.Id == id, cancellationToken);
 
         return variant is null ? null : mapper.MapVariantToVariantModel(variant);
     }
 
-    public async Task<bool> UpdateVariantAsync(Guid id, CreateOrUpdateVariantModel model)
+    public async Task<bool> UpdateVariantAsync(Guid id, CreateOrUpdateVariantModel model, CancellationToken cancellationToken = default)
     {
-        var variant = await context.Variants.FindAsync(id);
-        if (variant is null)
+        var entity = await context.Variants.FindAsync(id, cancellationToken);
+        if (entity is null)
             return false;
 
-        _ = await context.Products.FindAsync(model.ProductId) ?? throw new BadRequestException($"Product with ID '{model.ProductId}' does not exist.");
-
+        _ = await context.Products.FindAsync(model.ProductId, cancellationToken) ?? throw new BadRequestException($"Product with ID '{model.ProductId}' does not exist.");
+        
         var nameDuplicate = await context.Variants.AnyAsync(v =>
             v.Id != id &&
             v.ProductId == model.ProductId &&
-            v.Name == model.Name);
+            v.Name == model.Name, cancellationToken);
 
         if (nameDuplicate)
-            throw new ConflictException("Another variant with the same name already exists for this product.");
+            throw new ConflictException("A Variant with this name already exists for this product.");
 
         if (!string.IsNullOrEmpty(model.ExternalIdentifier))
         {
             var externalIdDuplicate = await context.Variants.AnyAsync(v =>
-                v.ExternalIdentifier == model.ExternalIdentifier && v.ProductId == model.ProductId && v.Id != id);
-            
+                v.Id != id && v.ExternalIdentifier == model.ExternalIdentifier && v.ProductId == model.ProductId, cancellationToken);
             if (externalIdDuplicate)
                 throw new ConflictException("A variant with the same external identifier and product already exists.");
         }
 
-        mapper.MapCreateOrUpdateVariantModelToVariant(model, variant);
+        mapper.MapCreateOrUpdateVariantModelToVariant(model, entity);
 
-        await context.SaveChangesAsync();
+        await context.SaveChangesAsync(cancellationToken);
         return true;
     }
 
-    public async Task<bool> DeleteVariantAsync(Guid id)
+    public async Task<bool> DeleteVariantAsync(Guid id, CancellationToken cancellationToken = default)
     {
-        var variant = await context.Variants.FindAsync(id);
-        if (variant is null)
+        var entity = await context.Variants.FindAsync(id, cancellationToken);
+        if (entity is null)
             return false;
 
-        context.Variants.Remove(variant);
-        await context.SaveChangesAsync();
+        context.Variants.Remove(entity);
+        await context.SaveChangesAsync(cancellationToken);
         return true;
     }
 

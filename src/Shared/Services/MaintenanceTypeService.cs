@@ -1,4 +1,4 @@
-﻿using FireInvent.Database;
+using FireInvent.Database;
 using FireInvent.Database.Extensions;
 using FireInvent.Contract;
 using FireInvent.Contract.Exceptions;
@@ -54,7 +54,7 @@ namespace FireInvent.Shared.Services
 
         public async Task<bool> UpdateMaintenanceTypeAsync(Guid id, CreateOrUpdateMaintenanceTypeModel model, CancellationToken cancellationToken = default)
         {
-            var maintenanceType = await context.MaintenanceTypes.FindAsync([id], cancellationToken);
+            var maintenanceType = await context.MaintenanceTypes.FindAsync(id, cancellationToken);
             if (maintenanceType is null)
                 return false;
 
@@ -72,7 +72,7 @@ namespace FireInvent.Shared.Services
 
         public async Task<bool> DeleteMaintenanceTypeAsync(Guid id, CancellationToken cancellationToken = default)
         {
-            var maintenanceType = await context.MaintenanceTypes.FindAsync([id], cancellationToken);
+            var maintenanceType = await context.MaintenanceTypes.FindAsync(id, cancellationToken);
             if (maintenanceType is null)
                 return false;
 

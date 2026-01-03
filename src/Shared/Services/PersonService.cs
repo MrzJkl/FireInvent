@@ -1,4 +1,4 @@
-﻿using FireInvent.Database;
+using FireInvent.Database;
 using FireInvent.Database.Extensions;
 using FireInvent.Contract;
 using FireInvent.Contract.Exceptions;
@@ -103,7 +103,7 @@ public class PersonService(AppDbContext context, PersonMapper mapper) : IPersonS
 
     public async Task<bool> DeletePersonAsync(Guid id, CancellationToken cancellationToken = default)
     {
-        var person = await context.Persons.FindAsync([id], cancellationToken);
+        var person = await context.Persons.FindAsync(id, cancellationToken);
         if (person is null)
             return false;
 

@@ -1,4 +1,4 @@
-﻿using FireInvent.Contract;
+using FireInvent.Contract;
 using FireInvent.Contract.Exceptions;
 using FireInvent.Database;
 using FireInvent.Database.Extensions;
@@ -54,7 +54,7 @@ namespace FireInvent.Shared.Services
 
         public async Task<bool> UpdateManufacturerAsync(Guid id, CreateOrUpdateManufacturerModel model, CancellationToken cancellationToken = default)
         {
-            var manufacturer = await context.Manufacturers.FindAsync([id], cancellationToken);
+            var manufacturer = await context.Manufacturers.FindAsync(id, cancellationToken);
             if (manufacturer is null)
                 return false;
 
@@ -72,7 +72,7 @@ namespace FireInvent.Shared.Services
 
         public async Task<bool> DeleteManufacturerAsync(Guid id, CancellationToken cancellationToken = default)
         {
-            var manufacturer = await context.Manufacturers.FindAsync([id], cancellationToken);
+            var manufacturer = await context.Manufacturers.FindAsync(id, cancellationToken);
             if (manufacturer is null)
                 return false;
 

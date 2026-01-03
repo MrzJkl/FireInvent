@@ -1,4 +1,4 @@
-﻿using FireInvent.Database;
+using FireInvent.Database;
 using FireInvent.Database.Extensions;
 using FireInvent.Contract;
 using FireInvent.Contract.Exceptions;
@@ -54,7 +54,7 @@ public class StorageLocationService(AppDbContext context, StorageLocationMapper 
 
     public async Task<bool> UpdateStorageLocationAsync(Guid id, CreateOrUpdateStorageLocationModel model, CancellationToken cancellationToken = default)
     {
-        var location = await context.StorageLocations.FindAsync([id], cancellationToken);
+        var location = await context.StorageLocations.FindAsync(id, cancellationToken);
         if (location is null)
             return false;
 
@@ -72,7 +72,7 @@ public class StorageLocationService(AppDbContext context, StorageLocationMapper 
 
     public async Task<bool> DeleteStorageLocationAsync(Guid id, CancellationToken cancellationToken = default)
     {
-        var location = await context.StorageLocations.FindAsync([id], cancellationToken);
+        var location = await context.StorageLocations.FindAsync(id, cancellationToken);
         if (location is null)
             return false;
 

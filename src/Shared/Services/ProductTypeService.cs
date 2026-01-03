@@ -1,4 +1,4 @@
-﻿using FireInvent.Database;
+using FireInvent.Database;
 using FireInvent.Database.Extensions;
 using FireInvent.Contract;
 using FireInvent.Contract.Exceptions;
@@ -54,7 +54,7 @@ namespace FireInvent.Shared.Services
 
         public async Task<bool> UpdateProductTypeAsync(Guid id, CreateOrUpdateProductTypeModel model, CancellationToken cancellationToken = default)
         {
-            var productType = await context.ProductTypes.FindAsync([id], cancellationToken);
+            var productType = await context.ProductTypes.FindAsync(id, cancellationToken);
             if (productType is null)
                 return false;
 
@@ -72,7 +72,7 @@ namespace FireInvent.Shared.Services
 
         public async Task<bool> DeleteProductTypeAsync(Guid id, CancellationToken cancellationToken = default)
         {
-            var productType = await context.ProductTypes.FindAsync([id], cancellationToken);
+            var productType = await context.ProductTypes.FindAsync(id, cancellationToken);
             if (productType is null)
                 return false;
 

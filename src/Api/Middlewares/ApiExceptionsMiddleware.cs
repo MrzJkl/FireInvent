@@ -42,6 +42,9 @@ public class ApiExceptionMiddleware(RequestDelegate next, ILogger<ApiExceptionMi
             case BadRequestException:
                 statusCode = HttpStatusCode.BadRequest;
                 break;
+            case OperationCanceledException:
+                statusCode = HttpStatusCode.RequestTimeout;
+                break;
         }
 
         context.Response.ContentType = "application/json";

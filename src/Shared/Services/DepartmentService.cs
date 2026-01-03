@@ -1,4 +1,4 @@
-﻿using FireInvent.Database;
+using FireInvent.Database;
 using FireInvent.Database.Extensions;
 using FireInvent.Contract;
 using FireInvent.Contract.Exceptions;
@@ -54,7 +54,7 @@ public class DepartmentService(AppDbContext context, DepartmentMapper mapper) : 
 
     public async Task<bool> UpdateDepartmentAsync(Guid id, CreateOrUpdateDepartmentModel model, CancellationToken cancellationToken = default)
     {
-        var department = await context.Departments.FindAsync([id], cancellationToken);
+        var department = await context.Departments.FindAsync(id, cancellationToken);
         if (department is null)
             return false;
 
@@ -72,7 +72,7 @@ public class DepartmentService(AppDbContext context, DepartmentMapper mapper) : 
 
     public async Task<bool> DeleteDepartmentAsync(Guid id, CancellationToken cancellationToken = default)
     {
-        var department = await context.Departments.FindAsync([id], cancellationToken);
+        var department = await context.Departments.FindAsync(id, cancellationToken);
         if (department is null)
             return false;
 

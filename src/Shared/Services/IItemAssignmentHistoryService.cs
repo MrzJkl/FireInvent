@@ -1,4 +1,4 @@
-﻿using FireInvent.Contract;
+using FireInvent.Contract;
 using FireInvent.Shared.Models;
 
 namespace FireInvent.Shared.Services;

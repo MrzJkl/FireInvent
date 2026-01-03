@@ -1,4 +1,4 @@
-﻿using FireInvent.Database;
+using FireInvent.Database;
 using FireInvent.Database.Extensions;
 using FireInvent.Contract;
 using FireInvent.Contract.Exceptions;
@@ -11,15 +11,15 @@ namespace FireInvent.Shared.Services;
 
 public class ItemService(AppDbContext context, ItemMapper mapper) : IItemService
 {
-    public async Task<ItemModel> CreateItemAsync(CreateOrUpdateItemModel model)
+    public async Task<ItemModel> CreateItemAsync(CreateOrUpdateItemModel model, CancellationToken cancellationToken = default)
     {
-        if (!await context.Variants.AnyAsync(v => v.Id == model.VariantId))
+        if (!await context.Variants.AnyAsync(v => v.Id == model.VariantId, cancellationToken))
             throw new BadRequestException("Variant not found.");
 
         if (!string.IsNullOrWhiteSpace(model.Identifier))
         {
             var exists = await context.Items
-                .AnyAsync(c => c.Identifier == model.Identifier);
+                .AnyAsync(c => c.Identifier == model.Identifier, cancellationToken);
 
             if (exists)
                 throw new ConflictException($"Item with identifier '{model.Identifier}' already exists.");
@@ -27,12 +27,12 @@ public class ItemService(AppDbContext context, ItemMapper mapper) : IItemService
 
         var item = mapper.MapCreateOrUpdateItemModelToItem(model);
 
-        await context.Items.AddAsync(item);
-        await context.SaveChangesAsync();
+        await context.Items.AddAsync(item, cancellationToken);
+        await context.SaveChangesAsync(cancellationToken);
 
         item = await context.Items
             .AsNoTracking()
-            .SingleAsync(i => i.Id == item.Id);
+            .SingleAsync(i => i.Id == item.Id, cancellationToken);
 
         return mapper.MapItemToItemModel(item);
     }
@@ -53,28 +53,28 @@ public class ItemService(AppDbContext context, ItemMapper mapper) : IItemService
             cancellationToken);
     }
 
-    public async Task<ItemModel?> GetItemByIdAsync(Guid id)
+    public async Task<ItemModel?> GetItemByIdAsync(Guid id, CancellationToken cancellationToken = default)
     {
         var item = await context.Items
             .AsNoTracking()
-            .FirstOrDefaultAsync(i => i.Id == id);
+            .FirstOrDefaultAsync(i => i.Id == id, cancellationToken);
 
         return item is null ? null : mapper.MapItemToItemModel(item);
     }
 
-    public async Task<bool> UpdateItemAsync(Guid id, CreateOrUpdateItemModel model)
+    public async Task<bool> UpdateItemAsync(Guid id, CreateOrUpdateItemModel model, CancellationToken cancellationToken = default)
     {
-        var item = await context.Items.FindAsync(id);
+        var item = await context.Items.FindAsync(id, cancellationToken);
         if (item is null)
             return false;
 
-        if (!await context.Variants.AnyAsync(v => v.Id == model.VariantId))
+        if (!await context.Variants.AnyAsync(v => v.Id == model.VariantId, cancellationToken))
             throw new BadRequestException("Variant not found.");
 
         if (!string.IsNullOrWhiteSpace(model.Identifier))
         {
             var exists = await context.Items
-                .AnyAsync(c => c.Identifier == model.Identifier && c.Id != id);
+                .AnyAsync(c => c.Identifier == model.Identifier && c.Id != id, cancellationToken);
 
             if (exists)
                 throw new ConflictException($"Item with identifier '{model.Identifier}' already exists.");
@@ -82,24 +82,24 @@ public class ItemService(AppDbContext context, ItemMapper mapper) : IItemService
 
         mapper.MapCreateOrUpdateItemModelToItem(model, item);
 
-        await context.SaveChangesAsync();
+        await context.SaveChangesAsync(cancellationToken);
         return true;
     }
 
-    public async Task<bool> DeleteItemAsync(Guid id)
+    public async Task<bool> DeleteItemAsync(Guid id, CancellationToken cancellationToken = default)
     {
-        var item = await context.Items.FindAsync(id);
+        var item = await context.Items.FindAsync(id, cancellationToken);
         if (item is null)
             return false;
 
         context.Items.Remove(item);
-        await context.SaveChangesAsync();
+        await context.SaveChangesAsync(cancellationToken);
         return true;
     }
 
     public async Task<PagedResult<ItemModel>> GetItemsForVariantAsync(Guid variantId, PagedQuery pagedQuery, CancellationToken cancellationToken)
     {
-        var variantExists = await context.Variants.AnyAsync(v => v.Id == variantId);
+        var variantExists = await context.Variants.AnyAsync(v => v.Id == variantId, cancellationToken);
         if (!variantExists)
             throw new NotFoundException($"Variant with ID {variantId} not found.");
 
