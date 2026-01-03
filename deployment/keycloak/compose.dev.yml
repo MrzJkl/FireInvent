@@ -16,7 +16,7 @@ services:
       db_keycloak:
         condition: service_healthy
     ports:
-      - "5000:8080"
+      - "8080:8080"
     healthcheck:
       test: ["CMD-SHELL", "exec 3<>/dev/tcp/localhost/8080"]
       interval: 10s
