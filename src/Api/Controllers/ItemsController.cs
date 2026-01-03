@@ -17,10 +17,10 @@ public class ItemsController(
     [HttpGet]
     [EndpointSummary("List all items")]
     [EndpointDescription("Returns a list of all items.")]
-    [ProducesResponseType<List<ItemModel>>(StatusCodes.Status200OK)]
-    public async Task<ActionResult<List<ItemModel>>> GetAll()
+    [ProducesResponseType<PagedResult<ItemModel>>(StatusCodes.Status200OK)]
+    public async Task<ActionResult<PagedResult<ItemModel>>> GetAll(PagedQuery pagedQuery, CancellationToken cancellationToken)
     {
-        var items = await itemService.GetAllItemsAsync();
+        var items = await itemService.GetAllItemsAsync(pagedQuery, cancellationToken);
         return Ok(items);
     }
 
@@ -77,22 +77,22 @@ public class ItemsController(
     [HttpGet("{id:guid}/assignments")]
     [EndpointSummary("List all assignments for a item")]
     [EndpointDescription("Returns all assignment histories for a specific item.")]
-    [ProducesResponseType<List<ItemAssignmentHistoryModel>>(StatusCodes.Status200OK)]
+    [ProducesResponseType<PagedResult<ItemAssignmentHistoryModel>>(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<ActionResult<List<ItemAssignmentHistoryModel>>> GetAssignmentsForItem(Guid id)
+    public async Task<ActionResult<PagedResult<ItemAssignmentHistoryModel>>> GetAssignmentsForItem(Guid id, PagedQuery pagedQuery, CancellationToken cancellationToken)
     {
-        var assignments = await assignmentHistoryService.GetAssignmentsForItemAsync(id);
+        var assignments = await assignmentHistoryService.GetAssignmentsForItemAsync(id, pagedQuery, cancellationToken);
         return Ok(assignments);
     }
 
     [HttpGet("{id:guid}/maintenance")]
     [EndpointSummary("List all maintenances for a item")]
     [EndpointDescription("Returns all maintenance records for a specific item.")]
-    [ProducesResponseType<List<MaintenanceModel>>(StatusCodes.Status200OK)]
+    [ProducesResponseType<PagedResult<MaintenanceModel>>(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<ActionResult<List<MaintenanceModel>>> GetMaintenanceForItem(Guid id)
+    public async Task<ActionResult<PagedResult<MaintenanceModel>>> GetMaintenanceForItem(Guid id, PagedQuery pagedQuery, CancellationToken cancellationToken)
     {
-        var maintenances = await maintenanceService.GetMaintenancesForItemAsync(id);
+        var maintenances = await maintenanceService.GetMaintenancesForItemAsync(id, pagedQuery, cancellationToken);
         return Ok(maintenances);
     }
 }

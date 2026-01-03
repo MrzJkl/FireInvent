@@ -70,11 +70,11 @@ public class AppointmentsController(IAppointmentService appointmentService, IVis
     [HttpGet("{id:guid}/visits")]
     [EndpointSummary("List all visits for an appointment")]
     [EndpointDescription("Returns all visits for a specific appointment.")]
-    [ProducesResponseType<List<VisitModel>>(StatusCodes.Status200OK)]
+    [ProducesResponseType<PagedResult<VisitModel>>(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<ActionResult<List<VisitModel>>> GetVisitsForAppointment(Guid id)
+    public async Task<ActionResult<PagedResult<VisitModel>>> GetVisitsForAppointment(Guid id, PagedQuery pagedQuery, CancellationToken cancellationToken)
     {
-        var visits = await visitService.GetVisitsForAppointmentAsync(id);
+        var visits = await visitService.GetVisitsForAppointmentAsync(id, pagedQuery, cancellationToken);
         return Ok(visits);
     }
 }

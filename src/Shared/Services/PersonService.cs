@@ -1,5 +1,8 @@
 ﻿using FireInvent.Database;
+using FireInvent.Database.Extensions;
+using FireInvent.Contract;
 using FireInvent.Contract.Exceptions;
+using FireInvent.Shared.Extensions;
 using FireInvent.Shared.Mapper;
 using FireInvent.Shared.Models;
 using Microsoft.EntityFrameworkCore;
@@ -25,15 +28,21 @@ public class PersonService(AppDbContext context, PersonMapper mapper) : IPersonS
         return mapper.MapPersonToPersonModel(person);
     }
 
-    public async Task<List<PersonModel>> GetAllPersonsAsync()
+    public async Task<PagedResult<PersonModel>> GetAllPersonsAsync(PagedQuery pagedQuery, CancellationToken cancellationToken)
     {
-        var persons = await context.Persons
+        var query = context.Persons
             .OrderBy(p => p.LastName)
             .ThenBy(p => p.FirstName)
-            .AsNoTracking()
-            .ToListAsync();
+            .AsNoTracking();
 
-        return mapper.MapPersonsToPersonModels(persons);
+        query = query.ApplySearch(pagedQuery.SearchTerm);
+
+        var projected = mapper.ProjectPersonsToPersonModels(query);
+
+        return await projected.ToPagedResultAsync(
+            pagedQuery.Page,
+            pagedQuery.PageSize,
+            cancellationToken);
     }
 
     public async Task<PersonModel?> GetPersonByIdAsync(Guid id)
@@ -103,19 +112,25 @@ public class PersonService(AppDbContext context, PersonMapper mapper) : IPersonS
         return true;
     }
 
-    public async Task<List<PersonModel>> GetPersonsForDepartmentAsync(Guid departmentId)
+    public async Task<PagedResult<PersonModel>> GetPersonsForDepartmentAsync(Guid departmentId, PagedQuery pagedQuery, CancellationToken cancellationToken)
     {
         var departmentExists = await context.Departments.AnyAsync(d => d.Id == departmentId);
         if (!departmentExists)
             throw new NotFoundException($"Department with ID {departmentId} not found.");
 
-        var persons = await context.Persons
+        var query = context.Persons
             .Where(p => p.Departments.Any(d => d.Id == departmentId))
             .OrderBy(p => p.LastName)
             .ThenBy(p => p.FirstName)
-            .AsNoTracking()
-            .ToListAsync();
+            .AsNoTracking();
 
-        return mapper.MapPersonsToPersonModels(persons);
+        query = query.ApplySearch(pagedQuery.SearchTerm);
+
+        var projected = mapper.ProjectPersonsToPersonModels(query);
+
+        return await projected.ToPagedResultAsync(
+            pagedQuery.Page,
+            pagedQuery.PageSize,
+            cancellationToken);
     }
 }

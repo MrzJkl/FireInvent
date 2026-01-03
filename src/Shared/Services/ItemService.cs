@@ -1,5 +1,8 @@
 ﻿using FireInvent.Database;
+using FireInvent.Database.Extensions;
+using FireInvent.Contract;
 using FireInvent.Contract.Exceptions;
+using FireInvent.Shared.Extensions;
 using FireInvent.Shared.Mapper;
 using FireInvent.Shared.Models;
 using Microsoft.EntityFrameworkCore;
@@ -34,14 +37,20 @@ public class ItemService(AppDbContext context, ItemMapper mapper) : IItemService
         return mapper.MapItemToItemModel(item);
     }
 
-    public async Task<List<ItemModel>> GetAllItemsAsync()
+    public async Task<PagedResult<ItemModel>> GetAllItemsAsync(PagedQuery pagedQuery, CancellationToken cancellationToken)
     {
-        var items = await context.Items
-            .AsNoTracking()
+        var query = context.Items
             .OrderBy(i => i.PurchaseDate)
-            .ToListAsync();
+            .AsNoTracking();
 
-        return mapper.MapItemsToItemModels(items);
+        query = query.ApplySearch(pagedQuery.SearchTerm);
+
+        var projected = mapper.ProjectItemsToItemModels(query);
+
+        return await projected.ToPagedResultAsync(
+            pagedQuery.Page,
+            pagedQuery.PageSize,
+            cancellationToken);
     }
 
     public async Task<ItemModel?> GetItemByIdAsync(Guid id)
@@ -88,18 +97,24 @@ public class ItemService(AppDbContext context, ItemMapper mapper) : IItemService
         return true;
     }
 
-    public async Task<List<ItemModel>> GetItemsForVariantAsync(Guid variantId)
+    public async Task<PagedResult<ItemModel>> GetItemsForVariantAsync(Guid variantId, PagedQuery pagedQuery, CancellationToken cancellationToken)
     {
         var variantExists = await context.Variants.AnyAsync(v => v.Id == variantId);
         if (!variantExists)
             throw new NotFoundException($"Variant with ID {variantId} not found.");
 
-        var items = await context.Items
+        var query = context.Items
             .Where(i => i.VariantId == variantId)
             .OrderBy(i => i.PurchaseDate)
-            .AsNoTracking()
-            .ToListAsync();
+            .AsNoTracking();
 
-        return mapper.MapItemsToItemModels(items);
+        query = query.ApplySearch(pagedQuery.SearchTerm);
+
+        var projected = mapper.ProjectItemsToItemModels(query);
+
+        return await projected.ToPagedResultAsync(
+            pagedQuery.Page,
+            pagedQuery.PageSize,
+            cancellationToken);
     }
 }

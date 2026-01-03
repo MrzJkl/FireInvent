@@ -14,10 +14,10 @@ public class PersonsController(IPersonService personService, IItemAssignmentHist
     [HttpGet]
     [EndpointSummary("List all persons")]
     [EndpointDescription("Returns a list of all persons.")]
-    [ProducesResponseType<List<PersonModel>>(StatusCodes.Status200OK)]
-    public async Task<ActionResult<List<PersonModel>>> GetAll()
+    [ProducesResponseType<PagedResult<PersonModel>>(StatusCodes.Status200OK)]
+    public async Task<ActionResult<PagedResult<PersonModel>>> GetAll(PagedQuery pagedQuery, CancellationToken cancellationToken)
     {
-        var persons = await personService.GetAllPersonsAsync();
+        var persons = await personService.GetAllPersonsAsync(pagedQuery, cancellationToken);
         return Ok(persons);
     }
 
@@ -71,11 +71,11 @@ public class PersonsController(IPersonService personService, IItemAssignmentHist
     [HttpGet("{id:guid}/assignments")]
     [EndpointSummary("List all assignments for a person")]
     [EndpointDescription("Returns all assignments for a specific person.")]
-    [ProducesResponseType<List<ItemAssignmentHistoryModel>>(StatusCodes.Status200OK)]
+    [ProducesResponseType<PagedResult<ItemAssignmentHistoryModel>>(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<ActionResult<List<ItemAssignmentHistoryModel>>> GetAssignmentsForPerson(Guid id)
+    public async Task<ActionResult<PagedResult<ItemAssignmentHistoryModel>>> GetAssignmentsForPerson(Guid id, PagedQuery pagedQuery, CancellationToken cancellationToken)
     {
-        var assignments = await itemAssignmentHistoryService.GetAssignmentsForPersonAsync(id);
+        var assignments = await itemAssignmentHistoryService.GetAssignmentsForPersonAsync(id, pagedQuery, cancellationToken);
         return Ok(assignments);
     }
 }

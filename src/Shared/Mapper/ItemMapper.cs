@@ -11,8 +11,11 @@ public partial class ItemMapper : BaseMapper
 
     [MapValue(nameof(Item.Id), Use = nameof(NewGuid))]
     public partial Item MapCreateOrUpdateItemModelToItem(CreateOrUpdateItemModel createItemModel);
-
     public partial List<ItemModel> MapItemsToItemModels(List<Item> items);
+
+
+
+    public partial IQueryable<ItemModel> ProjectItemsToItemModels(IQueryable<Item> items);
 
     public partial void MapCreateOrUpdateItemModelToItem(CreateOrUpdateItemModel source, Item target);
 }

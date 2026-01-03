@@ -14,10 +14,10 @@ public class ManufacturersController(IManufacturerService manufacturerService, I
     [HttpGet]
     [EndpointSummary("List all manufacturers")]
     [EndpointDescription("Returns a list of all manufacturers.")]
-    [ProducesResponseType<List<ManufacturerModel>>(StatusCodes.Status200OK)]
-    public async Task<ActionResult<List<ManufacturerModel>>> GetAll()
+    [ProducesResponseType<PagedResult<ManufacturerModel>>(StatusCodes.Status200OK)]
+    public async Task<ActionResult<PagedResult<ManufacturerModel>>> GetAll(PagedQuery pagedQuery, CancellationToken cancellationToken)
     {
-        var manufacturers = await manufacturerService.GetAllManufacturersAsync();
+        var manufacturers = await manufacturerService.GetAllManufacturersAsync(pagedQuery, cancellationToken);
         return Ok(manufacturers);
     }
 
@@ -70,11 +70,11 @@ public class ManufacturersController(IManufacturerService manufacturerService, I
     [HttpGet("{id:guid}/products")]
     [EndpointSummary("List all products for a manufacturer")]
     [EndpointDescription("Returns all products for a specific manufacturer.")]
-    [ProducesResponseType<List<ProductModel>>(StatusCodes.Status200OK)]
+    [ProducesResponseType<PagedResult<ProductModel>>(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<ActionResult<List<ProductModel>>> GetProductsForManufacturer(Guid id)
+    public async Task<ActionResult<PagedResult<ProductModel>>> GetProductsForManufacturer(Guid id, PagedQuery pagedQuery, CancellationToken cancellationToken)
     {
-        var items = await productService.GetProductsForManufacturer(id);
+        var items = await productService.GetProductsForManufacturer(id, pagedQuery, cancellationToken);
         return Ok(items);
     }
 }

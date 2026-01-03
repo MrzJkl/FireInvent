@@ -1,5 +1,8 @@
-﻿using FireInvent.Contract.Exceptions;
+﻿using FireInvent.Contract;
+using FireInvent.Contract.Exceptions;
 using FireInvent.Database;
+using FireInvent.Database.Extensions;
+using FireInvent.Shared.Extensions;
 using FireInvent.Shared.Mapper;
 using FireInvent.Shared.Models;
 using Microsoft.EntityFrameworkCore;
@@ -24,14 +27,20 @@ namespace FireInvent.Shared.Services
             return mapper.MapManufacturerToManufacturerModel(manufacturer);
         }
 
-        public async Task<List<ManufacturerModel>> GetAllManufacturersAsync()
+        public async Task<PagedResult<ManufacturerModel>> GetAllManufacturersAsync(PagedQuery pagedQuery, CancellationToken cancellationToken)
         {
-            var manufacturers = await context.Manufacturers
-                .AsNoTracking()
-                .OrderBy(p => p.Name)
-                .ToListAsync();
+            var query = context.Manufacturers
+                .OrderBy(m => m.Name)
+                .AsNoTracking();
 
-            return mapper.MapManufacturersToManufacturerModels(manufacturers);
+            query = query.ApplySearch(pagedQuery.SearchTerm);
+
+            var projected = mapper.ProjectManufacturersToManufacturerModels(query);
+
+            return await projected.ToPagedResultAsync(
+                pagedQuery.Page,
+                pagedQuery.PageSize,
+                cancellationToken);
         }
 
         public async Task<ManufacturerModel?> GetManufacturerByIdAsync(Guid id)

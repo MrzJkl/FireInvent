@@ -1,5 +1,8 @@
 ﻿using FireInvent.Database;
+using FireInvent.Database.Extensions;
+using FireInvent.Contract;
 using FireInvent.Contract.Exceptions;
+using FireInvent.Shared.Extensions;
 using FireInvent.Shared.Mapper;
 using FireInvent.Shared.Models;
 using Microsoft.EntityFrameworkCore;
@@ -39,14 +42,20 @@ public class ProductService(AppDbContext context, ProductMapper mapper) : IProdu
         return mapper.MapProductToProductModel(product);
     }
 
-    public async Task<List<ProductModel>> GetAllProductsAsync()
+    public async Task<PagedResult<ProductModel>> GetAllProductsAsync(PagedQuery pagedQuery, CancellationToken cancellationToken)
     {
-        var products = await context.Products
+        var query = context.Products
             .OrderBy(p => p.Name)
-            .AsNoTracking()
-            .ToListAsync();
+            .AsNoTracking();
 
-        return mapper.MapProductsToProductModels(products);
+        query = query.ApplySearch(pagedQuery.SearchTerm);
+
+        var projected = mapper.ProjectProductsToProductModels(query);
+
+        return await projected.ToPagedResultAsync(
+            pagedQuery.Page,
+            pagedQuery.PageSize,
+            cancellationToken);
     }
 
     public async Task<ProductModel?> GetProductByIdAsync(Guid id)
@@ -100,18 +109,24 @@ public class ProductService(AppDbContext context, ProductMapper mapper) : IProdu
         return true;
     }
 
-    public async Task<List<ProductModel>> GetProductsForManufacturer(Guid manufacturerId)
+    public async Task<PagedResult<ProductModel>> GetProductsForManufacturer(Guid manufacturerId, PagedQuery pagedQuery, CancellationToken cancellationToken)
     {
         var manufacturerExists = await context.Manufacturers.AnyAsync(v => v.Id == manufacturerId);
         if (!manufacturerExists)
             throw new NotFoundException($"Manufacturer with ID {manufacturerId} not found.");
 
-        var items = await context.Products
+        var query = context.Products
             .Where(p => p.ManufacturerId == manufacturerId)
-            .OrderBy(v => v.Name)
-            .AsNoTracking()
-            .ToListAsync();
+            .OrderBy(p => p.Name)
+            .AsNoTracking();
 
-        return mapper.MapProductsToProductModels(items);
+        query = query.ApplySearch(pagedQuery.SearchTerm);
+
+        var projected = mapper.ProjectProductsToProductModels(query);
+
+        return await projected.ToPagedResultAsync(
+            pagedQuery.Page,
+            pagedQuery.PageSize,
+            cancellationToken);
     }
 }

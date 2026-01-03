@@ -1,5 +1,8 @@
 ﻿using FireInvent.Database;
+using FireInvent.Database.Extensions;
+using FireInvent.Contract;
 using FireInvent.Contract.Exceptions;
+using FireInvent.Shared.Extensions;
 using FireInvent.Shared.Mapper;
 using FireInvent.Shared.Models;
 using Microsoft.EntityFrameworkCore;
@@ -24,14 +27,20 @@ namespace FireInvent.Shared.Services
             return mapper.MapProductTypeToProductTypeModel(productType);
         }
 
-        public async Task<List<ProductTypeModel>> GetAllProductTypesAsync()
+        public async Task<PagedResult<ProductTypeModel>> GetAllProductTypesAsync(PagedQuery pagedQuery, CancellationToken cancellationToken)
         {
-            var productTypes = await context.ProductTypes
-                .AsNoTracking()
-                .OrderBy(p => p.Name)
-                .ToListAsync();
+            var query = context.ProductTypes
+                .OrderBy(pt => pt.Name)
+                .AsNoTracking();
 
-            return mapper.MapProductTypesToProductTypeModels(productTypes);
+            query = query.ApplySearch(pagedQuery.SearchTerm);
+
+            var projected = mapper.ProjectProductTypesToProductTypeModels(query);
+
+            return await projected.ToPagedResultAsync(
+                pagedQuery.Page,
+                pagedQuery.PageSize,
+                cancellationToken);
         }
 
         public async Task<ProductTypeModel?> GetProductTypeByIdAsync(Guid id)

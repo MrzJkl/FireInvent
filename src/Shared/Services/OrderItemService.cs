@@ -1,5 +1,8 @@
+using FireInvent.Contract;
 using FireInvent.Contract.Exceptions;
 using FireInvent.Database;
+using FireInvent.Database.Extensions;
+using FireInvent.Shared.Extensions;
 using FireInvent.Shared.Mapper;
 using FireInvent.Shared.Models;
 using Microsoft.EntityFrameworkCore;
@@ -17,23 +20,37 @@ public class OrderItemService(AppDbContext context, OrderMapper mapper) : IOrder
         return orderItem is null ? null : mapper.MapOrderItemToOrderItemModel(orderItem);
     }
 
-    public async Task<List<OrderItemModel>> GetAllOrderItemsAsync()
+    public async Task<PagedResult<OrderItemModel>> GetAllOrderItemsAsync(PagedQuery pagedQuery, CancellationToken cancellationToken)
     {
-        var orderItems = await context.OrderItems
-            .AsNoTracking()
-            .ToListAsync();
+        var query = context.OrderItems
+            .OrderBy(oi => oi.OrderId)
+            .AsNoTracking();
 
-        return mapper.MapOrderItemsToOrderItemModels(orderItems);
+        query = query.ApplySearch(pagedQuery.SearchTerm);
+
+        var projected = mapper.ProjectOrderItemsToOrderItemModels(query);
+
+        return await projected.ToPagedResultAsync(
+            pagedQuery.Page,
+            pagedQuery.PageSize,
+            cancellationToken);
     }
 
-    public async Task<List<OrderItemModel>> GetOrderItemsByOrderIdAsync(Guid orderId)
+    public async Task<PagedResult<OrderItemModel>> GetOrderItemsByOrderIdAsync(Guid orderId, PagedQuery pagedQuery, CancellationToken cancellationToken)
     {
-        var orderItems = await context.OrderItems
-            .AsNoTracking()
+        var query = context.OrderItems
             .Where(oi => oi.OrderId == orderId)
-            .ToListAsync();
+            .OrderBy(oi => oi.CreatedAt)
+            .AsNoTracking();
 
-        return mapper.MapOrderItemsToOrderItemModels(orderItems);
+        query = query.ApplySearch(pagedQuery.SearchTerm);
+
+        var projected = mapper.ProjectOrderItemsToOrderItemModels(query);
+
+        return await projected.ToPagedResultAsync(
+            pagedQuery.Page,
+            pagedQuery.PageSize,
+            cancellationToken);
     }
 
     public async Task<OrderItemModel> CreateOrderItemAsync(CreateOrUpdateOrderItemModel model)

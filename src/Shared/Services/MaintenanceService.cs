@@ -1,5 +1,8 @@
 ﻿using FireInvent.Database;
+using FireInvent.Database.Extensions;
+using FireInvent.Contract;
 using FireInvent.Contract.Exceptions;
+using FireInvent.Shared.Extensions;
 using FireInvent.Shared.Mapper;
 using FireInvent.Shared.Models;
 using Microsoft.EntityFrameworkCore;
@@ -27,14 +30,20 @@ public class MaintenanceService(AppDbContext context, IKeycloakUserService userS
         return mapper.MapMaintenanceToMaintenanceModel(maintenance);
     }
 
-    public async Task<List<MaintenanceModel>> GetAllMaintenancesAsync()
+    public async Task<PagedResult<MaintenanceModel>> GetAllMaintenancesAsync(PagedQuery pagedQuery, CancellationToken cancellationToken)
     {
-        var entities = await context.Maintenances
-            .AsNoTracking()
-            .OrderByDescending(v => v.PerformedAt)
-            .ToListAsync();
+        var query = context.Maintenances
+            .OrderByDescending(m => m.PerformedAt)
+            .AsNoTracking();
 
-        return mapper.MapMaintenancesToMaintenanceModels(entities);
+        query = query.ApplySearch(pagedQuery.SearchTerm);
+
+        var projected = mapper.ProjectMaintenancesToMaintenanceModels(query);
+
+        return await projected.ToPagedResultAsync(
+            pagedQuery.Page,
+            pagedQuery.PageSize,
+            cancellationToken);
     }
 
     public async Task<MaintenanceModel?> GetMaintenanceByIdAsync(Guid id)
@@ -73,18 +82,24 @@ public class MaintenanceService(AppDbContext context, IKeycloakUserService userS
         return true;
     }
 
-    public async Task<List<MaintenanceModel>> GetMaintenancesForItemAsync(Guid itemId)
+    public async Task<PagedResult<MaintenanceModel>> GetMaintenancesForItemAsync(Guid itemId, PagedQuery pagedQuery, CancellationToken cancellationToken)
     {
         var itemExists = await context.Items.AnyAsync(i => i.Id == itemId);
         if (!itemExists)
             throw new NotFoundException($"Item with ID {itemId} not found.");
 
-        var maintenances = await context.Maintenances
+        var query = context.Maintenances
             .Where(m => m.ItemId == itemId)
             .OrderByDescending(m => m.PerformedAt)
-            .AsNoTracking()
-            .ToListAsync();
+            .AsNoTracking();
 
-        return mapper.MapMaintenancesToMaintenanceModels(maintenances);
+        query = query.ApplySearch(pagedQuery.SearchTerm);
+
+        var projected = mapper.ProjectMaintenancesToMaintenanceModels(query);
+
+        return await projected.ToPagedResultAsync(
+            pagedQuery.Page,
+            pagedQuery.PageSize,
+            cancellationToken);
     }
 }

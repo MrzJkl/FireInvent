@@ -14,10 +14,10 @@ public class MaintenanceTypesController(IMaintenanceTypeService maintenanceTypeS
     [HttpGet]
     [EndpointSummary("List all maintenanceTypes")]
     [EndpointDescription("Returns a list of all maintenanceTypes.")]
-    [ProducesResponseType<List<MaintenanceTypeModel>>(StatusCodes.Status200OK)]
-    public async Task<ActionResult<List<MaintenanceTypeModel>>> GetAll()
+    [ProducesResponseType<PagedResult<MaintenanceTypeModel>>(StatusCodes.Status200OK)]
+    public async Task<ActionResult<PagedResult<MaintenanceTypeModel>>> GetAll(PagedQuery pagedQuery, CancellationToken cancellationToken)
     {
-        var maintenanceTypes = await maintenanceTypeService.GetAllMaintenanceTypesAsync();
+        var maintenanceTypes = await maintenanceTypeService.GetAllMaintenanceTypesAsync(pagedQuery, cancellationToken);
         return Ok(maintenanceTypes);
     }
 

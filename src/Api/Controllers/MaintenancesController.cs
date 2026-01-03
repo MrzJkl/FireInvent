@@ -14,11 +14,11 @@ public class MaintenancesController(IMaintenanceService service) : ControllerBas
     [HttpGet]
     [EndpointSummary("List all maintenances")]
     [EndpointDescription("Returns a list of all maintenance records.")]
-    [ProducesResponseType<List<MaintenanceModel>>(StatusCodes.Status200OK)]
-    public async Task<ActionResult<List<MaintenanceModel>>> GetAll()
+    [ProducesResponseType<PagedResult<MaintenanceModel>>(StatusCodes.Status200OK)]
+    public async Task<ActionResult<PagedResult<MaintenanceModel>>> GetAll(PagedQuery pagedQuery, CancellationToken cancellationToken)
     {
-        var list = await service.GetAllMaintenancesAsync();
-        return Ok(list);
+        var maintenances = await service.GetAllMaintenancesAsync(pagedQuery, cancellationToken);
+        return Ok(maintenances);
     }
 
     [HttpGet("{id:guid}")]

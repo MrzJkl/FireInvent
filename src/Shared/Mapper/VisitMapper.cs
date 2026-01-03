@@ -14,6 +14,8 @@ public partial class VisitMapper : BaseMapper
 
     public partial List<VisitModel> MapVisitsToVisitModels(List<Visit> visits);
 
+    public partial IQueryable<VisitModel> ProjectVisitsToVisitModels(IQueryable<Visit> visits);
+
     public partial void MapCreateOrUpdateVisitModelToVisit(CreateOrUpdateVisitModel source, Visit target);
 
     // VisitItem mappings
@@ -23,6 +25,8 @@ public partial class VisitMapper : BaseMapper
     public partial VisitItem MapCreateOrUpdateVisitItemModelToVisitItem(CreateOrUpdateVisitItemModel createVisitItemModel);
 
     public partial List<VisitItemModel> MapVisitItemsToVisitItemModels(List<VisitItem> visitItems);
+
+    public partial IQueryable<VisitItemModel> ProjectVisitItemsToVisitItemModels(IQueryable<VisitItem> visitItems);
 
     public partial void MapCreateOrUpdateVisitItemModelToVisitItem(CreateOrUpdateVisitItemModel source, VisitItem target);
 }

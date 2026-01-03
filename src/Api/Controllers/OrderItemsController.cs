@@ -14,20 +14,20 @@ public class OrderItemsController(IOrderItemService orderItemService) : Controll
     [HttpGet]
     [EndpointSummary("List all order items")]
     [EndpointDescription("Returns a list of all order items.")]
-    [ProducesResponseType<List<OrderItemModel>>(StatusCodes.Status200OK)]
-    public async Task<ActionResult<List<OrderItemModel>>> GetAll()
+    [ProducesResponseType<PagedResult<OrderItemModel>>(StatusCodes.Status200OK)]
+    public async Task<ActionResult<PagedResult<OrderItemModel>>> GetAll(PagedQuery pagedQuery, CancellationToken cancellationToken)
     {
-        var orderItems = await orderItemService.GetAllOrderItemsAsync();
+        var orderItems = await orderItemService.GetAllOrderItemsAsync(pagedQuery, cancellationToken);
         return Ok(orderItems);
     }
 
     [HttpGet("by-order/{orderId:guid}")]
     [EndpointSummary("List order items by order ID")]
     [EndpointDescription("Returns a list of order items for a specific order.")]
-    [ProducesResponseType<List<OrderItemModel>>(StatusCodes.Status200OK)]
-    public async Task<ActionResult<List<OrderItemModel>>> GetByOrderId(Guid orderId)
+    [ProducesResponseType<PagedResult<OrderItemModel>>(StatusCodes.Status200OK)]
+    public async Task<ActionResult<PagedResult<OrderItemModel>>> GetByOrderId(Guid orderId, PagedQuery pagedQuery, CancellationToken cancellationToken)
     {
-        var orderItems = await orderItemService.GetOrderItemsByOrderIdAsync(orderId);
+        var orderItems = await orderItemService.GetOrderItemsByOrderIdAsync(orderId, pagedQuery, cancellationToken);
         return Ok(orderItems);
     }
 

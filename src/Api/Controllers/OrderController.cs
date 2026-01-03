@@ -14,10 +14,10 @@ public class OrderController(IOrderService orderService) : ControllerBase
     [HttpGet]
     [EndpointSummary("List all orders")]
     [EndpointDescription("Returns a list of all orders.")]
-    [ProducesResponseType<List<OrderModel>>(StatusCodes.Status200OK)]
-    public async Task<ActionResult<List<OrderModel>>> GetAll()
+    [ProducesResponseType<PagedResult<OrderModel>>(StatusCodes.Status200OK)]
+    public async Task<ActionResult<PagedResult<OrderModel>>> GetAll(PagedQuery pagedQuery, CancellationToken cancellationToken)
     {
-        var orders = await orderService.GetAllOrdersAsync();
+        var orders = await orderService.GetAllOrdersAsync(pagedQuery, cancellationToken);
         return Ok(orders);
     }
 

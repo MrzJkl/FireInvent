@@ -1,5 +1,8 @@
 using FireInvent.Database;
+using FireInvent.Database.Extensions;
+using FireInvent.Contract;
 using FireInvent.Contract.Exceptions;
+using FireInvent.Shared.Extensions;
 using FireInvent.Shared.Mapper;
 using FireInvent.Shared.Models;
 using Microsoft.EntityFrameworkCore;
@@ -17,13 +20,20 @@ public class VisitService(AppDbContext context, VisitMapper mapper) : IVisitServ
         return visit is null ? null : mapper.MapVisitToVisitModel(visit);
     }
 
-    public async Task<List<VisitModel>> GetAllVisitsAsync()
+    public async Task<PagedResult<VisitModel>> GetAllVisitsAsync(PagedQuery pagedQuery, CancellationToken cancellationToken)
     {
-        var visits = await context.Visits
-            .AsNoTracking()
-            .ToListAsync();
+        var query = context.Visits
+            .OrderBy(v => v.CreatedAt)
+            .AsNoTracking();
 
-        return mapper.MapVisitsToVisitModels(visits);
+        query = query.ApplySearch(pagedQuery.SearchTerm);
+
+        var projected = mapper.ProjectVisitsToVisitModels(query);
+
+        return await projected.ToPagedResultAsync(
+            pagedQuery.Page,
+            pagedQuery.PageSize,
+            cancellationToken);
     }
 
     public async Task<VisitModel> CreateVisitAsync(CreateOrUpdateVisitModel model)
@@ -99,17 +109,24 @@ public class VisitService(AppDbContext context, VisitMapper mapper) : IVisitServ
         return true;
     }
 
-    public async Task<List<VisitModel>> GetVisitsForAppointmentAsync(Guid appointmentId)
+    public async Task<PagedResult<VisitModel>> GetVisitsForAppointmentAsync(Guid appointmentId, PagedQuery pagedQuery, CancellationToken cancellationToken)
     {
         var appointmentExists = await context.Appointments.AnyAsync(a => a.Id == appointmentId);
         if (!appointmentExists)
             throw new NotFoundException($"Appointment with ID {appointmentId} not found.");
 
-        var visits = await context.Visits
+        var query = context.Visits
             .Where(v => v.AppointmentId == appointmentId)
-            .AsNoTracking()
-            .ToListAsync();
+            .OrderBy(v => v.CreatedAt)
+            .AsNoTracking();
 
-        return mapper.MapVisitsToVisitModels(visits);
+        query = query.ApplySearch(pagedQuery.SearchTerm);
+
+        var projected = mapper.ProjectVisitsToVisitModels(query);
+
+        return await projected.ToPagedResultAsync(
+            pagedQuery.Page,
+            pagedQuery.PageSize,
+            cancellationToken);
     }
 }

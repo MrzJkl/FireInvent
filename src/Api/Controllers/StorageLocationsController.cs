@@ -14,11 +14,11 @@ public class StorageLocationsController(IStorageLocationService locationService,
     [HttpGet]
     [EndpointSummary("List all storage locations")]
     [EndpointDescription("Returns a list of all storage locations.")]
-    [ProducesResponseType<List<StorageLocationModel>>(StatusCodes.Status200OK)]
-    public async Task<ActionResult<List<StorageLocationModel>>> GetAll()
+    [ProducesResponseType<PagedResult<StorageLocationModel>>(StatusCodes.Status200OK)]
+    public async Task<ActionResult<PagedResult<StorageLocationModel>>> GetAll(PagedQuery pagedQuery, CancellationToken cancellationToken)
     {
-        var locations = await locationService.GetAllStorageLocationsAsync();
-        return Ok(locations);
+        var storageLocations = await locationService.GetAllStorageLocationsAsync(pagedQuery, cancellationToken);
+        return Ok(storageLocations);
     }
 
     [HttpGet("{id:guid}")]
@@ -72,11 +72,11 @@ public class StorageLocationsController(IStorageLocationService locationService,
     [HttpGet("{id:guid}/assignments")]
     [EndpointSummary("List all assignments for a storage location")]
     [EndpointDescription("Returns all assignments for a specific storage location.")]
-    [ProducesResponseType<List<ItemAssignmentHistoryModel>>(StatusCodes.Status200OK)]
+    [ProducesResponseType<PagedResult<ItemAssignmentHistoryModel>>(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<ActionResult<List<ItemAssignmentHistoryModel>>> GetAssignmentsForLocation(Guid id)
+    public async Task<ActionResult<PagedResult<ItemAssignmentHistoryModel>>> GetAssignmentsForLocation(Guid id, PagedQuery pagedQuery, CancellationToken cancellationToken)
     {
-        var assignments = await itemAssignmentHistoryService.GetAssignmentsForStorageLocationAsync(id);
+        var assignments = await itemAssignmentHistoryService.GetAssignmentsForStorageLocationAsync(id, pagedQuery, cancellationToken);
         return Ok(assignments);
     }
 }

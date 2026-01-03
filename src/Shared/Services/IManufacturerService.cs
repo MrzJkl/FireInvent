@@ -1,4 +1,5 @@
-﻿using FireInvent.Shared.Models;
+﻿using FireInvent.Contract;
+using FireInvent.Shared.Models;
 
 namespace FireInvent.Shared.Services
 {
@@ -6,7 +7,7 @@ namespace FireInvent.Shared.Services
     {
         Task<ManufacturerModel> CreateManufacturerAsync(CreateOrUpdateManufacturerModel model);
         Task<bool> DeleteManufacturerAsync(Guid id);
-        Task<List<ManufacturerModel>> GetAllManufacturersAsync();
+        Task<PagedResult<ManufacturerModel>> GetAllManufacturersAsync(PagedQuery pagedQuery, CancellationToken cancellationToken);
         Task<ManufacturerModel?> GetManufacturerByIdAsync(Guid id);
         Task<bool> UpdateManufacturerAsync(Guid id, CreateOrUpdateManufacturerModel model);
     }

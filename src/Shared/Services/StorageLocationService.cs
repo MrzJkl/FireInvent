@@ -1,5 +1,8 @@
 ﻿using FireInvent.Database;
+using FireInvent.Database.Extensions;
+using FireInvent.Contract;
 using FireInvent.Contract.Exceptions;
+using FireInvent.Shared.Extensions;
 using FireInvent.Shared.Mapper;
 using FireInvent.Shared.Models;
 using Microsoft.EntityFrameworkCore;
@@ -24,14 +27,20 @@ public class StorageLocationService(AppDbContext context, StorageLocationMapper 
         return mapper.MapStorageLocationToStorageLocationModel(location);
     }
 
-    public async Task<List<StorageLocationModel>> GetAllStorageLocationsAsync()
+    public async Task<PagedResult<StorageLocationModel>> GetAllStorageLocationsAsync(PagedQuery pagedQuery, CancellationToken cancellationToken)
     {
-        var locations = await context.StorageLocations
-            .OrderBy(s => s.Name)
-            .AsNoTracking()
-            .ToListAsync();
+        var query = context.StorageLocations
+            .OrderBy(sl => sl.Name)
+            .AsNoTracking();
 
-        return mapper.MapStorageLocationsToStorageLocationModels(locations);
+        query = query.ApplySearch(pagedQuery.SearchTerm);
+
+        var projected = mapper.ProjectStorageLocationsToStorageLocationModels(query);
+
+        return await projected.ToPagedResultAsync(
+            pagedQuery.Page,
+            pagedQuery.PageSize,
+            cancellationToken);
     }
 
     public async Task<StorageLocationModel?> GetStorageLocationByIdAsync(Guid id)

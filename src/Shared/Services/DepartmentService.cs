@@ -1,5 +1,8 @@
 ﻿using FireInvent.Database;
+using FireInvent.Database.Extensions;
+using FireInvent.Contract;
 using FireInvent.Contract.Exceptions;
+using FireInvent.Shared.Extensions;
 using FireInvent.Shared.Mapper;
 using FireInvent.Shared.Models;
 using Microsoft.EntityFrameworkCore;
@@ -24,14 +27,20 @@ public class DepartmentService(AppDbContext context, DepartmentMapper mapper) : 
         return mapper.MapDepartmentToDepartmentModel(department);
     }
 
-    public async Task<List<DepartmentModel>> GetAllDepartmentsAsync()
+    public async Task<PagedResult<DepartmentModel>> GetAllDepartmentsAsync(PagedQuery pagedQuery, CancellationToken cancellationToken)
     {
-        var departments = await context.Departments
-            .AsNoTracking()
-            .OrderBy(v => v.Name)
-            .ToListAsync();
+        var query = context.Departments
+            .OrderBy(d => d.Name)
+            .AsNoTracking();
 
-        return mapper.MapDepartmentsToDepartmentModels(departments);
+        query = query.ApplySearch(pagedQuery.SearchTerm);
+
+        var projected = mapper.ProjectDepartmentsToDepartmentModels(query);
+
+        return await projected.ToPagedResultAsync(
+            pagedQuery.Page,
+            pagedQuery.PageSize,
+            cancellationToken);
     }
 
     public async Task<DepartmentModel?> GetDepartmentByIdAsync(Guid id)

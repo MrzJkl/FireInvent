@@ -1,5 +1,7 @@
 ﻿using FireInvent.Contract;
 using FireInvent.Database;
+using FireInvent.Database.Extensions;
+using FireInvent.Shared.Extensions;
 using FireInvent.Shared.Mapper;
 using FireInvent.Shared.Models;
 using Microsoft.EntityFrameworkCore;
@@ -17,13 +19,20 @@ public class OrderService(AppDbContext context, OrderMapper mapper) : IOrderServ
         return order is null ? null : mapper.MapOrderToOrderModel(order);
     }
 
-    public async Task<List<OrderModel>> GetAllOrdersAsync()
+    public async Task<PagedResult<OrderModel>> GetAllOrdersAsync(PagedQuery pagedQuery, CancellationToken cancellationToken)
     {
-        var orders = await context.Orders
-            .AsNoTracking()
-            .ToListAsync();
+        var query = context.Orders
+            .OrderByDescending(o => o.OrderDate)
+            .AsNoTracking();
 
-        return mapper.MapOrdersToOrderModels(orders);
+        query = query.ApplySearch(pagedQuery.SearchTerm);
+
+        var projected = mapper.ProjectOrdersToOrderModels(query);
+
+        return await projected.ToPagedResultAsync(
+            pagedQuery.Page,
+            pagedQuery.PageSize,
+            cancellationToken);
     }
 
     public async Task<OrderModel> CreateOrderAsync(CreateOrUpdateOrderModel model)

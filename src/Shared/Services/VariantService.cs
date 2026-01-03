@@ -1,5 +1,8 @@
 ﻿using FireInvent.Database;
+using FireInvent.Database.Extensions;
+using FireInvent.Contract;
 using FireInvent.Contract.Exceptions;
+using FireInvent.Shared.Extensions;
 using FireInvent.Shared.Mapper;
 using FireInvent.Shared.Models;
 using Microsoft.EntityFrameworkCore;
@@ -39,14 +42,20 @@ public class VariantService(AppDbContext context, VariantMapper mapper) : IVaria
         return mapper.MapVariantToVariantModel(variant);
     }
 
-    public async Task<List<VariantModel>> GetAllVariantsAsync()
+    public async Task<PagedResult<VariantModel>> GetAllVariantsAsync(PagedQuery pagedQuery, CancellationToken cancellationToken)
     {
-        var variants = await context.Variants
-            .AsNoTracking()
+        var query = context.Variants
             .OrderBy(v => v.Name)
-            .ToListAsync();
+            .AsNoTracking();
 
-        return mapper.MapVariantsToVariantModels(variants);
+        query = query.ApplySearch(pagedQuery.SearchTerm);
+
+        var projected = mapper.ProjectVariantsToVariantModels(query);
+
+        return await projected.ToPagedResultAsync(
+            pagedQuery.Page,
+            pagedQuery.PageSize,
+            cancellationToken);
     }
 
     public async Task<VariantModel?> GetVariantByIdAsync(Guid id)
@@ -100,18 +109,24 @@ public class VariantService(AppDbContext context, VariantMapper mapper) : IVaria
         return true;
     }
 
-    public async Task<List<VariantModel>> GetVariantsForProductAsync(Guid productId)
+    public async Task<PagedResult<VariantModel>> GetVariantsForProductAsync(Guid productId, PagedQuery pagedQuery, CancellationToken cancellationToken)
     {
         var productExists = await context.Products.AnyAsync(v => v.Id == productId);
         if (!productExists)
             throw new NotFoundException($"Product with ID {productId} not found.");
 
-        var items = await context.Variants
-            .Where(i => i.ProductId == productId)
+        var query = context.Variants
+            .Where(v => v.ProductId == productId)
             .OrderBy(v => v.Name)
-            .AsNoTracking()
-            .ToListAsync();
+            .AsNoTracking();
 
-        return mapper.MapVariantsToVariantModels(items);
+        query = query.ApplySearch(pagedQuery.SearchTerm);
+
+        var projected = mapper.ProjectVariantsToVariantModels(query);
+
+        return await projected.ToPagedResultAsync(
+            pagedQuery.Page,
+            pagedQuery.PageSize,
+            cancellationToken);
     }
 }

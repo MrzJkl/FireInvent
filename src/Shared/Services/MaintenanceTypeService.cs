@@ -1,5 +1,8 @@
 ﻿using FireInvent.Database;
+using FireInvent.Database.Extensions;
+using FireInvent.Contract;
 using FireInvent.Contract.Exceptions;
+using FireInvent.Shared.Extensions;
 using FireInvent.Shared.Mapper;
 using FireInvent.Shared.Models;
 using Microsoft.EntityFrameworkCore;
@@ -24,14 +27,20 @@ namespace FireInvent.Shared.Services
             return mapper.MapMaintenanceTypeToMaintenanceTypeModel(maintenanceType);
         }
 
-        public async Task<List<MaintenanceTypeModel>> GetAllMaintenanceTypesAsync()
+        public async Task<PagedResult<MaintenanceTypeModel>> GetAllMaintenanceTypesAsync(PagedQuery pagedQuery, CancellationToken cancellationToken)
         {
-            var maintenanceTypes = await context.MaintenanceTypes
-                .AsNoTracking()
-                .OrderBy(p => p.Name)
-                .ToListAsync();
+            var query = context.MaintenanceTypes
+                .OrderBy(mt => mt.Name)
+                .AsNoTracking();
 
-            return mapper.MapMaintenanceTypesToMaintenanceTypeModels(maintenanceTypes);
+            query = query.ApplySearch(pagedQuery.SearchTerm);
+
+            var projected = mapper.ProjectMaintenanceTypesToMaintenanceTypeModels(query);
+
+            return await projected.ToPagedResultAsync(
+                pagedQuery.Page,
+                pagedQuery.PageSize,
+                cancellationToken);
         }
 
         public async Task<MaintenanceTypeModel?> GetMaintenanceTypeByIdAsync(Guid id)

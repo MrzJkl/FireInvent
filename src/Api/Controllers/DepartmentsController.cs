@@ -14,10 +14,10 @@ public class DepartmentsController(IDepartmentService departmentService, IPerson
     [HttpGet]
     [EndpointSummary("List all departments")]
     [EndpointDescription("Returns a list of all departments.")]
-    [ProducesResponseType<List<DepartmentModel>>(StatusCodes.Status200OK)]
-    public async Task<ActionResult<List<DepartmentModel>>> GetAll()
+    [ProducesResponseType<PagedResult<DepartmentModel>>(StatusCodes.Status200OK)]
+    public async Task<ActionResult<PagedResult<DepartmentModel>>> GetAll(PagedQuery pagedQuery, CancellationToken cancellationToken)
     {
-        var departments = await departmentService.GetAllDepartmentsAsync();
+        var departments = await departmentService.GetAllDepartmentsAsync(pagedQuery, cancellationToken);
         return Ok(departments);
     }
 
@@ -70,11 +70,11 @@ public class DepartmentsController(IDepartmentService departmentService, IPerson
     [HttpGet("{id:guid}/persons")]
     [EndpointSummary("List all persons in a department")]
     [EndpointDescription("Returns all persons that are members of the given department.")]
-    [ProducesResponseType<List<PersonModel>>(StatusCodes.Status200OK)]
+    [ProducesResponseType<PagedResult<PersonModel>>(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<ActionResult<List<PersonModel>>> GetPersonsForDepartment(Guid id)
+    public async Task<ActionResult<PagedResult<PersonModel>>> GetPersonsForDepartment(Guid id, PagedQuery pagedQuery, CancellationToken cancellationToken)
     {
-        var persons = await personService.GetPersonsForDepartmentAsync(id);
+        var persons = await personService.GetPersonsForDepartmentAsync(id, pagedQuery, cancellationToken);
         return Ok(persons);
     }
 }

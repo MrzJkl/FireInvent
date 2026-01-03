@@ -12,12 +12,12 @@ namespace FireInvent.Api.Controllers;
 public class ItemAssignmentHistoriesController(IItemAssignmentHistoryService service) : ControllerBase
 {
     [HttpGet]
-    [EndpointSummary("List all item assignments")]
+    [EndpointSummary("List all item assignment histories")]
     [EndpointDescription("Returns a list of all item assignment histories.")]
-    [ProducesResponseType<List<ItemAssignmentHistoryModel>>(StatusCodes.Status200OK)]
-    public async Task<ActionResult<List<ItemAssignmentHistoryModel>>> GetAll()
+    [ProducesResponseType<PagedResult<ItemAssignmentHistoryModel>>(StatusCodes.Status200OK)]
+    public async Task<ActionResult<PagedResult<ItemAssignmentHistoryModel>>> GetAll(PagedQuery pagedQuery, CancellationToken cancellationToken)
     {
-        var assignments = await service.GetAllAssignmentsAsync();
+        var assignments = await service.GetAllAssignmentsAsync(pagedQuery, cancellationToken);
         return Ok(assignments);
     }
 

@@ -1,5 +1,8 @@
 ﻿using FireInvent.Database;
+using FireInvent.Database.Extensions;
+using FireInvent.Contract;
 using FireInvent.Contract.Exceptions;
+using FireInvent.Shared.Extensions;
 using FireInvent.Shared.Mapper;
 using FireInvent.Shared.Models;
 using Microsoft.EntityFrameworkCore;
@@ -47,59 +50,83 @@ public class ItemAssignmentHistoryService(AppDbContext context, ItemAssignmentHi
         return mapper.MapItemAssignmentHistoryToItemAssignmentHistoryModel(assignment);
     }
 
-    public async Task<List<ItemAssignmentHistoryModel>> GetAssignmentsForItemAsync(Guid itemId)
+    public async Task<PagedResult<ItemAssignmentHistoryModel>> GetAllAssignmentsAsync(PagedQuery pagedQuery, CancellationToken cancellationToken)
+    {
+        var query = context.ItemAssignmentHistories
+            .OrderByDescending(a => a.AssignedFrom)
+            .AsNoTracking();
+
+        query = query.ApplySearch(pagedQuery.SearchTerm);
+
+        var projected = mapper.ProjectItemAssignmentHistorysToItemAssignmentHistoryModels(query);
+
+        return await projected.ToPagedResultAsync(
+            pagedQuery.Page,
+            pagedQuery.PageSize,
+            cancellationToken);
+    }
+
+    public async Task<PagedResult<ItemAssignmentHistoryModel>> GetAssignmentsForItemAsync(Guid itemId, PagedQuery pagedQuery, CancellationToken cancellationToken)
     {
         var itemExists = await context.Items.AnyAsync(i => i.Id == itemId);
         if (!itemExists)
             throw new NotFoundException($"Item with ID {itemId} not found.");
 
-        var entities = await context.ItemAssignmentHistories
+        var query = context.ItemAssignmentHistories
             .Where(a => a.ItemId == itemId)
             .OrderByDescending(a => a.AssignedFrom)
-            .AsNoTracking()
-            .ToListAsync();
+            .AsNoTracking();
 
-        return mapper.MapItemAssignmentHistorysToItemAssignmentHistoryModels(entities);
+        query = query.ApplySearch(pagedQuery.SearchTerm);
+
+        var projected = mapper.ProjectItemAssignmentHistorysToItemAssignmentHistoryModels(query);
+
+        return await projected.ToPagedResultAsync(
+            pagedQuery.Page,
+            pagedQuery.PageSize,
+            cancellationToken);
     }
 
-    public async Task<List<ItemAssignmentHistoryModel>> GetAssignmentsForPersonAsync(Guid personId)
+    public async Task<PagedResult<ItemAssignmentHistoryModel>> GetAssignmentsForPersonAsync(Guid personId, PagedQuery pagedQuery, CancellationToken cancellationToken)
     {
         var personExists = await context.Persons.AnyAsync(p => p.Id == personId);
         if (!personExists)
             throw new NotFoundException($"Person with ID {personId} not found.");
 
-        var entities = await context.ItemAssignmentHistories
+        var query = context.ItemAssignmentHistories
             .Where(a => a.PersonId == personId)
             .OrderByDescending(a => a.AssignedFrom)
-            .AsNoTracking()
-            .ToListAsync();
+            .AsNoTracking();
 
-        return mapper.MapItemAssignmentHistorysToItemAssignmentHistoryModels(entities);
+        query = query.ApplySearch(pagedQuery.SearchTerm);
+
+        var projected = mapper.ProjectItemAssignmentHistorysToItemAssignmentHistoryModels(query);
+
+        return await projected.ToPagedResultAsync(
+            pagedQuery.Page,
+            pagedQuery.PageSize,
+            cancellationToken);
     }
 
-    public async Task<List<ItemAssignmentHistoryModel>> GetAssignmentsForStorageLocationAsync(Guid storageLocationId)
+    public async Task<PagedResult<ItemAssignmentHistoryModel>> GetAssignmentsForStorageLocationAsync(Guid storageLocationId, PagedQuery pagedQuery, CancellationToken cancellationToken)
     {
         var locationExists = await context.StorageLocations.AnyAsync(s => s.Id == storageLocationId);
         if (!locationExists)
             throw new NotFoundException($"StorageLocation with ID {storageLocationId} not found.");
 
-        var entities = await context.ItemAssignmentHistories
+        var query = context.ItemAssignmentHistories
             .Where(a => a.StorageLocationId == storageLocationId)
             .OrderByDescending(a => a.AssignedFrom)
-            .AsNoTracking()
-            .ToListAsync();
+            .AsNoTracking();
 
-        return mapper.MapItemAssignmentHistorysToItemAssignmentHistoryModels(entities);
-    }
+        query = query.ApplySearch(pagedQuery.SearchTerm);
 
-    public async Task<List<ItemAssignmentHistoryModel>> GetAllAssignmentsAsync()
-    {
-        var entities = await context.ItemAssignmentHistories
-            .AsNoTracking()
-            .OrderByDescending(a => a.AssignedFrom)
-            .ToListAsync();
+        var projected = mapper.ProjectItemAssignmentHistorysToItemAssignmentHistoryModels(query);
 
-        return mapper.MapItemAssignmentHistorysToItemAssignmentHistoryModels(entities);
+        return await projected.ToPagedResultAsync(
+            pagedQuery.Page,
+            pagedQuery.PageSize,
+            cancellationToken);
     }
 
     public async Task<ItemAssignmentHistoryModel?> GetAssignmentByIdAsync(Guid id)

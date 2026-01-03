@@ -14,5 +14,7 @@ public partial class ProductTypeMapper : BaseMapper
 
     public partial List<ProductTypeModel> MapProductTypesToProductTypeModels(List<ProductType> productTypes);
 
+    public partial IQueryable<ProductTypeModel> ProjectProductTypesToProductTypeModels(IQueryable<ProductType> productTypes);
+
     public partial void MapCreateOrUpdateProductTypeModelToProductType(CreateOrUpdateProductTypeModel source, ProductType target);
 }

@@ -14,5 +14,7 @@ public partial class PersonMapper : BaseMapper
 
     public partial List<PersonModel> MapPersonsToPersonModels(List<Person> persons);
 
+    public partial IQueryable<PersonModel> ProjectPersonsToPersonModels(IQueryable<Person> persons);
+
     public partial void MapCreateOrUpdatePersonModelToPerson(CreateOrUpdatePersonModel source, Person target);
 }

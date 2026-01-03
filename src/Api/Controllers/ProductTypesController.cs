@@ -14,10 +14,10 @@ public class ProductTypesController(IProductTypeService productTypeService) : Co
     [HttpGet]
     [EndpointSummary("List all productTypes")]
     [EndpointDescription("Returns a list of all productTypes.")]
-    [ProducesResponseType<List<ProductTypeModel>>(StatusCodes.Status200OK)]
-    public async Task<ActionResult<List<ProductTypeModel>>> GetAll()
+    [ProducesResponseType<PagedResult<ProductTypeModel>>(StatusCodes.Status200OK)]
+    public async Task<ActionResult<PagedResult<ProductTypeModel>>> GetAll(PagedQuery pagedQuery, CancellationToken cancellationToken)
     {
-        var productTypes = await productTypeService.GetAllProductTypesAsync();
+        var productTypes = await productTypeService.GetAllProductTypesAsync(pagedQuery, cancellationToken);
         return Ok(productTypes);
     }
 

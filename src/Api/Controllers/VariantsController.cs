@@ -15,10 +15,10 @@ public class VariantsController(IVariantService variantService, IItemService ite
     [HttpGet]
     [EndpointSummary("List all variants")]
     [EndpointDescription("Returns a list of all variants.")]
-    [ProducesResponseType<List<VariantModel>>(StatusCodes.Status200OK)]
-    public async Task<ActionResult<List<VariantModel>>> GetAll()
+    [ProducesResponseType<PagedResult<VariantModel>>(StatusCodes.Status200OK)]
+    public async Task<ActionResult<PagedResult<VariantModel>>> GetAll(PagedQuery pagedQuery, CancellationToken cancellationToken)
     {
-        var variants = await variantService.GetAllVariantsAsync();
+        var variants = await variantService.GetAllVariantsAsync(pagedQuery, cancellationToken);
         return Ok(variants);
     }
 
@@ -75,11 +75,11 @@ public class VariantsController(IVariantService variantService, IItemService ite
     [HttpGet("{id:guid}/items")]
     [EndpointSummary("List all items for a variant")]
     [EndpointDescription("Returns all items for a specific variant.")]
-    [ProducesResponseType<List<ItemModel>>(StatusCodes.Status200OK)]
+    [ProducesResponseType<PagedResult<ItemModel>>(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<ActionResult<List<ItemModel>>> GetItemsForVariant(Guid id)
+    public async Task<ActionResult<PagedResult<ItemModel>>> GetItemsForVariant(Guid id, PagedQuery pagedQuery, CancellationToken cancellationToken)
     {
-        var items = await itemService.GetItemsForVariantAsync(id);
+        var items = await itemService.GetItemsForVariantAsync(id, pagedQuery, cancellationToken);
         return Ok(items);
     }
 }

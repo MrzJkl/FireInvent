@@ -14,20 +14,20 @@ public class VisitItemsController(IVisitItemService visitItemService) : Controll
     [HttpGet]
     [EndpointSummary("List all visit items")]
     [EndpointDescription("Returns a list of all visit items.")]
-    [ProducesResponseType<List<VisitItemModel>>(StatusCodes.Status200OK)]
-    public async Task<ActionResult<List<VisitItemModel>>> GetAll()
+    [ProducesResponseType<PagedResult<VisitItemModel>>(StatusCodes.Status200OK)]
+    public async Task<ActionResult<PagedResult<VisitItemModel>>> GetAll(PagedQuery pagedQuery, CancellationToken cancellationToken)
     {
-        var visitItems = await visitItemService.GetAllVisitItemsAsync();
+        var visitItems = await visitItemService.GetAllVisitItemsAsync(pagedQuery, cancellationToken);
         return Ok(visitItems);
     }
 
-    [HttpGet("by-visit/{visitId:guid}")]
+    [HttpGet("visit/{visitId:guid}")]
     [EndpointSummary("List visit items by visit ID")]
     [EndpointDescription("Returns a list of visit items for a specific visit.")]
-    [ProducesResponseType<List<VisitItemModel>>(StatusCodes.Status200OK)]
-    public async Task<ActionResult<List<VisitItemModel>>> GetByVisitId(Guid visitId)
+    [ProducesResponseType<PagedResult<VisitItemModel>>(StatusCodes.Status200OK)]
+    public async Task<ActionResult<PagedResult<VisitItemModel>>> GetByVisitId(Guid visitId, PagedQuery pagedQuery, CancellationToken cancellationToken)
     {
-        var visitItems = await visitItemService.GetVisitItemsByVisitIdAsync(visitId);
+        var visitItems = await visitItemService.GetVisitItemsByVisitIdAsync(visitId, pagedQuery, cancellationToken);
         return Ok(visitItems);
     }
 
