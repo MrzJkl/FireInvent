@@ -12,7 +12,7 @@ public partial class AppointmentMapper : BaseMapper
     [MapValue(nameof(Appointment.Id), Use = nameof(NewGuid))]
     public partial Appointment MapCreateOrUpdateAppointmentModelToAppointment(CreateOrUpdateAppointmentModel createAppointmentModel);
 
-    public partial List<AppointmentModel> MapAppointmentsToAppointmentModels(List<Appointment> appointments);
+    public partial IQueryable<AppointmentModel> ProjectAppointmentsToAppointmentModels(IQueryable<Appointment> appointments);
 
     public partial void MapCreateOrUpdateAppointmentModelToAppointment(CreateOrUpdateAppointmentModel source, Appointment target);
 }

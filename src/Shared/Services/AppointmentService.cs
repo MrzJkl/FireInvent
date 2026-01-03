@@ -1,4 +1,7 @@
+using FireInvent.Contract;
 using FireInvent.Database;
+using FireInvent.Database.Extensions;
+using FireInvent.Shared.Extensions;
 using FireInvent.Shared.Mapper;
 using FireInvent.Shared.Models;
 using Microsoft.EntityFrameworkCore;
@@ -16,13 +19,20 @@ public class AppointmentService(AppDbContext context, AppointmentMapper mapper) 
         return appointment is null ? null : mapper.MapAppointmentToAppointmentModel(appointment);
     }
 
-    public async Task<List<AppointmentModel>> GetAllAppointmentsAsync()
+    public async Task<PagedResult<AppointmentModel>> GetAllAppointmentsAsync(PagedQuery pagedQuery, CancellationToken cancellationToken)
     {
-        var appointments = await context.Appointments
-            .AsNoTracking()
-            .ToListAsync();
+        var query = context.Appointments
+            .OrderBy(a => a.ScheduledAt)
+            .AsNoTracking();
 
-        return mapper.MapAppointmentsToAppointmentModels(appointments);
+        query = query.ApplySearch(pagedQuery.SearchTerm);
+
+        var projected = mapper.ProjectAppointmentsToAppointmentModels(query);
+
+        return await projected.ToPagedResultAsync(
+            pagedQuery.Page,
+            pagedQuery.PageSize,
+            cancellationToken);
     }
 
     public async Task<AppointmentModel> CreateAppointmentAsync(CreateOrUpdateAppointmentModel model)

@@ -14,10 +14,10 @@ public class AppointmentsController(IAppointmentService appointmentService, IVis
     [HttpGet]
     [EndpointSummary("List all appointments")]
     [EndpointDescription("Returns a list of all appointments.")]
-    [ProducesResponseType<List<AppointmentModel>>(StatusCodes.Status200OK)]
-    public async Task<ActionResult<List<AppointmentModel>>> GetAll()
+    [ProducesResponseType<PagedResult<AppointmentModel>>(StatusCodes.Status200OK)]
+    public async Task<ActionResult<PagedResult<AppointmentModel>>> GetAll(PagedQuery pagedQuery, CancellationToken cancellationToken)
     {
-        var appointments = await appointmentService.GetAllAppointmentsAsync();
+        var appointments = await appointmentService.GetAllAppointmentsAsync(pagedQuery, cancellationToken);
         return Ok(appointments);
     }
 
