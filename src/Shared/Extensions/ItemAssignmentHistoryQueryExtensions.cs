@@ -12,9 +12,12 @@ namespace FireInvent.Shared.Extensions
             if (string.IsNullOrWhiteSpace(search))
                 return query;
 
-            // ItemAssignmentHistory has no direct searchable text fields
-            // Could search by dates if needed, but keeping it empty for now
-            return query;
+            search = search.Trim();
+            var pattern = $"%{search}%";
+
+            return query.Where(h =>
+                EF.Functions.ILike(h.Id.ToString() ?? "", pattern)
+            );
         }
     }
 }

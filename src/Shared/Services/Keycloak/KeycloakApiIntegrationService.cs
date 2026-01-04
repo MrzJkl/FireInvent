@@ -78,7 +78,7 @@ public class KeycloakApiIntegrationService(
 
             logger.LogInformation("Creating API integration in realm {Realm} with client ID: {ClientId}", keycloakClient.Realm, clientId.SanitizeForLogging());
 
-            var response = await keycloakClient.PostAsJsonAsync(
+            using var response = await keycloakClient.PostAsJsonAsync(
                 $"admin/realms/{keycloakClient.Realm}/clients", 
                 client);
 
@@ -94,7 +94,7 @@ public class KeycloakApiIntegrationService(
 
             await AssignIntegrationRoleToServiceAccountAsync(createdClient.Id!, cancellationToken);
 
-            var serviceAccountResponse = await keycloakClient.GetAsync(
+            using var serviceAccountResponse = await keycloakClient.GetAsync(
                 $"admin/realms/{keycloakClient.Realm}/clients/{createdClient.Id}/service-account-user");
             serviceAccountResponse.EnsureSuccessStatusCode();
             var serviceAccountUser = await serviceAccountResponse.Content.ReadFromJsonAsync<KeycloakServiceAccountUser>(keycloakClient.JsonOptions);
@@ -103,7 +103,7 @@ public class KeycloakApiIntegrationService(
 
             await AddUserToOrganizationAsync(userContextProvider.TenantId.Value, serviceAccountUserId, cancellationToken);
 
-            var secretResponse = await keycloakClient.GetAsync(
+            using var secretResponse = await keycloakClient.GetAsync(
                 $"admin/realms/{keycloakClient.Realm}/clients/{createdClient.Id}/client-secret");
             secretResponse.EnsureSuccessStatusCode();
 
@@ -134,7 +134,7 @@ public class KeycloakApiIntegrationService(
         {
             logger.LogDebug("Fetching all clients from Keycloak realm: {Realm}", keycloakClient.Realm);
 
-            var response = await keycloakClient.GetAsync($"admin/realms/{keycloakClient.Realm}/clients");
+            using var response = await keycloakClient.GetAsync($"admin/realms/{keycloakClient.Realm}/clients");
             response.EnsureSuccessStatusCode();
 
             var clients = await response.Content.ReadFromJsonAsync<List<KeycloakClient>>(keycloakClient.JsonOptions)
@@ -182,7 +182,7 @@ public class KeycloakApiIntegrationService(
 
         try
         {
-            var response = await keycloakClient.GetAsync(
+            using var response = await keycloakClient.GetAsync(
                 $"admin/realms/{keycloakClient.Realm}/clients/{clientUuid}");
 
             if (!response.IsSuccessStatusCode)
@@ -206,8 +206,8 @@ public class KeycloakApiIntegrationService(
             }
 
             logger.LogInformation("Deleting API integration: {ClientId} (ID: {Id})", client.ClientId.SanitizeForLogging(), id);
-            
-            var deleteResponse = await keycloakClient.DeleteAsync($"admin/realms/{keycloakClient.Realm}/clients/{clientUuid}");
+
+            using var deleteResponse = await keycloakClient.DeleteAsync($"admin/realms/{keycloakClient.Realm}/clients/{clientUuid}");
             deleteResponse.EnsureSuccessStatusCode();
 
             logger.LogInformation("Successfully deleted API integration: {ClientId} (ID: {Id})", client.ClientId.SanitizeForLogging(), id);
@@ -224,7 +224,7 @@ public class KeycloakApiIntegrationService(
         try
         {
             var clientUuid = id.ToString();
-            var response = await keycloakClient.GetAsync(
+            using var response = await keycloakClient.GetAsync(
                 $"admin/realms/{keycloakClient.Realm}/clients/{clientUuid}");
 
             if (!response.IsSuccessStatusCode)
@@ -247,7 +247,7 @@ public class KeycloakApiIntegrationService(
     {
         try
         {
-            var serviceAccountResponse = await keycloakClient.GetAsync(
+            using var serviceAccountResponse = await keycloakClient.GetAsync(
                 $"admin/realms/{keycloakClient.Realm}/clients/{clientUuid}/service-account-user");
             serviceAccountResponse.EnsureSuccessStatusCode();
 
@@ -255,7 +255,7 @@ public class KeycloakApiIntegrationService(
             var serviceAccountUserId = serviceAccountUser?.Id
                 ?? throw new InvalidOperationException("Failed to retrieve service account user ID.");
 
-            var rolesResponse = await keycloakClient.GetAsync(
+            using var rolesResponse = await keycloakClient.GetAsync(
                 $"admin/realms/{keycloakClient.Realm}/roles/integration");
             rolesResponse.EnsureSuccessStatusCode();
 
@@ -264,7 +264,7 @@ public class KeycloakApiIntegrationService(
                 throw new InvalidOperationException("Integration role not found in Keycloak.");
 
             var roleMapping = new List<KeycloakRole> { integrationRole };
-            var assignRoleResponse = await keycloakClient.PostAsJsonAsync(
+            using var assignRoleResponse = await keycloakClient.PostAsJsonAsync(
                 $"admin/realms/{keycloakClient.Realm}/users/{serviceAccountUserId}/role-mappings/realm",
                 roleMapping);
             assignRoleResponse.EnsureSuccessStatusCode();
@@ -283,7 +283,7 @@ public class KeycloakApiIntegrationService(
         var url = $"admin/realms/{keycloakClient.Realm}/organizations/{organizationId}/members";
         var json = JsonSerializer.Serialize(userId);
         using var content = new StringContent(json, Encoding.UTF8, "application/json");
-        var response = await keycloakClient.PostAsync(url, content);
+        using var response = await keycloakClient.PostAsync(url, content);
 
         if (!response.IsSuccessStatusCode)
         {
@@ -303,7 +303,7 @@ public class KeycloakApiIntegrationService(
 
         try
         {
-            var serviceAccountResponse = await keycloakClient.GetAsync(
+            using var serviceAccountResponse = await keycloakClient.GetAsync(
                 $"admin/realms/{keycloakClient.Realm}/clients/{clientUuid}/service-account-user", cancellationToken);
             
             if (!serviceAccountResponse.IsSuccessStatusCode)
@@ -314,7 +314,7 @@ public class KeycloakApiIntegrationService(
             if (string.IsNullOrEmpty(userId))
                 return false;
 
-            var orgMembersResponse = await keycloakClient.GetAsync(
+            using var orgMembersResponse = await keycloakClient.GetAsync(
                 $"admin/realms/{keycloakClient.Realm}/organizations/{userContextProvider.TenantId}/members");
             
             if (!orgMembersResponse.IsSuccessStatusCode)
@@ -336,7 +336,7 @@ public class KeycloakApiIntegrationService(
 
     private async Task<List<KeycloakClient>> GetClientsByClientIdAsync(string clientId, CancellationToken cancellationToken)
     {
-        var response = await keycloakClient.GetAsync(
+        using var response = await keycloakClient.GetAsync(
             $"admin/realms/{keycloakClient.Realm}/clients?clientId={Uri.EscapeDataString(clientId)}", cancellationToken);
         response.EnsureSuccessStatusCode();
 

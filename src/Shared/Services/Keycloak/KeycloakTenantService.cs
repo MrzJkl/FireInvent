@@ -27,7 +27,7 @@ public class KeycloakTenantService(
 
         try
         {
-            var listResponse = await keycloakClient.GetAsync($"admin/realms/{Uri.EscapeDataString(keycloakClient.Realm)}/organizations");
+            using var listResponse = await keycloakClient.GetAsync($"admin/realms/{Uri.EscapeDataString(keycloakClient.Realm)}/organizations");
             if (!listResponse.IsSuccessStatusCode)
             {
                 var error = await listResponse.Content.ReadAsStringAsync();
@@ -65,7 +65,7 @@ public class KeycloakTenantService(
                 description,
             };
 
-            var createResponse = await keycloakClient.PostAsJsonAsync(
+            using var createResponse = await keycloakClient.PostAsJsonAsync(
                 $"admin/realms/{Uri.EscapeDataString(keycloakClient.Realm)}/organizations",
                 payload);
 
@@ -133,7 +133,7 @@ public class KeycloakTenantService(
                 alias
             };
 
-            var response = await keycloakClient.PutAsJsonAsync(
+            using var response = await keycloakClient.PutAsJsonAsync(
                 $"admin/realms/{Uri.EscapeDataString(keycloakClient.Realm)}/organizations/{organizationId}",
                 payload);
 

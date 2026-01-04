@@ -20,7 +20,8 @@ namespace FireInvent.Shared.Extensions
                 EF.Functions.ILike(p.LastName, pattern) ||
                 EF.Functions.ILike(p.EMail ?? "", pattern) ||
                 EF.Functions.ILike(p.ExternalId ?? "", pattern) ||
-                EF.Functions.ILike(p.Remarks ?? "", pattern)
+                EF.Functions.ILike(p.Remarks ?? "", pattern) ||
+                EF.Functions.ILike(p.Id.ToString() ?? "", pattern)
             );
         }
     }
