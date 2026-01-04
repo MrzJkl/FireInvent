@@ -12,7 +12,10 @@ public partial class MaintenanceMapper : BaseMapper
     [MapValue(nameof(Maintenance.Id), Use = nameof(NewGuid))]
     public partial Maintenance MapCreateOrUpdateMaintenanceModelToMaintenance(CreateOrUpdateMaintenanceModel createMaintenanceModel);
 
+
     public partial List<MaintenanceModel> MapMaintenancesToMaintenanceModels(List<Maintenance> maintenances);
+
+    public partial IQueryable<MaintenanceModel> ProjectMaintenancesToMaintenanceModels(IQueryable<Maintenance> maintenances);
 
     public partial void MapCreateOrUpdateMaintenanceModelToMaintenance(CreateOrUpdateMaintenanceModel source, Maintenance target);
 }

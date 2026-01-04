@@ -12,12 +12,12 @@ namespace FireInvent.Api.Controllers;
 public class ItemAssignmentHistoriesController(IItemAssignmentHistoryService service) : ControllerBase
 {
     [HttpGet]
-    [EndpointSummary("List all item assignments")]
+    [EndpointSummary("List all item assignment histories")]
     [EndpointDescription("Returns a list of all item assignment histories.")]
-    [ProducesResponseType<List<ItemAssignmentHistoryModel>>(StatusCodes.Status200OK)]
-    public async Task<ActionResult<List<ItemAssignmentHistoryModel>>> GetAll()
+    [ProducesResponseType<PagedResult<ItemAssignmentHistoryModel>>(StatusCodes.Status200OK)]
+    public async Task<ActionResult<PagedResult<ItemAssignmentHistoryModel>>> GetAll(PagedQuery pagedQuery, CancellationToken cancellationToken)
     {
-        var assignments = await service.GetAllAssignmentsAsync();
+        var assignments = await service.GetAllAssignmentsAsync(pagedQuery, cancellationToken);
         return Ok(assignments);
     }
 
@@ -26,9 +26,9 @@ public class ItemAssignmentHistoriesController(IItemAssignmentHistoryService ser
     [EndpointDescription("Returns a item assignment history by its unique ID.")]
     [ProducesResponseType<ItemAssignmentHistoryModel>(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<ActionResult<ItemAssignmentHistoryModel>> GetById(Guid id)
+    public async Task<ActionResult<ItemAssignmentHistoryModel>> GetById(Guid id, CancellationToken cancellationToken)
     {
-        var assignment = await service.GetAssignmentByIdAsync(id);
+        var assignment = await service.GetAssignmentByIdAsync(id, cancellationToken);
         return assignment is null ? throw new NotFoundException() : Ok(assignment);
     }
 
@@ -38,10 +38,10 @@ public class ItemAssignmentHistoriesController(IItemAssignmentHistoryService ser
     [ProducesResponseType<ItemAssignmentHistoryModel>(StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status409Conflict)]
-    [Authorize(Roles = Roles.Admin + "," + Roles.Procurement)]
-    public async Task<ActionResult<ItemAssignmentHistoryModel>> Create(CreateOrUpdateItemAssignmentHistoryModel model)
+    [Authorize(Roles = Roles.Admin + "," + Roles.Procurement + "," + Roles.Integration)]
+    public async Task<ActionResult<ItemAssignmentHistoryModel>> Create(CreateOrUpdateItemAssignmentHistoryModel model, CancellationToken cancellationToken)
     {
-        var created = await service.CreateAssignmentAsync(model);
+        var created = await service.CreateAssignmentAsync(model, cancellationToken);
         return CreatedAtAction(nameof(GetById), new { id = created.Id }, created);
     }
 
@@ -52,10 +52,10 @@ public class ItemAssignmentHistoriesController(IItemAssignmentHistoryService ser
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status409Conflict)]
-    [Authorize(Roles = Roles.Admin + "," + Roles.Procurement)]
-    public async Task<IActionResult> Update(Guid id, CreateOrUpdateItemAssignmentHistoryModel model)
+    [Authorize(Roles = Roles.Admin + "," + Roles.Procurement + "," + Roles.Integration)]
+    public async Task<IActionResult> Update(Guid id, CreateOrUpdateItemAssignmentHistoryModel model, CancellationToken cancellationToken)
     {
-        var success = await service.UpdateAssignmentAsync(id, model);
+        var success = await service.UpdateAssignmentAsync(id, model, cancellationToken);
         return success ? NoContent() : throw new NotFoundException();
     }
 
@@ -64,10 +64,10 @@ public class ItemAssignmentHistoriesController(IItemAssignmentHistoryService ser
     [EndpointDescription("Deletes a item assignment history by its unique ID.")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    [Authorize(Roles = Roles.Admin + "," + Roles.Procurement)]
-    public async Task<IActionResult> Delete(Guid id)
+    [Authorize(Roles = Roles.Admin + "," + Roles.Procurement + "," + Roles.Integration)]
+    public async Task<IActionResult> Delete(Guid id, CancellationToken cancellationToken)
     {
-        var success = await service.DeleteAssignmentAsync(id);
+        var success = await service.DeleteAssignmentAsync(id, cancellationToken);
         return success ? NoContent() : throw new NotFoundException();
     }
 }

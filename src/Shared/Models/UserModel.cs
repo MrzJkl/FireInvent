@@ -7,11 +7,10 @@ public record UserModel
     [Required]
     public Guid Id { get; init; }
 
-    [Required]
     [DataType(DataType.EmailAddress)]
-    public string EMail { get; set; } = string.Empty;
+    public string? EMail { get; init; }
 
-    public string? FirstName { get; set; }
+    public string? FirstName { get; init; }
 
-    public string? LastName { get; set; }
+    public string? LastName { get; init; }
 }

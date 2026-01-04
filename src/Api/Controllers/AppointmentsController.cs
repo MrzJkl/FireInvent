@@ -14,10 +14,10 @@ public class AppointmentsController(IAppointmentService appointmentService, IVis
     [HttpGet]
     [EndpointSummary("List all appointments")]
     [EndpointDescription("Returns a list of all appointments.")]
-    [ProducesResponseType<List<AppointmentModel>>(StatusCodes.Status200OK)]
-    public async Task<ActionResult<List<AppointmentModel>>> GetAll()
+    [ProducesResponseType<PagedResult<AppointmentModel>>(StatusCodes.Status200OK)]
+    public async Task<ActionResult<PagedResult<AppointmentModel>>> GetAll(PagedQuery pagedQuery, CancellationToken cancellationToken)
     {
-        var appointments = await appointmentService.GetAllAppointmentsAsync();
+        var appointments = await appointmentService.GetAllAppointmentsAsync(pagedQuery, cancellationToken);
         return Ok(appointments);
     }
 
@@ -26,9 +26,9 @@ public class AppointmentsController(IAppointmentService appointmentService, IVis
     [EndpointDescription("Returns an appointment by its unique ID.")]
     [ProducesResponseType<AppointmentModel>(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<ActionResult<AppointmentModel>> GetById(Guid id)
+    public async Task<ActionResult<AppointmentModel>> GetById(Guid id, CancellationToken cancellationToken)
     {
-        var appointment = await appointmentService.GetAppointmentByIdAsync(id);
+        var appointment = await appointmentService.GetAppointmentByIdAsync(id, cancellationToken);
         return appointment is null ? throw new NotFoundException() : Ok(appointment);
     }
 
@@ -36,10 +36,10 @@ public class AppointmentsController(IAppointmentService appointmentService, IVis
     [EndpointSummary("Create a new appointment")]
     [EndpointDescription("Creates a new appointment.")]
     [ProducesResponseType<AppointmentModel>(StatusCodes.Status201Created)]
-    [Authorize(Roles = Roles.Admin + "," + Roles.Procurement)]
-    public async Task<ActionResult<AppointmentModel>> Create(CreateOrUpdateAppointmentModel model)
+    [Authorize(Roles = Roles.Admin + "," + Roles.Procurement + "," + Roles.Integration)]
+    public async Task<ActionResult<AppointmentModel>> Create(CreateOrUpdateAppointmentModel model, CancellationToken cancellationToken)
     {
-        var created = await appointmentService.CreateAppointmentAsync(model);
+        var created = await appointmentService.CreateAppointmentAsync(model, cancellationToken);
         return CreatedAtAction(nameof(GetById), new { id = created.Id }, created);
     }
 
@@ -48,10 +48,10 @@ public class AppointmentsController(IAppointmentService appointmentService, IVis
     [EndpointDescription("Updates an existing appointment.")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    [Authorize(Roles = Roles.Admin + "," + Roles.Procurement)]
-    public async Task<IActionResult> Update(Guid id, CreateOrUpdateAppointmentModel model)
+    [Authorize(Roles = Roles.Admin + "," + Roles.Procurement + "," + Roles.Integration)]
+    public async Task<IActionResult> Update(Guid id, CreateOrUpdateAppointmentModel model, CancellationToken cancellationToken)
     {
-        var success = await appointmentService.UpdateAppointmentAsync(id, model);
+        var success = await appointmentService.UpdateAppointmentAsync(id, model, cancellationToken);
         return success ? NoContent() : throw new NotFoundException();
     }
 
@@ -60,21 +60,21 @@ public class AppointmentsController(IAppointmentService appointmentService, IVis
     [EndpointDescription("Deletes an appointment by its unique ID. This will also delete all associated visits and visit items.")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    [Authorize(Roles = Roles.Admin + "," + Roles.Procurement)]
-    public async Task<IActionResult> Delete(Guid id)
+    [Authorize(Roles = Roles.Admin + "," + Roles.Procurement + "," + Roles.Integration)]
+    public async Task<IActionResult> Delete(Guid id, CancellationToken cancellationToken)
     {
-        var success = await appointmentService.DeleteAppointmentAsync(id);
+        var success = await appointmentService.DeleteAppointmentAsync(id, cancellationToken);
         return success ? NoContent() : throw new NotFoundException();
     }
 
     [HttpGet("{id:guid}/visits")]
     [EndpointSummary("List all visits for an appointment")]
     [EndpointDescription("Returns all visits for a specific appointment.")]
-    [ProducesResponseType<List<VisitModel>>(StatusCodes.Status200OK)]
+    [ProducesResponseType<PagedResult<VisitModel>>(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<ActionResult<List<VisitModel>>> GetVisitsForAppointment(Guid id)
+    public async Task<ActionResult<PagedResult<VisitModel>>> GetVisitsForAppointment(Guid id, PagedQuery pagedQuery, CancellationToken cancellationToken)
     {
-        var visits = await visitService.GetVisitsForAppointmentAsync(id);
+        var visits = await visitService.GetVisitsForAppointmentAsync(id, pagedQuery, cancellationToken);
         return Ok(visits);
     }
 }

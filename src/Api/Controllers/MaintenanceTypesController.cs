@@ -14,10 +14,10 @@ public class MaintenanceTypesController(IMaintenanceTypeService maintenanceTypeS
     [HttpGet]
     [EndpointSummary("List all maintenanceTypes")]
     [EndpointDescription("Returns a list of all maintenanceTypes.")]
-    [ProducesResponseType<List<MaintenanceTypeModel>>(StatusCodes.Status200OK)]
-    public async Task<ActionResult<List<MaintenanceTypeModel>>> GetAll()
+    [ProducesResponseType<PagedResult<MaintenanceTypeModel>>(StatusCodes.Status200OK)]
+    public async Task<ActionResult<PagedResult<MaintenanceTypeModel>>> GetAll(PagedQuery pagedQuery, CancellationToken cancellationToken)
     {
-        var maintenanceTypes = await maintenanceTypeService.GetAllMaintenanceTypesAsync();
+        var maintenanceTypes = await maintenanceTypeService.GetAllMaintenanceTypesAsync(pagedQuery, cancellationToken);
         return Ok(maintenanceTypes);
     }
 
@@ -26,9 +26,9 @@ public class MaintenanceTypesController(IMaintenanceTypeService maintenanceTypeS
     [EndpointDescription("Returns a maintenanceType by its unique ID.")]
     [ProducesResponseType<MaintenanceTypeModel>(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<ActionResult<MaintenanceTypeModel>> GetById(Guid id)
+    public async Task<ActionResult<MaintenanceTypeModel>> GetById(Guid id, CancellationToken cancellationToken)
     {
-        var maintenanceType = await maintenanceTypeService.GetMaintenanceTypeByIdAsync(id);
+        var maintenanceType = await maintenanceTypeService.GetMaintenanceTypeByIdAsync(id, cancellationToken);
         return maintenanceType is null ? throw new NotFoundException() : (ActionResult<MaintenanceTypeModel>)Ok(maintenanceType);
     }
 
@@ -36,10 +36,10 @@ public class MaintenanceTypesController(IMaintenanceTypeService maintenanceTypeS
     [EndpointSummary("Create a new maintenanceType")]
     [EndpointDescription("Creates a new maintenanceType.")]
     [ProducesResponseType<MaintenanceTypeModel>(StatusCodes.Status201Created)]
-    [Authorize(Roles = Roles.Admin)]
-    public async Task<ActionResult<MaintenanceTypeModel>> Create(CreateOrUpdateMaintenanceTypeModel model)
+    [Authorize(Roles = Roles.Admin + "," + Roles.Integration)]
+    public async Task<ActionResult<MaintenanceTypeModel>> Create(CreateOrUpdateMaintenanceTypeModel model, CancellationToken cancellationToken)
     {
-        var created = await maintenanceTypeService.CreateMaintenanceTypeAsync(model);
+        var created = await maintenanceTypeService.CreateMaintenanceTypeAsync(model, cancellationToken);
         return CreatedAtAction(nameof(GetById), new { id = created.Id }, created);
     }
 
@@ -48,10 +48,10 @@ public class MaintenanceTypesController(IMaintenanceTypeService maintenanceTypeS
     [EndpointDescription("Updates an existing maintenanceType.")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    [Authorize(Roles = Roles.Admin)]
-    public async Task<IActionResult> Update(Guid id, CreateOrUpdateMaintenanceTypeModel model)
+    [Authorize(Roles = Roles.Admin + "," + Roles.Integration)]
+    public async Task<IActionResult> Update(Guid id, CreateOrUpdateMaintenanceTypeModel model, CancellationToken cancellationToken)
     {
-        var success = await maintenanceTypeService.UpdateMaintenanceTypeAsync(id, model);
+        var success = await maintenanceTypeService.UpdateMaintenanceTypeAsync(id, model, cancellationToken);
         return success ? NoContent() : throw new NotFoundException();
     }
 
@@ -60,10 +60,10 @@ public class MaintenanceTypesController(IMaintenanceTypeService maintenanceTypeS
     [EndpointDescription("Deletes a maintenanceType by its unique ID.")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    [Authorize(Roles = Roles.Admin)]
-    public async Task<IActionResult> Delete(Guid id)
+    [Authorize(Roles = Roles.Admin + "," + Roles.Integration)]
+    public async Task<IActionResult> Delete(Guid id, CancellationToken cancellationToken)
     {
-        var success = await maintenanceTypeService.DeleteMaintenanceTypeAsync(id);
+        var success = await maintenanceTypeService.DeleteMaintenanceTypeAsync(id, cancellationToken);
         return success ? NoContent() : throw new NotFoundException();
     }
 }

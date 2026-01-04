@@ -12,7 +12,10 @@ public partial class ManufacturerMapper : BaseMapper
     [MapValue(nameof(Manufacturer.Id), Use = nameof(NewGuid))]
     public partial Manufacturer MapCreateOrUpdateManufacturerModelToManufacturer(CreateOrUpdateManufacturerModel createManufacturerModel);
 
+
+
     public partial List<ManufacturerModel> MapManufacturersToManufacturerModels(List<Manufacturer> manufacturers);
+    public partial IQueryable<ManufacturerModel> ProjectManufacturersToManufacturerModels(IQueryable<Manufacturer> manufacturers);
 
     public partial void MapCreateOrUpdateManufacturerModelToManufacturer(CreateOrUpdateManufacturerModel source, Manufacturer target);
 }

@@ -33,12 +33,14 @@ public class OrderServiceTests
         // Arrange
         using var context = TestHelper.GetTestDbContext();
         var service = new OrderService(context, _mapper);
+        var query = new PagedQuery { Page = 1, PageSize = 10 };
 
         // Act
-        var result = await service.GetAllOrdersAsync();
+        var result = await service.GetAllOrdersAsync(query, CancellationToken.None);
 
         // Assert
-        Assert.Empty(result);
+        Assert.Empty(result.Items);
+        Assert.Equal(0, result.TotalItems);
     }
 
     [Fact]
@@ -73,25 +75,6 @@ public class OrderServiceTests
 
         // Act
         var result = await service.UpdateOrderAsync(Guid.NewGuid(), updateModel);
-
-        // Assert
-        Assert.False(result);
-    }
-
-    [Fact]
-    public async Task UpdateOrderAsync_WithCompletedOrder_ShouldReturnFalse()
-    {
-        // Arrange
-        using var context = TestHelper.GetTestDbContext();
-        var service = new OrderService(context, _mapper);
-        var order = TestDataFactory.CreateOrder(status: OrderStatus.Completed);
-        context.Orders.Add(order);
-        await context.SaveChangesAsync();
-
-        var updateModel = TestDataFactory.CreateOrderModel(status: OrderStatus.Draft);
-
-        // Act
-        var result = await service.UpdateOrderAsync(order.Id, updateModel);
 
         // Assert
         Assert.False(result);

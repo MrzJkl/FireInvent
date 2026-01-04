@@ -18,12 +18,10 @@ public class KeycloakTenantService(
     /// <summary>
     /// Creates a tenant Organization with a name and description. Returns the GUID of the created organization.
     /// </summary>
-    public async Task<Guid> CreateTenantOrganizationAsync(string name, string? description)
+    public async Task<Guid> CreateTenantOrganizationAsync(string name, string? description, CancellationToken cancellationToken = default)
     {
         if (string.IsNullOrWhiteSpace(name))
             throw new ArgumentException("Organization name cannot be empty.", nameof(name));
-        if (string.IsNullOrWhiteSpace(description))
-            throw new ArgumentException("Description cannot be empty.", nameof(description));
 
         var alias = SanitizeNameForKeycloak(name);
 
@@ -117,7 +115,7 @@ public class KeycloakTenantService(
         }
     }
 
-    public async Task UpdateTenantOrganizationNameAsync(Guid organizationId, string newName, string? newDescription)
+    public async Task UpdateTenantOrganizationNameAsync(Guid organizationId, string newName, string? newDescription, CancellationToken cancellationToken = default)
     {
         if (organizationId == Guid.Empty)
             throw new ArgumentException("Organization ID cannot be empty.", nameof(organizationId));

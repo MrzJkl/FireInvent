@@ -16,9 +16,9 @@ public class TenantsController(ITenantService tenantService) : ControllerBase
     [EndpointSummary("List all tenants (System Admin)")]
     [EndpointDescription("Returns a list of all tenants in the system. Only accessible to system administrators.")]
     [ProducesResponseType<List<TenantModel>>(StatusCodes.Status200OK)]
-    public async Task<ActionResult<List<TenantModel>>> GetAll()
+    public async Task<ActionResult<List<TenantModel>>> GetAll(CancellationToken cancellationToken)
     {
-        var tenants = await tenantService.GetAllTenantsAsync();
+        var tenants = await tenantService.GetAllTenantsAsync(cancellationToken);
         return Ok(tenants);
     }
 
@@ -27,9 +27,9 @@ public class TenantsController(ITenantService tenantService) : ControllerBase
     [EndpointDescription("Returns a tenant by its unique ID. Only accessible to system administrators.")]
     [ProducesResponseType<TenantModel>(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<ActionResult<TenantModel>> GetById(Guid id)
+    public async Task<ActionResult<TenantModel>> GetById(Guid id, CancellationToken cancellationToken)
     {
-        var tenant = await tenantService.GetTenantByIdAsync(id);
+        var tenant = await tenantService.GetTenantByIdAsync(id, cancellationToken);
         return tenant is null ? throw new NotFoundException() : (ActionResult<TenantModel>)Ok(tenant);
     }
 
@@ -38,9 +38,9 @@ public class TenantsController(ITenantService tenantService) : ControllerBase
     [EndpointDescription("Creates a new tenant with a unique realm and name. Only accessible to system administrators.")]
     [ProducesResponseType<TenantModel>(StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status409Conflict)]
-    public async Task<ActionResult<TenantModel>> Create(CreateOrUpdateTenantModel model)
+    public async Task<ActionResult<TenantModel>> Create(CreateOrUpdateTenantModel model, CancellationToken cancellationToken)
     {
-        var created = await tenantService.CreateTenantAsync(model);
+        var created = await tenantService.CreateTenantAsync(model, cancellationToken);
         return CreatedAtAction(nameof(GetById), new { id = created.Id }, created);
     }
 
@@ -50,9 +50,9 @@ public class TenantsController(ITenantService tenantService) : ControllerBase
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status409Conflict)]
-    public async Task<IActionResult> Update(Guid id, CreateOrUpdateTenantModel model)
+    public async Task<IActionResult> Update(Guid id, CreateOrUpdateTenantModel model, CancellationToken cancellationToken)
     {
-        var success = await tenantService.UpdateTenantAsync(id, model);
+        var success = await tenantService.UpdateTenantAsync(id, model, cancellationToken);
         return success ? NoContent() : throw new NotFoundException();
     }
 
@@ -62,9 +62,9 @@ public class TenantsController(ITenantService tenantService) : ControllerBase
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status409Conflict)]
-    public async Task<IActionResult> Delete(Guid id)
+    public async Task<IActionResult> Delete(Guid id, CancellationToken cancellationToken)
     {
-        var success = await tenantService.DeleteTenantAsync(id);
+        var success = await tenantService.DeleteTenantAsync(id, cancellationToken);
         return success ? NoContent() : throw new NotFoundException();
     }
 }

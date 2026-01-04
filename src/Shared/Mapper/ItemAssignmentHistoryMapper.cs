@@ -11,8 +11,11 @@ public partial class ItemAssignmentHistoryMapper : BaseMapper
 
     [MapValue(nameof(ItemAssignmentHistory.Id), Use = nameof(NewGuid))]
     public partial ItemAssignmentHistory MapCreateOrUpdateItemAssignmentHistoryModelToItemAssignmentHistory(CreateOrUpdateItemAssignmentHistoryModel createItemAssignmentHistoryModel);
-
     public partial List<ItemAssignmentHistoryModel> MapItemAssignmentHistorysToItemAssignmentHistoryModels(List<ItemAssignmentHistory> itemAssignmentHistorys);
+
+
+
+    public partial IQueryable<ItemAssignmentHistoryModel> ProjectItemAssignmentHistorysToItemAssignmentHistoryModels(IQueryable<ItemAssignmentHistory> itemAssignmentHistorys);
         
     public partial void MapCreateOrUpdateItemAssignmentHistoryModelToItemAssignmentHistory(CreateOrUpdateItemAssignmentHistoryModel source, ItemAssignmentHistory target);
 }

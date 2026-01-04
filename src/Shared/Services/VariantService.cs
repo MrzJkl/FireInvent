@@ -1,5 +1,8 @@
-﻿using FireInvent.Database;
+using FireInvent.Database;
+using FireInvent.Database.Extensions;
+using FireInvent.Contract;
 using FireInvent.Contract.Exceptions;
+using FireInvent.Shared.Extensions;
 using FireInvent.Shared.Mapper;
 using FireInvent.Shared.Models;
 using Microsoft.EntityFrameworkCore;
@@ -8,13 +11,13 @@ namespace FireInvent.Shared.Services;
 
 public class VariantService(AppDbContext context, VariantMapper mapper) : IVariantService
 {
-    public async Task<VariantModel> CreateVariantAsync(CreateOrUpdateVariantModel model)
+    public async Task<VariantModel> CreateVariantAsync(CreateOrUpdateVariantModel model, CancellationToken cancellationToken = default)
     {
-        _ = await context.Products.FindAsync(model.ProductId) ?? throw new BadRequestException($"Product with ID '{model.ProductId}' does not exist.");
+        _ = await context.Products.FindAsync(model.ProductId, cancellationToken) ?? throw new BadRequestException($"Product with ID '{model.ProductId}' does not exist.");
         
         var nameDuplicate = await context.Variants.AnyAsync(v =>
             v.ProductId == model.ProductId &&
-            v.Name == model.Name);
+            v.Name == model.Name, cancellationToken);
 
         if (nameDuplicate)
             throw new ConflictException("A Variant with this name already exists for this product.");
@@ -22,96 +25,107 @@ public class VariantService(AppDbContext context, VariantMapper mapper) : IVaria
         if (!string.IsNullOrEmpty(model.ExternalIdentifier))
         {
             var externalIdDuplicate = await context.Variants.AnyAsync(v =>
-                v.ExternalIdentifier == model.ExternalIdentifier && v.ProductId == model.ProductId);
+                v.ExternalIdentifier == model.ExternalIdentifier && v.ProductId == model.ProductId, cancellationToken);
             if (externalIdDuplicate)
                 throw new ConflictException("A variant with the same external identifier and product already exists.");
         }
 
         var variant = mapper.MapCreateOrUpdateVariantModelToVariant(model);
 
-        await context.Variants.AddAsync(variant);
-        await context.SaveChangesAsync();
+        await context.Variants.AddAsync(variant, cancellationToken);
+        await context.SaveChangesAsync(cancellationToken);
 
         variant = await context.Variants
             .AsNoTracking()
-            .SingleAsync(v => v.Id == variant.Id);
+            .SingleAsync(v => v.Id == variant.Id, cancellationToken);
 
         return mapper.MapVariantToVariantModel(variant);
     }
 
-    public async Task<List<VariantModel>> GetAllVariantsAsync()
+    public async Task<PagedResult<VariantModel>> GetAllVariantsAsync(PagedQuery pagedQuery, CancellationToken cancellationToken)
     {
-        var variants = await context.Variants
-            .AsNoTracking()
+        var query = context.Variants
             .OrderBy(v => v.Name)
-            .ToListAsync();
+            .AsNoTracking();
 
-        return mapper.MapVariantsToVariantModels(variants);
+        query = query.ApplySearch(pagedQuery.SearchTerm);
+
+        var projected = mapper.ProjectVariantsToVariantModels(query);
+
+        return await projected.ToPagedResultAsync(
+            pagedQuery.Page,
+            pagedQuery.PageSize,
+            cancellationToken);
     }
 
-    public async Task<VariantModel?> GetVariantByIdAsync(Guid id)
+    public async Task<VariantModel?> GetVariantByIdAsync(Guid id, CancellationToken cancellationToken = default)
     {
         var variant = await context.Variants
             .AsNoTracking()
-            .FirstOrDefaultAsync(v => v.Id == id);
+            .FirstOrDefaultAsync(v => v.Id == id, cancellationToken);
 
         return variant is null ? null : mapper.MapVariantToVariantModel(variant);
     }
 
-    public async Task<bool> UpdateVariantAsync(Guid id, CreateOrUpdateVariantModel model)
+    public async Task<bool> UpdateVariantAsync(Guid id, CreateOrUpdateVariantModel model, CancellationToken cancellationToken = default)
     {
-        var variant = await context.Variants.FindAsync(id);
-        if (variant is null)
+        var entity = await context.Variants.FindAsync(id, cancellationToken);
+        if (entity is null)
             return false;
 
-        _ = await context.Products.FindAsync(model.ProductId) ?? throw new BadRequestException($"Product with ID '{model.ProductId}' does not exist.");
-
+        _ = await context.Products.FindAsync(model.ProductId, cancellationToken) ?? throw new BadRequestException($"Product with ID '{model.ProductId}' does not exist.");
+        
         var nameDuplicate = await context.Variants.AnyAsync(v =>
             v.Id != id &&
             v.ProductId == model.ProductId &&
-            v.Name == model.Name);
+            v.Name == model.Name, cancellationToken);
 
         if (nameDuplicate)
-            throw new ConflictException("Another variant with the same name already exists for this product.");
+            throw new ConflictException("A Variant with this name already exists for this product.");
 
         if (!string.IsNullOrEmpty(model.ExternalIdentifier))
         {
             var externalIdDuplicate = await context.Variants.AnyAsync(v =>
-                v.ExternalIdentifier == model.ExternalIdentifier && v.ProductId == model.ProductId && v.Id != id);
-            
+                v.Id != id && v.ExternalIdentifier == model.ExternalIdentifier && v.ProductId == model.ProductId, cancellationToken);
             if (externalIdDuplicate)
                 throw new ConflictException("A variant with the same external identifier and product already exists.");
         }
 
-        mapper.MapCreateOrUpdateVariantModelToVariant(model, variant);
+        mapper.MapCreateOrUpdateVariantModelToVariant(model, entity);
 
-        await context.SaveChangesAsync();
+        await context.SaveChangesAsync(cancellationToken);
         return true;
     }
 
-    public async Task<bool> DeleteVariantAsync(Guid id)
+    public async Task<bool> DeleteVariantAsync(Guid id, CancellationToken cancellationToken = default)
     {
-        var variant = await context.Variants.FindAsync(id);
-        if (variant is null)
+        var entity = await context.Variants.FindAsync(id, cancellationToken);
+        if (entity is null)
             return false;
 
-        context.Variants.Remove(variant);
-        await context.SaveChangesAsync();
+        context.Variants.Remove(entity);
+        await context.SaveChangesAsync(cancellationToken);
         return true;
     }
 
-    public async Task<List<VariantModel>> GetVariantsForProductAsync(Guid productId)
+    public async Task<PagedResult<VariantModel>> GetVariantsForProductAsync(Guid productId, PagedQuery pagedQuery, CancellationToken cancellationToken)
     {
         var productExists = await context.Products.AnyAsync(v => v.Id == productId);
         if (!productExists)
             throw new NotFoundException($"Product with ID {productId} not found.");
 
-        var items = await context.Variants
-            .Where(i => i.ProductId == productId)
+        var query = context.Variants
+            .Where(v => v.ProductId == productId)
             .OrderBy(v => v.Name)
-            .AsNoTracking()
-            .ToListAsync();
+            .AsNoTracking();
 
-        return mapper.MapVariantsToVariantModels(items);
+        query = query.ApplySearch(pagedQuery.SearchTerm);
+
+        var projected = mapper.ProjectVariantsToVariantModels(query);
+
+        return await projected.ToPagedResultAsync(
+            pagedQuery.Page,
+            pagedQuery.PageSize,
+            cancellationToken);
     }
 }

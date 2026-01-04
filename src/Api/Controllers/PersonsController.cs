@@ -14,10 +14,10 @@ public class PersonsController(IPersonService personService, IItemAssignmentHist
     [HttpGet]
     [EndpointSummary("List all persons")]
     [EndpointDescription("Returns a list of all persons.")]
-    [ProducesResponseType<List<PersonModel>>(StatusCodes.Status200OK)]
-    public async Task<ActionResult<List<PersonModel>>> GetAll()
+    [ProducesResponseType<PagedResult<PersonModel>>(StatusCodes.Status200OK)]
+    public async Task<ActionResult<PagedResult<PersonModel>>> GetAll(PagedQuery pagedQuery, CancellationToken cancellationToken)
     {
-        var persons = await personService.GetAllPersonsAsync();
+        var persons = await personService.GetAllPersonsAsync(pagedQuery, cancellationToken);
         return Ok(persons);
     }
 
@@ -26,9 +26,9 @@ public class PersonsController(IPersonService personService, IItemAssignmentHist
     [EndpointDescription("Returns a single person by their unique ID.")]
     [ProducesResponseType<PersonModel>(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<ActionResult<PersonModel>> GetById(Guid id)
+    public async Task<ActionResult<PersonModel>> GetById(Guid id, CancellationToken cancellationToken)
     {
-        var person = await personService.GetPersonByIdAsync(id);
+        var person = await personService.GetPersonByIdAsync(id, cancellationToken);
         return person is null ? throw new NotFoundException() : (ActionResult<PersonModel>)Ok(person);
     }
 
@@ -37,10 +37,10 @@ public class PersonsController(IPersonService personService, IItemAssignmentHist
     [EndpointDescription("Creates a new person entry.")]
     [ProducesResponseType<PersonModel>(StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status409Conflict)]
-    [Authorize(Roles = Roles.Admin + "," + Roles.Procurement)]
-    public async Task<ActionResult<PersonModel>> Create(CreateOrUpdatePersonModel model)
+    [Authorize(Roles = Roles.Admin + "," + Roles.Procurement + "," + Roles.Integration)]
+    public async Task<ActionResult<PersonModel>> Create(CreateOrUpdatePersonModel model, CancellationToken cancellationToken)
     {
-        var created = await personService.CreatePersonAsync(model);
+        var created = await personService.CreatePersonAsync(model, cancellationToken);
         return CreatedAtAction(nameof(GetById), new { id = created.Id }, created);
     }
 
@@ -49,10 +49,10 @@ public class PersonsController(IPersonService personService, IItemAssignmentHist
     [EndpointDescription("Updates an existing person.")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    [Authorize(Roles = Roles.Admin + "," + Roles.Procurement)]
-    public async Task<IActionResult> Update(Guid id, CreateOrUpdatePersonModel model)
+    [Authorize(Roles = Roles.Admin + "," + Roles.Procurement + "," + Roles.Integration)]
+    public async Task<IActionResult> Update(Guid id, CreateOrUpdatePersonModel model, CancellationToken cancellationToken)
     {
-        var success = await personService.UpdatePersonAsync(id, model);
+        var success = await personService.UpdatePersonAsync(id, model, cancellationToken);
         return success ? NoContent() : throw new NotFoundException();
     }
 
@@ -61,21 +61,21 @@ public class PersonsController(IPersonService personService, IItemAssignmentHist
     [EndpointDescription("Deletes a person by ID.")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    [Authorize(Roles = Roles.Admin + "," + Roles.Procurement)]
-    public async Task<IActionResult> Delete(Guid id)
+    [Authorize(Roles = Roles.Admin + "," + Roles.Procurement + "," + Roles.Integration)]
+    public async Task<IActionResult> Delete(Guid id, CancellationToken cancellationToken)
     {
-        var success = await personService.DeletePersonAsync(id);
+        var success = await personService.DeletePersonAsync(id, cancellationToken);
         return success ? NoContent() : throw new NotFoundException();
     }
 
     [HttpGet("{id:guid}/assignments")]
     [EndpointSummary("List all assignments for a person")]
     [EndpointDescription("Returns all assignments for a specific person.")]
-    [ProducesResponseType<List<ItemAssignmentHistoryModel>>(StatusCodes.Status200OK)]
+    [ProducesResponseType<PagedResult<ItemAssignmentHistoryModel>>(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<ActionResult<List<ItemAssignmentHistoryModel>>> GetAssignmentsForPerson(Guid id)
+    public async Task<ActionResult<PagedResult<ItemAssignmentHistoryModel>>> GetAssignmentsForPerson(Guid id, PagedQuery pagedQuery, CancellationToken cancellationToken)
     {
-        var assignments = await itemAssignmentHistoryService.GetAssignmentsForPersonAsync(id);
+        var assignments = await itemAssignmentHistoryService.GetAssignmentsForPersonAsync(id, pagedQuery, cancellationToken);
         return Ok(assignments);
     }
 }

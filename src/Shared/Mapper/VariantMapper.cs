@@ -13,5 +13,8 @@ public partial class VariantMapper : BaseMapper
     public partial Variant MapCreateOrUpdateVariantModelToVariant(CreateOrUpdateVariantModel createVariantModel);
 
     public partial List<VariantModel> MapVariantsToVariantModels(List<Variant> variants);
+
+    public partial IQueryable<VariantModel> ProjectVariantsToVariantModels(IQueryable<Variant> variants);
+
     public partial void MapCreateOrUpdateVariantModelToVariant(CreateOrUpdateVariantModel source, Variant target);
 }

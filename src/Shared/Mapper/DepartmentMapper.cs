@@ -12,7 +12,10 @@ public partial class DepartmentMapper : BaseMapper
     [MapValue(nameof(Department.Id), Use = nameof(NewGuid))]
     public partial Department MapCreateOrUpdateDepartmentModelToDepartment(CreateOrUpdateDepartmentModel createDepartmentModel);
 
+
     public partial List<DepartmentModel> MapDepartmentsToDepartmentModels(List<Department> departments);
+
+    public partial IQueryable<DepartmentModel> ProjectDepartmentsToDepartmentModels(IQueryable<Department> departments);
 
     public partial void MapCreateOrUpdateDepartmentModelToDepartment(CreateOrUpdateDepartmentModel source, Department target);
 }

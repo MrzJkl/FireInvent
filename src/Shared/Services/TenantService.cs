@@ -15,12 +15,12 @@ public class TenantService(
     ILogger<TenantService> logger,
     IKeycloakTenantService keycloakTenantService) : ITenantService
 {
-    public async Task<TenantModel> CreateTenantAsync(CreateOrUpdateTenantModel model)
+    public async Task<TenantModel> CreateTenantAsync(CreateOrUpdateTenantModel model, CancellationToken cancellationToken = default)
     {
         // Use IgnoreQueryFilters to check across all tenants
         var nameExists = await context.Tenants
             .IgnoreQueryFilters()
-            .AnyAsync(t => t.Name == model.Name);
+            .AnyAsync(t => t.Name == model.Name, cancellationToken);
 
         if (nameExists)
             throw new ConflictException("A tenant with the same name already exists.");
@@ -29,47 +29,48 @@ public class TenantService(
             
         var organizationIdFromKeycloak = await keycloakTenantService.CreateTenantOrganizationAsync(
             model.Name,
-            model.Description
+            model.Description,
+            cancellationToken
         );
 
         var tenant = mapper.MapCreateOrUpdateTenantModelToTenant(model);
         tenant.Id = organizationIdFromKeycloak;
 
-        await context.Tenants.AddAsync(tenant);
-        await context.SaveChangesAsync();
+        await context.Tenants.AddAsync(tenant, cancellationToken);
+        await context.SaveChangesAsync(cancellationToken);
 
         return mapper.MapTenantToTenantModel(tenant);
     }
 
-    public async Task<List<TenantModel>> GetAllTenantsAsync()
+    public async Task<List<TenantModel>> GetAllTenantsAsync(CancellationToken cancellationToken = default)
     {
         // Use IgnoreQueryFilters to get all tenants across the system
         var tenants = await context.Tenants
             .IgnoreQueryFilters()
             .AsNoTracking()
             .OrderBy(t => t.Name)
-            .ToListAsync();
+            .ToListAsync(cancellationToken);
 
         return mapper.MapTenantsToTenantModels(tenants);
     }
 
-    public async Task<TenantModel?> GetTenantByIdAsync(Guid id)
+    public async Task<TenantModel?> GetTenantByIdAsync(Guid id, CancellationToken cancellationToken = default)
     {
         // Use IgnoreQueryFilters to get any tenant by ID
         var tenant = await context.Tenants
             .IgnoreQueryFilters()
             .AsNoTracking()
-            .FirstOrDefaultAsync(t => t.Id == id);
+            .FirstOrDefaultAsync(t => t.Id == id, cancellationToken);
 
         return tenant is null ? null : mapper.MapTenantToTenantModel(tenant);
     }
 
-    public async Task<bool> UpdateTenantAsync(Guid id, CreateOrUpdateTenantModel model)
+    public async Task<bool> UpdateTenantAsync(Guid id, CreateOrUpdateTenantModel model, CancellationToken cancellationToken = default)
     {
         // Use IgnoreQueryFilters to find any tenant
         var tenant = await context.Tenants
             .IgnoreQueryFilters()
-            .FirstOrDefaultAsync(t => t.Id == id);
+            .FirstOrDefaultAsync(t => t.Id == id, cancellationToken);
 
         if (tenant is null)
             return false;
@@ -81,27 +82,27 @@ public class TenantService(
         if (nameExists)
             throw new ConflictException("Another tenant with the same name already exists.");
 
-        await keycloakTenantService.UpdateTenantOrganizationNameAsync(tenant.Id, model.Name, model.Description);
+        await keycloakTenantService.UpdateTenantOrganizationNameAsync(tenant.Id, model.Name, model.Description, cancellationToken);
 
         mapper.MapCreateOrUpdateTenantModelToTenant(model, tenant);
 
-        await context.SaveChangesAsync();
+        await context.SaveChangesAsync(cancellationToken);
 
         return true;
     }
 
-    public async Task<bool> DeleteTenantAsync(Guid id)
+    public async Task<bool> DeleteTenantAsync(Guid id, CancellationToken cancellationToken = default)
     {
         // Use IgnoreQueryFilters to find any tenant
         var tenant = await context.Tenants
             .IgnoreQueryFilters()
-            .FirstOrDefaultAsync(t => t.Id == id);
+            .FirstOrDefaultAsync(t => t.Id == id, cancellationToken);
 
         if (tenant is null)
             return false;
 
         context.Tenants.Remove(tenant);
-        await context.SaveChangesAsync();
+        await context.SaveChangesAsync(cancellationToken);
         return true;
     }
 }

@@ -234,6 +234,14 @@ app.MapGet("/", context =>
     return Task.CompletedTask;
 });
 
+app.MapGet("/version", context =>
+{
+    return context.Response.WriteAsJsonAsync(new
+    {
+        Version = typeof(Program).Assembly.GetName().Version?.ToString() ?? "unknown"
+    });
+});
+
 logger.LogDebug("Checking for database migrations...");
 using (var scope = app.Services.CreateScope())
 {

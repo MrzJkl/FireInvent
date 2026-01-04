@@ -45,12 +45,12 @@ internal class MockUserService : IKeycloakUserService
         };
     }
 
-    public Task<List<UserModel>> GetAllUsersAsync()
+    public Task<List<UserModel>> GetAllUsersAsync(CancellationToken cancellationToken = default)
     {
         return Task.FromResult(_users.Values.ToList());
     }
 
-    public Task<UserModel?> GetUserByIdAsync(Guid id)
+    public Task<UserModel?> GetUserByIdAsync(Guid id, CancellationToken cancellationToken = default)
     {
         _users.TryGetValue(id, out var user);
         return Task.FromResult(user);

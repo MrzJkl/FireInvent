@@ -14,10 +14,10 @@ public class DepartmentsController(IDepartmentService departmentService, IPerson
     [HttpGet]
     [EndpointSummary("List all departments")]
     [EndpointDescription("Returns a list of all departments.")]
-    [ProducesResponseType<List<DepartmentModel>>(StatusCodes.Status200OK)]
-    public async Task<ActionResult<List<DepartmentModel>>> GetAll()
+    [ProducesResponseType<PagedResult<DepartmentModel>>(StatusCodes.Status200OK)]
+    public async Task<ActionResult<PagedResult<DepartmentModel>>> GetAll(PagedQuery pagedQuery, CancellationToken cancellationToken)
     {
-        var departments = await departmentService.GetAllDepartmentsAsync();
+        var departments = await departmentService.GetAllDepartmentsAsync(pagedQuery, cancellationToken);
         return Ok(departments);
     }
 
@@ -26,9 +26,9 @@ public class DepartmentsController(IDepartmentService departmentService, IPerson
     [EndpointDescription("Returns a department by its unique ID.")]
     [ProducesResponseType<DepartmentModel>(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<ActionResult<DepartmentModel>> GetById(Guid id)
+    public async Task<ActionResult<DepartmentModel>> GetById(Guid id, CancellationToken cancellationToken)
     {
-        var department = await departmentService.GetDepartmentByIdAsync(id);
+        var department = await departmentService.GetDepartmentByIdAsync(id, cancellationToken);
         return department is null ? throw new NotFoundException() : (ActionResult<DepartmentModel>)Ok(department);
     }
 
@@ -36,10 +36,10 @@ public class DepartmentsController(IDepartmentService departmentService, IPerson
     [EndpointSummary("Create a new department")]
     [EndpointDescription("Creates a new department.")]
     [ProducesResponseType<DepartmentModel>(StatusCodes.Status201Created)]
-    [Authorize(Roles = Roles.Admin + "," + Roles.Procurement)]
-    public async Task<ActionResult<DepartmentModel>> Create(CreateOrUpdateDepartmentModel model)
+    [Authorize(Roles = Roles.Admin + "," + Roles.Procurement + "," + Roles.Integration)]
+    public async Task<ActionResult<DepartmentModel>> Create(CreateOrUpdateDepartmentModel model, CancellationToken cancellationToken)
     {
-        var created = await departmentService.CreateDepartmentAsync(model);
+        var created = await departmentService.CreateDepartmentAsync(model, cancellationToken);
         return CreatedAtAction(nameof(GetById), new { id = created.Id }, created);
     }
 
@@ -48,10 +48,10 @@ public class DepartmentsController(IDepartmentService departmentService, IPerson
     [EndpointDescription("Updates an existing department.")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    [Authorize(Roles = Roles.Admin + "," + Roles.Procurement)]
-    public async Task<IActionResult> Update(Guid id, CreateOrUpdateDepartmentModel model)
+    [Authorize(Roles = Roles.Admin + "," + Roles.Procurement + "," + Roles.Integration)]
+    public async Task<IActionResult> Update(Guid id, CreateOrUpdateDepartmentModel model, CancellationToken cancellationToken)
     {
-        var success = await departmentService.UpdateDepartmentAsync(id, model);
+        var success = await departmentService.UpdateDepartmentAsync(id, model, cancellationToken);
         return success ? NoContent() : throw new NotFoundException();
     }
 
@@ -60,21 +60,21 @@ public class DepartmentsController(IDepartmentService departmentService, IPerson
     [EndpointDescription("Deletes a department by its unique ID.")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    [Authorize(Roles = Roles.Admin + "," + Roles.Procurement)]
-    public async Task<IActionResult> Delete(Guid id)
+    [Authorize(Roles = Roles.Admin + "," + Roles.Procurement + "," + Roles.Integration)]
+    public async Task<IActionResult> Delete(Guid id, CancellationToken cancellationToken)
     {
-        var success = await departmentService.DeleteDepartmentAsync(id);
+        var success = await departmentService.DeleteDepartmentAsync(id, cancellationToken);
         return success ? NoContent() : throw new NotFoundException();
     }
 
     [HttpGet("{id:guid}/persons")]
     [EndpointSummary("List all persons in a department")]
     [EndpointDescription("Returns all persons that are members of the given department.")]
-    [ProducesResponseType<List<PersonModel>>(StatusCodes.Status200OK)]
+    [ProducesResponseType<PagedResult<PersonModel>>(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<ActionResult<List<PersonModel>>> GetPersonsForDepartment(Guid id)
+    public async Task<ActionResult<PagedResult<PersonModel>>> GetPersonsForDepartment(Guid id, PagedQuery pagedQuery, CancellationToken cancellationToken)
     {
-        var persons = await personService.GetPersonsForDepartmentAsync(id);
+        var persons = await personService.GetPersonsForDepartmentAsync(id, pagedQuery, cancellationToken);
         return Ok(persons);
     }
 }

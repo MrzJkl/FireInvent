@@ -14,20 +14,20 @@ public class VisitItemsController(IVisitItemService visitItemService) : Controll
     [HttpGet]
     [EndpointSummary("List all visit items")]
     [EndpointDescription("Returns a list of all visit items.")]
-    [ProducesResponseType<List<VisitItemModel>>(StatusCodes.Status200OK)]
-    public async Task<ActionResult<List<VisitItemModel>>> GetAll()
+    [ProducesResponseType<PagedResult<VisitItemModel>>(StatusCodes.Status200OK)]
+    public async Task<ActionResult<PagedResult<VisitItemModel>>> GetAll(PagedQuery pagedQuery, CancellationToken cancellationToken)
     {
-        var visitItems = await visitItemService.GetAllVisitItemsAsync();
+        var visitItems = await visitItemService.GetAllVisitItemsAsync(pagedQuery, cancellationToken);
         return Ok(visitItems);
     }
 
-    [HttpGet("by-visit/{visitId:guid}")]
+    [HttpGet("visit/{visitId:guid}")]
     [EndpointSummary("List visit items by visit ID")]
     [EndpointDescription("Returns a list of visit items for a specific visit.")]
-    [ProducesResponseType<List<VisitItemModel>>(StatusCodes.Status200OK)]
-    public async Task<ActionResult<List<VisitItemModel>>> GetByVisitId(Guid visitId)
+    [ProducesResponseType<PagedResult<VisitItemModel>>(StatusCodes.Status200OK)]
+    public async Task<ActionResult<PagedResult<VisitItemModel>>> GetByVisitId(Guid visitId, PagedQuery pagedQuery, CancellationToken cancellationToken)
     {
-        var visitItems = await visitItemService.GetVisitItemsByVisitIdAsync(visitId);
+        var visitItems = await visitItemService.GetVisitItemsByVisitIdAsync(visitId, pagedQuery, cancellationToken);
         return Ok(visitItems);
     }
 
@@ -36,9 +36,9 @@ public class VisitItemsController(IVisitItemService visitItemService) : Controll
     [EndpointDescription("Returns a visit item by its unique ID.")]
     [ProducesResponseType<VisitItemModel>(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<ActionResult<VisitItemModel>> GetById(Guid id)
+    public async Task<ActionResult<VisitItemModel>> GetById(Guid id, CancellationToken cancellationToken)
     {
-        var visitItem = await visitItemService.GetVisitItemByIdAsync(id);
+        var visitItem = await visitItemService.GetVisitItemByIdAsync(id, cancellationToken);
         return visitItem is null ? throw new NotFoundException() : Ok(visitItem);
     }
 
@@ -46,10 +46,10 @@ public class VisitItemsController(IVisitItemService visitItemService) : Controll
     [EndpointSummary("Create a new visit item")]
     [EndpointDescription("Creates a new visit item.")]
     [ProducesResponseType<VisitItemModel>(StatusCodes.Status201Created)]
-    [Authorize(Roles = Roles.Admin + "," + Roles.Procurement)]
-    public async Task<ActionResult<VisitItemModel>> Create(CreateOrUpdateVisitItemModel model)
+    [Authorize(Roles = Roles.Admin + "," + Roles.Procurement + "," + Roles.Integration)]
+    public async Task<ActionResult<VisitItemModel>> Create(CreateOrUpdateVisitItemModel model, CancellationToken cancellationToken)
     {
-        var created = await visitItemService.CreateVisitItemAsync(model);
+        var created = await visitItemService.CreateVisitItemAsync(model, cancellationToken);
         return CreatedAtAction(nameof(GetById), new { id = created.Id }, created);
     }
 
@@ -58,10 +58,10 @@ public class VisitItemsController(IVisitItemService visitItemService) : Controll
     [EndpointDescription("Updates an existing visit item.")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    [Authorize(Roles = Roles.Admin + "," + Roles.Procurement)]
-    public async Task<IActionResult> Update(Guid id, CreateOrUpdateVisitItemModel model)
+    [Authorize(Roles = Roles.Admin + "," + Roles.Procurement + "," + Roles.Integration)]
+    public async Task<IActionResult> Update(Guid id, CreateOrUpdateVisitItemModel model, CancellationToken cancellationToken)
     {
-        var success = await visitItemService.UpdateVisitItemAsync(id, model);
+        var success = await visitItemService.UpdateVisitItemAsync(id, model, cancellationToken);
         return success ? NoContent() : throw new NotFoundException();
     }
 
@@ -70,10 +70,10 @@ public class VisitItemsController(IVisitItemService visitItemService) : Controll
     [EndpointDescription("Deletes a visit item by its unique ID.")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    [Authorize(Roles = Roles.Admin + "," + Roles.Procurement)]
-    public async Task<IActionResult> Delete(Guid id)
+    [Authorize(Roles = Roles.Admin + "," + Roles.Procurement + "," + Roles.Integration)]
+    public async Task<IActionResult> Delete(Guid id, CancellationToken cancellationToken)
     {
-        var success = await visitItemService.DeleteVisitItemAsync(id);
+        var success = await visitItemService.DeleteVisitItemAsync(id, cancellationToken);
         return success ? NoContent() : throw new NotFoundException();
     }
 }

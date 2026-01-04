@@ -1,3 +1,4 @@
+using FireInvent.Contract;
 using FireInvent.Contract.Exceptions;
 using FireInvent.Shared.Mapper;
 using FireInvent.Shared.Services;
@@ -57,12 +58,14 @@ public class VariantServiceTests
         // Arrange
         using var context = TestHelper.GetTestDbContext();
         var service = new VariantService(context, _mapper);
+        var query = new PagedQuery { Page = 1, PageSize = 10 };
 
         // Act
-        var result = await service.GetAllVariantsAsync();
+        var result = await service.GetAllVariantsAsync(query, CancellationToken.None);
 
         // Assert
-        Assert.Empty(result);
+        Assert.Empty(result.Items);
+        Assert.Equal(0, result.TotalItems);
     }
 
     [Fact]
@@ -230,9 +233,10 @@ public class VariantServiceTests
         // Arrange
         using var context = TestHelper.GetTestDbContext();
         var service = new VariantService(context, _mapper);
+        var query = new PagedQuery { Page = 1, PageSize = 10 };
 
         // Act & Assert
-        await Assert.ThrowsAsync<NotFoundException>(() => service.GetVariantsForProductAsync(Guid.NewGuid()));
+        await Assert.ThrowsAsync<NotFoundException>(() => service.GetVariantsForProductAsync(Guid.NewGuid(), query, CancellationToken.None));
     }
 
     [Fact]
@@ -249,12 +253,14 @@ public class VariantServiceTests
         context.Manufacturers.Add(manufacturer);
         context.Products.Add(product);
         await context.SaveChangesAsync();
+        var query = new PagedQuery { Page = 1, PageSize = 10 };
 
         // Act
-        var result = await service.GetVariantsForProductAsync(product.Id);
+        var result = await service.GetVariantsForProductAsync(product.Id, query, CancellationToken.None);
 
         // Assert
-        Assert.Empty(result);
+        Assert.Empty(result.Items);
+        Assert.Equal(0, result.TotalItems);
     }
 
     [Fact]

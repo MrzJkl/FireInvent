@@ -10,12 +10,7 @@ public class KeycloakUserService(
     ILogger<KeycloakUserService> logger,
     UserContextProvider userContextProvider) : IKeycloakUserService
 {
-    public async Task<UserModel?> GetUserByIdAsync(Guid id)
-    {
-        return await GetUserByIdAsync(id.ToString());
-    }
-
-    private async Task<UserModel?> GetUserByIdAsync(string id)
+    public async Task<UserModel?> GetUserByIdAsync(Guid id, CancellationToken cancellationToken = default)
     {
         if (!userContextProvider.TenantId.HasValue)
         {
@@ -26,7 +21,7 @@ public class KeycloakUserService(
         try
         {
             var response = await keycloakClient.GetAsync(
-                $"admin/realms/{Uri.EscapeDataString(keycloakClient.Realm)}/users/{id}");
+                $"admin/realms/{Uri.EscapeDataString(keycloakClient.Realm)}/users/{id}", cancellationToken);
 
             if (!response.IsSuccessStatusCode)
             {
@@ -34,14 +29,14 @@ public class KeycloakUserService(
                 return null;
             }
 
-            var keycloakUser = await response.Content.ReadFromJsonAsync<KeycloakUser>(keycloakClient.JsonOptions);
+            var keycloakUser = await response.Content.ReadFromJsonAsync<KeycloakUser>(keycloakClient.JsonOptions, cancellationToken);
             if (keycloakUser == null)
             {
                 logger.LogWarning("Failed to deserialize user with ID {UserId} from Keycloak.", id);
                 return null;
             }
 
-            if (!await IsUserMemberOfCurrentOrganizationAsync(id))
+            if (!await IsUserMemberOfCurrentOrganizationAsync(id.ToString(), cancellationToken))
             {
                 logger.LogWarning("User with ID {UserId} is not a member of current organization {TenantId}.", id, userContextProvider.TenantId);
                 return null;
@@ -56,7 +51,7 @@ public class KeycloakUserService(
         }
     }
 
-    public async Task<List<UserModel>> GetAllUsersAsync()
+    public async Task<List<UserModel>> GetAllUsersAsync(CancellationToken cancellationToken = default)
     {
         if (!userContextProvider.TenantId.HasValue)
         {
@@ -67,11 +62,11 @@ public class KeycloakUserService(
         try
         {
             var response = await keycloakClient.GetAsync(
-                $"admin/realms/{Uri.EscapeDataString(keycloakClient.Realm)}/organizations/{userContextProvider.TenantId}/members");
+                $"admin/realms/{Uri.EscapeDataString(keycloakClient.Realm)}/organizations/{userContextProvider.TenantId}/members", cancellationToken);
             
             response.EnsureSuccessStatusCode();
 
-            var keycloakUsers = await response.Content.ReadFromJsonAsync<List<KeycloakUser>>(keycloakClient.JsonOptions)
+            var keycloakUsers = await response.Content.ReadFromJsonAsync<List<KeycloakUser>>(keycloakClient.JsonOptions, cancellationToken)
                 ?? new List<KeycloakUser>();
 
             var userModels = keycloakUsers
@@ -91,7 +86,7 @@ public class KeycloakUserService(
         }
     }
 
-    private async Task<bool> IsUserMemberOfCurrentOrganizationAsync(string userId)
+    private async Task<bool> IsUserMemberOfCurrentOrganizationAsync(string userId, CancellationToken cancellationToken = default)
     {
         if (!userContextProvider.TenantId.HasValue)
             return false;
@@ -99,7 +94,7 @@ public class KeycloakUserService(
         try
         {
             var response = await keycloakClient.GetAsync(
-                $"admin/realms/{Uri.EscapeDataString(keycloakClient.Realm)}/organizations/{userContextProvider.TenantId}/members/{userId}");
+                $"admin/realms/{Uri.EscapeDataString(keycloakClient.Realm)}/organizations/{userContextProvider.TenantId}/members/{userId}", cancellationToken);
             
             return response.IsSuccessStatusCode;
         }
@@ -117,9 +112,9 @@ public class KeycloakUserService(
         return new UserModel
         {
             Id = Guid.Parse(keycloakUser.Id ?? throw new InvalidOperationException("User ID is missing.")),
-            FirstName = useBothNamesFromUsername ? keycloakUser.Username : keycloakUser.FirstName ?? string.Empty,
-            LastName = useBothNamesFromUsername ? keycloakUser.Username : keycloakUser.LastName ?? string.Empty,
-            EMail = keycloakUser.Email ?? string.Empty,
+            FirstName = useBothNamesFromUsername ? keycloakUser.Username : keycloakUser.FirstName,
+            LastName = keycloakUser.LastName,
+            EMail = keycloakUser.Email,
         };
     }
 }

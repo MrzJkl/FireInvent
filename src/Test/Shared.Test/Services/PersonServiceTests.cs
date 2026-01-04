@@ -1,3 +1,4 @@
+using FireInvent.Contract;
 using FireInvent.Contract.Exceptions;
 using FireInvent.Shared.Mapper;
 using FireInvent.Shared.Services;
@@ -73,18 +74,20 @@ public class PersonServiceTests
             TestDataFactory.CreatePerson(firstName: "Bob", lastName: "Anderson")
         );
         await context.SaveChangesAsync();
+        var query = new PagedQuery { Page = 1, PageSize = 10 };
 
         // Act
-        var result = await service.GetAllPersonsAsync();
+        var result = await service.GetAllPersonsAsync(query, CancellationToken.None);
 
         // Assert
-        Assert.Equal(3, result.Count);
-        Assert.Equal("Bob", result[0].FirstName);
-        Assert.Equal("Anderson", result[0].LastName);
-        Assert.Equal("Alice", result[1].FirstName);
-        Assert.Equal("Miller", result[1].LastName);
-        Assert.Equal("Zoe", result[2].FirstName);
-        Assert.Equal("Miller", result[2].LastName);
+        Assert.Equal(3, result.Items.Count);
+        Assert.Equal("Bob", result.Items[0].FirstName);
+        Assert.Equal("Anderson", result.Items[0].LastName);
+        Assert.Equal("Alice", result.Items[1].FirstName);
+        Assert.Equal("Miller", result.Items[1].LastName);
+        Assert.Equal("Zoe", result.Items[2].FirstName);
+        Assert.Equal("Miller", result.Items[2].LastName);
+        Assert.Equal(3, result.TotalItems);
     }
 
     [Fact]
@@ -93,12 +96,14 @@ public class PersonServiceTests
         // Arrange
         using var context = TestHelper.GetTestDbContext();
         var service = new PersonService(context, _mapper);
+        var query = new PagedQuery { Page = 1, PageSize = 10 };
 
         // Act
-        var result = await service.GetAllPersonsAsync();
+        var result = await service.GetAllPersonsAsync(query, CancellationToken.None);
 
         // Assert
-        Assert.Empty(result);
+        Assert.Empty(result.Items);
+        Assert.Equal(0, result.TotalItems);
     }
 
     [Fact]
@@ -256,14 +261,16 @@ public class PersonServiceTests
         context.Departments.Add(department);
         context.Persons.AddRange(person1, person2, person3);
         await context.SaveChangesAsync();
+        var query = new PagedQuery { Page = 1, PageSize = 10 };
 
         // Act
-        var result = await service.GetPersonsForDepartmentAsync(department.Id);
+        var result = await service.GetPersonsForDepartmentAsync(department.Id, query, CancellationToken.None);
 
         // Assert
-        Assert.Equal(2, result.Count);
-        Assert.Equal("Zoe", result[0].FirstName); // Anderson comes first alphabetically
-        Assert.Equal("Alice", result[1].FirstName); // Smith comes second
+        Assert.Equal(2, result.Items.Count);
+        Assert.Equal("Zoe", result.Items[0].FirstName); // Anderson comes first alphabetically
+        Assert.Equal("Alice", result.Items[1].FirstName); // Smith comes second
+        Assert.Equal(2, result.TotalItems);
     }
 
     [Fact]
@@ -272,9 +279,10 @@ public class PersonServiceTests
         // Arrange
         using var context = TestHelper.GetTestDbContext();
         var service = new PersonService(context, _mapper);
+        var query = new PagedQuery { Page = 1, PageSize = 10 };
 
         // Act & Assert
-        await Assert.ThrowsAsync<NotFoundException>(() => service.GetPersonsForDepartmentAsync(Guid.NewGuid()));
+        await Assert.ThrowsAsync<NotFoundException>(() => service.GetPersonsForDepartmentAsync(Guid.NewGuid(), query, CancellationToken.None));
     }
 
     [Fact]
@@ -286,11 +294,13 @@ public class PersonServiceTests
         var department = TestDataFactory.CreateDepartment(name: "Empty Department");
         context.Departments.Add(department);
         await context.SaveChangesAsync();
+        var query = new PagedQuery { Page = 1, PageSize = 10 };
 
         // Act
-        var result = await service.GetPersonsForDepartmentAsync(department.Id);
+        var result = await service.GetPersonsForDepartmentAsync(department.Id, query, CancellationToken.None);
 
         // Assert
-        Assert.Empty(result);
+        Assert.Empty(result.Items);
+        Assert.Equal(0, result.TotalItems);
     }
 }
