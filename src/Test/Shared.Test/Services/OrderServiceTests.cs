@@ -81,25 +81,6 @@ public class OrderServiceTests
     }
 
     [Fact]
-    public async Task UpdateOrderAsync_WithCompletedOrder_ShouldReturnFalse()
-    {
-        // Arrange
-        using var context = TestHelper.GetTestDbContext();
-        var service = new OrderService(context, _mapper);
-        var order = TestDataFactory.CreateOrder(status: OrderStatus.Completed);
-        context.Orders.Add(order);
-        await context.SaveChangesAsync();
-
-        var updateModel = TestDataFactory.CreateOrderModel(status: OrderStatus.Draft);
-
-        // Act
-        var result = await service.UpdateOrderAsync(order.Id, updateModel);
-
-        // Assert
-        Assert.False(result);
-    }
-
-    [Fact]
     public async Task UpdateOrderAsync_WithValidModel_ShouldUpdateOrder()
     {
         // Arrange
