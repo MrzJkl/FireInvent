@@ -17,7 +17,8 @@ namespace FireInvent.Shared.Extensions
 
             return query.Where(pt =>
                 EF.Functions.ILike(pt.Name, pattern) ||
-                EF.Functions.ILike(pt.Description ?? "", pattern)
+                EF.Functions.ILike(pt.Description ?? "", pattern) ||
+                EF.Functions.ILike(pt.Id.ToString() ?? "", pattern)
             );
         }
     }

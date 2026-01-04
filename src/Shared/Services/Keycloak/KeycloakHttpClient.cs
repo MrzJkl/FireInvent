@@ -84,7 +84,7 @@ public class KeycloakHttpClient : IDisposable
 
             try
             {
-                using var response = await _httpClient.PostAsync(endpoint, tokenRequest, cancellationToken);
+                var response = await _httpClient.PostAsync(endpoint, tokenRequest, cancellationToken);
                 stopwatch.Stop();
 
                 LogRequest("POST", endpoint, response.StatusCode, stopwatch.ElapsedMilliseconds);
@@ -121,7 +121,7 @@ public class KeycloakHttpClient : IDisposable
         var stopwatch = Stopwatch.StartNew();
         try
         {
-            using var response = await _httpClient.GetAsync(requestUri, cancellationToken);
+            var response = await _httpClient.GetAsync(requestUri, cancellationToken);
             stopwatch.Stop();
 
             LogRequest("GET", requestUri, response.StatusCode, stopwatch.ElapsedMilliseconds);
@@ -143,7 +143,7 @@ public class KeycloakHttpClient : IDisposable
         var stopwatch = Stopwatch.StartNew();
         try
         {
-            using var response = await _httpClient.PostAsync(requestUri, content, cancellationToken);
+            var response = await _httpClient.PostAsync(requestUri, content, cancellationToken);
             stopwatch.Stop();
 
             LogRequest("POST", requestUri, response.StatusCode, stopwatch.ElapsedMilliseconds);
@@ -165,7 +165,7 @@ public class KeycloakHttpClient : IDisposable
         var stopwatch = Stopwatch.StartNew();
         try
         {
-            using var response = await _httpClient.PostAsJsonAsync(requestUri, value, _jsonOptions, cancellationToken);
+            var response = await _httpClient.PostAsJsonAsync(requestUri, value, _jsonOptions, cancellationToken);
             stopwatch.Stop();
 
             LogRequest("POST", requestUri, response.StatusCode, stopwatch.ElapsedMilliseconds);
@@ -187,7 +187,7 @@ public class KeycloakHttpClient : IDisposable
         var stopwatch = Stopwatch.StartNew();
         try
         {
-            using var response = await _httpClient.PutAsJsonAsync(requestUri, value, _jsonOptions, cancellationToken);
+            var response = await _httpClient.PutAsJsonAsync(requestUri, value, _jsonOptions, cancellationToken);
             stopwatch.Stop();
 
             LogRequest("PUT", requestUri, response.StatusCode, stopwatch.ElapsedMilliseconds);
@@ -209,7 +209,7 @@ public class KeycloakHttpClient : IDisposable
         var stopwatch = Stopwatch.StartNew();
         try
         {
-            using var response = await _httpClient.DeleteAsync(requestUri, cancellationToken);
+            var response = await _httpClient.DeleteAsync(requestUri, cancellationToken);
             stopwatch.Stop();
 
             LogRequest("DELETE", requestUri, response.StatusCode, stopwatch.ElapsedMilliseconds);

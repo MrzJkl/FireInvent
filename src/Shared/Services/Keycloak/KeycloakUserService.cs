@@ -20,7 +20,7 @@ public class KeycloakUserService(
 
         try
         {
-            var response = await keycloakClient.GetAsync(
+            using var response = await keycloakClient.GetAsync(
                 $"admin/realms/{Uri.EscapeDataString(keycloakClient.Realm)}/users/{id}", cancellationToken);
 
             if (!response.IsSuccessStatusCode)
@@ -61,7 +61,7 @@ public class KeycloakUserService(
 
         try
         {
-            var response = await keycloakClient.GetAsync(
+            using var response = await keycloakClient.GetAsync(
                 $"admin/realms/{Uri.EscapeDataString(keycloakClient.Realm)}/organizations/{userContextProvider.TenantId}/members", cancellationToken);
             
             response.EnsureSuccessStatusCode();
@@ -93,7 +93,7 @@ public class KeycloakUserService(
 
         try
         {
-            var response = await keycloakClient.GetAsync(
+            using var response = await keycloakClient.GetAsync(
                 $"admin/realms/{Uri.EscapeDataString(keycloakClient.Realm)}/organizations/{userContextProvider.TenantId}/members/{userId}", cancellationToken);
             
             return response.IsSuccessStatusCode;

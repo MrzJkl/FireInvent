@@ -13,5 +13,6 @@ public record CreateOrUpdateOrderItemModel
     public Guid? PersonId { get; init; }
 
     [Required]
+    [Range(1, int.MaxValue)]
     public int Quantity { get; init; }
 }
