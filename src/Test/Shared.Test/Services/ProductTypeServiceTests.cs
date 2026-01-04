@@ -1,3 +1,4 @@
+using FireInvent.Contract;
 using FireInvent.Contract.Exceptions;
 using FireInvent.Shared.Mapper;
 using FireInvent.Shared.Services;
@@ -57,15 +58,17 @@ public class ProductTypeServiceTests
             TestDataFactory.CreateProductType(name: "Helmet")
         );
         await context.SaveChangesAsync();
+        var query = new PagedQuery { Page = 1, PageSize = 10 };
 
         // Act
-        var result = await service.GetAllProductTypesAsync();
+        var result = await service.GetAllProductTypesAsync(query, CancellationToken.None);
 
         // Assert
-        Assert.Equal(3, result.Count);
-        Assert.Equal("Boots", result[0].Name);
-        Assert.Equal("Gloves", result[1].Name);
-        Assert.Equal("Helmet", result[2].Name);
+        Assert.Equal(3, result.Items.Count);
+        Assert.Equal("Boots", result.Items[0].Name);
+        Assert.Equal("Gloves", result.Items[1].Name);
+        Assert.Equal("Helmet", result.Items[2].Name);
+        Assert.Equal(3, result.TotalItems);
     }
 
     [Fact]
@@ -74,12 +77,14 @@ public class ProductTypeServiceTests
         // Arrange
         using var context = TestHelper.GetTestDbContext();
         var service = new ProductTypeService(context, _mapper);
+        var query = new PagedQuery { Page = 1, PageSize = 10 };
 
         // Act
-        var result = await service.GetAllProductTypesAsync();
+        var result = await service.GetAllProductTypesAsync(query, CancellationToken.None);
 
         // Assert
-        Assert.Empty(result);
+        Assert.Empty(result.Items);
+        Assert.Equal(0, result.TotalItems);
     }
 
     [Fact]

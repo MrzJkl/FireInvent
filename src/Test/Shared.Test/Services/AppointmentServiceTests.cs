@@ -1,3 +1,4 @@
+using FireInvent.Contract;
 using FireInvent.Shared.Mapper;
 using FireInvent.Shared.Services;
 
@@ -30,12 +31,16 @@ public class AppointmentServiceTests
         // Arrange
         using var context = TestHelper.GetTestDbContext();
         var service = new AppointmentService(context, _mapper);
+        var query = new PagedQuery { Page = 1, PageSize = 10 };
 
         // Act
-        var result = await service.GetAllAppointmentsAsync();
+        var result = await service.GetAllAppointmentsAsync(query, CancellationToken.None);
 
         // Assert
-        Assert.Empty(result);
+        Assert.Empty(result.Items);
+        Assert.Equal(0, result.TotalItems);
+        Assert.Equal(1, result.Page);
+        Assert.Equal(10, result.PageSize);
     }
 
     [Fact]
@@ -93,12 +98,51 @@ public class AppointmentServiceTests
         var appointment3 = TestDataFactory.CreateAppointment(scheduledAt: DateTimeOffset.UtcNow.AddDays(3));
         context.Appointments.AddRange(appointment1, appointment2, appointment3);
         await context.SaveChangesAsync();
+        var query = new PagedQuery { Page = 1, PageSize = 10 };
 
         // Act
-        var result = await service.GetAllAppointmentsAsync();
+        var result = await service.GetAllAppointmentsAsync(query, CancellationToken.None);
 
         // Assert
-        Assert.Equal(3, result.Count);
+        Assert.Equal(3, result.Items.Count);
+        Assert.Equal(3, result.TotalItems);
+        Assert.Equal(1, result.TotalPages);
+    }
+
+    [Fact]
+    public async Task GetAllAppointmentsAsync_WithPagination_ShouldReturnCorrectPage()
+    {
+        // Arrange
+        using var context = TestHelper.GetTestDbContext();
+        var service = new AppointmentService(context, _mapper);
+        
+        // Create 15 appointments
+        for (int i = 1; i <= 15; i++)
+        {
+            var appointment = TestDataFactory.CreateAppointment(
+                scheduledAt: DateTimeOffset.UtcNow.AddDays(i),
+                description: $"Appointment {i}");
+            context.Appointments.Add(appointment);
+        }
+        await context.SaveChangesAsync();
+
+        // Act - Get first page
+        var query1 = new PagedQuery { Page = 1, PageSize = 5 };
+        var result1 = await service.GetAllAppointmentsAsync(query1, CancellationToken.None);
+
+        // Act - Get second page
+        var query2 = new PagedQuery { Page = 2, PageSize = 5 };
+        var result2 = await service.GetAllAppointmentsAsync(query2, CancellationToken.None);
+
+        // Assert
+        Assert.Equal(5, result1.Items.Count);
+        Assert.Equal(15, result1.TotalItems);
+        Assert.Equal(3, result1.TotalPages);
+        Assert.Equal(1, result1.Page);
+
+        Assert.Equal(5, result2.Items.Count);
+        Assert.Equal(15, result2.TotalItems);
+        Assert.Equal(2, result2.Page);
     }
 
     [Fact]

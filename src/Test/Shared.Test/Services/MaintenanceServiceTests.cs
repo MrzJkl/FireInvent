@@ -1,3 +1,4 @@
+using FireInvent.Contract;
 using FireInvent.Contract.Exceptions;
 using FireInvent.Shared.Mapper;
 using FireInvent.Shared.Services;
@@ -120,12 +121,14 @@ public class MaintenanceServiceTests
         using var context = TestHelper.GetTestDbContext();
         var mockUserService = CreateMockUserService();
         var service = new MaintenanceService(context, mockUserService, _mapper);
+        var query = new PagedQuery { Page = 1, PageSize = 10 };
 
         // Act
-        var result = await service.GetAllMaintenancesAsync();
+        var result = await service.GetAllMaintenancesAsync(query, CancellationToken.None);
 
         // Assert
-        Assert.Empty(result);
+        Assert.Empty(result.Items);
+        Assert.Equal(0, result.TotalItems);
     }
 
     [Fact]
@@ -287,9 +290,10 @@ public class MaintenanceServiceTests
         using var context = TestHelper.GetTestDbContext();
         var mockUserService = CreateMockUserService();
         var service = new MaintenanceService(context, mockUserService, _mapper);
+        var query = new PagedQuery { Page = 1, PageSize = 10 };
 
         // Act & Assert
-        await Assert.ThrowsAsync<NotFoundException>(() => service.GetMaintenancesForItemAsync(Guid.NewGuid()));
+        await Assert.ThrowsAsync<NotFoundException>(() => service.GetMaintenancesForItemAsync(Guid.NewGuid(), query, CancellationToken.None));
     }
 
     [Fact]
@@ -300,11 +304,13 @@ public class MaintenanceServiceTests
         var mockUserService = CreateMockUserService();
         var service = new MaintenanceService(context, mockUserService, _mapper);
         var (itemId, _) = await SetupBasicDataAsync(context);
+        var query = new PagedQuery { Page = 1, PageSize = 10 };
 
         // Act
-        var result = await service.GetMaintenancesForItemAsync(itemId);
+        var result = await service.GetMaintenancesForItemAsync(itemId, query, CancellationToken.None);
 
         // Assert
-        Assert.Empty(result);
+        Assert.Empty(result.Items);
+        Assert.Equal(0, result.TotalItems);
     }
 }

@@ -80,12 +80,16 @@ public class ItemServiceTests
         // Arrange
         using var context = TestHelper.GetTestDbContext();
         var service = new ItemService(context, _mapper);
+        var query = new PagedQuery { Page = 1, PageSize = 10 };
 
         // Act
-        var result = await service.GetAllItemsAsync();
+        var result = await service.GetAllItemsAsync(query, CancellationToken.None);
 
         // Assert
-        Assert.Empty(result);
+        Assert.Empty(result.Items);
+        Assert.Equal(0, result.TotalItems);
+        Assert.Equal(1, result.Page);
+        Assert.Equal(10, result.PageSize);
     }
 
     [Fact]
@@ -221,8 +225,87 @@ public class ItemServiceTests
         // Arrange
         using var context = TestHelper.GetTestDbContext();
         var service = new ItemService(context, _mapper);
+        var query = new PagedQuery { Page = 1, PageSize = 10 };
 
         // Act & Assert
-        await Assert.ThrowsAsync<NotFoundException>(() => service.GetItemsForVariantAsync(Guid.NewGuid()));
+        await Assert.ThrowsAsync<NotFoundException>(() => service.GetItemsForVariantAsync(Guid.NewGuid(), query, CancellationToken.None));
+    }
+
+    [Fact]
+    public async Task GetAllItemsAsync_WithPagination_ShouldReturnCorrectPage()
+    {
+        // Arrange
+        using var context = TestHelper.GetTestDbContext();
+        var service = new ItemService(context, _mapper);
+        var (_, _, variant, _) = await SetupBasicDataAsync(context);
+
+        // Create 25 items
+        for (int i = 1; i <= 25; i++)
+        {
+            var item = CreateItemWithVariant(variant, identifier: $"ITEM-{i:D3}");
+            context.Items.Add(item);
+        }
+        await context.SaveChangesAsync();
+
+        // Act - Get first page (10 items)
+        var query1 = new PagedQuery { Page = 1, PageSize = 10 };
+        var result1 = await service.GetAllItemsAsync(query1, CancellationToken.None);
+
+        // Act - Get second page (10 items)
+        var query2 = new PagedQuery { Page = 2, PageSize = 10 };
+        var result2 = await service.GetAllItemsAsync(query2, CancellationToken.None);
+
+        // Act - Get third page (5 items)
+        var query3 = new PagedQuery { Page = 3, PageSize = 10 };
+        var result3 = await service.GetAllItemsAsync(query3, CancellationToken.None);
+
+        // Assert page 1
+        Assert.Equal(10, result1.Items.Count);
+        Assert.Equal(25, result1.TotalItems);
+        Assert.Equal(1, result1.Page);
+        Assert.Equal(10, result1.PageSize);
+        Assert.Equal(3, result1.TotalPages);
+
+        // Assert page 2
+        Assert.Equal(10, result2.Items.Count);
+        Assert.Equal(25, result2.TotalItems);
+        Assert.Equal(2, result2.Page);
+
+        // Assert page 3
+        Assert.Equal(5, result3.Items.Count);
+        Assert.Equal(25, result3.TotalItems);
+        Assert.Equal(3, result3.Page);
+    }
+
+    [Fact]
+    public async Task GetAllItemsAsync_WithDifferentPageSizes_ShouldReturnCorrectCounts()
+    {
+        // Arrange
+        using var context = TestHelper.GetTestDbContext();
+        var service = new ItemService(context, _mapper);
+        var (_, _, variant, _) = await SetupBasicDataAsync(context);
+
+        // Create 15 items
+        for (int i = 1; i <= 15; i++)
+        {
+            var item = CreateItemWithVariant(variant, identifier: $"ITEM-{i:D3}");
+            context.Items.Add(item);
+        }
+        await context.SaveChangesAsync();
+
+        // Act - Page size 5
+        var query1 = new PagedQuery { Page = 1, PageSize = 5 };
+        var result1 = await service.GetAllItemsAsync(query1, CancellationToken.None);
+
+        // Act - Page size 10
+        var query2 = new PagedQuery { Page = 1, PageSize = 10 };
+        var result2 = await service.GetAllItemsAsync(query2, CancellationToken.None);
+
+        // Assert
+        Assert.Equal(5, result1.Items.Count);
+        Assert.Equal(3, result1.TotalPages); // 15 items / 5 per page = 3 pages
+        
+        Assert.Equal(10, result2.Items.Count);
+        Assert.Equal(2, result2.TotalPages); // 15 items / 10 per page = 2 pages
     }
 }

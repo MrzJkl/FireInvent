@@ -1,4 +1,5 @@
 using FireInvent.Contract.Exceptions;
+using FireInvent.Contract;
 using FireInvent.Shared.Mapper;
 using FireInvent.Shared.Services;
 
@@ -32,12 +33,14 @@ public class VisitServiceTests
         // Arrange
         using var context = TestHelper.GetTestDbContext();
         var service = new VisitService(context, _mapper);
+        var query = new PagedQuery { Page = 1, PageSize = 10 };
 
         // Act
-        var result = await service.GetAllVisitsAsync();
+        var result = await service.GetAllVisitsAsync(query, CancellationToken.None);
 
         // Assert
-        Assert.Empty(result);
+        Assert.Empty(result.Items);
+        Assert.Equal(0, result.TotalItems);
     }
 
     [Fact]
@@ -213,12 +216,14 @@ public class VisitServiceTests
         context.Appointments.Add(appointment);
         context.Visits.AddRange(visit1, visit2);
         await context.SaveChangesAsync();
+        var query = new PagedQuery { Page = 1, PageSize = 10 };
 
         // Act
-        var result = await service.GetAllVisitsAsync();
+        var result = await service.GetAllVisitsAsync(query, CancellationToken.None);
 
         // Assert
-        Assert.Equal(2, result.Count);
+        Assert.Equal(2, result.Items.Count);
+        Assert.Equal(2, result.TotalItems);
     }
 
     [Fact]

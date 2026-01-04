@@ -33,12 +33,14 @@ public class OrderServiceTests
         // Arrange
         using var context = TestHelper.GetTestDbContext();
         var service = new OrderService(context, _mapper);
+        var query = new PagedQuery { Page = 1, PageSize = 10 };
 
         // Act
-        var result = await service.GetAllOrdersAsync();
+        var result = await service.GetAllOrdersAsync(query, CancellationToken.None);
 
         // Assert
-        Assert.Empty(result);
+        Assert.Empty(result.Items);
+        Assert.Equal(0, result.TotalItems);
     }
 
     [Fact]
