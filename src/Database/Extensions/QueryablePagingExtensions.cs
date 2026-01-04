@@ -30,7 +30,7 @@ namespace FireInvent.Database.Extensions
                 PageSize = pageSize,
             };
 
-            if (result.Page > result.TotalPages)
+            if (result.TotalPages > 0 && result.Page > result.TotalPages)
             {
                 throw new BadRequestException("Requested page exceeds total number of pages.");
             }

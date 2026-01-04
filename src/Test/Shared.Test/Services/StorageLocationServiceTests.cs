@@ -1,3 +1,4 @@
+using FireInvent.Contract;
 using FireInvent.Contract.Exceptions;
 using FireInvent.Shared.Mapper;
 using FireInvent.Shared.Services;
@@ -57,15 +58,17 @@ public class StorageLocationServiceTests
             TestDataFactory.CreateStorageLocation(name: "Warehouse B")
         );
         await context.SaveChangesAsync();
+        var query = new PagedQuery { Page = 1, PageSize = 10 };
 
         // Act
-        var result = await service.GetAllStorageLocationsAsync();
+        var result = await service.GetAllStorageLocationsAsync(query, CancellationToken.None);
 
         // Assert
-        Assert.Equal(3, result.Count);
-        Assert.Equal("Warehouse A", result[0].Name);
-        Assert.Equal("Warehouse B", result[1].Name);
-        Assert.Equal("Warehouse C", result[2].Name);
+        Assert.Equal(3, result.Items.Count);
+        Assert.Equal("Warehouse A", result.Items[0].Name);
+        Assert.Equal("Warehouse B", result.Items[1].Name);
+        Assert.Equal("Warehouse C", result.Items[2].Name);
+        Assert.Equal(3, result.TotalItems);
     }
 
     [Fact]
@@ -74,12 +77,14 @@ public class StorageLocationServiceTests
         // Arrange
         using var context = TestHelper.GetTestDbContext();
         var service = new StorageLocationService(context, _mapper);
+        var query = new PagedQuery { Page = 1, PageSize = 10 };
 
         // Act
-        var result = await service.GetAllStorageLocationsAsync();
+        var result = await service.GetAllStorageLocationsAsync(query, CancellationToken.None);
 
         // Assert
-        Assert.Empty(result);
+        Assert.Empty(result.Items);
+        Assert.Equal(0, result.TotalItems);
     }
 
     [Fact]

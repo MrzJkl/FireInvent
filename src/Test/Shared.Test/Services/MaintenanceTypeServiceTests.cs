@@ -1,3 +1,4 @@
+using FireInvent.Contract;
 using FireInvent.Contract.Exceptions;
 using FireInvent.Shared.Mapper;
 using FireInvent.Shared.Services;
@@ -57,15 +58,17 @@ public class MaintenanceTypeServiceTests
             TestDataFactory.CreateMaintenanceType(name: "Inspection")
         );
         await context.SaveChangesAsync();
+        var query = new PagedQuery { Page = 1, PageSize = 10 };
 
         // Act
-        var result = await service.GetAllMaintenanceTypesAsync();
+        var result = await service.GetAllMaintenanceTypesAsync(query, CancellationToken.None);
 
         // Assert
-        Assert.Equal(3, result.Count);
-        Assert.Equal("Cleaning", result[0].Name);
-        Assert.Equal("Inspection", result[1].Name);
-        Assert.Equal("Repair", result[2].Name);
+        Assert.Equal(3, result.Items.Count);
+        Assert.Equal("Cleaning", result.Items[0].Name);
+        Assert.Equal("Inspection", result.Items[1].Name);
+        Assert.Equal("Repair", result.Items[2].Name);
+        Assert.Equal(3, result.TotalItems);
     }
 
     [Fact]
@@ -74,12 +77,14 @@ public class MaintenanceTypeServiceTests
         // Arrange
         using var context = TestHelper.GetTestDbContext();
         var service = new MaintenanceTypeService(context, _mapper);
+        var query = new PagedQuery { Page = 1, PageSize = 10 };
 
         // Act
-        var result = await service.GetAllMaintenanceTypesAsync();
+        var result = await service.GetAllMaintenanceTypesAsync(query, CancellationToken.None);
 
         // Assert
-        Assert.Empty(result);
+        Assert.Empty(result.Items);
+        Assert.Equal(0, result.TotalItems);
     }
 
     [Fact]

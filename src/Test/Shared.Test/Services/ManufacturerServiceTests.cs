@@ -1,3 +1,4 @@
+using FireInvent.Contract;
 using FireInvent.Contract.Exceptions;
 using FireInvent.Shared.Mapper;
 using FireInvent.Shared.Models;
@@ -52,12 +53,14 @@ public class ManufacturerServiceTests
         // Arrange
         using var context = TestHelper.GetTestDbContext();
         var service = new ManufacturerService(context, _mapper);
+        var query = new PagedQuery { Page = 1, PageSize = 10 };
 
         // Act
-        var result = await service.GetAllManufacturersAsync();
+        var result = await service.GetAllManufacturersAsync(query, CancellationToken.None);
 
         // Assert
-        Assert.Empty(result);
+        Assert.Empty(result.Items);
+        Assert.Equal(0, result.TotalItems);
     }
 
     [Fact]
@@ -71,15 +74,17 @@ public class ManufacturerServiceTests
         var manufacturerC = TestDataFactory.CreateManufacturer(name: "BrandC");
         context.Manufacturers.AddRange(manufacturerB, manufacturerA, manufacturerC);
         await context.SaveChangesAsync();
+        var query = new PagedQuery { Page = 1, PageSize = 10 };
 
         // Act
-        var result = await service.GetAllManufacturersAsync();
+        var result = await service.GetAllManufacturersAsync(query, CancellationToken.None);
 
         // Assert
-        Assert.Equal(3, result.Count);
-        Assert.Equal("BrandA", result[0].Name);
-        Assert.Equal("BrandB", result[1].Name);
-        Assert.Equal("BrandC", result[2].Name);
+        Assert.Equal(3, result.Items.Count);
+        Assert.Equal("BrandA", result.Items[0].Name);
+        Assert.Equal("BrandB", result.Items[1].Name);
+        Assert.Equal("BrandC", result.Items[2].Name);
+        Assert.Equal(3, result.TotalItems);
     }
 
     [Fact]

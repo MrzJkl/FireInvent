@@ -1,3 +1,4 @@
+using FireInvent.Contract;
 using FireInvent.Contract.Exceptions;
 using FireInvent.Shared.Mapper;
 using FireInvent.Shared.Services;
@@ -244,9 +245,10 @@ public class ItemAssignmentHistoryServiceTests
         using var context = TestHelper.GetTestDbContext();
         var mockUserService = CreateMockUserService();
         var service = new ItemAssignmentHistoryService(context, _mapper, mockUserService);
+        var query = new PagedQuery { Page = 1, PageSize = 10 };
 
         // Act & Assert
-        await Assert.ThrowsAsync<NotFoundException>(() => service.GetAssignmentsForItemAsync(Guid.NewGuid()));
+        await Assert.ThrowsAsync<NotFoundException>(() => service.GetAssignmentsForItemAsync(Guid.NewGuid(), query, CancellationToken.None));
     }
 
     [Fact]
@@ -257,12 +259,14 @@ public class ItemAssignmentHistoryServiceTests
         var mockUserService = CreateMockUserService();
         var service = new ItemAssignmentHistoryService(context, _mapper, mockUserService);
         var (_, itemId, _) = await SetupBasicDataAsync(context);
+        var query = new PagedQuery { Page = 1, PageSize = 10 };
 
         // Act
-        var result = await service.GetAssignmentsForItemAsync(itemId);
+        var result = await service.GetAssignmentsForItemAsync(itemId, query, CancellationToken.None);
 
         // Assert
-        Assert.Empty(result);
+        Assert.Empty(result.Items);
+        Assert.Equal(0, result.TotalItems);
     }
 
     [Fact]
@@ -272,9 +276,10 @@ public class ItemAssignmentHistoryServiceTests
         using var context = TestHelper.GetTestDbContext();
         var mockUserService = CreateMockUserService();
         var service = new ItemAssignmentHistoryService(context, _mapper, mockUserService);
+        var query = new PagedQuery { Page = 1, PageSize = 10 };
 
         // Act & Assert
-        await Assert.ThrowsAsync<NotFoundException>(() => service.GetAssignmentsForPersonAsync(Guid.NewGuid()));
+        await Assert.ThrowsAsync<NotFoundException>(() => service.GetAssignmentsForPersonAsync(Guid.NewGuid(), query, CancellationToken.None));
     }
 
     [Fact]
@@ -285,12 +290,14 @@ public class ItemAssignmentHistoryServiceTests
         var mockUserService = CreateMockUserService();
         var service = new ItemAssignmentHistoryService(context, _mapper, mockUserService);
         var (_, _, personId) = await SetupBasicDataAsync(context);
+        var query = new PagedQuery { Page = 1, PageSize = 10 };
 
         // Act
-        var result = await service.GetAssignmentsForPersonAsync(personId);
+        var result = await service.GetAssignmentsForPersonAsync(personId, query, CancellationToken.None);
 
         // Assert
-        Assert.Empty(result);
+        Assert.Empty(result.Items);
+        Assert.Equal(0, result.TotalItems);
     }
 
     [Fact]
@@ -300,9 +307,10 @@ public class ItemAssignmentHistoryServiceTests
         using var context = TestHelper.GetTestDbContext();
         var mockUserService = CreateMockUserService();
         var service = new ItemAssignmentHistoryService(context, _mapper, mockUserService);
+        var query = new PagedQuery { Page = 1, PageSize = 10 };
 
         // Act & Assert
-        await Assert.ThrowsAsync<NotFoundException>(() => service.GetAssignmentsForStorageLocationAsync(Guid.NewGuid()));
+        await Assert.ThrowsAsync<NotFoundException>(() => service.GetAssignmentsForStorageLocationAsync(Guid.NewGuid(), query, CancellationToken.None));
     }
 
     [Fact]
@@ -313,12 +321,14 @@ public class ItemAssignmentHistoryServiceTests
         var mockUserService = CreateMockUserService();
         var service = new ItemAssignmentHistoryService(context, _mapper, mockUserService);
         var (_, _, storageLocationId) = await SetupBasicDataWithStorageLocationAsync(context);
+        var query = new PagedQuery { Page = 1, PageSize = 10 };
 
         // Act
-        var result = await service.GetAssignmentsForStorageLocationAsync(storageLocationId);
+        var result = await service.GetAssignmentsForStorageLocationAsync(storageLocationId, query, CancellationToken.None);
 
         // Assert
-        Assert.Empty(result);
+        Assert.Empty(result.Items);
+        Assert.Equal(0, result.TotalItems);
     }
 
     [Fact]
@@ -328,12 +338,14 @@ public class ItemAssignmentHistoryServiceTests
         using var context = TestHelper.GetTestDbContext();
         var mockUserService = CreateMockUserService();
         var service = new ItemAssignmentHistoryService(context, _mapper, mockUserService);
+        var query = new PagedQuery { Page = 1, PageSize = 10 };
 
         // Act
-        var result = await service.GetAllAssignmentsAsync();
+        var result = await service.GetAllAssignmentsAsync(query, CancellationToken.None);
 
         // Assert
-        Assert.Empty(result);
+        Assert.Empty(result.Items);
+        Assert.Equal(0, result.TotalItems);
     }
 
     [Fact]
@@ -353,12 +365,14 @@ public class ItemAssignmentHistoryServiceTests
             assignedFrom: DateOnly.FromDateTime(DateTime.UtcNow.AddDays(10)));
         context.ItemAssignmentHistories.AddRange(assignment1, assignment2);
         await context.SaveChangesAsync();
+        var query = new PagedQuery { Page = 1, PageSize = 10 };
 
         // Act
-        var result = await service.GetAllAssignmentsAsync();
+        var result = await service.GetAllAssignmentsAsync(query, CancellationToken.None);
 
         // Assert
-        Assert.Equal(2, result.Count);
+        Assert.Equal(2, result.Items.Count);
+        Assert.Equal(2, result.TotalItems);
     }
 
     [Fact]

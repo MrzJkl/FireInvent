@@ -1,3 +1,4 @@
+using FireInvent.Contract;
 using FireInvent.Shared.Mapper;
 using FireInvent.Shared.Services;
 
@@ -30,12 +31,14 @@ public class VisitItemServiceTests
         // Arrange
         using var context = TestHelper.GetTestDbContext();
         var service = new VisitItemService(context, _mapper);
+        var query = new PagedQuery { Page = 1, PageSize = 10 };
 
         // Act
-        var result = await service.GetAllVisitItemsAsync();
+        var result = await service.GetAllVisitItemsAsync(query, CancellationToken.None);
 
         // Assert
-        Assert.Empty(result);
+        Assert.Empty(result.Items);
+        Assert.Equal(0, result.TotalItems);
     }
 
     [Fact]
@@ -162,12 +165,14 @@ public class VisitItemServiceTests
         context.Products.AddRange(product1, product2);
         context.VisitItems.AddRange(visitItem1, visitItem2);
         await context.SaveChangesAsync();
+        var query = new PagedQuery { Page = 1, PageSize = 10 };
 
         // Act
-        var result = await service.GetAllVisitItemsAsync();
+        var result = await service.GetAllVisitItemsAsync(query, CancellationToken.None);
 
         // Assert
-        Assert.Equal(2, result.Count);
+        Assert.Equal(2, result.Items.Count);
+        Assert.Equal(2, result.TotalItems);
     }
 
     [Fact]
@@ -209,13 +214,15 @@ public class VisitItemServiceTests
         context.Products.Add(product);
         context.VisitItems.AddRange(visitItem1, visitItem2, visitItem3);
         await context.SaveChangesAsync();
+        var query = new PagedQuery { Page = 1, PageSize = 10 };
 
         // Act
-        var result = await service.GetVisitItemsByVisitIdAsync(visit1.Id);
+        var result = await service.GetVisitItemsByVisitIdAsync(visit1.Id, query, CancellationToken.None);
 
         // Assert
-        Assert.Equal(2, result.Count);
-        Assert.All(result, item => Assert.Equal(visit1.Id, item.VisitId));
+        Assert.Equal(2, result.Items.Count);
+        Assert.All(result.Items, item => Assert.Equal(visit1.Id, item.VisitId));
+        Assert.Equal(2, result.TotalItems);
     }
 
     [Fact]
@@ -380,7 +387,8 @@ public class VisitItemServiceTests
         // Assert
         Assert.NotEqual(Guid.Empty, result1.Id);
         Assert.NotEqual(Guid.Empty, result2.Id);
-        var items = await service.GetVisitItemsByVisitIdAsync(visit.Id);
-        Assert.Equal(2, items.Count);
+        var query = new PagedQuery { Page = 1, PageSize = 10 };
+        var items = await service.GetVisitItemsByVisitIdAsync(visit.Id, query, CancellationToken.None);
+        Assert.Equal(2, items.Items.Count);
     }
 }
