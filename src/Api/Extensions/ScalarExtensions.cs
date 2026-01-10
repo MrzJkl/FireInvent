@@ -1,5 +1,7 @@
 ﻿using Asp.Versioning;
 using Asp.Versioning.ApiExplorer;
+using FireInvent.Shared.Options;
+using Microsoft.Extensions.Options;
 using Microsoft.OpenApi;
 using Scalar.AspNetCore;
 
@@ -19,6 +21,8 @@ namespace FireInvent.Api.Extensions
                     {
                         var provider = context.ApplicationServices.GetRequiredService<IApiVersionDescriptionProvider>();
                         var description = provider.ApiVersionDescriptions.FirstOrDefault(d => d.GroupName == context.DocumentName);
+                        var authOptions = context.ApplicationServices.GetRequiredService<IOptions<AuthenticationOptions>>().Value;
+                        var openApiOptions = context.ApplicationServices.GetRequiredService<IOptions<OpenApiOptions>>().Value;
 
                         document.Info = new OpenApiInfo
                         {
@@ -47,10 +51,35 @@ namespace FireInvent.Api.Extensions
                             }
                         };
 
+                        if (openApiOptions.AuthorizationUrl is not null && openApiOptions.TokenUrl is not null)
+                        {
+                            securitySchemes["OAuth2"] = new OpenApiSecurityScheme
+                            {
+                                Type = SecuritySchemeType.OAuth2,
+                                Flows = new OpenApiOAuthFlows
+                                {
+                                    AuthorizationCode = new OpenApiOAuthFlow
+                                    {
+                                        AuthorizationUrl = new Uri(openApiOptions.AuthorizationUrl),
+                                        TokenUrl = new Uri(openApiOptions.TokenUrl),
+                                    }
+                                }
+                            };
+                        }
+
                         // Apply it as a requirement for all operations
-                        foreach (var operation in document.Paths.Values.SelectMany(path => path.Operations))
+                        foreach (var operation in document.Paths.Values.SelectMany(path => path.Operations ?? []))
                         {
                             operation.Value.Security ??= [];
+
+                            if (securitySchemes.ContainsKey("OAuth2"))
+                            {
+                                operation.Value.Security.Add(new OpenApiSecurityRequirement
+                                {
+                                    [new OpenApiSecuritySchemeReference("OAuth2", document)] = []
+                                });
+                            }
+
                             operation.Value.Security.Add(new OpenApiSecurityRequirement
                             {
                                 [new OpenApiSecuritySchemeReference("Bearer", document)] = []
@@ -82,12 +111,30 @@ namespace FireInvent.Api.Extensions
 
             app.MapScalarApiReference("/docs", (options, context) =>
             {
+                var authOptions = context.RequestServices.GetRequiredService<IOptions<AuthenticationOptions>>().Value;
+                var openApiOptions = context.RequestServices.GetRequiredService<IOptions<OpenApiOptions>>().Value;
+
                 options
                     .ExpandAllTags()
                     .ExpandAllModelSections()
                     .WithDefaultHttpClient(ScalarTarget.JavaScript, ScalarClient.Axios)
                     .DisableTelemetry()
-                    .AddPreferredSecuritySchemes("OAuth2", "Bearer");
+                    .AddPreferredSecuritySchemes("OAuth2");
+
+                if (openApiOptions.AuthorizationUrl is not null &&  openApiOptions.TokenUrl is not null && openApiOptions.ApiExplorerClientId is not null)
+                {
+                    options.AddOAuth2Flows("OAuth2", flows =>
+                        {
+                            flows.AuthorizationCode = new AuthorizationCodeFlow
+                            {
+                                ClientId = openApiOptions.ApiExplorerClientId,
+                                AuthorizationUrl = openApiOptions.AuthorizationUrl,
+                                TokenUrl = openApiOptions.TokenUrl,
+                                Pkce = Pkce.Sha256,
+                            };
+                        });
+                }
+
             }).CacheOutput();
 
             return app;

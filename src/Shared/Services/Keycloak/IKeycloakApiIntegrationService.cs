@@ -4,7 +4,7 @@ namespace FireInvent.Shared.Services.Keycloak;
 
 public interface IKeycloakApiIntegrationService
 {
-    Task<ApiIntegrationCredentialsModel> CreateApiIntegrationAsync(string name, string? description = null, CancellationToken cancellationToken = default);
+    Task<ApiIntegrationCredentialsModel> CreateApiIntegrationAsync(string name, CancellationToken cancellationToken = default);
 
     Task<List<ApiIntegrationModel>> GetApiIntegrationsAsync(CancellationToken cancellationToken = default);
 

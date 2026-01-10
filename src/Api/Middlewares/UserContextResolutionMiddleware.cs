@@ -20,6 +20,7 @@ public class UserContextResolutionMiddleware(
     private const string TenantCachePrefix = "tenant_by_id";
     private static readonly TimeSpan TenantCacheExpiration = TimeSpan.FromMinutes(15);
     private const string TenantHeaderName = "X-Tenant-Id";
+    private const string ResolvedTenantHeaderName = "X-Resolved-Tenant-Id";
     private const string OrganizationsClaimName = "organization"; // per provided token
 
     public async Task InvokeAsync(
@@ -37,9 +38,9 @@ public class UserContextResolutionMiddleware(
         try
         {
             // Extract UserId from the JWT token (sub claim)
-            var userIdClaim = context.User.FindFirst(ClaimTypes.NameIdentifier) 
+            var userIdClaim = context.User.FindFirst(ClaimTypes.NameIdentifier)
                 ?? context.User.FindFirst("sub");
-            
+
             if (userIdClaim != null && Guid.TryParse(userIdClaim.Value, out var userId))
             {
                 userContextProvider.UserId = userId;
@@ -48,6 +49,9 @@ public class UserContextResolutionMiddleware(
             else
             {
                 _logger.LogWarning("Unable to extract user ID from token claims.");
+                context.Response.StatusCode = StatusCodes.Status401Unauthorized;
+                await context.Response.WriteAsync("Invalid token: missing user id claim.");
+                return;
             }
 
             // Early check: allow virtual master selection via header when user is system admin
@@ -61,7 +65,7 @@ public class UserContextResolutionMiddleware(
                         userContextProvider.TenantId = Guid.Empty;
                         userContextProvider.Name = "VIRTUAL MASTER";
                         userContextProvider.CreatedAt = DateTimeOffset.MinValue;
-                        context.Response.Headers["X-Resolved-Tenant-Id"] = Guid.Empty.ToString();
+                        context.Response.Headers[ResolvedTenantHeaderName] = Guid.Empty.ToString();
                         await next(context);
                         return;
                     }
@@ -184,7 +188,7 @@ public class UserContextResolutionMiddleware(
             userContextProvider.Description = tenant.Description;
             userContextProvider.CreatedAt = tenant.CreatedAt;
 
-            context.Response.Headers["X-Resolved-Tenant-Id"] = tenant.Id.ToString();
+            context.Response.Headers[ResolvedTenantHeaderName] = tenant.Id.ToString();
 
             _logger.LogDebug("Resolved tenant {TenantId} ({TenantName})", tenant.Id, tenant.Name);
         }

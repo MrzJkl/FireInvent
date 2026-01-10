@@ -101,6 +101,8 @@ public class TenantService(
         if (tenant is null)
             return false;
 
+        await keycloakTenantService.DeleteTenantOrganizationAsync(tenant.Id, cancellationToken);
+
         context.Tenants.Remove(tenant);
         await context.SaveChangesAsync(cancellationToken);
         return true;

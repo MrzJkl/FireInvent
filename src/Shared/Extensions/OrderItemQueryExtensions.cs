@@ -1,5 +1,4 @@
 using FireInvent.Database.Models;
-using Microsoft.EntityFrameworkCore;
 
 namespace FireInvent.Shared.Extensions
 {

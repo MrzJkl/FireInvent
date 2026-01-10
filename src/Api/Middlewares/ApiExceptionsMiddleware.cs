@@ -29,28 +29,32 @@ public class ApiExceptionMiddleware(RequestDelegate next, ILogger<ApiExceptionMi
     private static Task HandleExceptionAsync(HttpContext context, Exception exception)
     {
         HttpStatusCode statusCode = HttpStatusCode.InternalServerError;
-        string message = exception.Message;
+        string message = "Unexpected error occurred.";
 
         switch (exception)
         {
             case NotFoundException:
                 statusCode = HttpStatusCode.NotFound;
+                message = "Resource not found.";
                 break;
             case ConflictException:
                 statusCode = HttpStatusCode.Conflict;
+                message = "Conflict occurred. This may indicate that you try to create or edit a resource with an unique identifier, that already exists.";
                 break;
             case BadRequestException:
                 statusCode = HttpStatusCode.BadRequest;
+                message = "Bad request. Please check your input and try again.";
                 break;
             case OperationCanceledException:
                 statusCode = HttpStatusCode.RequestTimeout;
+                message = "The operation was canceled.";
                 break;
         }
 
         context.Response.ContentType = "application/json";
         context.Response.StatusCode = (int)statusCode;
 
-        var response = JsonSerializer.Serialize(new { error = message });
+        var response = JsonSerializer.Serialize(new { message = message, traceIdentifier = context.TraceIdentifier });
         return context.Response.WriteAsync(response);
     }
 }

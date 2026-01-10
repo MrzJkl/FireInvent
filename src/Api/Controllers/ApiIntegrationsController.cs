@@ -23,7 +23,6 @@ public class ApiIntegrationsController(IKeycloakApiIntegrationService keycloakAd
     {
         var credentials = await keycloakAdminService.CreateApiIntegrationAsync(
             request.Name,
-            request.Description,
             cancellationToken);
 
         return CreatedAtAction(
