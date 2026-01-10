@@ -1,14 +1,13 @@
 using OpenTelemetry.Metrics;
 using OpenTelemetry.Resources;
 using OpenTelemetry.Trace;
-using System.Diagnostics;
+using FireInvent.Shared.Services.Telemetry;
 
 namespace FireInvent.Api.Extensions;
 
 public static class OpenTelemetryExtensions
 {
-    public const string ServiceName = "FireInvent.Api";
-    public static readonly ActivitySource ActivitySource = new(ServiceName);
+    public const string ServiceName = FireInventTelemetry.ServiceName;
 
     public static IServiceCollection AddOpenTelemetryObservability(this IServiceCollection services, IConfiguration configuration, IHostEnvironment environment)
     {
@@ -93,7 +92,7 @@ public static class OpenTelemetryExtensions
                         };
                     })
                     // Custom application instrumentation
-                    .AddSource(ActivitySource.Name)
+                    .AddSource(FireInventTelemetry.ActivitySource.Name)
                     // Add console exporter for development
                     .AddConsoleExporter(options =>
                     {

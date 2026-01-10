@@ -118,6 +118,9 @@ builder.Services.AddResponseCompression(options =>
 // Multi-Tenancy
 builder.Services.AddScoped<UserContextProvider>();
 
+// Telemetry
+builder.Services.AddSingleton<FireInvent.Shared.Services.Telemetry.FireInventTelemetry>();
+
 // Database
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection"),

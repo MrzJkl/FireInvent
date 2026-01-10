@@ -4,14 +4,18 @@ using FireInvent.Database.Extensions;
 using FireInvent.Shared.Extensions;
 using FireInvent.Shared.Mapper;
 using FireInvent.Shared.Models;
+using FireInvent.Shared.Services.Telemetry;
 using Microsoft.EntityFrameworkCore;
 
 namespace FireInvent.Shared.Services;
 
-public class OrderService(AppDbContext context, OrderMapper mapper) : IOrderService
+public class OrderService(AppDbContext context, OrderMapper mapper, FireInventTelemetry telemetry) : IOrderService
 {
     public async Task<OrderModel?> GetOrderByIdAsync(Guid id, CancellationToken cancellationToken = default)
     {
+        using var activity = telemetry.StartActivity("OrderService.GetOrderById");
+        activity?.SetTag("order.id", id);
+
         var order = await context.Orders
             .AsNoTracking()
             .FirstOrDefaultAsync(o => o.Id == id, cancellationToken);
@@ -21,6 +25,10 @@ public class OrderService(AppDbContext context, OrderMapper mapper) : IOrderServ
 
     public async Task<PagedResult<OrderModel>> GetAllOrdersAsync(PagedQuery pagedQuery, CancellationToken cancellationToken)
     {
+        using var activity = telemetry.StartActivity("OrderService.GetAllOrders");
+        activity?.SetTag("page", pagedQuery.Page);
+        activity?.SetTag("pageSize", pagedQuery.PageSize);
+
         var query = context.Orders
             .OrderByDescending(o => o.OrderDate)
             .AsNoTracking();
@@ -29,14 +37,22 @@ public class OrderService(AppDbContext context, OrderMapper mapper) : IOrderServ
 
         var projected = mapper.ProjectOrdersToOrderModels(query);
 
-        return await projected.ToPagedResultAsync(
+        var result = await projected.ToPagedResultAsync(
             pagedQuery.Page,
             pagedQuery.PageSize,
             cancellationToken);
+
+        activity?.SetTag("orders.count", result.TotalItems);
+
+        return result;
     }
 
     public async Task<OrderModel> CreateOrderAsync(CreateOrUpdateOrderModel model, CancellationToken cancellationToken = default)
     {
+        using var activity = telemetry.StartActivity("OrderService.CreateOrder");
+        activity?.SetTag("order.identifier", model.OrderIdentifier);
+        activity?.SetTag("order.status", model.Status);
+
         var order = mapper.MapCreateOrUpdateOrderModelToOrder(model);
 
         await context.Orders.AddAsync(order, cancellationToken);
@@ -45,6 +61,13 @@ public class OrderService(AppDbContext context, OrderMapper mapper) : IOrderServ
         order = await context.Orders
             .AsNoTracking()
             .FirstAsync(o => o.Id == order.Id, cancellationToken);
+
+        // Record telemetry
+        telemetry.OrdersCreatedCounter.Add(1,
+            new KeyValuePair<string, object?>("order.status", model.Status.ToString()));
+
+        activity?.SetTag("order.id", order.Id);
+        activity?.SetTag("order.date", order.OrderDate);
 
         return mapper.MapOrderToOrderModel(order);
     }
