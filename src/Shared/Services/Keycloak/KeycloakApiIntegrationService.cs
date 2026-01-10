@@ -19,7 +19,7 @@ public class KeycloakApiIntegrationService(
 {
     private const int IntegrationTokenLifespanSeconds = 3600;
 
-    public async Task<ApiIntegrationCredentialsModel> CreateApiIntegrationAsync(string name, string? description = null, CancellationToken cancellationToken = default)
+    public async Task<ApiIntegrationCredentialsModel> CreateApiIntegrationAsync(string name, CancellationToken cancellationToken = default)
     {
         if (string.IsNullOrWhiteSpace(name))
             throw new ArgumentException("Name cannot be empty.", nameof(name));
@@ -48,7 +48,6 @@ public class KeycloakApiIntegrationService(
                 directAccessGrantsEnabled = false,
                 attributes = new Dictionary<string, string>
                 {
-                    ["description"] = description ?? string.Empty,
                     ["access.token.lifespan"] = IntegrationTokenLifespanSeconds.ToString()
                 },
                 protocolMappers = new[]
