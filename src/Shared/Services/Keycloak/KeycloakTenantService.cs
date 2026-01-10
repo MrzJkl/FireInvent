@@ -153,6 +153,33 @@ public class KeycloakTenantService(
         }
     }
 
+    public async Task DeleteTenantOrganizationAsync(Guid organizationId, CancellationToken cancellationToken = default)
+    {
+        if (organizationId == Guid.Empty)
+            throw new ArgumentException("Organization ID cannot be empty.", nameof(organizationId));
+
+        try
+        {
+            using var response = await keycloakClient.DeleteAsync(
+                $"admin/realms/{Uri.EscapeDataString(keycloakClient.Realm)}/organizations/{organizationId}",
+                cancellationToken);
+
+            if (!response.IsSuccessStatusCode)
+            {
+                var error = await response.Content.ReadAsStringAsync(cancellationToken);
+                logger.LogError("Failed to delete organization ({Id}): {StatusCode} - {Error}", organizationId, response.StatusCode, error);
+                throw new KeycloakException();
+            }
+
+            logger.LogInformation("Deleted organization ({Id})", organizationId);
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "Error deleting organization ({Id})", organizationId);
+            throw new KeycloakException();
+        }
+    }
+
     private static string SanitizeNameForKeycloak(string name)
     {
         var sanitized = new string(name

@@ -9,4 +9,6 @@ public interface IKeycloakTenantService
     Task<Guid> CreateTenantOrganizationAsync(string name, string? description, CancellationToken cancellationToken = default);
 
     Task UpdateTenantOrganizationNameAsync(Guid organizationId, string newName, string? newDescription, CancellationToken cancellationToken = default);
+
+    Task DeleteTenantOrganizationAsync(Guid organizationId, CancellationToken cancellationToken = default);
 }

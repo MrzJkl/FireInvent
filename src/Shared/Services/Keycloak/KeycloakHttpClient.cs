@@ -50,11 +50,11 @@ public class KeycloakHttpClient : IDisposable
         if (string.IsNullOrWhiteSpace(_options.Url))
             throw new InvalidOperationException("Keycloak URL is not configured.");
 
-        if (string.IsNullOrWhiteSpace(_options.AdminUsername))
-            throw new InvalidOperationException("Keycloak admin username is not configured.");
+        if (string.IsNullOrWhiteSpace(_options.AdminClientId))
+            throw new InvalidOperationException("Keycloak admin client id is not configured.");
 
-        if (string.IsNullOrWhiteSpace(_options.AdminPassword))
-            throw new InvalidOperationException("Keycloak admin password is not configured.");
+        if (string.IsNullOrWhiteSpace(_options.AdminClientSecret))
+            throw new InvalidOperationException("Keycloak admin client secret is not configured.");
 
         if (string.IsNullOrWhiteSpace(_options.Realm))
             throw new InvalidOperationException("Keycloak realm is not configured.");
@@ -73,14 +73,13 @@ public class KeycloakHttpClient : IDisposable
 
             using var tokenRequest = new FormUrlEncodedContent(new Dictionary<string, string>
             {
-                ["grant_type"] = "password",
-                ["client_id"] = "admin-cli",
-                ["username"] = _options.AdminUsername!,
-                ["password"] = _options.AdminPassword!
+                ["grant_type"] = "client_credentials",
+                ["client_id"] = _options.AdminClientId!,
+                ["client_secret"] = _options.AdminClientSecret!,
             });
 
             var stopwatch = Stopwatch.StartNew();
-            var endpoint = "realms/master/protocol/openid-connect/token";
+            var endpoint = $"realms/{_options.Realm}/protocol/openid-connect/token";
 
             try
             {

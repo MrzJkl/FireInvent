@@ -2,13 +2,10 @@ using FireInvent.Contract;
 using FireInvent.Contract.Exceptions;
 using FireInvent.Contract.Extensions;
 using FireInvent.Shared.Models;
-using FireInvent.Shared.Options;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
 using System.Net.Http.Json;
 using System.Text;
 using System.Text.Json;
-using System.Threading;
 
 namespace FireInvent.Shared.Services.Keycloak;
 
@@ -17,19 +14,17 @@ namespace FireInvent.Shared.Services.Keycloak;
 /// </summary>
 public class KeycloakApiIntegrationService(
     KeycloakHttpClient keycloakClient,
-    IOptions<KeycloakAdminOptions> options,
     ILogger<KeycloakApiIntegrationService> logger,
     UserContextProvider userContextProvider) : IKeycloakApiIntegrationService
 {
     private const int IntegrationTokenLifespanSeconds = 3600;
-    private readonly KeycloakAdminOptions _options = options.Value;
 
     public async Task<ApiIntegrationCredentialsModel> CreateApiIntegrationAsync(string name, string? description = null, CancellationToken cancellationToken = default)
     {
         if (string.IsNullOrWhiteSpace(name))
             throw new ArgumentException("Name cannot be empty.", nameof(name));
 
-        var clientId = $"{_options.ApiClientPrefix}-{userContextProvider.TenantId}-{SanitizeClientId(name)}";
+        var clientId = $"{ModelConstants.ApiIntegrationsClientPrefix}-{userContextProvider.TenantId}-{SanitizeClientId(name)}";
 
         var existingClients = await GetClientsByClientIdAsync(clientId, cancellationToken);
         if (existingClients.Any())
@@ -142,7 +137,7 @@ public class KeycloakApiIntegrationService(
 
             var filtered = new List<KeycloakClient>();
             foreach (var c in clients
-                .Where(c => c.ClientId?.StartsWith(_options.ApiClientPrefix) == true)
+                .Where(c => c.ClientId?.StartsWith(ModelConstants.ApiIntegrationsClientPrefix) == true)
                 .Where(c => !string.IsNullOrEmpty(c.Id)))
             {
                 if (await IsClientServiceAccountMemberOfCurrentOrganizationAsync(c.Id, cancellationToken))
@@ -157,9 +152,6 @@ public class KeycloakApiIntegrationService(
                     Id = Guid.Parse(c.Id!),
                     ClientId = c.ClientId!,
                     Name = c.Name ?? ExtractNameFromClientId(c.ClientId!),
-                    Description = c.Attributes?.ContainsKey("description") == true 
-                        ? c.Attributes["description"] 
-                        : null,
                     Enabled = c.Enabled ?? false,
                 })
                 .OrderBy(i => i.Name)
@@ -193,7 +185,7 @@ public class KeycloakApiIntegrationService(
 
             var client = await response.Content.ReadFromJsonAsync<KeycloakClient>(keycloakClient.JsonOptions);
 
-            if (client == null || !client.ClientId.StartsWith(_options.ApiClientPrefix))
+            if (client == null || !client.ClientId.StartsWith(ModelConstants.ApiIntegrationsClientPrefix))
             {
                 logger.LogWarning("Attempted to delete client that is not an API integration: {Id}", id);
                 throw new InvalidOperationException("Client is not an API integration.");
@@ -233,7 +225,7 @@ public class KeycloakApiIntegrationService(
             var client = await response.Content.ReadFromJsonAsync<KeycloakClient>(keycloakClient.JsonOptions);
 
             return client != null 
-                && client.ClientId.StartsWith(_options.ApiClientPrefix)
+                && client.ClientId.StartsWith(ModelConstants.ApiIntegrationsClientPrefix)
                 && await IsClientServiceAccountMemberOfCurrentOrganizationAsync(clientUuid, cancellationToken);
         }
         catch (Exception ex)
@@ -359,10 +351,10 @@ public class KeycloakApiIntegrationService(
 
     private string ExtractNameFromClientId(string clientId)
     {
-        if (!clientId.StartsWith(_options.ApiClientPrefix))
+        if (!clientId.StartsWith(ModelConstants.ApiIntegrationsClientPrefix))
             return clientId;
 
-        return clientId[_options.ApiClientPrefix.Length..]
+        return clientId[ModelConstants.ApiIntegrationsClientPrefix.Length..]
             .Replace('-', ' ')
             .Trim();
     }

@@ -51,6 +51,8 @@ builder.Services.Configure<CorsOptions>(
     builder.Configuration.GetSection("Cors"));
 builder.Services.Configure<KeycloakAdminOptions>(
     builder.Configuration.GetSection("KeycloakAdmin"));
+builder.Services.Configure<OpenApiOptions>(
+    builder.Configuration.GetSection("OpenApi"));
 
 var authOptions = builder.Configuration.GetRequiredSection("Authentication").Get<AuthenticationOptions>()!;
 var corsOptions = builder.Configuration.GetSection("Cors").Get<CorsOptions>() ?? new CorsOptions();
@@ -100,6 +102,7 @@ if (corsOptions.Enabled)
 builder.Services.AddCustomAuthentication(AuthScheme, authOptions);
 builder.Services.AddAuthorization();
 builder.Services.AddMemoryCache();
+builder.Services.AddOutputCache();
 
 // Keycloak HTTP Client (central for all Keycloak services)
 builder.Services.AddHttpClient<FireInvent.Shared.Services.Keycloak.KeycloakHttpClient>();
@@ -194,6 +197,10 @@ if (corsOptions.Enabled)
     app.UseCors(CorsPolicyName);
 }
 
+// Must be called after UseCors
+// See https://learn.microsoft.com/en-us/aspnet/core/performance/caching/output?view=aspnetcore-10.0
+app.UseOutputCache();
+
 app.UseSerilogRequestLogging(options =>
 {
     options.MessageTemplate = "Handled {RequestPath} {RequestMethod} responded {StatusCode} in {Elapsed:0.00} ms";
@@ -240,7 +247,8 @@ app.MapGet("/version", context =>
     {
         Version = typeof(Program).Assembly.GetName().Version?.ToString() ?? "unknown"
     });
-});
+})
+.CacheOutput();
 
 logger.LogDebug("Checking for database migrations...");
 using (var scope = app.Services.CreateScope())

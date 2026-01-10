@@ -99,27 +99,31 @@ public class AppDbContext : DbContext
 
     public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
     {
-        if (_tenantProvider is not null && _tenantProvider.TenantId.HasValue && _tenantProvider.TenantId.Value != Guid.Empty && _tenantProvider.UserId.HasValue && _tenantProvider.UserId.Value != Guid.Empty)
+        var hasTenant = _tenantProvider is not null && _tenantProvider.TenantId.HasValue && _tenantProvider.TenantId.Value != Guid.Empty;
+        var hasUser = _tenantProvider is not null && _tenantProvider.UserId.HasValue && _tenantProvider.UserId.Value != Guid.Empty;
+
+        if (hasTenant)
         {
-            // Automatically assign TenantId to new entities that implement IHasTenant
             foreach (var entry in ChangeTracker.Entries<IHasTenant>()
                 .Where(e => e.State == EntityState.Added && e.Entity.TenantId == Guid.Empty))
             {
-                entry.Entity.TenantId = _tenantProvider.TenantId.Value;
+                entry.Entity.TenantId = _tenantProvider!.TenantId!.Value;
             }
+        }
 
-            // Automatically assign Audit-Fields to entities that implement IAuditable
+        if (hasUser)
+        {
             foreach (var entry in ChangeTracker.Entries<IAuditable>())
             {
                 if (entry.State == EntityState.Added)
                 {
                     entry.Property(x => x.CreatedAt).CurrentValue = DateTimeOffset.UtcNow;
-                    entry.Property(x => x.CreatedById).CurrentValue = _tenantProvider.UserId.Value;
+                    entry.Property(x => x.CreatedById).CurrentValue = _tenantProvider!.UserId!.Value;
                 }
                 else if (entry.State == EntityState.Modified)
                 {
                     entry.Property(x => x.ModifiedAt).CurrentValue = DateTimeOffset.UtcNow;
-                    entry.Property(x => x.ModifiedById).CurrentValue = _tenantProvider.UserId.Value;
+                    entry.Property(x => x.ModifiedById).CurrentValue = _tenantProvider!.UserId!.Value;
                 }
             }
         }

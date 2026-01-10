@@ -7,4 +7,6 @@ public static class ModelConstants
     public const int MaxStringLengthLong = 2000;
 
     public const int DefaultPageSize = 20;
+
+    public const string ApiIntegrationsClientPrefix = "api-integration";
 }

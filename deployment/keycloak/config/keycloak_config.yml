@@ -31,6 +31,7 @@ adminEventsEnabled: true
 adminEventsDetailsEnabled: true
 attributes:
   "adminEventsExpiration": "604800"
+passwordPolicy: "upperCase(1) and specialChars(1) and notContainsUsername(undefined) and length(10) and digits(1) and notEmail(undefined) and lowerCase(1)"
 
 smtpServer:
   host: $(env:SMTP_HOST)
@@ -38,7 +39,7 @@ smtpServer:
   from: $(env:SMTP_FROM)
   fromDisplayName: "FireInvent"
   ssl: true
-  starttls: true
+  starttls: false
   auth: true
   user: $(env:SMTP_USER)
   password: $(env:SMTP_PASSWORD)
@@ -57,7 +58,7 @@ clientScopes:
       "userinfo.token.claim": "true"
       "id.token.claim": "true"
       "access.token.claim": "true"
-      "access.token.claim": "true"
+
   # Necessary for account console
   - name: client roles
     protocolMapper: oidc-usermodel-client-role-mapper
@@ -69,7 +70,6 @@ clientScopes:
       "multivalued": "true"
       "userinfo.token.claim": "true"
       "id.token.claim": "true"
-      "access.token.claim": "true"
       "access.token.claim": "true"
 
 # Necessary for multi-organization support. See https://stackoverflow.com/questions/79201134/keycloak-and-new-organization-feature-with-multi-membership-on-a-user-v26
@@ -105,18 +105,61 @@ roles:
     description: SaaS Administration (Tenant Administration). Not for customers!
 
 clients:
-- clientId: fireinvent-spa
-  name: FireInvent Single Page Application (Default UI)
+- clientId: fireinvent-portal
+  name: FireInvent Portal
   protocol: openid-connect
   publicClient: true
   standardFlowEnabled: true
   implicitFlowEnabled: false
   directAccessGrantsEnabled: false
   serviceAccountsEnabled: false
-  rootUrl: $(env:FIREINVENT_SPA_URL)
+  alwaysDisplayInConsole: true
+  attributes:
+    "pkce.code.challenge.method": "S256"
+  baseUrl: $(env:FIREINVENT_SPA_URL)
   redirectUris:
   - $(env:FIREINVENT_SPA_URL)/*
   - $(env:FIREINVENT_SPA_URL)
   webOrigins:
   - $(env:FIREINVENT_SPA_URL)/*
   - $(env:FIREINVENT_SPA_URL)
+
+- clientId: fireinvent-api-explorer
+  name: FireInvent API-Explorer (Scalar)
+  protocol: openid-connect
+  publicClient: true
+  standardFlowEnabled: true
+  implicitFlowEnabled: false
+  directAccessGrantsEnabled: false
+  serviceAccountsEnabled: false
+  alwaysDisplayInConsole: true
+  baseUrl: $(env:FIREINVENT_API_EXPLORER_URL)
+  attributes:
+    "pkce.code.challenge.method": "S256"
+  redirectUris:
+  - $(env:FIREINVENT_API_EXPLORER_URL)/*
+  - $(env:FIREINVENT_API_EXPLORER_URL)
+  webOrigins:
+  - $(env:FIREINVENT_API_EXPLORER_URL)/*
+  - $(env:FIREINVENT_API_EXPLORER_URL)
+
+- clientId: $(env:FIREINVENT_API_CLIENT_ID)
+  name: FireInvent API
+  protocol: openid-connect
+  publicClient: false
+  standardFlowEnabled: false
+  implicitFlowEnabled: false
+  directAccessGrantsEnabled: false
+  serviceAccountsEnabled: true
+  clientAuthenticatorType: client-secret
+  secret: $(env:FIREINVENT_API_CLIENT_SECRET)
+
+users:
+- username: service-account-$(env:FIREINVENT_API_CLIENT_ID)
+  enabled: true
+  emailVerified: false
+  serviceAccountClientId: $(env:FIREINVENT_API_CLIENT_ID)
+  clientRoles:
+    realm-management:
+      - realm-admin
+      - create-client

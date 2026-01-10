@@ -1,6 +1,6 @@
 services:
   keycloak:
-    image: quay.io/keycloak/keycloak:26.4.7
+    image: quay.io/keycloak/keycloak:26.5.0
     container_name: fireinvent_keycloak
     restart: unless-stopped
     command: ["start-dev"]
@@ -36,8 +36,8 @@ services:
       - db_keycloak_data:/var/lib/postgresql
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U ${KEYCLOAK_DB_USER:-keycloakuser} -d ${KEYCLOAK_DB_NAME:-keycloak}"]
-      interval: 10s
-      timeout: 5s
+      interval: 5s
+      timeout: 2s
       retries: 5
       
   keycloak_config:
@@ -60,6 +60,9 @@ services:
       SMTP_USER: ${SMTP_USER}
       SMTP_PASSWORD: ${SMTP_PASSWORD}
       FIREINVENT_SPA_URL: ${FIREINVENT_SPA_URL}
+      FIREINVENT_API_EXPLORER_URL: ${FIREINVENT_API_EXPLORER_URL}
+      FIREINVENT_API_CLIENT_ID: ${FIREINVENT_API_CLIENT_ID}
+      FIREINVENT_API_CLIENT_SECRET: ${FIREINVENT_API_CLIENT_SECRET}
     volumes:
       - ./config:/config:ro
 volumes:
