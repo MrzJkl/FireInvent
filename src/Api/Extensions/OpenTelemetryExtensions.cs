@@ -24,7 +24,6 @@ public static class OpenTelemetryExtensions
                     {
                         ["deployment.environment"] = environment.EnvironmentName,
                         ["host.name"] = Environment.MachineName,
-                        ["process.runtime.name"] = ".NET",
                         ["process.runtime.version"] = Environment.Version.ToString()
                     });
             })
@@ -41,12 +40,13 @@ public static class OpenTelemetryExtensions
                             activity.SetTag("http.request.path", httpRequest.Path);
                             activity.SetTag("http.request.scheme", httpRequest.Scheme);
                             activity.SetTag("http.request.host", httpRequest.Host.Value);
-                            
+                            activity.SetTag("http.request.trace_id", activity.TraceId);
+
                             if (httpRequest.Headers.TryGetValue("User-Agent", out var userAgent))
                             {
                                 activity.SetTag("http.user_agent", userAgent.ToString());
                             }
-                            
+
                             if (httpRequest.Headers.TryGetValue("X-Tenant-Id", out var tenantId))
                             {
                                 activity.SetTag("tenant.id", tenantId.ToString());
@@ -62,7 +62,7 @@ public static class OpenTelemetryExtensions
                             return !httpContext.Request.Path.StartsWithSegments("/health");
                         };
                     })
-                    // HttpClient instrumentation - captures outgoing HTTP calls (e.g., to Keycloak)
+                    // HttpClient instrumentation - captures outgoing HTTP calls (e.g. to Keycloak)
                     .AddHttpClientInstrumentation(options =>
                     {
                         options.RecordException = true;
@@ -75,13 +75,7 @@ public static class OpenTelemetryExtensions
                         {
                             activity.SetTag("http.response.status_code", (int)httpResponseMessage.StatusCode);
                         };
-                        options.FilterHttpRequestMessage = httpRequestMessage =>
-                        {
-                            // Trace all HTTP requests
-                            return true;
-                        };
                     })
-                    // Entity Framework Core instrumentation - captures database operations
                     .AddEntityFrameworkCoreInstrumentation(options =>
                     {
                         options.SetDbStatementForText = true;
@@ -92,14 +86,8 @@ public static class OpenTelemetryExtensions
                         };
                     })
                     // Custom application instrumentation
-                    .AddSource(FireInventTelemetry.ActivitySource.Name)
-                    // Add console exporter for development
-                    .AddConsoleExporter(options =>
-                    {
-                        options.Targets = OpenTelemetry.Exporter.ConsoleExporterOutputTargets.Console;
-                    });
+                    .AddSource(FireInventTelemetry.ActivitySource.Name);
 
-                // Add OTLP exporter if configured
                 var otlpEndpoint = configuration.GetValue<string>("OpenTelemetry:OtlpEndpoint");
                 if (!string.IsNullOrWhiteSpace(otlpEndpoint))
                 {

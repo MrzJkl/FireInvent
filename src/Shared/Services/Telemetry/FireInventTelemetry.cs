@@ -33,7 +33,6 @@ public sealed class FireInventTelemetry : IDisposable
     {
         _meter = new Meter(ServiceName, "1.0.0");
         
-        // Initialize counters
         ItemsCreatedCounter = _meter.CreateCounter<long>(
             "fireinvent.items.created",
             unit: "items",
@@ -99,9 +98,6 @@ public sealed class FireInventTelemetry : IDisposable
         _pendingOrders = count;
     }
     
-    /// <summary>
-    /// Creates a new activity for tracing business operations
-    /// </summary>
     public Activity? StartActivity(string name, ActivityKind kind = ActivityKind.Internal)
     {
         return ActivitySource.StartActivity(name, kind);
