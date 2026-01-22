@@ -18,7 +18,6 @@ public sealed class FireInventTelemetry : IDisposable
     public Counter<long> ItemsAssignedCounter { get; }
     public Counter<long> MaintenanceRecordsCounter { get; }
     public Counter<long> OrdersCreatedCounter { get; }
-    public Counter<long> VisitsCreatedCounter { get; }
     
     // Histograms
     public Histogram<double> DatabaseQueryDuration { get; }
@@ -52,11 +51,6 @@ public sealed class FireInventTelemetry : IDisposable
             "fireinvent.orders.created",
             unit: "orders",
             description: "Total number of orders created");
-            
-        VisitsCreatedCounter = _meter.CreateCounter<long>(
-            "fireinvent.visits.created",
-            unit: "visits",
-            description: "Total number of visits created");
         
         // Initialize histograms
         DatabaseQueryDuration = _meter.CreateHistogram<double>(

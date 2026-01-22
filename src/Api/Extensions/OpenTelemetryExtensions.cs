@@ -7,7 +7,7 @@ namespace FireInvent.Api.Extensions;
 
 public static class OpenTelemetryExtensions
 {
-    public const string ServiceName = FireInventTelemetry.ServiceName;
+    private const string ServiceName = FireInventTelemetry.ServiceName;
 
     public static IServiceCollection AddOpenTelemetryObservability(this IServiceCollection services, IConfiguration configuration, IHostEnvironment environment)
     {
