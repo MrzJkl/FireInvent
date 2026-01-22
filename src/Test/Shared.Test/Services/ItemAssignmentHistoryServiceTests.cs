@@ -69,7 +69,7 @@ public class ItemAssignmentHistoryServiceTests
         // Arrange
         using var context = TestHelper.GetTestDbContext();
         var mockUserService = CreateMockUserService();
-        var service = new ItemAssignmentHistoryService(context, _mapper, mockUserService);
+        var service = new ItemAssignmentHistoryService(context, _mapper, mockUserService, TestHelper.GetTestTelemetry());
         var person = TestDataFactory.CreatePerson(firstName: "John", lastName: "Doe");
         context.Persons.Add(person);
         await context.SaveChangesAsync();
@@ -86,7 +86,7 @@ public class ItemAssignmentHistoryServiceTests
         // Arrange
         using var context = TestHelper.GetTestDbContext();
         var mockUserService = CreateMockUserService();
-        var service = new ItemAssignmentHistoryService(context, _mapper, mockUserService);
+        var service = new ItemAssignmentHistoryService(context, _mapper, mockUserService, TestHelper.GetTestTelemetry());
         var (_, itemId, _) = await SetupBasicDataAsync(context);
 
         var model = TestDataFactory.CreateAssignmentModel(itemId, personId: Guid.NewGuid());
@@ -101,7 +101,7 @@ public class ItemAssignmentHistoryServiceTests
         // Arrange
         using var context = TestHelper.GetTestDbContext();
         var mockUserService = CreateMockUserService();
-        var service = new ItemAssignmentHistoryService(context, _mapper, mockUserService);
+        var service = new ItemAssignmentHistoryService(context, _mapper, mockUserService, TestHelper.GetTestTelemetry());
         var (_, itemId, _) = await SetupBasicDataAsync(context);
 
         var model = TestDataFactory.CreateAssignmentModel(itemId, storageLocationId: Guid.NewGuid());
@@ -116,7 +116,7 @@ public class ItemAssignmentHistoryServiceTests
         // Arrange
         using var context = TestHelper.GetTestDbContext();
         var mockUserService = CreateMockUserService();
-        var service = new ItemAssignmentHistoryService(context, _mapper, mockUserService);
+        var service = new ItemAssignmentHistoryService(context, _mapper, mockUserService, TestHelper.GetTestTelemetry());
         var (_, itemId, personId) = await SetupBasicDataAsync(context);
 
         var nonExistingUserId = Guid.NewGuid();
@@ -132,7 +132,7 @@ public class ItemAssignmentHistoryServiceTests
         // Arrange
         using var context = TestHelper.GetTestDbContext();
         var mockUserService = CreateMockUserService();
-        var service = new ItemAssignmentHistoryService(context, _mapper, mockUserService);
+        var service = new ItemAssignmentHistoryService(context, _mapper, mockUserService, TestHelper.GetTestTelemetry());
         var (_, itemId, personId) = await SetupBasicDataAsync(context);
         var storageLocation = TestDataFactory.CreateStorageLocation(name: "Test Location");
         context.StorageLocations.Add(storageLocation);
@@ -151,7 +151,7 @@ public class ItemAssignmentHistoryServiceTests
         // Arrange
         using var context = TestHelper.GetTestDbContext();
         var mockUserService = CreateMockUserService();
-        var service = new ItemAssignmentHistoryService(context, _mapper, mockUserService);
+        var service = new ItemAssignmentHistoryService(context, _mapper, mockUserService, TestHelper.GetTestTelemetry());
         var (_, itemId, _) = await SetupBasicDataAsync(context);
 
         var model = TestDataFactory.CreateAssignmentModel(itemId);
@@ -167,7 +167,7 @@ public class ItemAssignmentHistoryServiceTests
         // Arrange
         using var context = TestHelper.GetTestDbContext();
         var mockUserService = CreateMockUserService();
-        var service = new ItemAssignmentHistoryService(context, _mapper, mockUserService);
+        var service = new ItemAssignmentHistoryService(context, _mapper, mockUserService, TestHelper.GetTestTelemetry());
         var (_, itemId, personId) = await SetupBasicDataAsync(context);
 
         var existingAssignment = TestDataFactory.CreateAssignment(
@@ -191,7 +191,7 @@ public class ItemAssignmentHistoryServiceTests
         // Arrange
         using var context = TestHelper.GetTestDbContext();
         var mockUserService = CreateMockUserService();
-        var service = new ItemAssignmentHistoryService(context, _mapper, mockUserService);
+        var service = new ItemAssignmentHistoryService(context, _mapper, mockUserService, TestHelper.GetTestTelemetry());
         var (_, itemId, personId) = await SetupBasicDataAsync(context);
 
         var existingAssignment = TestDataFactory.CreateAssignment(
@@ -222,7 +222,7 @@ public class ItemAssignmentHistoryServiceTests
         // Arrange
         using var context = TestHelper.GetTestDbContext();
         var mockUserService = CreateMockUserService();
-        var service = new ItemAssignmentHistoryService(context, _mapper, mockUserService);
+        var service = new ItemAssignmentHistoryService(context, _mapper, mockUserService, TestHelper.GetTestTelemetry());
         var (_, itemId, storageLocationId) = await SetupBasicDataWithStorageLocationAsync(context);
 
         var model = TestDataFactory.CreateAssignmentModel(
@@ -244,7 +244,7 @@ public class ItemAssignmentHistoryServiceTests
         // Arrange
         using var context = TestHelper.GetTestDbContext();
         var mockUserService = CreateMockUserService();
-        var service = new ItemAssignmentHistoryService(context, _mapper, mockUserService);
+        var service = new ItemAssignmentHistoryService(context, _mapper, mockUserService, TestHelper.GetTestTelemetry());
         var query = new PagedQuery { Page = 1, PageSize = 10 };
 
         // Act & Assert
@@ -257,7 +257,7 @@ public class ItemAssignmentHistoryServiceTests
         // Arrange
         using var context = TestHelper.GetTestDbContext();
         var mockUserService = CreateMockUserService();
-        var service = new ItemAssignmentHistoryService(context, _mapper, mockUserService);
+        var service = new ItemAssignmentHistoryService(context, _mapper, mockUserService, TestHelper.GetTestTelemetry());
         var (_, itemId, _) = await SetupBasicDataAsync(context);
         var query = new PagedQuery { Page = 1, PageSize = 10 };
 
@@ -275,7 +275,7 @@ public class ItemAssignmentHistoryServiceTests
         // Arrange
         using var context = TestHelper.GetTestDbContext();
         var mockUserService = CreateMockUserService();
-        var service = new ItemAssignmentHistoryService(context, _mapper, mockUserService);
+        var service = new ItemAssignmentHistoryService(context, _mapper, mockUserService, TestHelper.GetTestTelemetry());
         var query = new PagedQuery { Page = 1, PageSize = 10 };
 
         // Act & Assert
@@ -288,7 +288,7 @@ public class ItemAssignmentHistoryServiceTests
         // Arrange
         using var context = TestHelper.GetTestDbContext();
         var mockUserService = CreateMockUserService();
-        var service = new ItemAssignmentHistoryService(context, _mapper, mockUserService);
+        var service = new ItemAssignmentHistoryService(context, _mapper, mockUserService, TestHelper.GetTestTelemetry());
         var (_, _, personId) = await SetupBasicDataAsync(context);
         var query = new PagedQuery { Page = 1, PageSize = 10 };
 
@@ -306,7 +306,7 @@ public class ItemAssignmentHistoryServiceTests
         // Arrange
         using var context = TestHelper.GetTestDbContext();
         var mockUserService = CreateMockUserService();
-        var service = new ItemAssignmentHistoryService(context, _mapper, mockUserService);
+        var service = new ItemAssignmentHistoryService(context, _mapper, mockUserService, TestHelper.GetTestTelemetry());
         var query = new PagedQuery { Page = 1, PageSize = 10 };
 
         // Act & Assert
@@ -319,7 +319,7 @@ public class ItemAssignmentHistoryServiceTests
         // Arrange
         using var context = TestHelper.GetTestDbContext();
         var mockUserService = CreateMockUserService();
-        var service = new ItemAssignmentHistoryService(context, _mapper, mockUserService);
+        var service = new ItemAssignmentHistoryService(context, _mapper, mockUserService, TestHelper.GetTestTelemetry());
         var (_, _, storageLocationId) = await SetupBasicDataWithStorageLocationAsync(context);
         var query = new PagedQuery { Page = 1, PageSize = 10 };
 
@@ -337,7 +337,7 @@ public class ItemAssignmentHistoryServiceTests
         // Arrange
         using var context = TestHelper.GetTestDbContext();
         var mockUserService = CreateMockUserService();
-        var service = new ItemAssignmentHistoryService(context, _mapper, mockUserService);
+        var service = new ItemAssignmentHistoryService(context, _mapper, mockUserService, TestHelper.GetTestTelemetry());
         var query = new PagedQuery { Page = 1, PageSize = 10 };
 
         // Act
@@ -354,7 +354,7 @@ public class ItemAssignmentHistoryServiceTests
         // Arrange
         using var context = TestHelper.GetTestDbContext();
         var mockUserService = CreateMockUserService();
-        var service = new ItemAssignmentHistoryService(context, _mapper, mockUserService);
+        var service = new ItemAssignmentHistoryService(context, _mapper, mockUserService, TestHelper.GetTestTelemetry());
         var (_, itemId, personId) = await SetupBasicDataAsync(context);
         var storageLocation = TestDataFactory.CreateStorageLocation(name: "Test Location");
         context.StorageLocations.Add(storageLocation);
@@ -381,7 +381,7 @@ public class ItemAssignmentHistoryServiceTests
         // Arrange
         using var context = TestHelper.GetTestDbContext();
         var mockUserService = CreateMockUserService();
-        var service = new ItemAssignmentHistoryService(context, _mapper, mockUserService);
+        var service = new ItemAssignmentHistoryService(context, _mapper, mockUserService, TestHelper.GetTestTelemetry());
         var (_, itemId, personId) = await SetupBasicDataAsync(context);
 
         var assignment = TestDataFactory.CreateAssignment(itemId, personId: personId);
@@ -402,7 +402,7 @@ public class ItemAssignmentHistoryServiceTests
         // Arrange
         using var context = TestHelper.GetTestDbContext();
         var mockUserService = CreateMockUserService();
-        var service = new ItemAssignmentHistoryService(context, _mapper, mockUserService);
+        var service = new ItemAssignmentHistoryService(context, _mapper, mockUserService, TestHelper.GetTestTelemetry());
 
         // Act
         var result = await service.GetAssignmentByIdAsync(Guid.NewGuid());
@@ -417,7 +417,7 @@ public class ItemAssignmentHistoryServiceTests
         // Arrange
         using var context = TestHelper.GetTestDbContext();
         var mockUserService = CreateMockUserService();
-        var service = new ItemAssignmentHistoryService(context, _mapper, mockUserService);
+        var service = new ItemAssignmentHistoryService(context, _mapper, mockUserService, TestHelper.GetTestTelemetry());
         var (_, itemId, personId) = await SetupBasicDataAsync(context);
 
         var model = TestDataFactory.CreateAssignmentModel(itemId, personId: personId);
@@ -435,7 +435,7 @@ public class ItemAssignmentHistoryServiceTests
         // Arrange
         using var context = TestHelper.GetTestDbContext();
         var mockUserService = CreateMockUserService();
-        var service = new ItemAssignmentHistoryService(context, _mapper, mockUserService);
+        var service = new ItemAssignmentHistoryService(context, _mapper, mockUserService, TestHelper.GetTestTelemetry());
         var (_, itemId, personId) = await SetupBasicDataAsync(context);
 
         var existingAssignment = TestDataFactory.CreateAssignment(
@@ -464,7 +464,7 @@ public class ItemAssignmentHistoryServiceTests
         // Arrange
         using var context = TestHelper.GetTestDbContext();
         var mockUserService = CreateMockUserService();
-        var service = new ItemAssignmentHistoryService(context, _mapper, mockUserService);
+        var service = new ItemAssignmentHistoryService(context, _mapper, mockUserService, TestHelper.GetTestTelemetry());
         var (_, itemId, personId) = await SetupBasicDataAsync(context);
 
         var assignment = TestDataFactory.CreateAssignment(
@@ -496,7 +496,7 @@ public class ItemAssignmentHistoryServiceTests
         // Arrange
         using var context = TestHelper.GetTestDbContext();
         var mockUserService = CreateMockUserService();
-        var service = new ItemAssignmentHistoryService(context, _mapper, mockUserService);
+        var service = new ItemAssignmentHistoryService(context, _mapper, mockUserService, TestHelper.GetTestTelemetry());
         var (_, itemId, personId) = await SetupBasicDataAsync(context);
         var storageLocation = TestDataFactory.CreateStorageLocation(name: "Test Location");
         context.StorageLocations.Add(storageLocation);
@@ -519,7 +519,7 @@ public class ItemAssignmentHistoryServiceTests
         // Arrange
         using var context = TestHelper.GetTestDbContext();
         var mockUserService = CreateMockUserService();
-        var service = new ItemAssignmentHistoryService(context, _mapper, mockUserService);
+        var service = new ItemAssignmentHistoryService(context, _mapper, mockUserService, TestHelper.GetTestTelemetry());
         var (_, itemId, personId) = await SetupBasicDataAsync(context);
 
         var assignment = TestDataFactory.CreateAssignment(itemId, personId: personId);
@@ -540,7 +540,7 @@ public class ItemAssignmentHistoryServiceTests
         // Arrange
         using var context = TestHelper.GetTestDbContext();
         var mockUserService = CreateMockUserService();
-        var service = new ItemAssignmentHistoryService(context, _mapper, mockUserService);
+        var service = new ItemAssignmentHistoryService(context, _mapper, mockUserService, TestHelper.GetTestTelemetry());
 
         // Act
         var result = await service.DeleteAssignmentAsync(Guid.NewGuid());

@@ -18,7 +18,7 @@ public class OrderServiceTests
     {
         // Arrange
         using var context = TestHelper.GetTestDbContext();
-        var service = new OrderService(context, _mapper);
+        var service = new OrderService(context, _mapper, TestHelper.GetTestTelemetry());
 
         // Act
         var result = await service.GetOrderByIdAsync(Guid.NewGuid());
@@ -32,7 +32,7 @@ public class OrderServiceTests
     {
         // Arrange
         using var context = TestHelper.GetTestDbContext();
-        var service = new OrderService(context, _mapper);
+        var service = new OrderService(context, _mapper, TestHelper.GetTestTelemetry());
         var query = new PagedQuery { Page = 1, PageSize = 10 };
 
         // Act
@@ -48,7 +48,7 @@ public class OrderServiceTests
     {
         // Arrange
         using var context = TestHelper.GetTestDbContext();
-        var service = new OrderService(context, _mapper);
+        var service = new OrderService(context, _mapper, TestHelper.GetTestTelemetry());
         var model = TestDataFactory.CreateOrderModel(
             orderDate: DateOnly.FromDateTime(DateTime.UtcNow),
             status: OrderStatus.Draft,
@@ -70,7 +70,7 @@ public class OrderServiceTests
     {
         // Arrange
         using var context = TestHelper.GetTestDbContext();
-        var service = new OrderService(context, _mapper);
+        var service = new OrderService(context, _mapper, TestHelper.GetTestTelemetry());
         var updateModel = TestDataFactory.CreateOrderModel();
 
         // Act
@@ -85,7 +85,7 @@ public class OrderServiceTests
     {
         // Arrange
         using var context = TestHelper.GetTestDbContext();
-        var service = new OrderService(context, _mapper);
+        var service = new OrderService(context, _mapper, TestHelper.GetTestTelemetry());
         var order = TestDataFactory.CreateOrder(status: OrderStatus.Draft, orderIdentifier: "ORD-001");
         context.Orders.Add(order);
         await context.SaveChangesAsync();
@@ -110,7 +110,7 @@ public class OrderServiceTests
     {
         // Arrange
         using var context = TestHelper.GetTestDbContext();
-        var service = new OrderService(context, _mapper);
+        var service = new OrderService(context, _mapper, TestHelper.GetTestTelemetry());
         var order = TestDataFactory.CreateOrder();
         context.Orders.Add(order);
         await context.SaveChangesAsync();
@@ -128,7 +128,7 @@ public class OrderServiceTests
     {
         // Arrange
         using var context = TestHelper.GetTestDbContext();
-        var service = new OrderService(context, _mapper);
+        var service = new OrderService(context, _mapper, TestHelper.GetTestTelemetry());
 
         // Act
         var result = await service.DeleteOrderAsync(Guid.NewGuid());

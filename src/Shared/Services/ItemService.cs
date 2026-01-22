@@ -5,14 +5,20 @@ using FireInvent.Contract.Exceptions;
 using FireInvent.Shared.Extensions;
 using FireInvent.Shared.Mapper;
 using FireInvent.Shared.Models;
+using FireInvent.Shared.Services.Telemetry;
 using Microsoft.EntityFrameworkCore;
+using System.Diagnostics;
 
 namespace FireInvent.Shared.Services;
 
-public class ItemService(AppDbContext context, ItemMapper mapper) : IItemService
+public class ItemService(AppDbContext context, ItemMapper mapper, FireInventTelemetry telemetry) : IItemService
 {
     public async Task<ItemModel> CreateItemAsync(CreateOrUpdateItemModel model, CancellationToken cancellationToken = default)
     {
+        using var activity = telemetry.StartActivity("ItemService.CreateItem");
+        activity?.SetTag("variant.id", model.VariantId);
+        activity?.SetTag("item.identifier", model.Identifier);
+
         if (!await context.Variants.AnyAsync(v => v.Id == model.VariantId, cancellationToken))
             throw new BadRequestException("Variant not found.");
 
@@ -33,6 +39,12 @@ public class ItemService(AppDbContext context, ItemMapper mapper) : IItemService
         item = await context.Items
             .AsNoTracking()
             .SingleAsync(i => i.Id == item.Id, cancellationToken);
+
+        // Record telemetry
+        telemetry.ItemsCreatedCounter.Add(1, 
+            new KeyValuePair<string, object?>("variant.id", model.VariantId));
+
+        activity?.SetTag("item.id", item.Id);
 
         return mapper.MapItemToItemModel(item);
     }

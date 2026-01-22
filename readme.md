@@ -13,6 +13,7 @@ FireInvent is a modern inventory management system designed for organizations th
 - **Secure Authentication**: JWT Bearer authentication and OpenID Connect integration.
 - **Swagger/OpenAPI**: Interactive API documentation and testing via Swagger UI.
 - **Logging**: Structured logging with Serilog for diagnostics and auditing.
+- **Observability**: Comprehensive OpenTelemetry instrumentation for distributed tracing, metrics, and monitoring. See [OpenTelemetry Documentation](docs/OPENTELEMETRY.md) for details.
 
 ## Project Structure
 

@@ -2,6 +2,7 @@
 using FireInvent.Database;
 using FireInvent.Shared.Models;
 using FireInvent.Shared.Services.Keycloak;
+using FireInvent.Shared.Services.Telemetry;
 using Microsoft.EntityFrameworkCore;
 
 namespace FireInvent.Test.Shared;
@@ -24,6 +25,14 @@ internal static class TestHelper
         };
         
         return new AppDbContext(options, testTenantProvider);
+    }
+
+    /// <summary>
+    /// Creates a FireInventTelemetry instance for testing purposes.
+    /// </summary>
+    internal static FireInventTelemetry GetTestTelemetry()
+    {
+        return new FireInventTelemetry();
     }
 }
 

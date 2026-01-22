@@ -5,15 +5,20 @@ using FireInvent.Contract.Exceptions;
 using FireInvent.Shared.Extensions;
 using FireInvent.Shared.Mapper;
 using FireInvent.Shared.Models;
+using FireInvent.Shared.Services.Telemetry;
 using Microsoft.EntityFrameworkCore;
 using FireInvent.Shared.Services.Keycloak;
 
 namespace FireInvent.Shared.Services;
 
-public class MaintenanceService(AppDbContext context, IKeycloakUserService userService, MaintenanceMapper mapper) : IMaintenanceService
+public class MaintenanceService(AppDbContext context, IKeycloakUserService userService, MaintenanceMapper mapper, FireInventTelemetry telemetry) : IMaintenanceService
 {
     public async Task<MaintenanceModel> CreateMaintenanceAsync(CreateOrUpdateMaintenanceModel model, CancellationToken cancellationToken = default)
     {
+        using var activity = telemetry.StartActivity("MaintenanceService.CreateMaintenance");
+        activity?.SetTag("item.id", model.ItemId);
+        activity?.SetTag("maintenance.type", model.TypeId);
+
         _ = await context.Items.FindAsync(model.ItemId, cancellationToken) ?? throw new BadRequestException($"Item with ID '{model.ItemId}' does not exist.");
         _ = await context.MaintenanceTypes.FindAsync(model.TypeId, cancellationToken) ?? throw new BadRequestException($"MaintenanceType with ID '{model.TypeId}' does not exist.");
         _ = await userService.GetUserByIdAsync(model.PerformedById, cancellationToken) ?? throw new BadRequestException($"User with ID '{model.PerformedById}' does not exist.");
@@ -26,6 +31,13 @@ public class MaintenanceService(AppDbContext context, IKeycloakUserService userS
         maintenance = await context.Maintenances
             .AsNoTracking()
             .SingleAsync(m => m.Id == maintenance.Id, cancellationToken);
+
+        // Record telemetry
+        telemetry.MaintenanceRecordsCounter.Add(1,
+            new KeyValuePair<string, object?>("item.id", model.ItemId),
+            new KeyValuePair<string, object?>("maintenance.type", model.TypeId));
+
+        activity?.SetTag("maintenance.id", maintenance.Id);
 
         return mapper.MapMaintenanceToMaintenanceModel(maintenance);
     }

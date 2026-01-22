@@ -104,6 +104,9 @@ builder.Services.AddAuthorization();
 builder.Services.AddMemoryCache();
 builder.Services.AddOutputCache();
 
+// OpenTelemetry - Observability with Tracing, Metrics, and Logging
+builder.Services.AddOpenTelemetryObservability(builder.Configuration, builder.Environment);
+
 // Keycloak HTTP Client (central for all Keycloak services)
 builder.Services.AddHttpClient<FireInvent.Shared.Services.Keycloak.KeycloakHttpClient>();
 
@@ -114,6 +117,9 @@ builder.Services.AddResponseCompression(options =>
 
 // Multi-Tenancy
 builder.Services.AddScoped<UserContextProvider>();
+
+// Telemetry
+builder.Services.AddSingleton<FireInvent.Shared.Services.Telemetry.FireInventTelemetry>();
 
 // Database
 builder.Services.AddDbContext<AppDbContext>(options =>

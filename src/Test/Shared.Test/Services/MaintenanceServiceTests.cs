@@ -49,7 +49,7 @@ public class MaintenanceServiceTests
         // Arrange
         using var context = TestHelper.GetTestDbContext();
         var mockUserService = CreateMockUserService();
-        var service = new MaintenanceService(context, mockUserService, _mapper);
+        var service = new MaintenanceService(context, mockUserService, _mapper, TestHelper.GetTestTelemetry());
 
         var maintenanceType = TestDataFactory.CreateMaintenanceType(name: "Inspection");
         context.MaintenanceTypes.Add(maintenanceType);
@@ -67,7 +67,7 @@ public class MaintenanceServiceTests
         // Arrange
         using var context = TestHelper.GetTestDbContext();
         var mockUserService = CreateMockUserService();
-        var service = new MaintenanceService(context, mockUserService, _mapper);
+        var service = new MaintenanceService(context, mockUserService, _mapper, TestHelper.GetTestTelemetry());
         var (itemId, _) = await SetupBasicDataAsync(context);
 
         var model = TestDataFactory.CreateMaintenanceModel(itemId, Guid.NewGuid());
@@ -82,7 +82,7 @@ public class MaintenanceServiceTests
         // Arrange
         using var context = TestHelper.GetTestDbContext();
         var mockUserService = CreateMockUserService();
-        var service = new MaintenanceService(context, mockUserService, _mapper);
+        var service = new MaintenanceService(context, mockUserService, _mapper, TestHelper.GetTestTelemetry());
         var (itemId, maintenanceTypeId) = await SetupBasicDataAsync(context);
 
         var nonExistingUserId = Guid.NewGuid();
@@ -98,7 +98,7 @@ public class MaintenanceServiceTests
         // Arrange
         using var context = TestHelper.GetTestDbContext();
         var mockUserService = CreateMockUserService();
-        var service = new MaintenanceService(context, mockUserService, _mapper);
+        var service = new MaintenanceService(context, mockUserService, _mapper, TestHelper.GetTestTelemetry());
         var (itemId, maintenanceTypeId) = await SetupBasicDataAsync(context);
 
         var model = TestDataFactory.CreateMaintenanceModel(itemId, maintenanceTypeId, remarks: "Test maintenance");
@@ -120,7 +120,7 @@ public class MaintenanceServiceTests
         // Arrange
         using var context = TestHelper.GetTestDbContext();
         var mockUserService = CreateMockUserService();
-        var service = new MaintenanceService(context, mockUserService, _mapper);
+        var service = new MaintenanceService(context, mockUserService, _mapper, TestHelper.GetTestTelemetry());
         var query = new PagedQuery { Page = 1, PageSize = 10 };
 
         // Act
@@ -137,7 +137,7 @@ public class MaintenanceServiceTests
         // Arrange
         using var context = TestHelper.GetTestDbContext();
         var mockUserService = CreateMockUserService();
-        var service = new MaintenanceService(context, mockUserService, _mapper);
+        var service = new MaintenanceService(context, mockUserService, _mapper, TestHelper.GetTestTelemetry());
 
         // Act
         var result = await service.GetMaintenanceByIdAsync(Guid.NewGuid());
@@ -152,7 +152,7 @@ public class MaintenanceServiceTests
         // Arrange
         using var context = TestHelper.GetTestDbContext();
         var mockUserService = CreateMockUserService();
-        var service = new MaintenanceService(context, mockUserService, _mapper);
+        var service = new MaintenanceService(context, mockUserService, _mapper, TestHelper.GetTestTelemetry());
         var (itemId, maintenanceTypeId) = await SetupBasicDataAsync(context);
 
         var updateModel = TestDataFactory.CreateMaintenanceModel(itemId, maintenanceTypeId);
@@ -170,7 +170,7 @@ public class MaintenanceServiceTests
         // Arrange
         using var context = TestHelper.GetTestDbContext();
         var mockUserService = CreateMockUserService();
-        var service = new MaintenanceService(context, mockUserService, _mapper);
+        var service = new MaintenanceService(context, mockUserService, _mapper, TestHelper.GetTestTelemetry());
         var (itemId, maintenanceTypeId) = await SetupBasicDataAsync(context);
 
         var maintenance = TestDataFactory.CreateMaintenance(itemId, maintenanceTypeId);
@@ -189,7 +189,7 @@ public class MaintenanceServiceTests
         // Arrange
         using var context = TestHelper.GetTestDbContext();
         var mockUserService = CreateMockUserService();
-        var service = new MaintenanceService(context, mockUserService, _mapper);
+        var service = new MaintenanceService(context, mockUserService, _mapper, TestHelper.GetTestTelemetry());
         var (itemId, maintenanceTypeId) = await SetupBasicDataAsync(context);
 
         var maintenance = TestDataFactory.CreateMaintenance(itemId, maintenanceTypeId);
@@ -208,7 +208,7 @@ public class MaintenanceServiceTests
         // Arrange
         using var context = TestHelper.GetTestDbContext();
         var mockUserService = CreateMockUserService();
-        var service = new MaintenanceService(context, mockUserService, _mapper);
+        var service = new MaintenanceService(context, mockUserService, _mapper, TestHelper.GetTestTelemetry());
         var (itemId, maintenanceTypeId) = await SetupBasicDataAsync(context);
 
         var maintenance = TestDataFactory.CreateMaintenance(itemId, maintenanceTypeId);
@@ -228,7 +228,7 @@ public class MaintenanceServiceTests
         // Arrange
         using var context = TestHelper.GetTestDbContext();
         var mockUserService = CreateMockUserService();
-        var service = new MaintenanceService(context, mockUserService, _mapper);
+        var service = new MaintenanceService(context, mockUserService, _mapper, TestHelper.GetTestTelemetry());
         var (itemId, maintenanceTypeId) = await SetupBasicDataAsync(context);
 
         var maintenance = TestDataFactory.CreateMaintenance(itemId, maintenanceTypeId);
@@ -253,7 +253,7 @@ public class MaintenanceServiceTests
         // Arrange
         using var context = TestHelper.GetTestDbContext();
         var mockUserService = CreateMockUserService();
-        var service = new MaintenanceService(context, mockUserService, _mapper);
+        var service = new MaintenanceService(context, mockUserService, _mapper, TestHelper.GetTestTelemetry());
         var (itemId, maintenanceTypeId) = await SetupBasicDataAsync(context);
 
         var maintenance = TestDataFactory.CreateMaintenance(itemId, maintenanceTypeId);
@@ -274,7 +274,7 @@ public class MaintenanceServiceTests
         // Arrange
         using var context = TestHelper.GetTestDbContext();
         var mockUserService = CreateMockUserService();
-        var service = new MaintenanceService(context, mockUserService, _mapper);
+        var service = new MaintenanceService(context, mockUserService, _mapper, TestHelper.GetTestTelemetry());
 
         // Act
         var result = await service.DeleteMaintenanceAsync(Guid.NewGuid());
@@ -289,7 +289,7 @@ public class MaintenanceServiceTests
         // Arrange
         using var context = TestHelper.GetTestDbContext();
         var mockUserService = CreateMockUserService();
-        var service = new MaintenanceService(context, mockUserService, _mapper);
+        var service = new MaintenanceService(context, mockUserService, _mapper, TestHelper.GetTestTelemetry());
         var query = new PagedQuery { Page = 1, PageSize = 10 };
 
         // Act & Assert
@@ -302,7 +302,7 @@ public class MaintenanceServiceTests
         // Arrange
         using var context = TestHelper.GetTestDbContext();
         var mockUserService = CreateMockUserService();
-        var service = new MaintenanceService(context, mockUserService, _mapper);
+        var service = new MaintenanceService(context, mockUserService, _mapper, TestHelper.GetTestTelemetry());
         var (itemId, _) = await SetupBasicDataAsync(context);
         var query = new PagedQuery { Page = 1, PageSize = 10 };
 

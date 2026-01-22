@@ -5,15 +5,21 @@ using FireInvent.Contract.Exceptions;
 using FireInvent.Shared.Extensions;
 using FireInvent.Shared.Mapper;
 using FireInvent.Shared.Models;
+using FireInvent.Shared.Services.Telemetry;
 using Microsoft.EntityFrameworkCore;
 using FireInvent.Shared.Services.Keycloak;
 
 namespace FireInvent.Shared.Services;
 
-public class ItemAssignmentHistoryService(AppDbContext context, ItemAssignmentHistoryMapper mapper, IKeycloakUserService userService) : IItemAssignmentHistoryService
+public class ItemAssignmentHistoryService(AppDbContext context, ItemAssignmentHistoryMapper mapper, IKeycloakUserService userService, FireInventTelemetry telemetry) : IItemAssignmentHistoryService
 {
     public async Task<ItemAssignmentHistoryModel> CreateAssignmentAsync(CreateOrUpdateItemAssignmentHistoryModel model, CancellationToken cancellationToken = default)
     {
+        using var activity = telemetry.StartActivity("ItemAssignmentHistoryService.CreateAssignment");
+        activity?.SetTag("item.id", model.ItemId);
+        activity?.SetTag("person.id", model.PersonId);
+        activity?.SetTag("storage_location.id", model.StorageLocationId);
+
         ValidateAssignmentTarget(model);
 
         if (!await context.Items.AnyAsync(i => i.Id == model.ItemId, cancellationToken))
@@ -46,6 +52,15 @@ public class ItemAssignmentHistoryService(AppDbContext context, ItemAssignmentHi
         assignment = await context.ItemAssignmentHistories
             .AsNoTracking()
             .SingleAsync(a => a.Id == assignment.Id, cancellationToken);
+
+        // Record telemetry
+        var assignmentType = model.PersonId.HasValue ? "person" : "storage";
+        telemetry.ItemsAssignedCounter.Add(1,
+            new KeyValuePair<string, object?>("item.id", model.ItemId),
+            new KeyValuePair<string, object?>("assignment.type", assignmentType));
+
+        activity?.SetTag("assignment.id", assignment.Id);
+        activity?.SetTag("assignment.type", assignmentType);
 
         return mapper.MapItemAssignmentHistoryToItemAssignmentHistoryModel(assignment);
     }

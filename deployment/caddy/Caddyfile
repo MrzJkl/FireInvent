@@ -2,6 +2,16 @@
 # Routes API requests to the backend API service
 {$API_DOMAIN:api.localhost} {
   encode gzip
+
+  header {
+    -Via
+    -Server
+    Strict-Transport-Security "max-age=31536000; includeSubDomains;"
+    X-Frame-Options "DENY"
+    X-Content-Type-Options "nosniff"
+    Referrer-Policy "no-referrer"
+    Permissions-Policy "geolocation=(), microphone=(), camera=(), usb=(), payment=()"
+  }
   
   reverse_proxy api:8080 {
     header_up Connection keep-alive
@@ -12,7 +22,11 @@
 # Routes authentication requests to Keycloak
 {$AUTH_DOMAIN:auth.localhost} {
   encode gzip
-  
+
+  header {
+    -Via
+  }
+
   reverse_proxy keycloak:8080 {
     header_up Connection keep-alive
   }
@@ -22,7 +36,26 @@
 # Routes frontend requests to the UI service
 {$UI_DOMAIN:localhost} {
   encode gzip
-  
+
+  header {
+    -Via
+    -Server
+    Strict-Transport-Security "max-age=31536000; includeSubDomains"
+    X-Frame-Options "SAMEORIGIN"
+    X-Content-Type-Options "nosniff"
+    Referrer-Policy "no-referrer"
+    Content-Security-Policy "default-src 'self'; frame-ancestors 'none'; base-uri 'self'; object-src 'none'; img-src 'self' data:; style-src 'self' 'unsafe-inline'; script-src 'self'; frame-src 'self' https://{$AUTH_DOMAIN:auth.localhost}; connect-src 'self' https://{$AUTH_DOMAIN:auth.localhost} https://{$API_DOMAIN:api.localhost}; form-action 'self' https://{$AUTH_DOMAIN:auth.localhost}"
+    Permissions-Policy "geolocation=(), microphone=(), camera=(), usb=(), payment=()"
+  }
+
+  @silent_check path /silent-check-sso.html
+  header @silent_check {
+    defer
+    -X-Frame-Options
+    -Content-Security-Policy
+    Content-Security-Policy "default-src 'self'; frame-ancestors 'self' https://{$AUTH_DOMAIN:auth.localhost}; base-uri 'self'; object-src 'none'; img-src 'self' data:; style-src 'self' 'unsafe-inline'; script-src 'self' 'sha256-0zZPgsifJ8h8aM+gmSxkrfNtAGUZb7ItVug6/j1UR5g='; frame-src 'self' https://{$AUTH_DOMAIN:auth.localhost}; connect-src 'self' https://{$AUTH_DOMAIN:auth.localhost}; form-action 'self' https://{$AUTH_DOMAIN:auth.localhost}"
+  }
+
   reverse_proxy ui:80 {
     header_up Connection keep-alive
   }
