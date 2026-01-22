@@ -49,7 +49,7 @@ public class ItemServiceTests
     {
         // Arrange
         using var context = TestHelper.GetTestDbContext();
-        var service = new ItemService(context, _mapper);
+        var service = new ItemService(context, _mapper, TestHelper.GetTestTelemetry());
         var model = TestDataFactory.CreateItemModel(Guid.NewGuid());
 
         // Act & Assert
@@ -61,7 +61,7 @@ public class ItemServiceTests
     {
         // Arrange
         using var context = TestHelper.GetTestDbContext();
-        var service = new ItemService(context, _mapper);
+        var service = new ItemService(context, _mapper, TestHelper.GetTestTelemetry());
         var (_, _, variant, _) = await SetupBasicDataAsync(context);
 
         var existingItem = CreateItemWithVariant(variant, identifier: "ITEM-001");
@@ -79,7 +79,7 @@ public class ItemServiceTests
     {
         // Arrange
         using var context = TestHelper.GetTestDbContext();
-        var service = new ItemService(context, _mapper);
+        var service = new ItemService(context, _mapper, TestHelper.GetTestTelemetry());
         var query = new PagedQuery { Page = 1, PageSize = 10 };
 
         // Act
@@ -97,7 +97,7 @@ public class ItemServiceTests
     {
         // Arrange
         using var context = TestHelper.GetTestDbContext();
-        var service = new ItemService(context, _mapper);
+        var service = new ItemService(context, _mapper, TestHelper.GetTestTelemetry());
 
         // Act
         var result = await service.GetItemByIdAsync(Guid.NewGuid());
@@ -111,7 +111,7 @@ public class ItemServiceTests
     {
         // Arrange
         using var context = TestHelper.GetTestDbContext();
-        var service = new ItemService(context, _mapper);
+        var service = new ItemService(context, _mapper, TestHelper.GetTestTelemetry());
         var (_, _, variant, _) = await SetupBasicDataAsync(context);
 
         var item = CreateItemWithVariant(variant, condition: ItemCondition.New, identifier: "ITEM-001");
@@ -136,7 +136,7 @@ public class ItemServiceTests
     {
         // Arrange
         using var context = TestHelper.GetTestDbContext();
-        var service = new ItemService(context, _mapper);
+        var service = new ItemService(context, _mapper, TestHelper.GetTestTelemetry());
         var (_, _, variant, _) = await SetupBasicDataAsync(context);
 
         var updateModel = TestDataFactory.CreateItemModel(variant.Id);
@@ -153,7 +153,7 @@ public class ItemServiceTests
     {
         // Arrange
         using var context = TestHelper.GetTestDbContext();
-        var service = new ItemService(context, _mapper);
+        var service = new ItemService(context, _mapper, TestHelper.GetTestTelemetry());
         var (_, _, variant, _) = await SetupBasicDataAsync(context);
 
         var item = CreateItemWithVariant(variant);
@@ -171,7 +171,7 @@ public class ItemServiceTests
     {
         // Arrange
         using var context = TestHelper.GetTestDbContext();
-        var service = new ItemService(context, _mapper);
+        var service = new ItemService(context, _mapper, TestHelper.GetTestTelemetry());
         var (_, _, variant, _) = await SetupBasicDataAsync(context);
 
         var existingItem = CreateItemWithVariant(variant, identifier: "ITEM-001");
@@ -190,7 +190,7 @@ public class ItemServiceTests
     {
         // Arrange
         using var context = TestHelper.GetTestDbContext();
-        var service = new ItemService(context, _mapper);
+        var service = new ItemService(context, _mapper, TestHelper.GetTestTelemetry());
         var (_, _, variant, _) = await SetupBasicDataAsync(context);
 
         var item = CreateItemWithVariant(variant);
@@ -210,7 +210,7 @@ public class ItemServiceTests
     {
         // Arrange
         using var context = TestHelper.GetTestDbContext();
-        var service = new ItemService(context, _mapper);
+        var service = new ItemService(context, _mapper, TestHelper.GetTestTelemetry());
 
         // Act
         var result = await service.DeleteItemAsync(Guid.NewGuid());
@@ -224,7 +224,7 @@ public class ItemServiceTests
     {
         // Arrange
         using var context = TestHelper.GetTestDbContext();
-        var service = new ItemService(context, _mapper);
+        var service = new ItemService(context, _mapper, TestHelper.GetTestTelemetry());
         var query = new PagedQuery { Page = 1, PageSize = 10 };
 
         // Act & Assert
@@ -236,7 +236,7 @@ public class ItemServiceTests
     {
         // Arrange
         using var context = TestHelper.GetTestDbContext();
-        var service = new ItemService(context, _mapper);
+        var service = new ItemService(context, _mapper, TestHelper.GetTestTelemetry());
         var (_, _, variant, _) = await SetupBasicDataAsync(context);
 
         // Create 25 items
@@ -282,7 +282,7 @@ public class ItemServiceTests
     {
         // Arrange
         using var context = TestHelper.GetTestDbContext();
-        var service = new ItemService(context, _mapper);
+        var service = new ItemService(context, _mapper, TestHelper.GetTestTelemetry());
         var (_, _, variant, _) = await SetupBasicDataAsync(context);
 
         // Create 15 items
