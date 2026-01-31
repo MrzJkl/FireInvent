@@ -19,15 +19,11 @@ public class ItemAssignmentHistoryConfiguration : IEntityTypeConfiguration<ItemA
             .HasForeignKey(ia => ia.ItemId)
             .OnDelete(DeleteBehavior.Cascade);
 
-        // Restrict: Deleting a Person is prevented if assignment histories reference it
-        // PersonId is nullable - configure without FK constraint for delete behavior
         builder
             .HasOne(ia => ia.Person)
             .WithMany(p => p.AssignedItems)
-            .OnDelete(DeleteBehavior.Restrict);
+            .OnDelete(DeleteBehavior.SetNull);
 
-        // Restrict: Deleting a StorageLocation is prevented if assignment histories reference it
-        // StorageLocationId is nullable - configure without FK constraint for delete behavior
         builder
             .HasOne(ia => ia.StorageLocation)
             .WithMany(sl => sl.AssignedItems)

@@ -2,6 +2,7 @@ using FireInvent.Contract;
 using FireInvent.Contract.Exceptions;
 using FireInvent.Database;
 using FireInvent.Database.Extensions;
+using FireInvent.Database.Models;
 using FireInvent.Shared.Extensions;
 using FireInvent.Shared.Mapper;
 using FireInvent.Shared.Models;
@@ -72,13 +73,11 @@ namespace FireInvent.Shared.Services
 
         public async Task<bool> DeleteManufacturerAsync(Guid id, CancellationToken cancellationToken = default)
         {
-            var manufacturer = await context.Manufacturers.FindAsync(id, cancellationToken);
-            if (manufacturer is null)
-                return false;
-
-            context.Manufacturers.Remove(manufacturer);
-            await context.SaveChangesAsync(cancellationToken);
-            return true;
+            return await context.TryDeleteEntityAsync(
+                id,
+                nameof(Manufacturer),
+                context.Manufacturers,
+                cancellationToken);
         }
     }
 }

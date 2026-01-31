@@ -2,6 +2,7 @@ using FireInvent.Database;
 using FireInvent.Database.Extensions;
 using FireInvent.Contract;
 using FireInvent.Contract.Exceptions;
+using FireInvent.Database.Models;
 using FireInvent.Shared.Extensions;
 using FireInvent.Shared.Mapper;
 using FireInvent.Shared.Models;
@@ -103,13 +104,11 @@ public class PersonService(AppDbContext context, PersonMapper mapper) : IPersonS
 
     public async Task<bool> DeletePersonAsync(Guid id, CancellationToken cancellationToken = default)
     {
-        var person = await context.Persons.FindAsync(id, cancellationToken);
-        if (person is null)
-            return false;
-
-        context.Persons.Remove(person);
-        await context.SaveChangesAsync(cancellationToken);
-        return true;
+        return await context.TryDeleteEntityAsync(
+            id,
+            nameof(Person),
+            context.Persons,
+            cancellationToken);
     }
 
     public async Task<PagedResult<PersonModel>> GetPersonsForDepartmentAsync(Guid departmentId, PagedQuery pagedQuery, CancellationToken cancellationToken)

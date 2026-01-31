@@ -60,8 +60,7 @@ public class PersonsController(IPersonService personService, IItemAssignmentHist
     [EndpointSummary("Delete a person")]
     [EndpointDescription(
         "Deletes a person by ID. " +
-        "DELETION RESTRICTED: This operation will fail if the person has any active item assignments. " +
-        "Please reassign or complete all item assignments for this person first.")]
+        "CASCADE DELETE: All item assignment histories for this person will be automatically deleted.")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status409Conflict)]

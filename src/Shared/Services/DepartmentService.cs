@@ -2,6 +2,7 @@ using FireInvent.Database;
 using FireInvent.Database.Extensions;
 using FireInvent.Contract;
 using FireInvent.Contract.Exceptions;
+using FireInvent.Database.Models;
 using FireInvent.Shared.Extensions;
 using FireInvent.Shared.Mapper;
 using FireInvent.Shared.Models;
@@ -72,12 +73,10 @@ public class DepartmentService(AppDbContext context, DepartmentMapper mapper) : 
 
     public async Task<bool> DeleteDepartmentAsync(Guid id, CancellationToken cancellationToken = default)
     {
-        var department = await context.Departments.FindAsync(id, cancellationToken);
-        if (department is null)
-            return false;
-
-        context.Departments.Remove(department);
-        await context.SaveChangesAsync(cancellationToken);
-        return true;
+        return await context.TryDeleteEntityAsync(
+            id,
+            nameof(Department),
+            context.Departments,
+            cancellationToken);
     }
 }

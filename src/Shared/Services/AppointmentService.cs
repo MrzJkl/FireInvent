@@ -1,6 +1,7 @@
 using FireInvent.Contract;
 using FireInvent.Database;
 using FireInvent.Database.Extensions;
+using FireInvent.Database.Models;
 using FireInvent.Shared.Extensions;
 using FireInvent.Shared.Mapper;
 using FireInvent.Shared.Models;
@@ -65,14 +66,10 @@ public class AppointmentService(AppDbContext context, AppointmentMapper mapper) 
 
     public async Task<bool> DeleteAppointmentAsync(Guid id, CancellationToken cancellationToken = default)
     {
-        var entity = await context.Appointments
-            .FirstOrDefaultAsync(a => a.Id == id, cancellationToken);
-
-        if (entity is null)
-            return false;
-
-        context.Appointments.Remove(entity);
-        await context.SaveChangesAsync(cancellationToken);
-        return true;
+        return await context.TryDeleteEntityAsync(
+            id,
+            nameof(Appointment),
+            context.Appointments,
+            cancellationToken);
     }
 }

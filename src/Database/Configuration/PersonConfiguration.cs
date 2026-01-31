@@ -1,4 +1,4 @@
-﻿using FireInvent.Database.Models;
+﻿﻿using FireInvent.Database.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
@@ -6,18 +6,19 @@ namespace FireInvent.Database.Configuration;
 
 /// <summary>
 /// Configuration for the Person entity.
-/// Defines restrict delete behavior: Person is protected and cannot be deleted if they have assignments or are referenced elsewhere.
+/// Defines cascade delete behavior: when a Person is deleted, their item assignment histories are deleted as well.
+/// The actual items are preserved - only the assignment records are removed.
 /// </summary>
 public class PersonConfiguration : IEntityTypeConfiguration<Person>
 {
     public void Configure(EntityTypeBuilder<Person> builder)
     {
-        // Restrict: Deleting a Person is prevented if they have item assignments
+        // Cascade: Deleting a Person deletes all their assignment histories, but preserves the items
         builder
             .HasMany(p => p.AssignedItems)
             .WithOne(ia => ia.Person)
             .HasForeignKey(ia => ia.PersonId)
-            .OnDelete(DeleteBehavior.Restrict);
+            .OnDelete(DeleteBehavior.SetNull);
 
         // SetNull: Deleting a User sets CreatedBy to null
         builder

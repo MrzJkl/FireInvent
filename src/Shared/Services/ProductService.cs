@@ -2,6 +2,7 @@ using FireInvent.Database;
 using FireInvent.Database.Extensions;
 using FireInvent.Contract;
 using FireInvent.Contract.Exceptions;
+using FireInvent.Database.Models;
 using FireInvent.Shared.Extensions;
 using FireInvent.Shared.Mapper;
 using FireInvent.Shared.Models;
@@ -100,13 +101,11 @@ public class ProductService(AppDbContext context, ProductMapper mapper) : IProdu
 
     public async Task<bool> DeleteProductAsync(Guid id, CancellationToken cancellationToken = default)
     {
-        var product = await context.Products.FindAsync(id, cancellationToken);
-        if (product is null)
-            return false;
-
-        context.Products.Remove(product);
-        await context.SaveChangesAsync(cancellationToken);
-        return true;
+        return await context.TryDeleteEntityAsync(
+            id,
+            nameof(Product),
+            context.Products,
+            cancellationToken);
     }
 
     public async Task<PagedResult<ProductModel>> GetProductsForManufacturer(Guid manufacturerId, PagedQuery pagedQuery, CancellationToken cancellationToken = default)

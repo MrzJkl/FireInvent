@@ -2,6 +2,7 @@ using FireInvent.Database;
 using FireInvent.Database.Extensions;
 using FireInvent.Contract;
 using FireInvent.Contract.Exceptions;
+using FireInvent.Database.Models;
 using FireInvent.Shared.Extensions;
 using FireInvent.Shared.Mapper;
 using FireInvent.Shared.Models;
@@ -99,13 +100,11 @@ public class VariantService(AppDbContext context, VariantMapper mapper) : IVaria
 
     public async Task<bool> DeleteVariantAsync(Guid id, CancellationToken cancellationToken = default)
     {
-        var entity = await context.Variants.FindAsync(id, cancellationToken);
-        if (entity is null)
-            return false;
-
-        context.Variants.Remove(entity);
-        await context.SaveChangesAsync(cancellationToken);
-        return true;
+        return await context.TryDeleteEntityAsync(
+            id,
+            nameof(Variant),
+            context.Variants,
+            cancellationToken);
     }
 
     public async Task<PagedResult<VariantModel>> GetVariantsForProductAsync(Guid productId, PagedQuery pagedQuery, CancellationToken cancellationToken)
