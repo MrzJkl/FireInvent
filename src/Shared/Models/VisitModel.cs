@@ -1,4 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿﻿using System.ComponentModel.DataAnnotations;
 
 namespace FireInvent.Shared.Models
 {
@@ -16,11 +16,10 @@ namespace FireInvent.Shared.Models
         [Required]
         public DateTimeOffset CreatedAt { get; init; }
 
-        [Required]
-        public Guid CreatedById { get; init; }
+        public UserModel? CreatedBy { get; init; }
 
         public DateTimeOffset? ModifiedAt { get; init; }
 
-        public Guid? ModifiedById { get; init; }
+        public UserModel? ModifiedBy { get; init; }
     }
 }

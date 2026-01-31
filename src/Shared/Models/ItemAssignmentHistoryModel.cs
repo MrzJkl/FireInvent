@@ -1,4 +1,4 @@
-﻿using System.ComponentModel;
+﻿﻿using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 
 namespace FireInvent.Shared.Models;
@@ -20,10 +20,9 @@ public record ItemAssignmentHistoryModel : CreateOrUpdateItemAssignmentHistoryMo
     [Required]
     public DateTimeOffset CreatedAt { get; init; }
 
-    [Required]
-    public Guid CreatedById { get; init; }
+    public UserModel? CreatedBy { get; init; }
 
     public DateTimeOffset? ModifiedAt { get; init; }
 
-    public Guid? ModifiedById { get; init; }
+    public UserModel? ModifiedBy { get; init; }
 }

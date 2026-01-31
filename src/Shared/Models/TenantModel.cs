@@ -10,10 +10,9 @@ public record TenantModel : CreateOrUpdateTenantModel
     [Required]
     public DateTimeOffset CreatedAt { get; init; }
 
-    [Required]
-    public Guid CreatedById { get; init; }
+    public UserModel? CreatedBy { get; init; }
 
     public DateTimeOffset? ModifiedAt { get; init; }
 
-    public Guid? ModifiedById { get; init; }
+    public UserModel? ModifiedBy { get; init; }
 }

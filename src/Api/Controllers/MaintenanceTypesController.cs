@@ -1,4 +1,4 @@
-﻿using FireInvent.Contract;
+﻿﻿using FireInvent.Contract;
 using FireInvent.Contract.Exceptions;
 using FireInvent.Shared.Models;
 using FireInvent.Shared.Services;
@@ -57,9 +57,13 @@ public class MaintenanceTypesController(IMaintenanceTypeService maintenanceTypeS
 
     [HttpDelete("{id:guid}")]
     [EndpointSummary("Delete a maintenanceType")]
-    [EndpointDescription("Deletes a maintenanceType by its unique ID.")]
+    [EndpointDescription(
+        "Deletes a maintenanceType by its unique ID. " +
+        "DELETION RESTRICTED: This operation will fail if there are any maintenance records associated with this type. " +
+        "Master data protection: All maintenance records must be archived or reassigned first.")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status409Conflict)]
     [Authorize(Roles = Roles.Admin + "," + Roles.Integration)]
     public async Task<IActionResult> Delete(Guid id, CancellationToken cancellationToken)
     {

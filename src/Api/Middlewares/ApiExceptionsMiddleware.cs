@@ -49,6 +49,10 @@ public class ApiExceptionMiddleware(RequestDelegate next, ILogger<ApiExceptionMi
                 statusCode = HttpStatusCode.RequestTimeout;
                 message = "The operation was canceled.";
                 break;
+            case DeleteFailureException:
+                statusCode = HttpStatusCode.Conflict;
+                message = "Delete failed. Please check for related dependencies and try again.";
+                break;
         }
 
         context.Response.ContentType = "application/json";

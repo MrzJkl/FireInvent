@@ -26,8 +26,7 @@ public record Visit : IHasTenant, IAuditable
     [Required]
     public DateTimeOffset CreatedAt { get; set; }
 
-    [Required]
-    public Guid CreatedById { get; set; }
+    public Guid? CreatedById { get; set; }
 
     public DateTimeOffset? ModifiedAt { get; set; }
 
@@ -44,4 +43,8 @@ public record Visit : IHasTenant, IAuditable
 
     [Required]
     public virtual Tenant Tenant { get; set; } = null!;
+    
+    public virtual User? CreatedBy { get; set; }
+    
+    public virtual User? ModifiedBy { get; set; }
 }

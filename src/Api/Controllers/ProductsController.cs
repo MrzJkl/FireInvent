@@ -1,4 +1,4 @@
-﻿using FireInvent.Contract;
+﻿﻿using FireInvent.Contract;
 using FireInvent.Contract.Exceptions;
 using FireInvent.Shared.Models;
 using FireInvent.Shared.Services;
@@ -59,7 +59,11 @@ public class ProductsController(IProductService productService, IVariantService 
 
     [HttpDelete("{id:guid}")]
     [EndpointSummary("Delete a product")]
-    [EndpointDescription("Deletes a product by its unique ID.")]
+    [EndpointDescription(
+        "Deletes a product by its unique ID. " +
+        "CASCADE DELETE: This will automatically delete all associated variants. " +
+        "WARNING: Deleting variants will cascade and delete all items and their assignment histories. " +
+        "This operation has extensive downstream effects and should be performed carefully.")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [Authorize(Roles = Roles.Admin + "," + Roles.Procurement + "," + Roles.Integration)]

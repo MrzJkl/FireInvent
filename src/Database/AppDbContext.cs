@@ -1,4 +1,5 @@
-﻿using FireInvent.Contract;
+﻿﻿using FireInvent.Contract;
+using FireInvent.Database.Configuration;
 using FireInvent.Database.Models;
 using Microsoft.EntityFrameworkCore;
 
@@ -61,6 +62,25 @@ public class AppDbContext : DbContext
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
+
+        // Apply entity configurations with cascade delete rules
+        modelBuilder.ApplyConfiguration(new AppointmentConfiguration());
+        modelBuilder.ApplyConfiguration(new VisitConfiguration());
+        modelBuilder.ApplyConfiguration(new VisitItemConfiguration());
+        modelBuilder.ApplyConfiguration(new OrderConfiguration());
+        modelBuilder.ApplyConfiguration(new OrderItemConfiguration());
+        modelBuilder.ApplyConfiguration(new ProductConfiguration());
+        modelBuilder.ApplyConfiguration(new VariantConfiguration());
+        modelBuilder.ApplyConfiguration(new ItemConfiguration());
+        modelBuilder.ApplyConfiguration(new ItemAssignmentHistoryConfiguration());
+        modelBuilder.ApplyConfiguration(new MaintenanceConfiguration());
+        modelBuilder.ApplyConfiguration(new ProductTypeConfiguration());
+        modelBuilder.ApplyConfiguration(new MaintenanceTypeConfiguration());
+        modelBuilder.ApplyConfiguration(new ManufacturerConfiguration());
+        modelBuilder.ApplyConfiguration(new StorageLocationConfiguration());
+        modelBuilder.ApplyConfiguration(new DepartmentConfiguration());
+        modelBuilder.ApplyConfiguration(new PersonConfiguration());
+        modelBuilder.ApplyConfiguration(new TenantConfiguration());
 
         // Apply global query filter for all IHasTenant entities
         foreach (var entityType in modelBuilder.Model.GetEntityTypes())

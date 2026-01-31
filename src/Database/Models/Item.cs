@@ -35,9 +35,8 @@ public record Item : IHasTenant, IAuditable
 
     [Required]
     public DateTimeOffset CreatedAt { get; set; }
-
-    [Required]
-    public Guid CreatedById { get; set; }
+    
+    public Guid? CreatedById { get; set; }
 
     public DateTimeOffset? ModifiedAt { get; set; }
 
@@ -52,4 +51,8 @@ public record Item : IHasTenant, IAuditable
     public virtual ICollection<ItemAssignmentHistory> Assignments { get; set; } = [];
 
     public virtual ICollection<Maintenance> Maintenances { get; set; } = [];
+    
+    public virtual User? CreatedBy { get; set; }
+    
+    public virtual User? ModifiedBy { get; set; }
 }

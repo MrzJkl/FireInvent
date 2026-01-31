@@ -72,7 +72,10 @@ public class VisitsController(IVisitService visitService, IVisitItemService visi
 
     [HttpDelete("{id:guid}")]
     [EndpointSummary("Delete a visit")]
-    [EndpointDescription("Deletes a visit by its unique ID. This will also delete all associated visit items.")]
+    [EndpointDescription(
+        "Deletes a visit by its unique ID. " +
+        "CASCADE DELETE: This will automatically delete all associated visit items. " +
+        "All visit data will be permanently removed from the system.")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [Authorize(Roles = Roles.Admin + "," + Roles.Procurement + "," + Roles.Integration)]
