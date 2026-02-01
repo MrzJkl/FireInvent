@@ -101,7 +101,10 @@ if (corsOptions.Enabled)
 
 builder.Services.AddCustomAuthentication(AuthScheme, authOptions);
 builder.Services.AddAuthorization();
-builder.Services.AddMemoryCache();
+builder.Services.AddMemoryCache(options =>
+{
+    options.SizeLimit = 10000; // Limit auf 10.000 Einträge
+});
 builder.Services.AddOutputCache();
 
 // OpenTelemetry - Observability with Tracing, Metrics, and Logging
@@ -233,6 +236,7 @@ app.UseAuthorization();
 
 // Middlewares & Endpoints / Order is important!
 logger.LogDebug("Registering middlewares...");
+app.UseMiddleware<UserSynchronizationMiddleware>();
 app.UseMiddleware<UserContextResolutionMiddleware>();
 app.UseMiddleware<ApiExceptionMiddleware>();
 
