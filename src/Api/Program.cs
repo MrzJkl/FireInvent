@@ -101,16 +101,11 @@ if (corsOptions.Enabled)
 
 builder.Services.AddCustomAuthentication(AuthScheme, authOptions);
 builder.Services.AddAuthorization();
-builder.Services.AddMemoryCache(options =>
-{
-    options.SizeLimit = 10000; // Limit auf 10.000 Einträge
-});
+builder.Services.AddMemoryCache();
 builder.Services.AddOutputCache();
 
-// OpenTelemetry - Observability with Tracing, Metrics, and Logging
 builder.Services.AddOpenTelemetryObservability(builder.Configuration, builder.Environment);
 
-// Keycloak HTTP Client (central for all Keycloak services)
 builder.Services.AddHttpClient<FireInvent.Shared.Services.Keycloak.KeycloakHttpClient>();
 
 builder.Services.AddResponseCompression(options =>
@@ -118,18 +113,14 @@ builder.Services.AddResponseCompression(options =>
     options.EnableForHttps = true;
 });
 
-// Multi-Tenancy
 builder.Services.AddScoped<UserContextProvider>();
 
-// Telemetry
 builder.Services.AddSingleton<FireInvent.Shared.Services.Telemetry.FireInventTelemetry>();
 
-// Database
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection"),
         x => x.MigrationsAssembly("FireInvent.Database")).UseLazyLoadingProxies());
 
-// Health Checks
 builder.Services.AddHealthChecks()
     .AddDbContextCheck<AppDbContext>()
     .AddProcessAllocatedMemoryHealthCheck(2000)

@@ -6,7 +6,7 @@ namespace FireInvent.Database.Models;
 
 [Index(nameof(UserName), IsUnique = true)]
 [Index(nameof(Email), IsUnique = true)]
-public class User
+public record User
 {
     [Key]
     [Required]
@@ -25,4 +25,6 @@ public class User
     [Required]
     [MaxLength(ModelConstants.MaxStringLength)]
     public string UserName { get; set; } = string.Empty;
+    
+    public virtual ICollection<Tenant> Tenants { get; set; } = [];
 }

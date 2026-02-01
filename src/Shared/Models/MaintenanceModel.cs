@@ -18,4 +18,6 @@ public record MaintenanceModel : CreateOrUpdateMaintenanceModel
     public DateTimeOffset? ModifiedAt { get; init; }
 
     public UserModel? ModifiedBy { get; init; }
+    
+    public UserModel? PerformedBy { get; init; }
 }

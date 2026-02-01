@@ -59,8 +59,7 @@ public class ProductTypesController(IProductTypeService productTypeService) : Co
     [EndpointSummary("Delete a productType")]
     [EndpointDescription(
         "Deletes a productType by its unique ID. " +
-        "DELETION RESTRICTED: This operation will fail if there are any products associated with this product type. " +
-        "Master data protection: All products must be reassigned or deleted first.")]
+        "DELETION RESTRICTED: This operation will fail if there are any products associated with this product type.")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status409Conflict)]

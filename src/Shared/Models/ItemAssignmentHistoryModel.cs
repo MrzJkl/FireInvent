@@ -25,4 +25,6 @@ public record ItemAssignmentHistoryModel : CreateOrUpdateItemAssignmentHistoryMo
     public DateTimeOffset? ModifiedAt { get; init; }
 
     public UserModel? ModifiedBy { get; init; }
+    
+    public UserModel? AssignedBy { get; init; }
 }

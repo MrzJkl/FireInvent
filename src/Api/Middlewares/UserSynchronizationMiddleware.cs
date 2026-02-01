@@ -12,10 +12,6 @@ public class UserSynchronizationMiddleware(
 {
     private const string TokenCachePrefix = "user_sync_token";
     private static readonly TimeSpan TokenCacheExpiration = TimeSpan.FromMinutes(30);
-    private static readonly MemoryCacheEntryOptions CacheEntryOptions = new()
-    {
-        AbsoluteExpirationRelativeToNow = TokenCacheExpiration,
-    };
 
     public async Task InvokeAsync(
         HttpContext context,
@@ -49,7 +45,7 @@ public class UserSynchronizationMiddleware(
 
             await SynchronizeUser(context, dbContext);
 
-            cache.Set(cacheKey, true, CacheEntryOptions);
+            cache.Set(cacheKey, true, TokenCacheExpiration);
         }
         catch (Exception ex)
         {
