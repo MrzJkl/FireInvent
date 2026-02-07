@@ -93,9 +93,37 @@ public class UserSynchronizationMiddleware(
             };
 
             await dbContext.Set<User>().AddAsync(newUser);
-            await dbContext.SaveChangesAsync();
-            
-            logger.LogInformation("Created new user {UserId} ({UserName}) from token claims.", userId, userName);
+
+            try
+            {
+                await dbContext.SaveChangesAsync();
+                
+                logger.LogInformation("Created new user {UserId} ({UserName}) from token claims.", userId, userName);
+            }
+            catch (DbUpdateException ex)
+            {
+                // Handle possible concurrent creation of the same user
+                var userNowExists = await dbContext.Set<User>()
+                    .AnyAsync(u => u.Id == userId);
+
+                if (userNowExists)
+                {
+                    logger.LogInformation(
+                        ex,
+                        "User {UserId} ({UserName}) was created concurrently during synchronization.",
+                        userId,
+                        userName);
+                }
+                else
+                {
+                    logger.LogError(
+                        ex,
+                        "Failed to create user {UserId} ({UserName}) during synchronization.",
+                        userId,
+                        userName);
+                    throw;
+                }
+            }
         }
         else
         {
