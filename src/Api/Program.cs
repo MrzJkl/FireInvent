@@ -10,11 +10,11 @@ using FireInvent.Shared.Services;
 using FireInvent.Shared.Services.Keycloak;
 using Microsoft.AspNetCore.Mvc.Authorization;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Caching.Memory;
-using Microsoft.Extensions.Diagnostics.HealthChecks;
-using Scalar.AspNetCore;
 using Serilog;
 using System.Text.Json.Serialization;
+using FireInvent.Api.Health;
+using Microsoft.AspNetCore.Diagnostics.HealthChecks;
+using System.Text.Json;
 
 const string AuthScheme = "Bearer";
 const string CorsPolicyName = "FireInventCors";
@@ -124,7 +124,11 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 builder.Services.AddHealthChecks()
     .AddDbContextCheck<AppDbContext>()
     .AddProcessAllocatedMemoryHealthCheck(2000)
-    .AddCheck("self", () => HealthCheckResult.Healthy());
+    .AddDiskStorageHealthCheck(o =>
+    {
+        o.CheckAllDrives = true;
+    })
+    .AddCheck<KeycloakHealthCheck>("keycloak");
 
 // Scalar API-Explorer
 builder.Services.AddVersioning();
@@ -213,8 +217,25 @@ app.UseSerilogRequestLogging(options =>
     };
 });
 
-// Health Endpoint
-app.MapHealthChecks("/health");
+app.MapHealthChecks("/health", new HealthCheckOptions
+{
+    ResponseWriter = async (context, report) =>
+    {
+        context.Response.ContentType = "application/json";
+        var json = JsonSerializer.Serialize(new
+        {
+            status = report.Status.ToString(),
+            totalDuration = report.TotalDuration.TotalMilliseconds,
+            entries = report.Entries.Select(kvp => new
+            {
+                name = kvp.Key,
+                status = kvp.Value.Status.ToString(),
+                duration = kvp.Value.Duration.TotalMilliseconds,
+            })
+        });
+        await context.Response.WriteAsync(json);
+    }
+});
 
 var logger = app.Services.GetRequiredService<ILogger<Program>>();
 

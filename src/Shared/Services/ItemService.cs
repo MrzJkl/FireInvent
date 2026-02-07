@@ -7,7 +7,6 @@ using FireInvent.Shared.Mapper;
 using FireInvent.Shared.Models;
 using FireInvent.Shared.Services.Telemetry;
 using Microsoft.EntityFrameworkCore;
-using System.Diagnostics;
 using FireInvent.Database.Models;
 
 namespace FireInvent.Shared.Services;

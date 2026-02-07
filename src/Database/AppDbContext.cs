@@ -1,7 +1,6 @@
 ﻿﻿﻿using FireInvent.Contract;
 using FireInvent.Database.Models;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.DependencyInjection;
 
 namespace FireInvent.Database;
 

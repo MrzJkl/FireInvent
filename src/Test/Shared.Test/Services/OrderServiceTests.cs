@@ -1,7 +1,6 @@
 using FireInvent.Contract;
 using FireInvent.Shared.Mapper;
 using FireInvent.Shared.Services;
-using Microsoft.EntityFrameworkCore;
 
 namespace FireInvent.Test.Shared.Services;
 

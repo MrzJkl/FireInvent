@@ -14,7 +14,7 @@ public class ProductService(AppDbContext context, ProductMapper mapper) : IProdu
 {
     public async Task<ProductModel> CreateProductAsync(CreateOrUpdateProductModel model, CancellationToken cancellationToken = default)
     {
-        _ = await context.ProductTypes.FindAsync(model.TypeId, cancellationToken, cancellationToken) ?? throw new BadRequestException($"ProductType with ID '{model.TypeId}' does not exist.");
+        _ = await context.ProductTypes.FindAsync(model.TypeId, cancellationToken) ?? throw new BadRequestException($"ProductType with ID '{model.TypeId}' does not exist.");
         _ = await context.Manufacturers.FindAsync(model.ManufacturerId, cancellationToken) ?? throw new BadRequestException($"Manufacturer with ID '{model.ManufacturerId}' does not exist.");
 
         var nameExists = await context.Products.AnyAsync(p =>
