@@ -44,7 +44,7 @@ public class KeycloakHealthCheck(
 
         // Authentication
         var tokenUrl = $"{opts.Url.TrimEnd('/')}/realms/{opts.Realm}/protocol/openid-connect/token";
-        var body = new FormUrlEncodedContent(new[]
+        using var body = new FormUrlEncodedContent(new[]
         {
             new KeyValuePair<string, string>("grant_type", "client_credentials"),
             new KeyValuePair<string, string>("client_id", opts.AdminClientId),
