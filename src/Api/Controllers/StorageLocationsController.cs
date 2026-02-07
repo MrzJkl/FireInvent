@@ -61,8 +61,7 @@ public class StorageLocationsController(IStorageLocationService locationService,
     [EndpointSummary("Delete a storage location")]
     [EndpointDescription(
         "Deletes a storage location by its unique ID. " +
-        "DELETION RESTRICTED: This operation will fail if there are any items currently stored in this location. " +
-        "Please reassign or remove all items from this storage location first.")]
+        "This operation will also delete any related item assignment history entries associated with this location.")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status409Conflict)]
