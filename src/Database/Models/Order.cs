@@ -1,6 +1,7 @@
-﻿using FireInvent.Contract;
+﻿﻿using FireInvent.Contract;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using Microsoft.EntityFrameworkCore;
 
 namespace FireInvent.Database.Models;
 
@@ -27,15 +28,22 @@ public record Order : IHasTenant, IAuditable
     [Required]
     public DateTimeOffset CreatedAt { get; set; }
 
-    [Required]
-    public Guid CreatedById { get; set; }
+    [ForeignKey(nameof(CreatedBy))]
+    public Guid? CreatedById { get; set; }
 
     public DateTimeOffset? ModifiedAt { get; set; }
 
+    [ForeignKey(nameof(ModifiedBy))]
     public Guid? ModifiedById { get; set; }
 
     public virtual ICollection<OrderItem> Items { get; set; } = [];
 
-    [Required]
+    [DeleteBehavior(DeleteBehavior.Cascade)]
     public virtual Tenant Tenant { get; set; } = null!;
+    
+    [DeleteBehavior(DeleteBehavior.SetNull)]
+    public virtual User? CreatedBy { get; set; }
+    
+    [DeleteBehavior(DeleteBehavior.SetNull)]
+    public virtual User? ModifiedBy { get; set; }
 }

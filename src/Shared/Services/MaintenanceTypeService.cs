@@ -2,6 +2,7 @@ using FireInvent.Database;
 using FireInvent.Database.Extensions;
 using FireInvent.Contract;
 using FireInvent.Contract.Exceptions;
+using FireInvent.Database.Models;
 using FireInvent.Shared.Extensions;
 using FireInvent.Shared.Mapper;
 using FireInvent.Shared.Models;
@@ -72,13 +73,11 @@ namespace FireInvent.Shared.Services
 
         public async Task<bool> DeleteMaintenanceTypeAsync(Guid id, CancellationToken cancellationToken = default)
         {
-            var maintenanceType = await context.MaintenanceTypes.FindAsync(id, cancellationToken);
-            if (maintenanceType is null)
-                return false;
-
-            context.MaintenanceTypes.Remove(maintenanceType);
-            await context.SaveChangesAsync(cancellationToken);
-            return true;
+            return await context.TryDeleteEntityAsync(
+                id,
+                nameof(MaintenanceType),
+                context.MaintenanceTypes,
+                cancellationToken);
         }
     }
 }

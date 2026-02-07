@@ -2,6 +2,7 @@ using FireInvent.Database;
 using FireInvent.Database.Extensions;
 using FireInvent.Contract;
 using FireInvent.Contract.Exceptions;
+using FireInvent.Database.Models;
 using FireInvent.Shared.Extensions;
 using FireInvent.Shared.Mapper;
 using FireInvent.Shared.Models;
@@ -69,16 +70,14 @@ namespace FireInvent.Shared.Services
             await context.SaveChangesAsync(cancellationToken);
             return true;
         }
-
+        
         public async Task<bool> DeleteProductTypeAsync(Guid id, CancellationToken cancellationToken = default)
         {
-            var productType = await context.ProductTypes.FindAsync(id, cancellationToken);
-            if (productType is null)
-                return false;
-
-            context.ProductTypes.Remove(productType);
-            await context.SaveChangesAsync(cancellationToken);
-            return true;
+            return await context.TryDeleteEntityAsync(
+                id,
+                nameof(ProductType),
+                context.ProductTypes,
+                cancellationToken);
         }
     }
 }

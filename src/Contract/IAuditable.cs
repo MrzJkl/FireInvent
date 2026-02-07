@@ -6,9 +6,8 @@ namespace FireInvent.Contract
     {
         [Required]
         public DateTimeOffset CreatedAt { get; set; }
-
-        [Required]
-        public Guid CreatedById { get; set; }
+        
+        public Guid? CreatedById { get; set; }
 
         public DateTimeOffset? ModifiedAt { get; set; }
 

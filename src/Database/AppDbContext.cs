@@ -1,4 +1,4 @@
-﻿using FireInvent.Contract;
+﻿﻿﻿using FireInvent.Contract;
 using FireInvent.Database.Models;
 using Microsoft.EntityFrameworkCore;
 
@@ -25,6 +25,8 @@ public class AppDbContext : DbContext
     }
 
     public DbSet<Tenant> Tenants => Set<Tenant>();
+
+    public DbSet<User> Users => Set<User>();
 
     public DbSet<Item> Items => Set<Item>();
 

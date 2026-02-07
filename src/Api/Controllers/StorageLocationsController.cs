@@ -1,4 +1,4 @@
-﻿using FireInvent.Contract;
+﻿﻿using FireInvent.Contract;
 using FireInvent.Contract.Exceptions;
 using FireInvent.Shared.Models;
 using FireInvent.Shared.Services;
@@ -59,9 +59,12 @@ public class StorageLocationsController(IStorageLocationService locationService,
 
     [HttpDelete("{id:guid}")]
     [EndpointSummary("Delete a storage location")]
-    [EndpointDescription("Deletes a storage location by its unique ID.")]
+    [EndpointDescription(
+        "Deletes a storage location by its unique ID. " +
+        "This operation will also delete any related item assignment history entries associated with this location.")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status409Conflict)]
     [Authorize(Roles = Roles.Admin + "," + Roles.Procurement + "," + Roles.Integration)]
     public async Task<IActionResult> Delete(Guid id, CancellationToken cancellationToken)
     {

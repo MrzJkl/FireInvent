@@ -1,4 +1,4 @@
-﻿using FireInvent.Contract;
+﻿﻿using FireInvent.Contract;
 using FireInvent.Contract.Exceptions;
 using FireInvent.Shared.Models;
 using FireInvent.Shared.Services;
@@ -58,9 +58,12 @@ public class PersonsController(IPersonService personService, IItemAssignmentHist
 
     [HttpDelete("{id:guid}")]
     [EndpointSummary("Delete a person")]
-    [EndpointDescription("Deletes a person by ID.")]
+    [EndpointDescription(
+        "Deletes a person by ID. " +
+        "CASCADE DELETE: All item assignment histories for this person will be automatically deleted.")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status409Conflict)]
     [Authorize(Roles = Roles.Admin + "," + Roles.Procurement + "," + Roles.Integration)]
     public async Task<IActionResult> Delete(Guid id, CancellationToken cancellationToken)
     {

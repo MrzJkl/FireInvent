@@ -7,7 +7,7 @@ using FireInvent.Shared.Mapper;
 using FireInvent.Shared.Models;
 using FireInvent.Shared.Services.Telemetry;
 using Microsoft.EntityFrameworkCore;
-using System.Diagnostics;
+using FireInvent.Database.Models;
 
 namespace FireInvent.Shared.Services;
 
@@ -100,13 +100,11 @@ public class ItemService(AppDbContext context, ItemMapper mapper, FireInventTele
 
     public async Task<bool> DeleteItemAsync(Guid id, CancellationToken cancellationToken = default)
     {
-        var item = await context.Items.FindAsync(id, cancellationToken);
-        if (item is null)
-            return false;
-
-        context.Items.Remove(item);
-        await context.SaveChangesAsync(cancellationToken);
-        return true;
+        return await context.TryDeleteEntityAsync(
+            id,
+            nameof(Item),
+            context.Items,
+            cancellationToken);
     }
 
     public async Task<PagedResult<ItemModel>> GetItemsForVariantAsync(Guid variantId, PagedQuery pagedQuery, CancellationToken cancellationToken)

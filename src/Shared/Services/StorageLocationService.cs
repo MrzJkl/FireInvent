@@ -2,6 +2,7 @@ using FireInvent.Database;
 using FireInvent.Database.Extensions;
 using FireInvent.Contract;
 using FireInvent.Contract.Exceptions;
+using FireInvent.Database.Models;
 using FireInvent.Shared.Extensions;
 using FireInvent.Shared.Mapper;
 using FireInvent.Shared.Models;
@@ -72,12 +73,10 @@ public class StorageLocationService(AppDbContext context, StorageLocationMapper 
 
     public async Task<bool> DeleteStorageLocationAsync(Guid id, CancellationToken cancellationToken = default)
     {
-        var location = await context.StorageLocations.FindAsync(id, cancellationToken);
-        if (location is null)
-            return false;
-
-        context.StorageLocations.Remove(location);
-        await context.SaveChangesAsync(cancellationToken);
-        return true;
+        return await context.TryDeleteEntityAsync(
+            id,
+            nameof(StorageLocation),
+            context.StorageLocations,
+            cancellationToken);
     }
 }

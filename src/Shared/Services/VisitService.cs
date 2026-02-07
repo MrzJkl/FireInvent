@@ -2,6 +2,7 @@ using FireInvent.Database;
 using FireInvent.Database.Extensions;
 using FireInvent.Contract;
 using FireInvent.Contract.Exceptions;
+using FireInvent.Database.Models;
 using FireInvent.Shared.Extensions;
 using FireInvent.Shared.Mapper;
 using FireInvent.Shared.Models;
@@ -98,15 +99,11 @@ public class VisitService(AppDbContext context, VisitMapper mapper) : IVisitServ
 
     public async Task<bool> DeleteVisitAsync(Guid id, CancellationToken cancellationToken = default)
     {
-        var entity = await context.Visits
-            .FirstOrDefaultAsync(v => v.Id == id, cancellationToken);
-
-        if (entity is null)
-            return false;
-
-        context.Visits.Remove(entity);
-        await context.SaveChangesAsync(cancellationToken);
-        return true;
+        return await context.TryDeleteEntityAsync(
+            id,
+            nameof(Visit),
+            context.Visits,
+            cancellationToken);
     }
 
     public async Task<PagedResult<VisitModel>> GetVisitsForAppointmentAsync(Guid appointmentId, PagedQuery pagedQuery, CancellationToken cancellationToken)

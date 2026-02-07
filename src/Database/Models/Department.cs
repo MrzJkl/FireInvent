@@ -24,16 +24,21 @@ public record Department : IHasTenant, IAuditable
 
     [Required]
     public DateTimeOffset CreatedAt { get; set; }
-
-    [Required]
-    public Guid CreatedById { get; set; }
+    
+    public Guid? CreatedById { get; set; }
 
     public DateTimeOffset? ModifiedAt { get; set; }
 
     public Guid? ModifiedById { get; set; }
 
     public virtual ICollection<Person> Persons { get; set; } = [];
-
-    [Required]
+    
+    [DeleteBehavior(DeleteBehavior.Cascade)]
     public virtual Tenant Tenant { get; set; } = null!;
+    
+    [DeleteBehavior(DeleteBehavior.SetNull)]
+    public virtual User? CreatedBy { get; set; }
+    
+    [DeleteBehavior(DeleteBehavior.SetNull)]
+    public virtual User? ModifiedBy { get; set; }
 }

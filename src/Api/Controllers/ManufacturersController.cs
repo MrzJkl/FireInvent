@@ -1,4 +1,4 @@
-﻿using FireInvent.Contract;
+﻿﻿using FireInvent.Contract;
 using FireInvent.Contract.Exceptions;
 using FireInvent.Shared.Models;
 using FireInvent.Shared.Services;
@@ -57,9 +57,13 @@ public class ManufacturersController(IManufacturerService manufacturerService, I
 
     [HttpDelete("{id:guid}")]
     [EndpointSummary("Delete a manufacturer")]
-    [EndpointDescription("Deletes a manufacturer by its unique ID.")]
+    [EndpointDescription(
+        "Deletes a manufacturer by its unique ID. " +
+        "DELETION RESTRICTED: This operation will fail if there are any products associated with this manufacturer. " +
+        "Master data protection: All products must be reassigned or deleted first.")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status409Conflict)]
     [Authorize(Roles = Roles.Admin + "," + Roles.Procurement + "," + Roles.Integration)]
     public async Task<IActionResult> Delete(Guid id, CancellationToken cancellationToken)
     {

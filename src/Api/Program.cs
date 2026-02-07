@@ -10,11 +10,11 @@ using FireInvent.Shared.Services;
 using FireInvent.Shared.Services.Keycloak;
 using Microsoft.AspNetCore.Mvc.Authorization;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Caching.Memory;
-using Microsoft.Extensions.Diagnostics.HealthChecks;
-using Scalar.AspNetCore;
 using Serilog;
 using System.Text.Json.Serialization;
+using FireInvent.Api.Health;
+using Microsoft.AspNetCore.Diagnostics.HealthChecks;
+using System.Text.Json;
 
 const string AuthScheme = "Bearer";
 const string CorsPolicyName = "FireInventCors";
@@ -104,10 +104,8 @@ builder.Services.AddAuthorization();
 builder.Services.AddMemoryCache();
 builder.Services.AddOutputCache();
 
-// OpenTelemetry - Observability with Tracing, Metrics, and Logging
 builder.Services.AddOpenTelemetryObservability(builder.Configuration, builder.Environment);
 
-// Keycloak HTTP Client (central for all Keycloak services)
 builder.Services.AddHttpClient<FireInvent.Shared.Services.Keycloak.KeycloakHttpClient>();
 
 builder.Services.AddResponseCompression(options =>
@@ -115,22 +113,22 @@ builder.Services.AddResponseCompression(options =>
     options.EnableForHttps = true;
 });
 
-// Multi-Tenancy
 builder.Services.AddScoped<UserContextProvider>();
 
-// Telemetry
 builder.Services.AddSingleton<FireInvent.Shared.Services.Telemetry.FireInventTelemetry>();
 
-// Database
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection"),
         x => x.MigrationsAssembly("FireInvent.Database")).UseLazyLoadingProxies());
 
-// Health Checks
 builder.Services.AddHealthChecks()
     .AddDbContextCheck<AppDbContext>()
     .AddProcessAllocatedMemoryHealthCheck(2000)
-    .AddCheck("self", () => HealthCheckResult.Healthy());
+    .AddDiskStorageHealthCheck(o =>
+    {
+        o.CheckAllDrives = true;
+    })
+    .AddCheck<KeycloakHealthCheck>("keycloak");
 
 // Scalar API-Explorer
 builder.Services.AddVersioning();
@@ -219,8 +217,25 @@ app.UseSerilogRequestLogging(options =>
     };
 });
 
-// Health Endpoint
-app.MapHealthChecks("/health");
+app.MapHealthChecks("/health", new HealthCheckOptions
+{
+    ResponseWriter = async (context, report) =>
+    {
+        context.Response.ContentType = "application/json";
+        var json = JsonSerializer.Serialize(new
+        {
+            status = report.Status.ToString(),
+            totalDuration = report.TotalDuration.TotalMilliseconds,
+            entries = report.Entries.Select(kvp => new
+            {
+                name = kvp.Key,
+                status = kvp.Value.Status.ToString(),
+                duration = kvp.Value.Duration.TotalMilliseconds,
+            })
+        });
+        await context.Response.WriteAsync(json);
+    }
+});
 
 var logger = app.Services.GetRequiredService<ILogger<Program>>();
 
@@ -233,6 +248,7 @@ app.UseAuthorization();
 
 // Middlewares & Endpoints / Order is important!
 logger.LogDebug("Registering middlewares...");
+app.UseMiddleware<UserSynchronizationMiddleware>();
 app.UseMiddleware<UserContextResolutionMiddleware>();
 app.UseMiddleware<ApiExceptionMiddleware>();
 

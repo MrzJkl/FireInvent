@@ -1,6 +1,7 @@
 using FireInvent.Contract;
 using FireInvent.Database;
 using FireInvent.Database.Extensions;
+using FireInvent.Database.Models;
 using FireInvent.Shared.Extensions;
 using FireInvent.Shared.Mapper;
 using FireInvent.Shared.Models;
@@ -86,12 +87,10 @@ public class OrderService(AppDbContext context, OrderMapper mapper, FireInventTe
 
     public async Task<bool> DeleteOrderAsync(Guid id, CancellationToken cancellationToken = default)
     {
-        var entity = await context.Orders.FindAsync(id, cancellationToken);
-        if (entity is null)
-            return false;
-
-        context.Orders.Remove(entity);
-        await context.SaveChangesAsync(cancellationToken);
-        return true;
+        return await context.TryDeleteEntityAsync(
+            id,
+            nameof(Order),
+            context.Orders,
+            cancellationToken);
     }
 }

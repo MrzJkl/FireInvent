@@ -1,4 +1,4 @@
-﻿using FireInvent.Contract;
+﻿﻿using FireInvent.Contract;
 using FireInvent.Contract.Exceptions;
 using FireInvent.Shared.Models;
 using FireInvent.Shared.Services;
@@ -58,7 +58,10 @@ public class OrderController(IOrderService orderService) : ControllerBase
 
     [HttpDelete("{id:guid}")]
     [EndpointSummary("Delete an order")]
-    [EndpointDescription("Deletes an order by its unique ID.")]
+    [EndpointDescription(
+        "Deletes an order by its unique ID. " +
+        "CASCADE DELETE: This will automatically delete all associated order items. " +
+        "All order data will be permanently removed from the system.")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [Authorize(Roles = Roles.Admin + "," + Roles.Procurement + "," + Roles.Integration)]
