@@ -61,11 +61,12 @@ public class ProductsController(IProductService productService, IVariantService 
     [EndpointSummary("Delete a product")]
     [EndpointDescription(
         "Deletes a product by its unique ID. " +
-        "CASCADE DELETE: This will automatically delete all associated variants. " +
-        "WARNING: Deleting variants will cascade and delete all items and their assignment histories. " +
-        "This operation has extensive downstream effects and should be performed carefully.")]
+        "IMPORTANT: Deletion is restricted when the product has associated variants. " +
+        "If variants (and their items/assignment histories) exist, the delete operation may fail with a conflict and the product will not be removed. " +
+        "Delete or detach all related variants (and their items) before deleting the product.")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status409Conflict)]
     [Authorize(Roles = Roles.Admin + "," + Roles.Procurement + "," + Roles.Integration)]
     public async Task<IActionResult> Delete(Guid id, CancellationToken cancellationToken)
     {
