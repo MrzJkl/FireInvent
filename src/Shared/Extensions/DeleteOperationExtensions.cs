@@ -1,5 +1,6 @@
 ﻿using FireInvent.Contract.Exceptions;
 using Microsoft.EntityFrameworkCore;
+using Npgsql;
 
 namespace FireInvent.Shared.Extensions;
 
@@ -10,6 +11,23 @@ namespace FireInvent.Shared.Extensions;
 /// </summary>
 public static class DeleteOperationExtensions
 {
+    /// <summary>
+    /// Determines if a DbUpdateException is caused by a foreign key constraint violation.
+    /// Checks for PostgreSQL-specific exception (SqlState 23503) for reliable detection.
+    /// </summary>
+    private static bool IsForeignKeyViolation(DbUpdateException exception)
+    {
+        // Check for PostgreSQL foreign key violation (SqlState 23503)
+        if (exception.InnerException is PostgresException pgException)
+        {
+            return pgException.SqlState == "23503";
+        }
+        
+        // Fallback: check for "FOREIGN KEY" in message for other providers
+        // This is less reliable but provides compatibility with other database providers
+        return exception.InnerException?.Message.Contains("FOREIGN KEY", StringComparison.OrdinalIgnoreCase) == true;
+    }
+
     public static async Task<bool> TryDeleteEntityAsync(
         this DbContext context,
         Guid entityId,
@@ -28,11 +46,11 @@ public static class DeleteOperationExtensions
             await context.SaveChangesAsync(cancellationToken);
             return true;
         }
-        catch (DbUpdateException ex) when (ex.InnerException?.Message.Contains("FOREIGN KEY") == true)
+        catch (DbUpdateException ex) when (IsForeignKeyViolation(ex))
         {
             throw new DeleteFailureException(
                 $"Cannot delete {entityName} with ID {entityId} because other entities depend on it. " +
-                $"Please remove or reassign all related data first.");
+                $"Please remove or reassign all related data first.", ex);
         }
     }
     
@@ -53,11 +71,11 @@ public static class DeleteOperationExtensions
             await context.SaveChangesAsync(cancellationToken);
             return true;
         }
-        catch (DbUpdateException ex) when (ex.InnerException?.Message.Contains("FOREIGN KEY") == true)
+        catch (DbUpdateException ex) when (IsForeignKeyViolation(ex))
         {
             throw new DeleteFailureException(
                 $"Cannot delete {entityName} with ID {entityId} because other entities depend on it. " +
-                $"Please remove or reassign all related data first.");
+                $"Please remove or reassign all related data first.", ex);
         }
     }
 }

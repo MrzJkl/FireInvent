@@ -13,6 +13,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+	<PackageReference Include="Npgsql" Version="10.0.0" />
 	<PackageReference Include="Riok.Mapperly" Version="4.3.1" ExcludeAssets="runtime" PrivateAssets="all">
 	  <IncludeAssets>compile; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 	</PackageReference>
