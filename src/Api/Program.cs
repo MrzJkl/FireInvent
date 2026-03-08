@@ -56,6 +56,7 @@ builder.Services.Configure<OpenApiOptions>(
 
 var authOptions = builder.Configuration.GetRequiredSection("Authentication").Get<AuthenticationOptions>()!;
 var corsOptions = builder.Configuration.GetSection("Cors").Get<CorsOptions>() ?? new CorsOptions();
+var otlpOptions = builder.Configuration.GetSection("OpenTelemetry").Get<OpenTelemetryOptions>() ?? new OpenTelemetryOptions();
 
 // CORS configuration
 if (corsOptions.Enabled)
@@ -104,7 +105,7 @@ builder.Services.AddAuthorization();
 builder.Services.AddMemoryCache();
 builder.Services.AddOutputCache();
 
-builder.Services.AddOpenTelemetryObservability(builder.Configuration, builder.Environment);
+builder.Services.AddOpenTelemetryObservability(otlpOptions, builder.Environment);
 
 builder.Services.AddHttpClient<FireInvent.Shared.Services.Keycloak.KeycloakHttpClient>();
 

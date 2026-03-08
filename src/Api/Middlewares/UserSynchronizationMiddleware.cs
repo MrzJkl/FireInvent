@@ -18,7 +18,7 @@ public class UserSynchronizationMiddleware(
         AppDbContext dbContext,
         IMemoryCache cache)
     {
-        if (!context.User.Identity?.IsAuthenticated ?? true)
+        if (!(context.User.Identity?.IsAuthenticated ?? false))
         {
             await next(context);
             return;

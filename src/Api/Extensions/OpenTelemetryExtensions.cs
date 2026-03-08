@@ -1,3 +1,4 @@
+using FireInvent.Shared.Options;
 using OpenTelemetry.Metrics;
 using OpenTelemetry.Resources;
 using OpenTelemetry.Trace;
@@ -9,9 +10,11 @@ public static class OpenTelemetryExtensions
 {
     private const string ServiceName = FireInventTelemetry.ServiceName;
 
-    public static IServiceCollection AddOpenTelemetryObservability(this IServiceCollection services, IConfiguration configuration, IHostEnvironment environment)
+    public static IServiceCollection AddOpenTelemetryObservability(this IServiceCollection services, OpenTelemetryOptions otlpOptions, IHostEnvironment environment)
     {
-        var serviceName = configuration.GetValue<string>("OpenTelemetry:ServiceName") ?? ServiceName;
+        if (!otlpOptions.Enabled)
+            return services;
+        
         var serviceVersion = typeof(Program).Assembly.GetName().Version?.ToString() ?? "unknown";
         var serviceInstanceId = Environment.MachineName;
 
@@ -19,7 +22,7 @@ public static class OpenTelemetryExtensions
             .ConfigureResource(resource =>
             {
                 resource
-                    .AddService(serviceName: serviceName, serviceVersion: serviceVersion, serviceInstanceId: serviceInstanceId)
+                    .AddService(serviceName: otlpOptions.ServiceName, serviceVersion: serviceVersion, serviceInstanceId: serviceInstanceId)
                     .AddAttributes(new Dictionary<string, object>
                     {
                         ["deployment.environment"] = environment.EnvironmentName,
@@ -88,12 +91,11 @@ public static class OpenTelemetryExtensions
                     // Custom application instrumentation
                     .AddSource(FireInventTelemetry.ActivitySource.Name);
 
-                var otlpEndpoint = configuration.GetValue<string>("OpenTelemetry:OtlpEndpoint");
-                if (!string.IsNullOrWhiteSpace(otlpEndpoint))
+                if (!string.IsNullOrWhiteSpace(otlpOptions.OtlpEndpoint))
                 {
                     tracing.AddOtlpExporter(options =>
                     {
-                        options.Endpoint = new Uri(otlpEndpoint);
+                        options.Endpoint = new Uri(otlpOptions.OtlpEndpoint);
                         options.Protocol = OpenTelemetry.Exporter.OtlpExportProtocol.Grpc;
                     });
                 }
@@ -116,12 +118,11 @@ public static class OpenTelemetryExtensions
                     });
 
                 // Add OTLP exporter if configured
-                var otlpEndpoint = configuration.GetValue<string>("OpenTelemetry:OtlpEndpoint");
-                if (!string.IsNullOrWhiteSpace(otlpEndpoint))
+                if (!string.IsNullOrWhiteSpace(otlpOptions.OtlpEndpoint))
                 {
                     metrics.AddOtlpExporter(options =>
                     {
-                        options.Endpoint = new Uri(otlpEndpoint);
+                        options.Endpoint = new Uri(otlpOptions.OtlpEndpoint);
                         options.Protocol = OpenTelemetry.Exporter.OtlpExportProtocol.Grpc;
                     });
                 }
