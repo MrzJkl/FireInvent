@@ -16,7 +16,6 @@ public class UserContextResolutionMiddleware(
     RequestDelegate next,
     ILogger<UserContextResolutionMiddleware> logger)
 {
-    private readonly ILogger<UserContextResolutionMiddleware> _logger = logger;
     private const string TenantCachePrefix = "tenant_by_id";
     private static readonly TimeSpan TenantCacheExpiration = TimeSpan.FromMinutes(15);
     private const string TenantHeaderName = "X-Tenant-Id";
@@ -44,11 +43,11 @@ public class UserContextResolutionMiddleware(
             if (userIdClaim != null && Guid.TryParse(userIdClaim.Value, out var userId))
             {
                 userContextProvider.UserId = userId;
-                _logger.LogDebug("Resolved user ID {UserId}", userId);
+                logger.LogDebug("Resolved user ID {UserId}", userId);
             }
             else
             {
-                _logger.LogWarning("Unable to extract user ID from token claims.");
+                logger.LogWarning("Unable to extract user ID from token claims.");
                 context.Response.StatusCode = StatusCodes.Status401Unauthorized;
                 await context.Response.WriteAsync("Invalid token: missing user id claim.");
                 return;
@@ -61,7 +60,7 @@ public class UserContextResolutionMiddleware(
                 {
                     if (context.User.IsInRole(Roles.SystemAdmin))
                     {
-                        _logger.LogInformation("Selected tenant ID is empty GUID and user has system administrator role. Using virtual master tenant.");
+                        logger.LogInformation("Selected tenant ID is empty GUID and user has system administrator role. Using virtual master tenant.");
                         userContextProvider.TenantId = Guid.Empty;
                         userContextProvider.Name = "VIRTUAL MASTER";
                         userContextProvider.CreatedAt = DateTimeOffset.MinValue;
@@ -71,7 +70,7 @@ public class UserContextResolutionMiddleware(
                     }
                     else
                     {
-                        _logger.LogWarning("Empty {Header} provided but user is not system admin.", TenantHeaderName);
+                        logger.LogWarning("Empty {Header} provided but user is not system admin.", TenantHeaderName);
                         context.Response.StatusCode = StatusCodes.Status403Forbidden;
                         await context.Response.WriteAsync("Forbidden: master tenant requires system administrator role.");
                         return;
@@ -83,7 +82,7 @@ public class UserContextResolutionMiddleware(
             var organizationsClaim = context.User.Claims.FirstOrDefault(c => c.Type == OrganizationsClaimName);
             if (organizationsClaim == null || string.IsNullOrWhiteSpace(organizationsClaim.Value))
             {
-                _logger.LogWarning("No organizations claim found in JWT token.");
+                logger.LogWarning("No organizations claim found in JWT token.");
                 context.Response.StatusCode = StatusCodes.Status401Unauthorized;
                 await context.Response.WriteAsync("Invalid token: missing organizations claim.");
                 return;
@@ -111,7 +110,7 @@ public class UserContextResolutionMiddleware(
             }
             catch (Exception ex)
             {
-                _logger.LogWarning(ex, "Failed to parse organizations claim.");
+                logger.LogWarning(ex, "Failed to parse organizations claim.");
                 context.Response.StatusCode = StatusCodes.Status401Unauthorized;
                 await context.Response.WriteAsync("Invalid token: malformed organizations claim.");
                 return;
@@ -119,7 +118,7 @@ public class UserContextResolutionMiddleware(
 
             if (tenantIdsFromToken.Count == 0)
             {
-                _logger.LogWarning("Organizations claim does not contain valid tenant IDs.");
+                logger.LogWarning("Organizations claim does not contain valid tenant IDs.");
                 context.Response.StatusCode = StatusCodes.Status401Unauthorized;
                 await context.Response.WriteAsync("Invalid token: no valid organizations.");
                 return;
@@ -131,11 +130,11 @@ public class UserContextResolutionMiddleware(
                 if (tenantIdsFromToken.Count == 1)
                 {
                     selectedTenantId = tenantIdsFromToken[0];
-                    _logger.LogDebug("No tenant header provided; implicitly selected the only available tenant {TenantId}.", selectedTenantId);
+                    logger.LogDebug("No tenant header provided; implicitly selected the only available tenant {TenantId}.", selectedTenantId);
                 }
                 else
                 {
-                    _logger.LogWarning("Missing {Header} header and multiple organizations present.", TenantHeaderName);
+                    logger.LogWarning("Missing {Header} header and multiple organizations present.", TenantHeaderName);
                     context.Response.StatusCode = StatusCodes.Status400BadRequest;
                     await context.Response.WriteAsync($"Missing {TenantHeaderName} header.");
                     return;
@@ -147,7 +146,7 @@ public class UserContextResolutionMiddleware(
                 {
                     // Sanitize header value before logging to prevent log injection
                     var sanitizedValue = SanitizeForLogging(headerValues[0]);
-                    _logger.LogWarning("Invalid {Header} header value: {Value}", TenantHeaderName, sanitizedValue);
+                    logger.LogWarning("Invalid {Header} header value: {Value}", TenantHeaderName, sanitizedValue);
                     context.Response.StatusCode = StatusCodes.Status400BadRequest;
                     await context.Response.WriteAsync($"Invalid {TenantHeaderName} header.");
                     return;
@@ -156,7 +155,7 @@ public class UserContextResolutionMiddleware(
 
             if (!tenantIdsFromToken.Contains(selectedTenantId))
             {
-                _logger.LogWarning("Selected tenant {TenantId} is not part of user's organizations.", selectedTenantId);
+                logger.LogWarning("Selected tenant {TenantId} is not part of user's organizations.", selectedTenantId);
                 context.Response.StatusCode = StatusCodes.Status403Forbidden;
                 await context.Response.WriteAsync("Forbidden: tenant not in token organizations.");
                 return;
@@ -177,7 +176,7 @@ public class UserContextResolutionMiddleware(
 
             if (tenant == null)
             {
-                _logger.LogWarning("Tenant not found or inactive: {TenantId}", selectedTenantId);
+                logger.LogWarning("Tenant not found or inactive: {TenantId}", selectedTenantId);
                 context.Response.StatusCode = StatusCodes.Status403Forbidden;
                 await context.Response.WriteAsync("Tenant not found or inactive");
                 return;
@@ -190,11 +189,11 @@ public class UserContextResolutionMiddleware(
 
             context.Response.Headers[ResolvedTenantHeaderName] = tenant.Id.ToString();
 
-            _logger.LogDebug("Resolved tenant {TenantId} ({TenantName})", tenant.Id, tenant.Name);
+            logger.LogDebug("Resolved tenant {TenantId} ({TenantName})", tenant.Id, tenant.Name);
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error resolving tenant");
+            logger.LogError(ex, "Error resolving tenant");
             context.Response.StatusCode = StatusCodes.Status500InternalServerError;
             await context.Response.WriteAsync("Error resolving tenant");
             return;

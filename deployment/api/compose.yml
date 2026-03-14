@@ -40,9 +40,12 @@ services:
       # Keycloak admin API for managing API integrations
       KeycloakAdmin__Url: ${KEYCLOAK_ADMIN_URL:-http://keycloak:8080}
       KeycloakAdmin__Realm: ${KEYCLOAK_REALM:-fireinvent}
-      KeycloakAdmin__AdminUsername: ${KEYCLOAK_ADMIN:-admin}
-      KeycloakAdmin__AdminPassword: ${KEYCLOAK_ADMIN_PASSWORD}
-      KeycloakAdmin__ApiClientPrefix: ${KEYCLOAK_API_CLIENT_PREFIX:-api-integration}
+      KeycloakAdmin__AdminClientId: ${FIREINVENT_API_CLIENT_ID}
+      KeycloakAdmin__AdminClientSecret: ${FIREINVENT_API_CLIENT_SECRET}
+      OpenApi__AuthorizationUrl: ${FIREINVENT_OPENAPI_AUTHORIZATION_URL}
+      OpenApi__TokenUrl: ${FIREINVENT_OPENAPI_TOKEN_URL}
+      OpenTelemetry__Enabled: false
+      OpenTelemetry__OtlpEndpoint: ${FIREINVENT_OPENTELEMETRY_OTLP_ENDPOINT}
     healthcheck:
       test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:8080/health || exit 1"]
       interval: 10s
