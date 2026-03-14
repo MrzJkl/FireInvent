@@ -47,6 +47,8 @@ public record Variant : IHasTenant, IAuditable
 
     public virtual ICollection<Item> Items { get; set; } = [];
 
+    public virtual ICollection<StorageLocationMinStock> MinStocks { get; set; } = [];
+
     [DeleteBehavior(DeleteBehavior.Cascade)]
     public virtual Tenant Tenant { get; set; } = null!;
     

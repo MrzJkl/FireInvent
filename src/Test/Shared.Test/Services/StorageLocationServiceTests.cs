@@ -12,13 +12,14 @@ namespace FireInvent.Test.Shared.Services;
 public class StorageLocationServiceTests
 {
     private readonly StorageLocationMapper _mapper = new();
+    private readonly StorageLocationMinStockMapper _minStockMapper = new();
 
     [Fact]
     public async Task CreateStorageLocationAsync_WithValidModel_ShouldCreateStorageLocation()
     {
         // Arrange
         using var context = TestHelper.GetTestDbContext();
-        var service = new StorageLocationService(context, _mapper);
+        var service = new StorageLocationService(context, _mapper, _minStockMapper);
         var model = TestDataFactory.CreateStorageLocationModel("Warehouse A", "Main storage");
 
         // Act
@@ -35,7 +36,7 @@ public class StorageLocationServiceTests
     {
         // Arrange
         using var context = TestHelper.GetTestDbContext();
-        var service = new StorageLocationService(context, _mapper);
+        var service = new StorageLocationService(context, _mapper, _minStockMapper);
         var existingLocation = TestDataFactory.CreateStorageLocation(name: "Warehouse A");
         context.StorageLocations.Add(existingLocation);
         await context.SaveChangesAsync();
@@ -51,7 +52,7 @@ public class StorageLocationServiceTests
     {
         // Arrange
         using var context = TestHelper.GetTestDbContext();
-        var service = new StorageLocationService(context, _mapper);
+        var service = new StorageLocationService(context, _mapper, _minStockMapper);
         context.StorageLocations.AddRange(
             TestDataFactory.CreateStorageLocation(name: "Warehouse C"),
             TestDataFactory.CreateStorageLocation(name: "Warehouse A"),
@@ -76,7 +77,7 @@ public class StorageLocationServiceTests
     {
         // Arrange
         using var context = TestHelper.GetTestDbContext();
-        var service = new StorageLocationService(context, _mapper);
+        var service = new StorageLocationService(context, _mapper, _minStockMapper);
         var query = new PagedQuery { Page = 1, PageSize = 10 };
 
         // Act
@@ -92,7 +93,7 @@ public class StorageLocationServiceTests
     {
         // Arrange
         using var context = TestHelper.GetTestDbContext();
-        var service = new StorageLocationService(context, _mapper);
+        var service = new StorageLocationService(context, _mapper, _minStockMapper);
         var location = TestDataFactory.CreateStorageLocation(name: "Vehicle 1");
         context.StorageLocations.Add(location);
         await context.SaveChangesAsync();
@@ -111,7 +112,7 @@ public class StorageLocationServiceTests
     {
         // Arrange
         using var context = TestHelper.GetTestDbContext();
-        var service = new StorageLocationService(context, _mapper);
+        var service = new StorageLocationService(context, _mapper, _minStockMapper);
 
         // Act
         var result = await service.GetStorageLocationByIdAsync(Guid.NewGuid());
@@ -125,7 +126,7 @@ public class StorageLocationServiceTests
     {
         // Arrange
         using var context = TestHelper.GetTestDbContext();
-        var service = new StorageLocationService(context, _mapper);
+        var service = new StorageLocationService(context, _mapper, _minStockMapper);
         var location = TestDataFactory.CreateStorageLocation(name: "Original Name");
         context.StorageLocations.Add(location);
         await context.SaveChangesAsync();
@@ -148,7 +149,7 @@ public class StorageLocationServiceTests
     {
         // Arrange
         using var context = TestHelper.GetTestDbContext();
-        var service = new StorageLocationService(context, _mapper);
+        var service = new StorageLocationService(context, _mapper, _minStockMapper);
         var updateModel = TestDataFactory.CreateStorageLocationModel("New Name");
 
         // Act
@@ -163,7 +164,7 @@ public class StorageLocationServiceTests
     {
         // Arrange
         using var context = TestHelper.GetTestDbContext();
-        var service = new StorageLocationService(context, _mapper);
+        var service = new StorageLocationService(context, _mapper, _minStockMapper);
         var existingLocation = TestDataFactory.CreateStorageLocation(name: "Existing Name");
         var locationToUpdate = TestDataFactory.CreateStorageLocation(name: "Original Name");
         context.StorageLocations.AddRange(existingLocation, locationToUpdate);
@@ -180,7 +181,7 @@ public class StorageLocationServiceTests
     {
         // Arrange
         using var context = TestHelper.GetTestDbContext();
-        var service = new StorageLocationService(context, _mapper);
+        var service = new StorageLocationService(context, _mapper, _minStockMapper);
         var location = TestDataFactory.CreateStorageLocation();
         context.StorageLocations.Add(location);
         await context.SaveChangesAsync();
@@ -198,7 +199,7 @@ public class StorageLocationServiceTests
     {
         // Arrange
         using var context = TestHelper.GetTestDbContext();
-        var service = new StorageLocationService(context, _mapper);
+        var service = new StorageLocationService(context, _mapper, _minStockMapper);
 
         // Act
         var result = await service.DeleteStorageLocationAsync(Guid.NewGuid());
@@ -207,3 +208,4 @@ public class StorageLocationServiceTests
         Assert.False(result);
     }
 }
+

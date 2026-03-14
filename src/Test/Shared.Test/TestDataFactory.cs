@@ -76,6 +76,27 @@ internal static partial class TestDataFactory
             Remarks = remarks
         };
 
+    // StorageLocationMinStock helpers
+    internal static CreateOrUpdateStorageLocationMinStockModel CreateStorageLocationMinStockModel(Guid variantId, int minStock = 5)
+        => new()
+        {
+            VariantId = variantId,
+            MinStock = minStock
+        };
+
+    internal static StorageLocationMinStock CreateStorageLocationMinStock(
+        Guid storageLocationId,
+        Guid variantId,
+        Guid? id = null,
+        int minStock = 5)
+        => new()
+        {
+            Id = id ?? Guid.NewGuid(),
+            StorageLocationId = storageLocationId,
+            VariantId = variantId,
+            MinStock = minStock
+        };
+
     // Person helpers
     internal static CreateOrUpdatePersonModel CreatePersonModel(
         string firstName = "John",

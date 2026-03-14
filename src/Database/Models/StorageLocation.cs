@@ -34,6 +34,8 @@ public record StorageLocation : IHasTenant, IAuditable
 
     public virtual ICollection<ItemAssignmentHistory> Assignments { get; set; } = [];
 
+    public virtual ICollection<StorageLocationMinStock> MinStocks { get; set; } = [];
+
     [DeleteBehavior(DeleteBehavior.Cascade)]
     public virtual Tenant Tenant { get; set; } = null!;
     

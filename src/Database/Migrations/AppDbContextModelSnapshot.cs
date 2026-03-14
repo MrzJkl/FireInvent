@@ -17,7 +17,7 @@ namespace FireInvent.Database.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "10.0.2")
+                .HasAnnotation("ProductVersion", "10.0.3")
                 .HasAnnotation("Proxies:ChangeTracking", false)
                 .HasAnnotation("Proxies:CheckEquality", false)
                 .HasAnnotation("Proxies:LazyLoading", true)
@@ -718,6 +718,52 @@ namespace FireInvent.Database.Migrations
                     b.ToTable("StorageLocations");
                 });
 
+            modelBuilder.Entity("FireInvent.Database.Models.StorageLocationMinStock", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid?>("CreatedById")
+                        .HasColumnType("uuid");
+
+                    b.Property<int>("MinStock")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTimeOffset?>("ModifiedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid?>("ModifiedById")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("StorageLocationId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("VariantId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CreatedById");
+
+                    b.HasIndex("ModifiedById");
+
+                    b.HasIndex("TenantId");
+
+                    b.HasIndex("VariantId");
+
+                    b.HasIndex("StorageLocationId", "VariantId")
+                        .IsUnique();
+
+                    b.ToTable("StorageLocationMinStocks");
+                });
+
             modelBuilder.Entity("FireInvent.Database.Models.Tenant", b =>
                 {
                     b.Property<Guid>("Id")
@@ -1376,6 +1422,47 @@ namespace FireInvent.Database.Migrations
                     b.Navigation("Tenant");
                 });
 
+            modelBuilder.Entity("FireInvent.Database.Models.StorageLocationMinStock", b =>
+                {
+                    b.HasOne("FireInvent.Database.Models.User", "CreatedBy")
+                        .WithMany()
+                        .HasForeignKey("CreatedById")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.HasOne("FireInvent.Database.Models.User", "ModifiedBy")
+                        .WithMany()
+                        .HasForeignKey("ModifiedById")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.HasOne("FireInvent.Database.Models.StorageLocation", "StorageLocation")
+                        .WithMany("MinStocks")
+                        .HasForeignKey("StorageLocationId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("FireInvent.Database.Models.Tenant", "Tenant")
+                        .WithMany()
+                        .HasForeignKey("TenantId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("FireInvent.Database.Models.Variant", "Variant")
+                        .WithMany("MinStocks")
+                        .HasForeignKey("VariantId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("CreatedBy");
+
+                    b.Navigation("ModifiedBy");
+
+                    b.Navigation("StorageLocation");
+
+                    b.Navigation("Tenant");
+
+                    b.Navigation("Variant");
+                });
+
             modelBuilder.Entity("FireInvent.Database.Models.Variant", b =>
                 {
                     b.HasOne("FireInvent.Database.Models.User", "CreatedBy")
@@ -1541,6 +1628,8 @@ namespace FireInvent.Database.Migrations
             modelBuilder.Entity("FireInvent.Database.Models.StorageLocation", b =>
                 {
                     b.Navigation("Assignments");
+
+                    b.Navigation("MinStocks");
                 });
 
             modelBuilder.Entity("FireInvent.Database.Models.Tenant", b =>
@@ -1581,6 +1670,8 @@ namespace FireInvent.Database.Migrations
             modelBuilder.Entity("FireInvent.Database.Models.Variant", b =>
                 {
                     b.Navigation("Items");
+
+                    b.Navigation("MinStocks");
                 });
 
             modelBuilder.Entity("FireInvent.Database.Models.Visit", b =>

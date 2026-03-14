@@ -10,4 +10,8 @@ public interface IStorageLocationService
     Task<PagedResult<StorageLocationModel>> GetAllStorageLocationsAsync(PagedQuery pagedQuery, CancellationToken cancellationToken);
     Task<StorageLocationModel?> GetStorageLocationByIdAsync(Guid id, CancellationToken cancellationToken = default);
     Task<bool> UpdateStorageLocationAsync(Guid id, CreateOrUpdateStorageLocationModel model, CancellationToken cancellationToken = default);
+
+    Task<List<StorageLocationMinStockModel>> GetMinStocksForStorageLocationAsync(Guid storageLocationId, CancellationToken cancellationToken = default);
+    Task<StorageLocationMinStockModel> SetMinStockAsync(Guid storageLocationId, CreateOrUpdateStorageLocationMinStockModel model, CancellationToken cancellationToken = default);
+    Task<bool> DeleteMinStockAsync(Guid storageLocationId, Guid variantId, CancellationToken cancellationToken = default);
 }

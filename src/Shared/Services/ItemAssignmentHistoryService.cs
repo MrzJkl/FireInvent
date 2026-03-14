@@ -62,7 +62,17 @@ public class ItemAssignmentHistoryService(AppDbContext context, ItemAssignmentHi
         activity?.SetTag("assignment.id", assignment.Id);
         activity?.SetTag("assignment.type", assignmentType);
 
-        return mapper.MapItemAssignmentHistoryToItemAssignmentHistoryModel(assignment);
+        var assignmentModel = mapper.MapItemAssignmentHistoryToItemAssignmentHistoryModel(assignment);
+
+        // When assigning to a person, compute stock warnings for any storage location below minimum
+        if (model.PersonId.HasValue)
+        {
+            var stockWarnings = await ComputeStockWarningsForVariantAsync(model.ItemId, model.AssignedFrom, cancellationToken);
+            if (stockWarnings.Count > 0)
+                assignmentModel = assignmentModel with { StockWarnings = stockWarnings };
+        }
+
+        return assignmentModel;
     }
 
     public async Task<PagedResult<ItemAssignmentHistoryModel>> GetAllAssignmentsAsync(PagedQuery pagedQuery, CancellationToken cancellationToken)
@@ -212,5 +222,51 @@ public class ItemAssignmentHistoryService(AppDbContext context, ItemAssignmentHi
 
         if (hasPersonId && hasStorageLocationId)
             throw new BadRequestException("An item can only be assigned to either a Person or a StorageLocation, not both.");
+    }
+
+    private async Task<IReadOnlyList<StockWarningModel>> ComputeStockWarningsForVariantAsync(Guid itemId, DateOnly assignedFrom, CancellationToken cancellationToken)
+    {
+        var variantId = await context.Items
+            .Where(i => i.Id == itemId)
+            .Select(i => i.VariantId)
+            .FirstOrDefaultAsync(cancellationToken);
+
+        if (variantId == Guid.Empty)
+            return [];
+
+        var today = assignedFrom;
+
+        var minStocks = await context.StorageLocationMinStocks
+            .Where(ms => ms.VariantId == variantId)
+            .Select(ms => new
+            {
+                ms.StorageLocationId,
+                StorageLocationName = ms.StorageLocation.Name,
+                ms.VariantId,
+                VariantName = ms.Variant.Name,
+                ProductName = ms.Variant.Product.Name,
+                ms.MinStock,
+                CurrentStock = context.ItemAssignmentHistories.Count(a =>
+                    a.StorageLocationId == ms.StorageLocationId &&
+                    a.Item.VariantId == ms.VariantId &&
+                    a.AssignedFrom <= today &&
+                    (a.AssignedUntil == null || a.AssignedUntil >= today))
+            })
+            .AsNoTracking()
+            .ToListAsync(cancellationToken);
+
+        return minStocks
+            .Where(ms => ms.CurrentStock < ms.MinStock)
+            .Select(ms => new StockWarningModel
+            {
+                StorageLocationId = ms.StorageLocationId,
+                StorageLocationName = ms.StorageLocationName,
+                VariantId = ms.VariantId,
+                VariantName = ms.VariantName,
+                ProductName = ms.ProductName,
+                CurrentStock = ms.CurrentStock,
+                MinStock = ms.MinStock
+            })
+            .ToList();
     }
 }
