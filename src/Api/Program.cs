@@ -152,6 +152,7 @@ builder.Services.AddSingleton<OrderMapper>();
 builder.Services.AddSingleton<PersonMapper>();
 builder.Services.AddSingleton<ProductMapper>();
 builder.Services.AddSingleton<StorageLocationMapper>();
+builder.Services.AddSingleton<StorageLocationMinStockMapper>();
 builder.Services.AddSingleton<TenantMapper>();
 builder.Services.AddSingleton<VariantMapper>();
 builder.Services.AddSingleton<ProductTypeMapper>();

@@ -25,6 +25,9 @@ public record ItemAssignmentHistoryModel : CreateOrUpdateItemAssignmentHistoryMo
     public DateTimeOffset? ModifiedAt { get; init; }
 
     public UserModel? ModifiedBy { get; init; }
-    
+
     public UserModel? AssignedBy { get; init; }
+
+    [Description("Stock warnings triggered by this assignment. Only populated when creating an assignment to a person.")]
+    public IReadOnlyList<StockWarningModel> StockWarnings { get; init; } = [];
 }

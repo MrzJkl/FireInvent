@@ -60,6 +60,8 @@ public class AppDbContext : DbContext
 
     public DbSet<VisitItem> VisitItems => Set<VisitItem>();
 
+    public DbSet<StorageLocationMinStock> StorageLocationMinStocks => Set<StorageLocationMinStock>();
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);

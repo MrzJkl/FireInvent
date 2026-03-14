@@ -82,4 +82,43 @@ public class StorageLocationsController(IStorageLocationService locationService,
         var assignments = await itemAssignmentHistoryService.GetAssignmentsForStorageLocationAsync(id, pagedQuery, cancellationToken);
         return Ok(assignments);
     }
+
+    [HttpGet("{id:guid}/min-stocks")]
+    [EndpointSummary("List minimum stock levels for a storage location")]
+    [EndpointDescription("Returns all defined minimum stock levels for the given storage location, including current stock counts.")]
+    [ProducesResponseType<List<StorageLocationMinStockModel>>(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<ActionResult<List<StorageLocationMinStockModel>>> GetMinStocks(Guid id, CancellationToken cancellationToken)
+    {
+        var minStocks = await locationService.GetMinStocksForStorageLocationAsync(id, cancellationToken);
+        return Ok(minStocks);
+    }
+
+    [HttpPut("{id:guid}/min-stocks/{variantId:guid}")]
+    [EndpointSummary("Set minimum stock level for a variant in a storage location")]
+    [EndpointDescription("Creates or updates the minimum stock level for a specific variant in the given storage location.")]
+    [ProducesResponseType<StorageLocationMinStockModel>(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [Authorize(Roles = Roles.Admin + "," + Roles.Procurement + "," + Roles.Integration)]
+    public async Task<ActionResult<StorageLocationMinStockModel>> SetMinStock(Guid id, Guid variantId, CreateOrUpdateStorageLocationMinStockModel model, CancellationToken cancellationToken)
+    {
+        if (model.VariantId != variantId)
+            return BadRequest("VariantId in the URL must match the VariantId in the request body.");
+
+        var result = await locationService.SetMinStockAsync(id, model, cancellationToken);
+        return Ok(result);
+    }
+
+    [HttpDelete("{id:guid}/min-stocks/{variantId:guid}")]
+    [EndpointSummary("Delete minimum stock level for a variant in a storage location")]
+    [EndpointDescription("Removes the minimum stock level for a specific variant in the given storage location.")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [Authorize(Roles = Roles.Admin + "," + Roles.Procurement + "," + Roles.Integration)]
+    public async Task<IActionResult> DeleteMinStock(Guid id, Guid variantId, CancellationToken cancellationToken)
+    {
+        var success = await locationService.DeleteMinStockAsync(id, variantId, cancellationToken);
+        return success ? NoContent() : throw new NotFoundException();
+    }
 }

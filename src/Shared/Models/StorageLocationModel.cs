@@ -15,4 +15,6 @@ public record StorageLocationModel : CreateOrUpdateStorageLocationModel
     public DateTimeOffset? ModifiedAt { get; init; }
 
     public UserModel? ModifiedBy { get; init; }
+
+    public bool HasStockWarning { get; init; }
 }
